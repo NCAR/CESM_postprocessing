@@ -1,0 +1,93 @@
+#! /bin/tcsh -f
+#BSUB -n 100
+#BSUB -R "span[ptile=15]"
+#BSUB -q regular
+#BSUB -N
+#BSUB -a poe
+#BSUB -x
+#BSUB -o ocn_diags.stdout.%J
+#BSUB -e ocn_diags.stderr.%J
+#BSUB -J ocn_diags
+#BSUB -W 1:00
+#BSUB -P P93300606
+set maxthrds = 2
+source /glade/apps/opt/lmod/lmod/init/csh
+module load perlmods
+# ---------------------------------------------------------------- 
+# PE LAYOUT FOR OCN DIAGNOSTICS GENERATOR
+#   total number of tasks  = 160
+#   maximum threads per task = 2 
+# CURRENLTY OCN DIAGNOSTICS GENERATION ONLY WORKING ON YELLOWSTONE 
+# WITH MONTHLY HISTORY SLICE OR VARIABLE TIME-SERIES INPUT DATA.
+# ----------------------------------------------------------------
+
+./Tools/ccsm_check_lockedfiles || exit -1
+source ./Tools/ccsm_getenv     || exit -2
+
+if ($BUILD_COMPLETE != "TRUE") then
+  echo "BUILD_COMPLETE is not TRUE"
+  echo "Please rebuild the model interactively"
+  exit -2
+endif
+
+# BATCHQUERY is in env_run.xml
+setenv LBQUERY "TRUE"
+if !($?BATCHQUERY) then
+  setenv LBQUERY "FALSE"
+  setenv BATCHQUERY "undefined"
+else if ( "$BATCHQUERY" == 'UNSET' ) then
+  setenv LBQUERY "FALSE"
+  setenv BATCHQUERY "undefined"
+endif
+
+# BATCHSUBMIT is in env_run.xml
+setenv LBSUBMIT "TRUE"
+if !($?BATCHSUBMIT) then
+  setenv LBSUBMIT "FALSE"
+  setenv BATCHSUBMIT "undefined"
+else if ( "$BATCHSUBMIT" == 'UNSET' ) then
+  setenv LBSUBMIT "FALSE"
+  setenv BATCHSUBMIT "undefined"
+endif
+
+# --- Determine time-stamp/file-ID string ---
+setenv LID "`date +%y%m%d-%H%M%S`"
+
+set sdate = `date +"%Y-%m-%d %H:%M:%S"`
+echo "ocn_diags.run started $sdate" >>& $CASEROOT/CaseStatus
+setenv MP_LABELIO yes
+setenv OMP_NUM_THREADS $maxthrds
+if ( "$MPILIB" == "mpi-serial" ) then
+##    $EXEROOT/cesm.exe >&! cesm.log.$LID
+else
+##   mpirun.lsf  $EXEROOT/cesm.exe >&! cesm.log.$LID
+    if( $maxthrds > 1 ) then
+      unsetenv MP_PE_AFFINITY
+      unsetenv MP_TASK_AFFINITY
+      unsetenv MP_CPU_BIND_LIST 
+##      mpirun.lsf $CESMDATAROOT/tools/bin/hybrid_launch  $EXEROOT/cesm.exe >&! cesm.log.$LID
+    else
+      setenv TARGET_PROCESSOR_LIST AUTO_SELECT
+##      mpirun.lsf $CESMDATAROOT/tools/bin/launch  $EXEROOT/cesm.exe >&! cesm.log.$LID
+   endif
+endif
+
+##wait
+
+# -------------------------------------------------------------------------
+# Generate ocn diagnostics files - currently only working on yellowstone
+# -------------------------------------------------------------------------
+if ($DOUT_S == 'TRUE') then
+    if ($DOUT_S_SAVE_ALL_ON_DISK == 'TRUE' && $MACH == 'yellowstone') then
+	echo "Generating OMWG Diagnostics files to $DOUT_S_ROOT"
+	 mpirun.lsf ./Diagnostics/ocn/ocn_diags_wrapper.py >>& ./ocnDiagsStatus
+         echo "Completed generating OMWG files to $DOUT_S_ROOT"
+     else
+	 echo "OMWG Diagnostics file generation depends on $DOUT_S and $DOUT_S_SAVE_ALL_ON_DISK set to TRUE"
+	 echo "OMWG Diagnostics files were not generated."   
+     endif
+endif
+
+set sdate = `date +"%Y-%m-%d %H:%M:%S"`
+echo "ocn_diags.run ended $sdate" >>& $CASEROOT/CaseStatus
+echo "see $CASEROOT/ocnDiagsStatus for details"

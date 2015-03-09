@@ -1,0 +1,5 @@
+Notes:
+1. calls ConfigCase.pm to parse diagnostics/$comp/Config/config_diags_$comp.xml and places it into $CASEROOT/env_diags_$comp.xml
+2. calls Jay's batch system module to create 5 run scripts ($comp_diags.run, and tseries_generate.run) and 1 submit script in $CASEROOT/Tools
+3. calls the fortran compile for the za if executable doesn't exist (load compiler module / compile / unload compiler module)
+4. install all python tools into the cesm_virtualenv (load python module / install / unload python module)
