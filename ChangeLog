@@ -1,0 +1,65 @@
+================================================================================
+SVN $Id: ChangeLog 66183 2015-03-09 00:00:15Z aliceb@ucar.edu $
+SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
+================================================================================
+This file describes what tags were created and why
+================================================================================
+Originator: aliceb
+Date: 09 Mar 2015
+Model: postprocessing
+Version: postprocessing_20150309
+One-line: first version of post-processing includes ocn diagnostics wrappers
+
+A       __init__.py
+A       diagnostics
+A       diagnostics/ocn
+A       diagnostics/ocn/Plots
+A       diagnostics/ocn/Plots/ocn_diags_plot_bc.py
+A       diagnostics/ocn/Plots/zonal_average_3d_fields.py
+A       diagnostics/ocn/Plots/ocn_diags_plot_factory.py
+A       diagnostics/ocn/Plots/surface_flux_fields.py
+A       diagnostics/ocn/Plots/surface_fields.py
+A       diagnostics/ocn/Plots/__init__.py
+A       diagnostics/ocn/Plots/moc_fields.py
+A       diagnostics/ocn/Config
+A       diagnostics/ocn/Config/config_diags_ocn.xml
+A       diagnostics/ocn/Config/config_definition.xsd
+A       diagnostics/ocn/__init__.py
+A       diagnostics/ocn/ocn_diags.submit
+A       diagnostics/ocn/ocn_diags.run
+A       diagnostics/ocn/ocn_diags_generator.py
+A       diagnostics/ocn/Templates
+A       diagnostics/ocn/Templates/moc_fields.tmpl
+A       diagnostics/ocn/Templates/logos
+A       diagnostics/ocn/Templates/logos/doe_logo.jpg
+A       diagnostics/ocn/Templates/logos/nsf1sm.gif
+A       diagnostics/ocn/Templates/logos/ncar-logo-sm.jpg
+A       diagnostics/ocn/Templates/model_vs_obs.tmpl
+A       diagnostics/ocn/Templates/surface_flux_fields.tmpl
+A       diagnostics/ocn/Templates/surface_fields.tmpl
+A       diagnostics/ocn/Templates/zonal_average_3d_fields.tmpl
+A       diagnostics/ocn/Templates/footer.tmpl
+A       diagnostics/ocn/Templates/diag_style.css
+A       diagnostics/diag_utils
+A       diagnostics/diag_utils/pop_gunzip.py
+A       diagnostics/diag_utils/unittests
+A       diagnostics/diag_utils/unittests/test_checkFile.py
+A       diagnostics/diag_utils/unittests/__init__.py
+A       diagnostics/diag_utils/unittests/test_checkXMLvar.py
+A       diagnostics/diag_utils/__init__.py
+A       diagnostics/diag_utils/diag_utils.py
+A       diagnostics/diag_utils/pop_gunzip.submit
+A       diagnostics/diag_utils/pop_gunzip.run
+A       diagnostics/README
+A       SVN_EXTERNAL_DIRECTORIES
+A       create_postprocess
+A       cesm_utils
+A       cesm_utils/__init__.py
+A       cesm_utils/module_check.py
+A       cesm_utils/cesmEnvLib.py
+A       timeseries
+A       timeseries/cesm_tseries_generator.py
+A       timeseries/__init__.py
+A       timeseries/tseries_generate.submit
+A       timeseries/tseries_generate.run
+A       SVN_IGNORE
