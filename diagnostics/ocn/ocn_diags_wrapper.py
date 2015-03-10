@@ -69,11 +69,12 @@ else:
 # check if the the pyAverager module is available
 if os.path.isdir('../../pyAverager/pyaverager'):
     sys.path.append('../../pyAverager/pyaverager')
+
 else:
     err_msg = 'ocn_diags_wrapper.py ERROR: pyAverager package required and not found in ../../pyAverager/pyaverager'
     raise OSError(err_msg)
 
-# import the plot module 
+# import the plot modules 
 from Plots import ocn_diags_plot_bc
 from Plots import ocn_diags_plot_factory
 
@@ -303,6 +304,38 @@ def convert_plots(env):
 
 
     os.chdir(cwd)
+
+    return True
+
+#==============================================================================
+# create_za - generate the global zonal average file used for most of the plots
+#==============================================================================
+def create_za(workdir, tavgfile, gridfile, toolpath):
+    """generate the global zonal average file used for most of the plots
+    """
+
+    # generate the global zonal average file used for most of the plots
+    zaFile = '{0}/za_{1}'.format(workdir, tavgfile)
+    rc, err_msg = diag_utils.checkFile(zaFile, 'read')
+    if not rc:
+        print('     Checking on the zonal average (za) file compiled fortran code.')
+        # check that the za executable exists
+        zaCommand = '{0}/za'.format(toolpath)
+        rc, err_msg = diag_utils.checkFile(zaCommand, 'exec')
+        if not rc:
+            raise OSError(err_msg)
+        
+        # call the za fortran code from within the workdir
+        cwd = os.getcwd()
+        os.chdir(workdir)
+        try:
+            subprocess.check_output( [zaCommand,'-O','-time_const','-grid_file',gridfile, tavgfile], env=env)
+        except subprocess.CalledProcessError as e:
+            print('ERROR: {0} call to {1} failed with error:'.format(self.name(), zaCommand))
+            print('    {0} - {1}'.format(e.cmd, e.output))
+            sys.exit(1)
+
+        os.chdir(cwd)
 
     return True
 
@@ -580,6 +613,9 @@ def model_vs_obs(envDict, pp):
         os.environ['PM_VELISOPZ'] = 'FALSE'
         os.environ['PM_KAPPAZ'] = 'FALSE'
 
+    # create the global zonal average file used by most of the plotting classes
+    create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'] )
+
     # setup of ecosys files
     if envDict['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
         # setup some ecosys environment settings
@@ -627,52 +663,68 @@ def model_vs_obs(envDict, pp):
     for plot in user_plot_list:
         plot.check_prerequisites(envDict)
 
-    # dispatch mpi jobs here
+    # dispatch mpi plotting jobs here
     print('Generating plots:')
-    for plot in user_plot_list:
+
+    # import the MPI related modules
+    from messenger import create_messenger
+
+    # Initialize the messenger class
+    messenger = create_messenger(serial=False)
+    # Get my rank
+    comm = MPI.COMM_WORLD
+    rank = messenger.get_rank()
+
+    # Get a local file list that this rank is responsible for
+    local_plot_list = messenger.partition(user_plot_list)
+    print ('Rank {0} : {1}'.format(rank, local_plot_list))
+    print ('Rank {0} : Size : {1}'.format(rank, len(local_plot_list)))
+
+    for plot in local_plot_list:
         plot.generate_plots(envDict)
 
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
     # convert ps plots to gif for html
     # these can also be done in parallel
-    rc = convert_plots(envDict)
+    if rank == 0:
+        rc = convert_plots(envDict)
+        
+        print('Creating plot html header:')
+        templateLoader = jinja2.FileSystemLoader( searchpath='.' )
+        templateEnv = jinja2.Environment( loader=templateLoader )
 
-    print('Creating plot html header:')
-    templateLoader = jinja2.FileSystemLoader( searchpath='.' )
-    templateEnv = jinja2.Environment( loader=templateLoader )
-
-    TEMPLATE_FILE = './Templates/model_vs_obs.tmpl'
-    template = templateEnv.get_template( TEMPLATE_FILE )
+        TEMPLATE_FILE = './Templates/model_vs_obs.tmpl'
+        template = templateEnv.get_template( TEMPLATE_FILE )
     
-    # Here we add a new input variable containing a list.
-    templateVars = { 'casename' : envDict['CASE'],
-                     'tagname' : envDict['CCSM_REPOTAG'],
-                     'start_year' : envDict['YEAR0'],
-                     'stop_year' : envDict['YEAR1']
-                     }
+        # Here we add a new input variable containing a list.
+        templateVars = { 'casename' : envDict['CASE'],
+                         'tagname' : envDict['CCSM_REPOTAG'],
+                         'start_year' : envDict['YEAR0'],
+                         'stop_year' : envDict['YEAR1']
+                         }
 
-    plot_html = template.render( templateVars )
+        plot_html = template.render( templateVars )
 
-    for plot in user_plot_list:
-        plot_html += plot.get_html(workdir)
+        for plot in user_plot_list:
+            plot_html += plot.get_html(workdir)
 
-    with open('./Templates/footer.tmpl', 'r+') as tmpl:
-        plot_html += tmpl.read()
+        with open('./Templates/footer.tmpl', 'r+') as tmpl:
+            plot_html += tmpl.read()
 
-    print('Writing plot html:')
-    with open( '{0}/index.html'.format(envDict['WORKDIR']), 'w') as index:
-        index.write(plot_html)
+        print('Writing plot html:')
+        with open( '{0}/index.html'.format(envDict['WORKDIR']), 'w') as index:
+            index.write(plot_html)
 
-    print('Copying stylesheet:')
-    shutil.copy2('./Templates/diag_style.css', '{0}/diag_style.css'.format(envDict['WORKDIR']))
+        print('Copying stylesheet:')
+        shutil.copy2('./Templates/diag_style.css', '{0}/diag_style.css'.format(envDict['WORKDIR']))
 
-    print('Copying logo files:')
-    if not os.path.exists('{0}/logos'.format(envDict['WORKDIR'])):
-        os.mkdir('{0}/logos'.format(envDict['WORKDIR']))
+        print('Copying logo files:')
+        if not os.path.exists('{0}/logos'.format(envDict['WORKDIR'])):
+            os.mkdir('{0}/logos'.format(envDict['WORKDIR']))
 
-    for filename in glob.glob(os.path.join('./Templates/logos', '*.*')):
-        shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
+        for filename in glob.glob(os.path.join('./Templates/logos', '*.*')):
+            shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
 
     return 0
 
@@ -737,6 +789,9 @@ def main(options):
     The env_ocn_diags_settings.xml configuration file defines the way the diagnostics are generated. 
     See (modelnl website here...) for a complete desciption of the env_ocn_diags_settings XML options.
     """
+    # setup a PrettyPrinter object for debug statements
+    pp = pprint.PrettyPrinter(indent=5)
+
     # initialize the environment dictionaries
     envDict = dict()
 
@@ -745,9 +800,6 @@ def main(options):
 
     # check if CCSMROOT is defined - if not, try to get it from the xmlquery in CASEROOT
     diag_utils.checkEnv('CCSMROOT', caseroot)
-
-    # setup a PrettyPrinter object for debug statements
-    pp = pprint.PrettyPrinter(indent=5)
 
     # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_diags_ocn.xml']
@@ -771,10 +823,6 @@ def main(options):
         envDict['TOBSFILE'] = envDict['TOBSFILE_V42']
         envDict['SOBSFILE'] = envDict['SOBSFILE_V42']
 
-    # the PATH variable needs to be handled uniquely because of name conflicts
-    sys.path.append(envDict['PATH'])
-    sys.path.append(envDict['OCN_DIAG_PATH'])
-
     # initialize some global variables needed for all plotting types
     start_year = 0
     stop_year = 1
@@ -795,6 +843,13 @@ def main(options):
 
     # generate the climatology files used for all plotting types using the pyAverager
 ##    createClimFiles(start_year, stop_year, in_dir, htype, envDict['TAVGDIR'], envDict['CASE'], varList, pp)
+
+
+comm.barrier
+
+    # the PATH variable needs to be handled uniquely because of name conflicts
+    sys.path.append(envDict['PATH'])
+    sys.path.append(envDict['OCN_DIAG_PATH'])
 
     # set the shell env using the values set in the XML and read into the envDict
     cesmEnvLib.setXmlEnv(envDict)
@@ -817,6 +872,7 @@ def main(options):
 
 
 if __name__ == "__main__":
+MPI INIT - all processors need command line
     options = commandline_options()
     try:
         status = main(options)

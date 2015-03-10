@@ -65,29 +65,6 @@ class OceanDiagnosticPlot(object):
             print('    {0} - {1}'.format(e.cmd, e.output))
             sys.exit(1)
 
-        # generate the global zonal average file used for most of the plots
-        zaFile = '{0}/za_{1}'.format(env['WORKDIR'],env['TAVGFILE'])
-        rc, err_msg = diag_utils.checkFile(zaFile, 'read')
-        if not rc:
-            print('     Checking on the zonal average (za) file compiled fortran code.')
-            # check that the za executable exists
-            zaCommand = '{0}/za'.format(env['TOOLPATH'])
-            rc, err_msg = diag_utils.checkFile(zaCommand, 'exec')
-            if not rc:
-                raise OSError(err_msg)
-
-            # call the za fortran code from within the workdir
-            cwd = os.getcwd()
-            os.chdir(env['WORKDIR'])
-            try:
-                subprocess.check_output( [zaCommand,'-O','-time_const','-grid_file',env['GRIDFILE'],env['TAVGFILE']], env=env)
-            except subprocess.CalledProcessError as e:
-                print('ERROR: {0} call to {1} failed with error:'.format(self.name(), zaCommand))
-                print('    {0} - {1}'.format(e.cmd, e.output))
-                sys.exit(1)
-
-            os.chdir(cwd)
-
 
     def generate_plots(self, env, nclPlotFile):
         """This method generates the plots described in the class
