@@ -14,7 +14,7 @@ set sdate = `date +"%Y-%m-%d_%H:%M:%S"`
 cd /home/aliceb/sandboxes/cesm1_3_alpha18a_newtesting/postprocessing/diagnostics/ocn
 
 #mpiexec -info
-mpiexec ./ocn_diags_wrapper.py --caseroot ~/sandboxes/runs/b.e13.B1850C5CN.f19_g16.01 >& ocn_diags.$sdate.log
+mpiexec ./ocn_diags_generator.py --caseroot ~/sandboxes/runs/b.e13.B1850C5CN.f19_g16.01 >& ocn_diags.$sdate.log
 
 #mpiexec ./hello.py
 
