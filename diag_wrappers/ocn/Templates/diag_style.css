@@ -117,6 +117,10 @@ p {
     padding: 2px 2px 1px 1px;
 }
 
+#word {
+    color: #202020;
+}
+
 #wrap {
    width:800px;
    margin:0 auto;
