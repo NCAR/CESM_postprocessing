@@ -5,6 +5,17 @@ SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
 This file describes what tags were created and why
 ================================================================================
 Originator: aliceb
+Date: 12 Mar 2015
+Model: postprocessing
+Version: postprocessing_20150312
+One-line: working version in serial on goldbach with MPI calls
+
+M       diagnostics/ocn/ocn_diags_generator.py
+M       diagnostics/ocn/ocn_diags.run
+
+================================================================================
+
+Originator: aliceb
 Date: 09 Mar 2015
 Model: postprocessing
 Version: postprocessing_20150309

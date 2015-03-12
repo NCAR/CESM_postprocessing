@@ -11,7 +11,7 @@ module load lang/python/2.7.7
 module load tool/nco/default
 
 set sdate = `date +"%Y-%m-%d_%H:%M:%S"`
-cd /home/aliceb/sandboxes/cesm1_3_alpha18a_newtesting/postprocessing/diagnostics/ocn
+cd /home/aliceb/sandboxes/cesm1_3_alpha18a_newtesting/postprocessing_new/diagnostics/ocn
 
 #mpiexec -info
 mpiexec ./ocn_diags_generator.py --caseroot ~/sandboxes/runs/b.e13.B1850C5CN.f19_g16.01 >& ocn_diags.$sdate.log

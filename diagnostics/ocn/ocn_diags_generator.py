@@ -35,14 +35,13 @@ import os, getopt
 import glob
 import re
 import string
-import pprint
 import subprocess
 import shutil
 import shlex
 import xml.etree.ElementTree as ET
 import argparse
 import traceback
-import mpi4py
+from mpi4py import MPI
 import jinja2
 
 if sys.version_info[0] == 2:
@@ -69,19 +68,18 @@ else:
 # check if the the pyAverager module is available
 if os.path.isdir('../../pyAverager/pyaverager'):
     sys.path.append('../../pyAverager/pyaverager')
-
 else:
     err_msg = 'ocn_diags_wrapper.py ERROR: pyAverager package required and not found in ../../pyAverager/pyaverager'
     raise OSError(err_msg)
+
+# import the MPI related modules
+from messenger import create_messenger
 
 # import the plot modules 
 from Plots import ocn_diags_plot_bc
 from Plots import ocn_diags_plot_factory
 
-# global error constants 
-ocnDiagSuccess = 0
-ocnDiagRunTimeError = 1
-ocnDiagOSError = 2
+
 
 #=====================================================
 # commandline_options - parse any command line options
@@ -110,6 +108,150 @@ def commandline_options():
         raise OSError(err_msg)
 
     return options
+
+
+#============================================
+# initialize_main - initialization on rank 0
+#============================================
+def initialize_main(envDict, options):
+    """initialize_main - initialize settings on rank 0 
+    
+    Arguments:
+    options (list) - input options from command line
+    envDict (dictionary) - environment dictionary
+
+    Return:
+    envDict (dictionary) - environment dictionary
+    """
+    # CASEROOT is given on the command line as required option --caseroot
+    caseroot = options.caseroot[0]
+
+    # check if CCSMROOT is defined - if not, try to get it from the xmlquery in CASEROOT
+    diag_utils.checkEnv('CCSMROOT', caseroot)
+
+    # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
+    env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_diags_ocn.xml']
+    envDict = cesmEnvLib.readXML(caseroot, env_file_list)
+
+    # refer to the caseroot that was specified on the command line instead of what
+    # is read in the environment as the caseroot may have changed from what is listed
+    # in the env xml
+    envDict['CASEROOT'] = caseroot
+
+    # strip the OCNDIAG_ prefix from the envDict entries before setting the 
+    # enviroment to allow for compatibility with all the OMWG diag routine calls
+    envDict = stripOCNDIAG(envDict)
+
+    # special variable mapped from the CESM env to the OCN diags env
+    envDict['RESOLUTION'] = envDict['OCN_GRID']
+
+    # setup the TOBSFILE and SOBSFILE variables based on the vertical levels 
+    # 60 (default) or 42
+    if envDict['VERTICAL'] == '42':
+        envDict['TOBSFILE'] = envDict['TOBSFILE_V42']
+        envDict['SOBSFILE'] = envDict['SOBSFILE_V42']
+
+    # initialize some global variables needed for all plotting types
+    start_year = 0
+    stop_year = 1
+    htype = 'series'
+    in_dir = '{0}/ocn/hist'.format(envDict['DOUT_S_ROOT'])
+
+    # get model history file information from the DOUT_S_ROOT archive location
+    start_year, stop_year, in_dir, htype = checkHistoryFiles(
+        envDict['DOUT_S_GENERATE_TSERIES'], envDict['DOUT_S_ROOT'], 
+        envDict['CASE'],
+        envDict['YEAR0'], envDict['YEAR1']
+        )
+
+    envDict['YEAR0'] = start_year
+    envDict['YEAR1'] = stop_year
+
+    # setup the list of variables to compute specific averages - TODO test ecosys vars
+    varList = []
+    if checkEcoSysOptions(envDict):
+        varList = getEcoSysVars(envDict['ECOSYSVARSFILE'], varList)
+
+    # generate the climatology files used for all plotting types using the pyAverager
+##    createClimFiles(start_year, stop_year, in_dir, htype, envDict['TAVGDIR'], envDict['CASE'], varList)
+
+    return envDict
+
+#================================================
+# initialize_model_vs_obs - initialization on rank 0
+#================================================
+def initialize_model_vs_obs(envDict):
+    """initialize_model_vs_obs - initialize settings on rank 0 for model vs. Observations
+    
+    Arguments:
+    envDict (dictionary) - environment dictionary
+
+    Return:
+    envDict (dictionary) - environment dictionary
+    """
+
+    # create the working directory if it doesn't already exists
+    subdir = 'pd.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
+    workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
+    if not os.path.exists(workdir):
+        os.mkdir(workdir)
+    envDict['WORKDIR'] = workdir
+
+    # clean out the old working plot files from the workdir
+    if envDict['CLEANUP_FILES'].upper() in ['T','TRUE']:
+        diag_utils.purge(workdir, '.*\.pro')
+        diag_utils.purge(workdir, '.*\.gif')
+        diag_utils.purge(workdir, '.*\.dat')
+        diag_utils.purge(workdir, '.*\.ps')
+        diag_utils.purge(workdir, '.*\.png')
+        diag_utils.purge(workdir, '.*\.html')
+
+    # create the plot.dat file in the workdir used by all NCL plotting routines
+    create_plot_dat(envDict['WORKDIR'], envDict['XYRANGE'], envDict['DEPTHS'])
+
+    # create symbolic links between the tavgdir and the workdir
+    createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'])
+
+    # setup the gridfile based on the resolution
+    os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
+    if envDict['VERTICAL'] == '42':
+        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
+
+    # check if gridfile exists and is readable
+    rc, err_msg = diag_utils.checkFile(os.environ['gridfile'], 'read')
+    if not rc:
+        raise OSError(err_msg)
+    envDict['GRIDFILE'] = os.environ['gridfile']
+
+    # check the resolution and decide if some plot modules should be turned off
+    if envDict['RESOLUTION'] == 'tx0.1v2' :
+        os.environ['PM_VELISOPZ'] = 'FALSE'
+        os.environ['PM_KAPPAZ'] = 'FALSE'
+
+    # create the global zonal average file used by most of the plotting classes
+    create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'] )
+
+    # setup of ecosys files
+    if envDict['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
+        # setup some ecosys environment settings
+        os.environ['POPDIR'] = 'TRUE'
+        os.environ['PME'] = '1'
+        sys.path.append(envDict['ECOPATH'])
+
+        # check if extract_zavg exists and is executable
+        rc, err_msg = diag_utils.checkFile(envDict['{0}/extract_zavg.sh'.format(envDict['ECOPATH'])],'exec')
+        if not rc:
+            raise OSError(err_msg)
+
+        # call the ecosystem zonal average extraction modules
+        zavg_command = '{0}/extract_zavg.sh {1} {2} {3} {4}'.format(envDict['ECOPATH'],envDict['CASE'],str(start_year),str(stop_year),ecoSysVars)
+        rc = os.system(zavg_command)
+        if rc:
+            err_msg = 'ocn_diags_wrapper.py ERROR: command {0} failed.'.format(zavg_command)
+            raise OSError(err_msg)
+
+    return envDict
+
 
 #============================================
 # stripOCN - strip the 'OCNDIAG_' from the id
@@ -285,7 +427,15 @@ def convert_plots(env):
         print('ocn_diags_wrapper.py WARNING: unable to find convert command in path. Skipping plot conversion from ps to gif')
     else:
         psFiles = sorted(glob.glob('*.ps'))
-        for ps in psFiles:
+
+        # Initialize the messenger class
+        messenger = create_messenger(serial=False)
+        rank = messenger.get_rank()
+        
+        # partition the list of psFiles across the available tasks
+        local_psFiles = messenger.partition(psFiles)
+
+        for ps in local_psFiles:
             plotname = ps.split('.')
             psFile = '{0}.ps'.format(plotname[0])
             
@@ -301,7 +451,6 @@ def convert_plots(env):
             except subprocess.CalledProcessError as e:
                 print('WARNING: convert_plots call to convert failed with error:')
                 print('    {0} - {1}'.format(e.cmd, e.output))
-
 
     os.chdir(cwd)
 
@@ -411,7 +560,7 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName):
 #================================================================
 # createLinks - create symbolic links between tavgdir and workdir
 #================================================================
-def createLinks(start_year, stop_year, tavgdir, workdir, case, pp):
+def createLinks(start_year, stop_year, tavgdir, workdir, case):
     """createLinks - create symbolic links between tavgdir and workdir
 
     Arguments:
@@ -420,8 +569,6 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, pp):
     tavgdir (string) - output directory for averages
     workdir (string) - working directory for diagnostics
     case (string) - case name
-    pp (object) - pretty printer object
-
     """
     avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
     case_prefix = '{0}.pop.h'.format(case)
@@ -433,7 +580,7 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, pp):
         mavgFile = '{0}/mavg.{1}.{2}.nc'.format(workdir, start_year, stop_year)
         rc1, err_msg1 = diag_utils.checkFile(mavgFile, 'read')
         if not rc1:
-            pp.pprint('...before mavg symlink: {0} to {1}'.format(avgFile,mavgFile))
+            print('...before mavg symlink: {0} to {1}'.format(avgFile,mavgFile))
             os.symlink(avgFile, mavgFile)
     else:
         raise OSError(err_msg)
@@ -445,7 +592,7 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, pp):
         tavgFile = '{0}/tavg.{1}.{2}.nc'.format(workdir, start_year, stop_year)
         rc1, err_msg1 = diag_utils.checkFile(tavgFile, 'read')
         if not rc1:
-            pp.pprint('...before tavg symlink: {0} to {1}'.format(avgFile,tavgFile))
+            print('...before tavg symlink: {0} to {1}'.format(avgFile,tavgFile))
             os.symlink(avgFile, tavgFile)
     else:
         raise OSError(err_msg)
@@ -460,7 +607,7 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, pp):
             workAvgFile = '{0}/{1}.{2}.nc'.format(workdir, case_prefix, year)
             rc1, err_msg1 = diag_utils.checkFile(workAvgFile, 'read')
             if not rc1:
-                pp.pprint('...before yearly avg symlink: {0} to {1}'.format(avgFile,workAvgFile))
+                print('...before yearly avg symlink: {0} to {1}'.format(avgFile,workAvgFile))
                 os.symlink(avgFile, workAvgFile)
         year += 1
 
@@ -532,7 +679,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
 #=========================================================================
 # createClimFiles - create the climatology files by calling the pyAverager
 #=========================================================================
-def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarList, pp):
+def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarList):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -544,7 +691,6 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
        tavgdir (string) - output directory for averages
        case (string) - case name
        inVarList (list) - if empty, then create climatology files for all vars, RHO, SALT and TEMP
-       pp (object) - pretty printer object
     """
     # create the list of averages to be computed
     avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
@@ -565,131 +711,79 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
 #===============================================
 # setup model vs. observations plotting routines
 #===============================================
-def model_vs_obs(envDict, pp):
+def model_vs_obs(comm, envDict):
     """model_vs_obs setup the model vs. observations dirs, generate necessary 
        zonal average climatology files and generate plots in parallel.
 
        Arguments:
+       comm (object) - MPI global communicator object
        envDict (dictionary) - environment dictionary
        pp (object) - prettyPrinter object
     """
+    # get the rank from comm
+    rank = comm.Get_rank()
 
-    # create the working directory if it doesn't already exists
-    subdir = 'pd.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
-    workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
-    if not os.path.exists(workdir):
-        os.mkdir(workdir)
+    # initialize the model vs. obs environment
+    if rank == 0:
+        envDict = initialize_model_vs_obs(envDict)
 
-    envDict['WORKDIR'] = workdir
+    comm.barrier()
 
-    # clean out the old working plot files from the workdir
-    if envDict['CLEANUP_FILES'].upper() in ['T','TRUE']:
-        diag_utils.purge(workdir, '.*\.pro')
-        diag_utils.purge(workdir, '.*\.gif')
-        diag_utils.purge(workdir, '.*\.dat')
-        diag_utils.purge(workdir, '.*\.ps')
-        diag_utils.purge(workdir, '.*\.png')
-        diag_utils.purge(workdir, '.*\.html')
-
-    # create the plot.dat file in the workdir used by all NCL plotting routines
-    create_plot_dat(workdir, envDict['XYRANGE'], envDict['DEPTHS'])
-
-    # create symbolic links between the tavgdir and the workdir
-    createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'], pp)
-
-    # setup the gridfile based on the resolution
-    os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
-    if envDict['VERTICAL'] == '42':
-        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
-
-    # check if gridfile exists and is readable
-    rc, err_msg = diag_utils.checkFile(os.environ['gridfile'], 'read')
-    if not rc:
-        raise OSError(err_msg)
-    envDict['GRIDFILE'] = os.environ['gridfile']
-
-    # check the resolution and decide if some plot modules should be turned off
-    if envDict['RESOLUTION'] == 'tx0.1v2' :
-        os.environ['PM_VELISOPZ'] = 'FALSE'
-        os.environ['PM_KAPPAZ'] = 'FALSE'
-
-    # create the global zonal average file used by most of the plotting classes
-    create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'] )
-
-    # setup of ecosys files
-    if envDict['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
-        # setup some ecosys environment settings
-        os.environ['POPDIR'] = 'TRUE'
-        os.environ['PME'] = '1'
-        sys.path.append(envDict['ECOPATH'])
-
-        # check if extract_zavg exists and is executable
-        rc, err_msg = diag_utils.checkFile(envDict['{0}/extract_zavg.sh'.format(envDict['ECOPATH'])],'exec')
-        if not rc:
-            raise OSError(err_msg)
-
-        # call the ecosystem zonal average extraction modules
-        zavg_command = '{0}/extract_zavg.sh {1} {2} {3} {4}'.format(envDict['ECOPATH'],envDict['CASE'],str(start_year),str(stop_year),ecoSysVars)
-        rc = os.system(zavg_command)
-        if rc:
-            err_msg = 'ocn_diags_wrapper.py ERROR: command {0} failed.'.format(zavg_command)
-            raise OSError(err_msg)
+    # set the shell env using the values set in the XML and read into the envDict
+    cesmEnvLib.setXmlEnv(envDict)
 
     # setup the plots to be called based on directives in the env_diags_ocn.xml file
     requested_plots = []
     requested_plots = setupPlots(envDict)
 
-    print('Generating list of plots:')
+    if rank == 0:
+        print('Generating list of plots:')
 
-    user_plot_list = []
-    for request_plot in requested_plots:
-        try:
-            plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(request_plot)
-            user_plot_list.append(plot)
-        except ocn_diags_plot_bc.RecoverableError as e:
-            # catch all recoverable errors, print a message and continue.
-            print(e)
-            print("Skipped '{0}' and continuing!".format(request_plot))
-        except RuntimeError as e:
-            # unrecoverable error, bail!
-            print(e)
-            return 1
+        user_plot_list = []
+        for request_plot in requested_plots:
+            try:
+                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(request_plot)
+                user_plot_list.append(plot)
+            except ocn_diags_plot_bc.RecoverableError as e:
+                # catch all recoverable errors, print a message and continue.
+                print(e)
+                print("Skipped '{0}' and continuing!".format(request_plot))
+            except RuntimeError as e:
+                # unrecoverable error, bail!
+                print(e)
+                return 1
 
-    print('User requested plots:')
-    for plot in user_plot_list:
-        print('  {0}'.format(plot.__class__.__name__))
+        print('User requested plots:')
+        for plot in user_plot_list:
+            print('  {0}'.format(plot.__class__.__name__))
 
-    print('Checking prerequisite:')
-    for plot in user_plot_list:
-        plot.check_prerequisites(envDict)
+        print('Checking prerequisite:')
+        for plot in user_plot_list:
+            plot.check_prerequisites(envDict)
 
-    # dispatch mpi plotting jobs here
-    print('Generating plots:')
+        # dispatch mpi plotting jobs here
+        print('Generating plots:')
 
-    # import the MPI related modules
-    from messenger import create_messenger
+    comm.barrier()
 
     # Initialize the messenger class
     messenger = create_messenger(serial=False)
-    # Get my rank
-    comm = MPI.COMM_WORLD
     rank = messenger.get_rank()
 
     # Get a local file list that this rank is responsible for
     local_plot_list = messenger.partition(user_plot_list)
-    print ('Rank {0} : {1}'.format(rank, local_plot_list))
-    print ('Rank {0} : Size : {1}'.format(rank, len(local_plot_list)))
+    print ('Rank {0} : {1}\n'.format(rank, local_plot_list))
+    print ('Rank {0} : Size : {1}\n'.format(rank, len(local_plot_list)))
 
     for plot in local_plot_list:
         plot.generate_plots(envDict)
 
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
-    # convert ps plots to gif for html
-    # these can also be done in parallel
-    if rank == 0:
-        rc = convert_plots(envDict)
+    # convert ps plots to gif for html in parallel
+    rc = convert_plots(envDict)
         
+    if rank == 0:
         print('Creating plot html header:')
         templateLoader = jinja2.FileSystemLoader( searchpath='.' )
         templateEnv = jinja2.Environment( loader=templateLoader )
@@ -707,7 +801,7 @@ def model_vs_obs(envDict, pp):
         plot_html = template.render( templateVars )
 
         for plot in user_plot_list:
-            plot_html += plot.get_html(workdir)
+            plot_html += plot.get_html(envDict['WORKDIR'])
 
         with open('./Templates/footer.tmpl', 'r+') as tmpl:
             plot_html += tmpl.read()
@@ -725,6 +819,9 @@ def model_vs_obs(envDict, pp):
 
         for filename in glob.glob(os.path.join('./Templates/logos', '*.*')):
             shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
+
+        print('Successfully completed generating model vs. observation plots')
+    comm.barrier()
 
     return 0
 
@@ -778,7 +875,7 @@ def model_vs_ts(envDict, start_year, stop_year, workdir):
 # main
 #======
 
-def main(options):
+def main(options, comm):
     """setup the environment for running the diagnostics in parallel. 
 
     Calls 3 different diagnostics generation types:
@@ -789,63 +886,16 @@ def main(options):
     The env_ocn_diags_settings.xml configuration file defines the way the diagnostics are generated. 
     See (modelnl website here...) for a complete desciption of the env_ocn_diags_settings XML options.
     """
-    # setup a PrettyPrinter object for debug statements
-    pp = pprint.PrettyPrinter(indent=5)
+    # get the rank from comm
+    rank = comm.Get_rank()
 
-    # initialize the environment dictionaries
+    # initialize the environment dictionary
     envDict = dict()
 
-    # CASEROOT is given on the command line as required option --caseroot
-    caseroot = options.caseroot[0]
+    if rank == 0:
+        envDict = initialize_main(envDict, options)
 
-    # check if CCSMROOT is defined - if not, try to get it from the xmlquery in CASEROOT
-    diag_utils.checkEnv('CCSMROOT', caseroot)
-
-    # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_diags_ocn.xml']
-    envDict = cesmEnvLib.readXML(caseroot, env_file_list)
-
-    # refer to the caseroot that was specified on the command line instead of what
-    # is read in the environment as the caseroot may have changed from what is listed
-    # in the env xml
-    envDict['CASEROOT'] = caseroot
-
-    # strip the OCNDIAG_ prefix from the envDict entries before setting the 
-    # enviroment to allow for compatibility with all the OMWG diag routine calls
-    envDict = stripOCNDIAG(envDict)
-
-    # special variable mapped from the CESM env to the OCN diags env
-    envDict['RESOLUTION'] = envDict['OCN_GRID']
-
-    # setup the TOBSFILE and SOBSFILE variables based on the vertical levels 
-    # 60 (default) or 42
-    if envDict['VERTICAL'] == '42':
-        envDict['TOBSFILE'] = envDict['TOBSFILE_V42']
-        envDict['SOBSFILE'] = envDict['SOBSFILE_V42']
-
-    # initialize some global variables needed for all plotting types
-    start_year = 0
-    stop_year = 1
-    htype = 'series'
-    in_dir = '{0}/ocn/hist'.format(envDict['DOUT_S_ROOT'])
-
-    # get model history file information from the DOUT_S_ROOT archive location
-    start_year, stop_year, in_dir, htype = checkHistoryFiles(envDict['DOUT_S_GENERATE_TSERIES'], 
-                    envDict['DOUT_S_ROOT'], envDict['CASE'], envDict['YEAR0'], envDict['YEAR1'])
-
-    envDict['YEAR0'] = start_year
-    envDict['YEAR1'] = stop_year
-
-    # setup the list of variables to compute specific averages - TODO test ecosys vars
-    varList = []
-    if checkEcoSysOptions(envDict):
-        varList = getEcoSysVars(envDict['ECOSYSVARSFILE'], varList)
-
-    # generate the climatology files used for all plotting types using the pyAverager
-##    createClimFiles(start_year, stop_year, in_dir, htype, envDict['TAVGDIR'], envDict['CASE'], varList, pp)
-
-
-comm.barrier
+    comm.barrier()
 
     # the PATH variable needs to be handled uniquely because of name conflicts
     sys.path.append(envDict['PATH'])
@@ -856,7 +906,7 @@ comm.barrier
 
     # model vs. observations
     if envDict['MODEL_VS_OBS'].upper() in ['T','TRUE']:
-        rc = model_vs_obs(envDict, pp)
+        rc = model_vs_obs(comm, envDict)
 
     # model vs. model - need  to checkHistoryFiles for the control run
 ##    if envDict['MODEL_VS_MODEL'].upper() in ['T','TRUE']:
@@ -872,10 +922,10 @@ comm.barrier
 
 
 if __name__ == "__main__":
-MPI INIT - all processors need command line
+    comm = MPI.COMM_WORLD
     options = commandline_options()
     try:
-        status = main(options)
+        status = main(options, comm)
         sys.exit(status)
 ##    except RunTimeError as error:
         
