@@ -141,8 +141,9 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # generate_plots with field_3d_za.ncl command
-        super(ZonalAverage3dFields, self).generate_plots(env, 'field_3d_za.ncl')        
-
+        # put the ncl file names in a list variable for the class 
+        # so can eventually read that list from XML
+        diag_utils.generate_ncl_plots(env, 'field_3d_za.ncl')        
 
     def _create_html(self, workdir):
         """Creates and renders html that is returned to the calling wrapper

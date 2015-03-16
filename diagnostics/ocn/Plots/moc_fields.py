@@ -13,7 +13,6 @@ if sys.hexversion < 0x02070000:
 import traceback
 import os
 import shutil
-import subprocess
 import jinja2
 
 # import the diag_utils module
@@ -50,7 +49,7 @@ class MOCFields(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # generate_plots with field_3d_za.ncl command
-        super(MOCFields, self).generate_plots(env, 'moc_netcdf.ncl')        
+        diag_utils.generate_ncl_plots(env, 'moc_netcdf.ncl')        
 
 
     def _create_html(self, workdir):

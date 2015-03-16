@@ -12,7 +12,6 @@ if sys.hexversion < 0x02070000:
 
 import traceback
 import os
-import subprocess
 import jinja2
 
 # import the diag_utils module
@@ -113,11 +112,10 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # call the generate_plots with sfcflx.ncl command
-        super(SurfaceFluxFields, self).generate_plots(env, 'sfcflx.ncl')        
-
+        diag_utils.generate_ncl_plots(env, 'sfcflx.ncl')        
 
         # call the generate_plots with sfcflx_za.ncl command
-        super(SurfaceFluxFields, self).generate_plots(env, 'sfcflx_za.ncl')        
+        diag_utils.generate_ncl_plots(env, 'sfcflx_za.ncl')        
 
 
     def _create_html(self, workdir):

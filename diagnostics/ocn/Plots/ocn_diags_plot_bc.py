@@ -18,12 +18,21 @@ import os
 import subprocess
 
 # import the diag_utils module
-if os.path.isdir('../diag_utils'):
-    sys.path.append('../diag_utils')
-    import diag_utils
+#if os.path.isdir('../diag_utils'):
+#    sys.path.append('../diag_utils')
+#    import diag_utils
+#else:
+#    err_msg = 'ocn_diags_plot_bc.py ERROR: diag_utils.py required and not found in ../diag_utils'
+#    raise OSError(err_msg)
+
+# import the cesm_utils module
+if os.path.isdir('../../cesm_utils'):
+    sys.path.append('../../cesm_utils')
+    import cesmEnvLib
 else:
-    err_msg = 'ocn_diags_plot_bc.py ERROR: diag_utils.py required and not found in ../../diag_utils'
+    err_msg = 'ocn_diags_plot_bc.py ERROR: cesmEnvLib.py required and not found in ../../cesm_utils'
     raise OSError(err_msg)
+
 
 class OceanDiagnosticPlot(object):
     """This is the base class defining the common interface for all
@@ -44,48 +53,18 @@ class OceanDiagnosticPlot(object):
 
     def check_prerequisites(self, env):
         """This method does some generic checks for the plots prerequisites
-        that are common to all plots?
+        that are common to all plots
 
         """
         print('  Checking generic prerequisites for ocean diagnostics plot.')
-        # check that NCL and ncks are installed and accessible
-        try:
-            subprocess.check_output( ['ncl', '-V'], env=env)
-        except subprocess.CalledProcessError as e:
-            print('NCL is required to run the ocean diagnostics package')
-            print('ERROR: {0} call to ncl failed with error:'.format(self.name()))
-            print('    {0} - {1}'.format(e.cmd, e.output))
-            sys.exit(1)
+        print('  Setup the environment for NCL')
+        cesmEnvLib.setXmlEnv(env)
 
-        try:
-            subprocess.check_output( ['ncks', '--version'], env=env)
-        except subprocess.CalledProcessError as e:
-            print('NCO ncks is required to run the ocean diagnostics package')
-            print('ERROR: {0} call to ncks failed with error:'.format(self.name()))
-            print('    {0} - {1}'.format(e.cmd, e.output))
-            sys.exit(1)
-
-
-    def generate_plots(self, env, nclPlotFile):
-        """This method generates the plots described in the class
+    def generate_plots(self, env):
+        """This is the base class for calling plots
         """
-        cwd = os.getcwd()
-        os.chdir(env['WORKDIR'])
-
-        # check if the nclPlotFile exists - 
-        # don't exit if it does not exists just print a warning.
-        nclFile = '{0}/{1}'.format(env['NCLPATH'],nclPlotFile)
-        rc, err_msg = diag_utils.checkFile(nclFile, 'read')
-        if rc:
-            try:
-                subprocess.check_output( ['ncl',nclFile], env=env)
-            except subprocess.CalledProcessError as e:
-                print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclfile))
-                print('    {0} - {1}'.format(e.cmd, e.output))
-        else:
-            print('{0}... continuing with additional plots.'.format(err_msg))
-        os.chdir(cwd)
-
+        raise RuntimeError ('Generate plots must be implimented in the sub-class')
+    
     def get_html(self, workdir):
         """This method returns the html snippet for the plot.
         """

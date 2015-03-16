@@ -12,7 +12,6 @@ if sys.hexversion < 0x02070000:
 
 import traceback
 import os
-import subprocess
 import jinja2
 
 # import the diag_utils module
@@ -63,13 +62,13 @@ class SurfaceFields(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # generate_plots with ssh.ncl command
-        super(SurfaceFields, self).generate_plots(env, 'ssh.ncl')        
+        diag_utils.generate_ncl_plots(env, 'ssh.ncl')        
 
         # generate_plots with field_2d.ncl command
-        super(SurfaceFields, self).generate_plots(env, 'field_2d.ncl')        
+        diag_utils.generate_ncl_plots(env, 'field_2d.ncl')        
 
         # generate_plots with field_2d_za.ncl command
-        super(SurfaceFields, self).generate_plots(env, 'field_2d_za.ncl')        
+        diag_utils.generate_ncl_plots(env, 'field_2d_za.ncl')        
 
 
     def _create_html(self, workdir):

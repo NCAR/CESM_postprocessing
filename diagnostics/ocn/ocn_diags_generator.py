@@ -49,37 +49,45 @@ if sys.version_info[0] == 2:
 else:
     from configparser import ConfigParser as config_parser
 
+# for MPI on goldbach changing into the working directory
+os.chdir('/home/aliceb/sandboxes/cesm1_3_alpha18a_newtesting/postprocessing/diagnostics/ocn')
+
+##print('...before import diag_utils')
 # import the diag_utils module
 if os.path.isdir('../diag_utils'):
     sys.path.append('../diag_utils')
     import diag_utils
 else:
-    err_msg = 'ocn_diags_wrapper.py ERROR: diag_utils.py required and not found in ../diag_utils'
+    err_msg = 'ocn_diags_generator.py ERROR: diag_utils.py required and not found in ../diag_utils'
     raise OSError(err_msg)
 
+##print('...before import cesm_utils')
 # import the cesm_utils module
 if os.path.isdir('../../cesm_utils'):
     sys.path.append('../../cesm_utils')
     import cesmEnvLib
 else:
-    err_msg = 'ocn_diags_wrapper.py ERROR: cesmEnvLib.py required and not found in ../../cesm_utils'
+    err_msg = 'ocn_diags_generator.py ERROR: cesmEnvLib.py required and not found in ../../cesm_utils'
     raise OSError(err_msg)
 
+##print('...before path append pyaverager')
 # check if the the pyAverager module is available
 if os.path.isdir('../../pyAverager/pyaverager'):
     sys.path.append('../../pyAverager/pyaverager')
 else:
-    err_msg = 'ocn_diags_wrapper.py ERROR: pyAverager package required and not found in ../../pyAverager/pyaverager'
+    err_msg = 'ocn_diags_generator.py ERROR: pyAverager package required and not found in ../../pyAverager/pyaverager'
     raise OSError(err_msg)
 
-# import the MPI related modules
+# import pyAverager modules
+import specification
+import PyAverager
+
+# import the MPI related module
 from messenger import create_messenger
 
 # import the plot modules 
 from Plots import ocn_diags_plot_bc
 from Plots import ocn_diags_plot_factory
-
-
 
 #=====================================================
 # commandline_options - parse any command line options
@@ -88,7 +96,7 @@ def commandline_options():
     """Process the command line arguments.
     """
     parser = argparse.ArgumentParser(
-        description='ocn_diags_wrapper: CESM wrapper python program for Ocean Diagnostics packages.')
+        description='ocn_diags_generator: CESM wrapper python program for Ocean Diagnostics packages.')
 
     parser.add_argument('--backtrace', action='store_true',
                         help='show exception backtraces as extra debugging '
@@ -104,14 +112,41 @@ def commandline_options():
 
     # check to make sure CASEROOT is a valid, readable directory
     if not os.path.isdir(options.caseroot[0]):
-        err_msg = 'ocn_diags_wrapper.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
+        err_msg = 'ocn_diags_generator.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
         raise OSError(err_msg)
 
     return options
 
 
+#=======================================================================
+# check_ncl_nco - check if NCL and NCO/ncks are installed and accessible
+#=======================================================================
+def check_ncl_nco(envDict):
+    """ check that NCL and NCO/ncks are installed and accessible
+
+    Arguments:
+    envDict (dictionary) - environment dictionary
+    """
+    try:
+        subprocess.check_output( ['ncl', '-V'], env=envDict)
+    except subprocess.CalledProcessError as e:
+        print('NCL is required to run the ocean diagnostics package')
+        print('ERROR: {0} call to ncl failed with error:'.format(self.name()))
+        print('    {0} - {1}'.format(e.cmd, e.output))
+        sys.exit(1)
+
+    try:
+        subprocess.check_output( ['ncks', '--version'], env=envDict)
+    except subprocess.CalledProcessError as e:
+        print('NCO ncks is required to run the ocean diagnostics package')
+        print('ERROR: {0} call to ncks failed with error:'.format(self.name()))
+        print('    {0} - {1}'.format(e.cmd, e.output))
+        sys.exit(1)
+
+    return 0
+
 #============================================
-# initialize_main - initialization on rank 0
+# initialize_main - initialization from main
 #============================================
 def initialize_main(envDict, options):
     """initialize_main - initialize settings on rank 0 
@@ -180,7 +215,7 @@ def initialize_main(envDict, options):
 #================================================
 # initialize_model_vs_obs - initialization on rank 0
 #================================================
-def initialize_model_vs_obs(envDict):
+def initialize_model_vs_obs(envDict, comm, rank):
     """initialize_model_vs_obs - initialize settings on rank 0 for model vs. Observations
     
     Arguments:
@@ -189,67 +224,68 @@ def initialize_model_vs_obs(envDict):
     Return:
     envDict (dictionary) - environment dictionary
     """
+    if rank == 0:
+        # create the working directory if it doesn't already exists
+        subdir = 'pd.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
+        workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
+        if not os.path.exists(workdir):
+            os.mkdir(workdir)
+        envDict['WORKDIR'] = workdir
 
-    # create the working directory if it doesn't already exists
-    subdir = 'pd.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
-    workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
-    if not os.path.exists(workdir):
-        os.mkdir(workdir)
-    envDict['WORKDIR'] = workdir
+        # clean out the old working plot files from the workdir
+        if envDict['CLEANUP_FILES'].upper() in ['T','TRUE']:
+            diag_utils.purge(workdir, '.*\.pro')
+            diag_utils.purge(workdir, '.*\.gif')
+            diag_utils.purge(workdir, '.*\.dat')
+            diag_utils.purge(workdir, '.*\.ps')
+            diag_utils.purge(workdir, '.*\.png')
+            diag_utils.purge(workdir, '.*\.html')
 
-    # clean out the old working plot files from the workdir
-    if envDict['CLEANUP_FILES'].upper() in ['T','TRUE']:
-        diag_utils.purge(workdir, '.*\.pro')
-        diag_utils.purge(workdir, '.*\.gif')
-        diag_utils.purge(workdir, '.*\.dat')
-        diag_utils.purge(workdir, '.*\.ps')
-        diag_utils.purge(workdir, '.*\.png')
-        diag_utils.purge(workdir, '.*\.html')
+        # create the plot.dat file in the workdir used by all NCL plotting routines
+        create_plot_dat(envDict['WORKDIR'], envDict['XYRANGE'], envDict['DEPTHS'])
 
-    # create the plot.dat file in the workdir used by all NCL plotting routines
-    create_plot_dat(envDict['WORKDIR'], envDict['XYRANGE'], envDict['DEPTHS'])
+        # create symbolic links between the tavgdir and the workdir
+        createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'])
 
-    # create symbolic links between the tavgdir and the workdir
-    createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'])
+        # setup the gridfile based on the resolution
+        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
+        if envDict['VERTICAL'] == '42':
+            os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
 
-    # setup the gridfile based on the resolution
-    os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
-    if envDict['VERTICAL'] == '42':
-        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
-
-    # check if gridfile exists and is readable
-    rc, err_msg = diag_utils.checkFile(os.environ['gridfile'], 'read')
-    if not rc:
-        raise OSError(err_msg)
-    envDict['GRIDFILE'] = os.environ['gridfile']
-
-    # check the resolution and decide if some plot modules should be turned off
-    if envDict['RESOLUTION'] == 'tx0.1v2' :
-        os.environ['PM_VELISOPZ'] = 'FALSE'
-        os.environ['PM_KAPPAZ'] = 'FALSE'
-
-    # create the global zonal average file used by most of the plotting classes
-    create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'] )
-
-    # setup of ecosys files
-    if envDict['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
-        # setup some ecosys environment settings
-        os.environ['POPDIR'] = 'TRUE'
-        os.environ['PME'] = '1'
-        sys.path.append(envDict['ECOPATH'])
-
-        # check if extract_zavg exists and is executable
-        rc, err_msg = diag_utils.checkFile(envDict['{0}/extract_zavg.sh'.format(envDict['ECOPATH'])],'exec')
+        # check if gridfile exists and is readable
+        rc, err_msg = diag_utils.checkFile(os.environ['gridfile'], 'read')
         if not rc:
             raise OSError(err_msg)
+        envDict['GRIDFILE'] = os.environ['gridfile']
 
-        # call the ecosystem zonal average extraction modules
-        zavg_command = '{0}/extract_zavg.sh {1} {2} {3} {4}'.format(envDict['ECOPATH'],envDict['CASE'],str(start_year),str(stop_year),ecoSysVars)
-        rc = os.system(zavg_command)
-        if rc:
-            err_msg = 'ocn_diags_wrapper.py ERROR: command {0} failed.'.format(zavg_command)
-            raise OSError(err_msg)
+        # check the resolution and decide if some plot modules should be turned off
+        if envDict['RESOLUTION'] == 'tx0.1v2' :
+            os.environ['PM_VELISOPZ'] = 'FALSE'
+            os.environ['PM_KAPPAZ'] = 'FALSE'
 
+        # create the global zonal average file used by most of the plotting classes
+        create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'] )
+
+        # setup of ecosys files
+        if envDict['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
+            # setup some ecosys environment settings
+            os.environ['POPDIR'] = 'TRUE'
+            os.environ['PME'] = '1'
+            sys.path.append(envDict['ECOPATH'])
+
+            # check if extract_zavg exists and is executable
+            rc, err_msg = diag_utils.checkFile(envDict['{0}/extract_zavg.sh'.format(envDict['ECOPATH'])],'exec')
+            if not rc:
+                raise OSError(err_msg)
+
+            # call the ecosystem zonal average extraction modules
+            zavg_command = '{0}/extract_zavg.sh {1} {2} {3} {4}'.format(envDict['ECOPATH'],envDict['CASE'],str(start_year),str(stop_year),ecoSysVars)
+            rc = os.system(zavg_command)
+            if rc:
+                err_msg = 'ocn_diags_generator.py ERROR: command {0} failed.'.format(zavg_command)
+                raise OSError(err_msg)
+
+    comm.Barrier()
     return envDict
 
 
@@ -339,7 +375,7 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year):
 
     # check the in_dir directory exists 
     if not os.path.isdir(in_dir) :
-        err_msg = 'ocn_diags_wrapper.py ERROR: {0} directory is not available.'.format(in_dir)
+        err_msg = 'ocn_diags_generator.py ERROR: {0} directory is not available.'.format(in_dir)
         raise OSError(err_msg)
 
     # get the file paths and formats - TO DO may need to get this from namelist var or env_archive
@@ -414,43 +450,57 @@ def create_plot_dat(workdir, xyrange, depths):
 #=======================================================
 # convert_plots - convert plots from ps to gif
 #=======================================================
-def convert_plots(env):
+def convert_plots(workdir, comm, size, rank):
     """convert_plots - convert plot files from ps to gif
 
     """
     cwd = os.getcwd()
-    os.chdir(env['WORKDIR'])
+    os.chdir(workdir)
+
+#    messenger = create_messenger(serial=False)
+#    rank = messenger.get_rank()
 
     # check if the convert command exists
     rc = diag_utils.which('convert')
     if rc in ['None']:
-        print('ocn_diags_wrapper.py WARNING: unable to find convert command in path. Skipping plot conversion from ps to gif')
+        print('ocn_diags_generator.py WARNING: unable to find convert command in path. Skipping plot conversion from ps to gif')
     else:
-        psFiles = sorted(glob.glob('*.ps'))
+        if rank == 0:
+            psFiles = sorted(glob.glob('*.ps'))
+            # distribute the conversion operations across the available tasks
+            local_psFiles = psFiles[rank::size]
 
-        # Initialize the messenger class
-        messenger = create_messenger(serial=False)
-        rank = messenger.get_rank()
-        
         # partition the list of psFiles across the available tasks
-        local_psFiles = messenger.partition(psFiles)
+#        local_psFiles = messenger.partition(psFiles)
+            print('... in convert local_psFiles {0}'.format(local_psFiles))
+            print('... convert_plots Rank {0} : {1}\n'.format(rank, local_psFiles))
+            print('... convert_plots Rank {0} : Size : {1}\n'.format(rank, len(local_psFiles)))
 
-        for ps in local_psFiles:
-            plotname = ps.split('.')
-            psFile = '{0}.ps'.format(plotname[0])
+        comm.Barrier()
+        local_psFiles = comm.bcast(local_psFiles, root=0)
+
+        for r in xrange(size):
+            if r < len(local_psFiles) and rank == r:
+                for ps in local_psFiles[r]:
+                    plotname = ps.split('.')
+                    psFile = '{0}.ps'.format(plotname[0])
+                    print('..... converting {0}'.format(psFile))
             
-            # check if the GIF file alreay exists and remove it to regen
-            gifFile = '{0}.gif'.format(plotname[0])
-            rc, err_msg = diag_utils.checkFile(gifFile,'write')
-            if rc:
-                os.remove(gifFile)
+                    # check if the GIF file alreay exists and remove it to regen
+                    gifFile = '{0}.gif'.format(plotname[0])
+                    rc, err_msg = diag_utils.checkFile(gifFile,'write')
+                    if rc:
+                        os.remove(gifFile)
         
-            # convert the image from ps to gif - these should be done in parallel
-            try:
-                subprocess.check_output( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',psFile,gifFile] )
-            except subprocess.CalledProcessError as e:
-                print('WARNING: convert_plots call to convert failed with error:')
-                print('    {0} - {1}'.format(e.cmd, e.output))
+                    # convert the image from ps to gif - these should be done in parallel
+                    try:
+                        subprocess.check_output( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',psFile,gifFile] )
+                    except subprocess.CalledProcessError as e:
+                        print('WARNING: convert_plots call to convert failed with error:')
+                        print('    {0} - {1}'.format(e.cmd, e.output))
+            else:
+                continue
+        comm.Barrier
 
     os.chdir(cwd)
 
@@ -651,10 +701,6 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
        averageList (list) - list of averages to be created
        varList (list) - list of variables. Note: an empty list implies all variables.
     """
-    # import the pyAverager modules
-    import specification
-    import PyAverager
-
     # pyAveSpecifier is a pyAverage specifier
     pyAveSpecifier = specification.create_specifier(
         in_directory = in_dir,
@@ -711,7 +757,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
 #===============================================
 # setup model vs. observations plotting routines
 #===============================================
-def model_vs_obs(comm, envDict):
+def model_vs_obs(envDict, comm, rank, size):
     """model_vs_obs setup the model vs. observations dirs, generate necessary 
        zonal average climatology files and generate plots in parallel.
 
@@ -720,26 +766,24 @@ def model_vs_obs(comm, envDict):
        envDict (dictionary) - environment dictionary
        pp (object) - prettyPrinter object
     """
-    # get the rank from comm
-    rank = comm.Get_rank()
-
-    # initialize the model vs. obs environment
     if rank == 0:
-        envDict = initialize_model_vs_obs(envDict)
+        print('...calling initialize_model_vs_obs')
+    # initialize the model vs. obs environment
+    envDict = initialize_model_vs_obs(envDict, comm, rank)
 
-    comm.barrier()
+    user_plot_list = list()
+    if rank == 0:
 
     # set the shell env using the values set in the XML and read into the envDict
-    cesmEnvLib.setXmlEnv(envDict)
+##    print('...calling setXmlEnv in model_vs_obs')
+##    cesmEnvLib.setXmlEnv(envDict)
 
-    # setup the plots to be called based on directives in the env_diags_ocn.xml file
-    requested_plots = []
-    requested_plots = setupPlots(envDict)
+        # setup the plots to be called based on directives in the env_diags_ocn.xml file
+        requested_plots = []
+        requested_plots = setupPlots(envDict)
 
-    if rank == 0:
         print('Generating list of plots:')
 
-        user_plot_list = []
         for request_plot in requested_plots:
             try:
                 plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(request_plot)
@@ -762,27 +806,42 @@ def model_vs_obs(comm, envDict):
             plot.check_prerequisites(envDict)
 
         # dispatch mpi plotting jobs here
-        print('Generating plots:')
+        print('Generating plots in parallel:')
+    comm.Barrier()
+    user_plot_list = comm.bcast(user_plot_list, root=0)
 
-    comm.barrier()
-
-    # Initialize the messenger class
-    messenger = create_messenger(serial=False)
-    rank = messenger.get_rank()
+    # Initialize the messenger class for MPI
+#    if rank == 0:
+#        print('...before create_messenger')
+#    messenger = create_messenger(serial=False)
+#    mrank = messenger.get_rank()
 
     # Get a local file list that this rank is responsible for
-    local_plot_list = messenger.partition(user_plot_list)
-    print ('Rank {0} : {1}\n'.format(rank, local_plot_list))
-    print ('Rank {0} : Size : {1}\n'.format(rank, len(local_plot_list)))
+#    local_plot_list = messenger.partition(user_plot_list)
+#    print ('...in model_vs_obs Rank {0} : {1}\n'.format(mrank, local_plot_list))
+#    print ('...in model_vs_obs Rank {0} : Size : {1}\n'.format(mrank, len(local_plot_list)))
+#    for plot in local_plot_list:
+#        plot.generate_plots(envDict)
 
-    for plot in local_plot_list:
-        plot.generate_plots(envDict)
+    for r in xrange(size):
+        if r < len(user_plot_list) and rank == r:
+            user_plot_list[r].generate_plots(envDict)
+        else:
+            continue
 
+    comm.Barrier()
+            
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
     # convert ps plots to gif for html in parallel
-    rc = convert_plots(envDict)
-        
+#    convert_plots(envDict['WORKDIR'], messenger)
+
+    if rank == 0:
+        print('... before convert_plots')
+    convert_plots(envDict['WORKDIR'], comm, size, rank)
+
+    comm.Barrier()
+
     if rank == 0:
         print('Creating plot html header:')
         templateLoader = jinja2.FileSystemLoader( searchpath='.' )
@@ -799,14 +858,14 @@ def model_vs_obs(comm, envDict):
                          }
 
         plot_html = template.render( templateVars )
-
+    
         for plot in user_plot_list:
             plot_html += plot.get_html(envDict['WORKDIR'])
 
         with open('./Templates/footer.tmpl', 'r+') as tmpl:
             plot_html += tmpl.read()
 
-        print('Writing plot html:')
+            print('Writing plot html:')
         with open( '{0}/index.html'.format(envDict['WORKDIR']), 'w') as index:
             index.write(plot_html)
 
@@ -820,9 +879,9 @@ def model_vs_obs(comm, envDict):
         for filename in glob.glob(os.path.join('./Templates/logos', '*.*')):
             shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
 
-        print('Successfully completed generating model vs. observation plots')
-    comm.barrier()
+        print('Successfully completed generating ocean diagnostics model vs. observation plots')
 
+    comm.Barrier()
     return 0
 
 #================
@@ -875,7 +934,7 @@ def model_vs_ts(envDict, start_year, stop_year, workdir):
 # main
 #======
 
-def main(options, comm):
+def main(options, comm, rank, size):
     """setup the environment for running the diagnostics in parallel. 
 
     Calls 3 different diagnostics generation types:
@@ -886,27 +945,35 @@ def main(options, comm):
     The env_ocn_diags_settings.xml configuration file defines the way the diagnostics are generated. 
     See (modelnl website here...) for a complete desciption of the env_ocn_diags_settings XML options.
     """
-    # get the rank from comm
-    rank = comm.Get_rank()
-
     # initialize the environment dictionary
     envDict = dict()
 
     if rank == 0:
-        envDict = initialize_main(envDict, options)
+        print('...calling initialize_main')
+    envDict = initialize_main(envDict, options)
+    comm.Barrier()
 
-    comm.barrier()
+    if rank == 0:
+        print('...checking NCL and NCO')
+        rc = check_ncl_nco(envDict)
+    comm.Barrier()
 
     # the PATH variable needs to be handled uniquely because of name conflicts
+    if rank == 0:
+        print('...calling sys.path.append')
     sys.path.append(envDict['PATH'])
     sys.path.append(envDict['OCN_DIAG_PATH'])
+    comm.Barrier()
 
     # set the shell env using the values set in the XML and read into the envDict
-    cesmEnvLib.setXmlEnv(envDict)
+##    print('...calling setXmlEnv')
+##    cesmEnvLib.setXmlEnv(envDict)
 
     # model vs. observations
     if envDict['MODEL_VS_OBS'].upper() in ['T','TRUE']:
-        rc = model_vs_obs(comm, envDict)
+        if rank == 0:
+            print('...calling model_vs_obs')
+        rc = model_vs_obs(envDict, comm, rank, size)
 
     # model vs. model - need  to checkHistoryFiles for the control run
 ##    if envDict['MODEL_VS_MODEL'].upper() in ['T','TRUE']:
@@ -923,10 +990,20 @@ def main(options, comm):
 
 if __name__ == "__main__":
     comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
+    if rank == 0:
+        print('...Running on {0} cores'.format(size))
+
     options = commandline_options()
     try:
-        status = main(options, comm)
+        status = main(options, comm, rank, size)
+        comm.Barrier()
+        if rank == 0:
+            print('Successfully completed generating ocean diagnostics')
         sys.exit(status)
+
 ##    except RunTimeError as error:
         
     except Exception as error:
@@ -934,3 +1011,4 @@ if __name__ == "__main__":
         if options.backtrace:
             traceback.print_exc()
         sys.exit(1)
+
