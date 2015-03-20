@@ -4,11 +4,41 @@ SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
 ================================================================================
 This file describes what tags were created and why
 ================================================================================
-
+	
 Originator: aliceb
-Date: 16 Mar 2015
+Date: 20 Mar 2015
 Model: postprocessing
-Version: postprocessing_20150316
+Version: postprocessing_20150320
+One-line: Updates with cesm_utils and added Makefiles to create virtualenv.
+
+	
+M       ChangeLog
+A       Makefile
+A       cesm_utils/Makefile
+D       cesm_utils/__init__.py
+D       cesm_utils/cesmEnvLib.py
+A       cesm_utils/cesm_utils
+A       cesm_utils/cesm_utils/__init__.py
+A       cesm_utils/cesm_utils/cesmEnvLib.py
+A       cesm_utils/cesm_utils/module_check.py
+A       cesm_utils/cesm_utils/tests
+A       cesm_utils/cesm_utils/tests/__init__.py
+A       cesm_utils/cesm_utils/tests/test_cesmEnvLib.py
+A       cesm_utils/cesm_utils.egg-info
+A       cesm_utils/cesm_utils.egg-info/PKG-INFO
+A       cesm_utils/cesm_utils.egg-info/SOURCES.txt
+A       cesm_utils/cesm_utils.egg-info/dependency_links.txt
+A       cesm_utils/cesm_utils.egg-info/top_level.txt
+A       cesm_utils/cesm_utils.egg-info/zip-safe
+D       cesm_utils/module_check.py
+A       cesm_utils/setup.py
+
+================================================================================	
+	
+Originator: aliceb
+Date: 17 Mar 2015
+Model: postprocessing
+Version: postprocessing_20150317
 One-line: updates to diag_utils to include generate_ncl_plots and plot classes. Doesn't
 work yet with MPI as need to use the messenger class instead of mpi4py
 
