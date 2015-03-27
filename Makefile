@@ -1,10 +1,29 @@
-SRC_SUBDIRS = \
-	cesm_utils 
-#	pyTools \
-#	pyReshaper \
-#	pyAverager \
-#	timeseries \
-#	diagnostics \
+# -*- mode: Makefile -*-
+#
+# NOTES:
+#
+# - To use virtualenv in a make file:
+#
+#	. test-env/bin/activate; pip install grako
+#
+#   I don't think we want to do that because we want to use a
+#   requirements.txt file.
+#
+# - On machine without virtualenv
+#
+#   pip install --user virtualenv
+#   export PATH=$(PATH):$(HOME)/.local/bin
+#   virtualenv --system-site-packages ENVNAME
+#
+ENVNAME=cesm-env2
+
+SUBDIRS = \
+	cesm_utils \
+	python_utils \
+	reshaper \
+	averager \
+	timeseries \
+	diagnostics 
 #	ocn_diag
 
 # MAKECMDGOALS is the make option: make 'clobber' or 'all'
@@ -18,8 +37,8 @@ endif
 #
 # macro for executing TARGET in all SUBDIRS
 #
-ifdef SRC_SUBDIRS
-$(SRC_SUBDIRS) : FORCE
+ifdef SUBDIRS
+$(SUBDIRS) : FORCE
 	@if [ -d $@ ]; then \
 		$(MAKE) --directory=$@ $(TARGET); \
 	fi	
@@ -29,20 +48,24 @@ endif
 #
 # all - Make everything in the listed sub directories
 #
-#all : $(SRC_SUBDIRS)
-all :
 
-#test : all py-unit
+all : $(SUBDIRS)
 
-#py-unit : FORCE
-#	python -m unittest discover
-#	PYTHONPATH="${PYTHONPATH}:.." python -m unittest discover
+test : all py-unit
+
+py-unit : FORCE
+	python -m unittest discover
+	PYTHONPATH="${PYTHONPATH}:.." python -m unittest discover
 
 #
 # virtual environments and installation
 #
 #env : cesm-env2 cesm-env3
-env : cesm-env2
+
+env : $(ENVNAME)/bin/activate
+
+$(ENVNAME)/bin/activate : 
+	virtualenv --system-site-packages $(ENVNAME)
 
 cesm-env2 :
 	virtualenv -p python2 $@
@@ -50,7 +73,9 @@ cesm-env2 :
 cesm-env3 :
 	virtualenv -p python3 $@
 
-develop : $(SRC_SUBDIRS)
+develop : $(SUBDIRS)
+
+install : $(SUBDIRS)
 
 #
 # release info
@@ -61,7 +86,7 @@ develop : $(SRC_SUBDIRS)
 #
 # clean - Clean up the directory.
 #
-clean : $(SRC_SUBDIRS)
+clean : $(SUBDIRS)
 	-rm -f *~ *.CKP *.ln *.BAK *.bak .*.bak \
 		core errs \
 		,* .emacs_* \
@@ -72,7 +97,7 @@ clean : $(SRC_SUBDIRS)
 #
 # clobber - Really clean up the directory.
 #
-clobber : clean $(SRC_SUBDIRS)
+clobber : clean $(SUBDIRS)
 	-rm -f .Makedepend *.o *.mod *.il *.pyc
 	-rm -rf *.egg-info build
 

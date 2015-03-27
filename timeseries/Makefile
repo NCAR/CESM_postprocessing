@@ -1,7 +1,7 @@
 all : develop
 
 test : FORCE
-	python -m unittest discover --start-directory cesm_utils/tests
+	python -m unittest discover --start-directory timeseries/tests
 
 develop : FORCE
 	python setup.py $@

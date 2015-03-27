@@ -1,14 +1,14 @@
 all : develop
 
 test : FORCE
-	python -m unittest discover --start-directory cesm_utils/tests
+	python -m unittest discover --start-directory reshaper/tests
 
-develop : FORCE
-	python setup.py $@
+develop : install
 
 install : FORCE
-	python setup.py $@
+	python setup.py install
 
+#
 clean : 
 	-rm -f *~ *.CKP *.ln *.BAK *.bak .*.bak \
 		core errs \

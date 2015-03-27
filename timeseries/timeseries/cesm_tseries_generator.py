@@ -1,19 +1,27 @@
 #!/usr/bin/env python2
-'''
-This script provides a interface between the CESM CASE environment 
-and the Python package for time slice-to-series operation.
-It is called from the run script and resides in the CASEROOT/Tools directory.
+"""Generate variable time-series files from a CESM case
 
+This script provides an interface between the CESM CASE environment 
+and the Python package for time slice-to-series operation, pyReshaper.
+
+It resides in the $CCSMROOT/postprocessing/cesm-env2
 __________________________
 Created on May 21, 2014
-Update Sept 4, 2014 - only monthly stream specifiers currently working due
-to a bug in the reshaper module. 
 
 @author: CSEG <cseg@cgd.ucar.edu>
-'''
+"""
 
-# set the PYTHONPATH env var to point to the correct python locations in the 
-# CASEROOT/Tools directory
+from __future__ import print_function
+import sys
+
+# check the system python version and require 2.7.x or greater
+if sys.hexversion < 0x02070000:
+    print(70 * '*')
+    print('ERROR: {0} requires python >= 2.7.x. '.format(sys.argv[0]))
+    print('It appears that you are running python {0}'.format(
+        '.'.join(str(x) for x in sys.version_info[0:3])))
+    print(70 * '*')
+    sys.exit(1)
 
 import sys
 import os
@@ -22,29 +30,61 @@ import re
 import string
 import pprint
 import xml.etree.ElementTree as ET
-from mpi4py import MPI
+from cesm_utils import cesmEnvLib
 
-# append the CASEROOT/Tools location to the PYTHONPATH
-sys.path.append('./Tools/pythonlib')
+# import the MPI related module
+from pytools import parition.py simplecomm.py timekeeper.py vprinter.py
 
-# import the cesm environment module
-import cesmEnvLib
+# load the pyreshaper modules
+from pyreshaper import specification, reshaper
 
+#=====================================================
+# commandline_options - parse any command line options
+#=====================================================
+def commandline_options():
+    """Process the command line arguments.
+    """
+    parser = argparse.ArgumentParser(
+        description='ocn_diags_generator: CESM wrapper python program for Ocean Diagnostics packages.')
+
+    parser.add_argument('--backtrace', action='store_true',
+                        help='show exception backtraces as extra debugging '
+                        'output')
+
+    parser.add_argument('--debug', action='store_true',
+                        help='extra debugging output')
+
+    parser.add_argument('--caseroot', nargs=1, required=True, 
+                        help='fully quailfied path to case root directory')
+
+    options = parser.parse_args()
+
+    # check to make sure CASEROOT is a valid, readable directory
+    if not os.path.isdir(options.caseroot[0]):
+        err_msg = 'ocn_diags_generator.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
+        raise OSError(err_msg)
+
+    return options
+
+#==========================================================================================
+# readArchiveXML - read the $CASEROOT/env_archive.xml file and build the pyReshaper classes
+#==========================================================================================
 def readArchiveXML(cesmEnv):
-    '''
-    returns a fully defined list of reshaper specifications
-    '''
-    from pyreshaper import specification
+    """ reads the $CASEROOT/env_archive.xml file and builds a fully defined list of 
+         reshaper specifications to be passed to the pyReshaper tool.
 
+    Arguments:
+    cesmEnv (dictionary) - CESM case environment dictionary
+    """
     specifiers = list()
     xml_tree = ET.ElementTree()
 # check if the env_archive.xml file exists
-    if ( not os.path.isfile('./env_archive.xml') ):
+    if ( not os.path.isfile('cesmEnv["CASEROOT"]/env_archive.xml') ):
         err_msg = "cesm_tseries_generator.py ERROR: env_archive.xml does not exist."
         raise OSError(err_msg)
     else:
 # parse the xml
-        xml_tree.parse('./env_archive.xml')
+        xml_tree.parse('cesmEnv["CASEROOT"]/env_archive.xml')
 
 # loop through all the comp_archive_spec elements to find the tseries related elements
         for comp_archive_spec in xml_tree.findall("components/comp_archive_spec"):
@@ -177,46 +217,69 @@ def readArchiveXML(cesmEnv):
 
     return specifiers
 
-#==========================
+#======
 # main
-#==========================
+#======
 
-# cesmEnv is a dictionary with the case environment 
-# cesmEnv["id"] = "value" parsed from the CASEROOT/env_*.xml files
-cesmEnv = cesmEnvLib.readCesmXML()
+def main(options, comm, rank, size):
+    """
+    """
+    # initialize the CASEROOT environment dictionary
+    cesmEnv = dict()
 
-# append the path to the pyreshaper package
-pyReshaperPath = cesmEnv["CESMDATAROOT"] + "/tools/pyReshaper/lib/python2.7/site-packages"
+    # cesmEnv["id"] = "value" parsed from the CASEROOT/env_*.xml files
+    cesmEnv = cesmEnvLib.readCesmXML()
 
-sys.path.append(pyReshaperPath)
+    # initialize the specifiers list to contain the list of specifier classes
+    specifiers = list()
 
-# load the pyreshaper modules
-from pyreshaper import specification, reshaper
+    # loading the specifiers from the env_archive.xml  only needs to run on the master task (rank=0) 
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    if rank == 0:
+        specifiers = readArchiveXML(cesmEnv)
+    comm.Barrier()
 
-specifiers = list()
-# loading the specifiers from the env_archive.xml  only needs to run on the master task (rank=0) 
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-if rank == 0:
-    specifiers = readArchiveXML(cesmEnv)
-comm.Barrier()
+    # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
+    specifiers = comm.bcast(specifiers, root=0)
 
-# specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
-specifiers = comm.bcast(specifiers, root=0)
+    # create the PyReshaper object - uncomment when multiple specifiers is allowed
+    reshpr = reshaper.create_reshaper(specifiers, serial=False, verbosity=2)
 
-# create the PyReshaper object - uncomment when multiple specifiers is allowed
-reshpr = reshaper.create_reshaper(specifiers, serial=False, verbosity=2)
+    # Set the output limit - the limit on the number of time-series files per processor to write.
+    # A limit of 0 means write all output files.
+    reshpr.output_limit = 0
 
-# Set the output limit - the limit on the number of time-series files per processor to write.
-# A limit of 0 means write all output files.
-reshpr.output_limit = 0
+    # Run the conversion (slice-to-series) process 
+    reshpr.convert()
 
-# Run the conversion (slice-to-series) process 
-reshpr.convert()
+    # Print timing diagnostics
+    reshpr.print_diagnostics()
 
-# Print timing diagnostics
-reshpr.print_diagnostics()
+# TO-DO check if DOUT_S_SAVE_HISTORY_FILES is true or false and 
+# delete history files accordingly
 
-# TO-DO check if DOUT_S_SAVE_HISTORY_FILES is true or false
+    return 0
 
-# Print a success statement to stdout
+#===================================
+
+if __name__ == "__main__":
+    if rank == 0:
+        print('...Running on {0} cores'.format(size))
+
+    # need to use the pyTools helper 
+    options = commandline_options()
+    try:
+        status = main(options)
+        comm.Barrier()
+        if rank == 0:
+            print('Successfully completed generating variable time-series files')
+        sys.exit(status)
+
+##    except RunTimeError as error:
+        
+    except Exception as error:
+        print(str(error))
+        if options.backtrace:
+            traceback.print_exc()
+        sys.exit(1)

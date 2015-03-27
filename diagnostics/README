@@ -1,7 +1,0 @@
-2014-12-10
-
-CESM diagnostics external with wrapper scripts to interface between the CESM 
-environment and the different working group diagnostics packages. 
-
-See the ChangeLog for repository details and the CESM User's Guide for details on
-usage of these scripts.
