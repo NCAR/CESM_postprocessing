@@ -50,7 +50,7 @@ from cesm_utils import cesmEnvLib
 from diagnostics.utils import diag_utils
 
 # import the MPI related module
-from pytools import parition.py simplecomm.py timekeeper.py vprinter.py
+from pytools import parition, simplecomm
 
 # import the pyaverager
 from pyaverager import specification, PyAverager
@@ -185,7 +185,7 @@ def initialize_main(envDict, options):
 #================================================
 # initialize_model_vs_obs - initialization on rank 0
 #================================================
-def initialize_model_vs_obs(envDict, comm, rank):
+def initialize_model_vs_obs(envDict, scomm, rank):
     """initialize_model_vs_obs - initialize settings on rank 0 for model vs. Observations
     
     Arguments:
@@ -420,57 +420,43 @@ def create_plot_dat(workdir, xyrange, depths):
 #=======================================================
 # convert_plots - convert plots from ps to gif
 #=======================================================
-def convert_plots(workdir, comm, size, rank):
+def convert_plots(workdir, scomm):
     """convert_plots - convert plot files from ps to gif
 
     """
     cwd = os.getcwd()
     os.chdir(workdir)
 
-#    messenger = create_messenger(serial=False)
-#    rank = messenger.get_rank()
-
     # check if the convert command exists
     rc = diag_utils.which('convert')
     if rc in ['None']:
         print('ocn_diags_generator.py WARNING: unable to find convert command in path. Skipping plot conversion from ps to gif')
     else:
-        if rank == 0:
-            psFiles = sorted(glob.glob('*.ps'))
-            # distribute the conversion operations across the available tasks
-            local_psFiles = psFiles[rank::size]
+        psFiles = sorted(glob.glob('*.ps'))
 
         # partition the list of psFiles across the available tasks
-#        local_psFiles = messenger.partition(psFiles)
-            print('... in convert local_psFiles {0}'.format(local_psFiles))
-            print('... convert_plots Rank {0} : {1}\n'.format(rank, local_psFiles))
-            print('... convert_plots Rank {0} : Size : {1}\n'.format(rank, len(local_psFiles)))
+        local_psFiles = scomm.partition(psFiles, func=partition.EqualStride(), involved=True)
 
-        comm.Barrier()
-        local_psFiles = comm.bcast(local_psFiles, root=0)
-
-        for r in xrange(size):
-            if r < len(local_psFiles) and rank == r:
-                for ps in local_psFiles[r]:
-                    plotname = ps.split('.')
-                    psFile = '{0}.ps'.format(plotname[0])
-                    print('..... converting {0}'.format(psFile))
+        for ps in local_psFiles:
+            plotname = ps.split('.')
+            psFile = '{0}.ps'.format(plotname[0])
+            print('..... converting {0}'.format(psFile))
             
-                    # check if the GIF file alreay exists and remove it to regen
-                    gifFile = '{0}.gif'.format(plotname[0])
-                    rc, err_msg = diag_utils.checkFile(gifFile,'write')
-                    if rc:
-                        os.remove(gifFile)
+            # check if the GIF file alreay exists and remove it to regen
+            gifFile = '{0}.gif'.format(plotname[0])
+            rc, err_msg = diag_utils.checkFile(gifFile,'write')
+            if rc:
+                os.remove(gifFile)
         
-                    # convert the image from ps to gif - these should be done in parallel
-                    try:
-                        subprocess.check_output( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',psFile,gifFile] )
-                    except subprocess.CalledProcessError as e:
-                        print('WARNING: convert_plots call to convert failed with error:')
-                        print('    {0} - {1}'.format(e.cmd, e.output))
+            # convert the image from ps to gif - these should be done in parallel
+            try:
+                subprocess.check_output( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',psFile,gifFile] )
+            except subprocess.CalledProcessError as e:
+                print('WARNING: convert_plots call to convert failed with error:')
+                print('    {0} - {1}'.format(e.cmd, e.output))
             else:
                 continue
-        comm.Barrier
+        scomm.sync()
 
     os.chdir(cwd)
 
@@ -688,7 +674,8 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
         serial = False)
 
     # call the pyAverager
-    PyAverager.run_pyAverager(pyAveSpecifier)
+    print("... before run_pyAverager scomm rank={0}, size={1}".format(scomm.get_rank(), scomm.get_size())
+    PyAverager.run_pyAverager(pyAveSpecifier, simplecomm=scomm)
 
     return 0
 
@@ -727,7 +714,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
 #===============================================
 # setup model vs. observations plotting routines
 #===============================================
-def model_vs_obs(envDict, comm, rank, size):
+def model_vs_obs(envDict, scomm, rank, size):
     """model_vs_obs setup the model vs. observations dirs, generate necessary 
        zonal average climatology files and generate plots in parallel.
 
@@ -739,7 +726,7 @@ def model_vs_obs(envDict, comm, rank, size):
     if rank == 0:
         print('...calling initialize_model_vs_obs')
     # initialize the model vs. obs environment
-    envDict = initialize_model_vs_obs(envDict, comm, rank)
+    envDict = initialize_model_vs_obs(envDict, scomm, rank)
 
     user_plot_list = list()
     if rank == 0:
@@ -777,29 +764,12 @@ def model_vs_obs(envDict, comm, rank, size):
 
         # dispatch mpi plotting jobs here
         print('Generating plots in parallel:')
-    comm.Barrier()
-    user_plot_list = comm.bcast(user_plot_list, root=0)
-
-    # Initialize the messenger class for MPI
-#    if rank == 0:
-#        print('...before create_messenger')
-#    messenger = create_messenger(serial=False)
-#    mrank = messenger.get_rank()
-
-    # Get a local file list that this rank is responsible for
-#    local_plot_list = messenger.partition(user_plot_list)
-#    print ('...in model_vs_obs Rank {0} : {1}\n'.format(mrank, local_plot_list))
-#    print ('...in model_vs_obs Rank {0} : Size : {1}\n'.format(mrank, len(local_plot_list)))
-#    for plot in local_plot_list:
-#        plot.generate_plots(envDict)
-
-    for r in xrange(size):
-        if r < len(user_plot_list) and rank == r:
-            user_plot_list[r].generate_plots(envDict)
-        else:
-            continue
-
-    comm.Barrier()
+    scomm.sync()
+    user_plot_list = scomm.partition(user_plot_list, func=partition.EqualStride(), involved=True)
+    
+    for user_plot in user_plot_list:
+        user_plot.generate_plots(envDict)  
+    scomm.sync()
             
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
@@ -808,9 +778,8 @@ def model_vs_obs(envDict, comm, rank, size):
 
     if rank == 0:
         print('... before convert_plots')
-    convert_plots(envDict['WORKDIR'], comm, size, rank)
-
-    comm.Barrier()
+    convert_plots(envDict['WORKDIR'], scomm)
+    scomm.sync()
 
     if rank == 0:
         print('Creating plot html header:')
@@ -906,7 +875,7 @@ def model_vs_ts(envDict, start_year, stop_year, workdir):
 # main
 #======
 
-def main(options, comm, rank, size):
+def main(options, scomm, rank, size):
     """setup the environment for running the diagnostics in parallel. 
 
     Calls 3 different diagnostics generation types:
@@ -923,19 +892,19 @@ def main(options, comm, rank, size):
     if rank == 0:
         print('...calling initialize_main')
     envDict = initialize_main(envDict, options)
-    comm.Barrier()
+    scomm.sync()
 
     if rank == 0:
         print('...checking NCL and NCO')
         rc = check_ncl_nco(envDict)
-    comm.Barrier()
+    scomm.sync()
 
     # the PATH variable needs to be handled uniquely because of name conflicts
     if rank == 0:
         print('...calling sys.path.append')
     sys.path.append(envDict['PATH'])
     sys.path.append(envDict['OCN_DIAG_PATH'])
-    comm.Barrier()
+    scomm.sync()
 
     # set the shell env using the values set in the XML and read into the envDict
 ##    print('...calling setXmlEnv')
@@ -945,7 +914,7 @@ def main(options, comm, rank, size):
     if envDict['MODEL_VS_OBS'].upper() in ['T','TRUE']:
         if rank == 0:
             print('...calling model_vs_obs')
-        rc = model_vs_obs(envDict, comm, rank, size)
+        rc = model_vs_obs(envDict, scomm, rank, size)
 
     # model vs. model - need  to checkHistoryFiles for the control run
 ##    if envDict['MODEL_VS_MODEL'].upper() in ['T','TRUE']:
@@ -961,17 +930,18 @@ def main(options, comm, rank, size):
 
 
 if __name__ == "__main__":
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    size = comm.Get_size()
+    # initialize simplecomm object
+    scomm = simplecomm.create_comm(serial=False)
+
+    rank = scomm.get_rank()
+    size = scomm.get_size()
 
     if rank == 0:
         print('...Running on {0} cores'.format(size))
 
     options = commandline_options()
     try:
-        status = main(options, comm, rank, size)
-        comm.Barrier()
+        status = main(options, scomm, rank, size)
         if rank == 0:
             print('Successfully completed generating ocean diagnostics')
         sys.exit(status)

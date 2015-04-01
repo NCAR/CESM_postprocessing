@@ -19,7 +19,7 @@ ENVNAME=cesm-env2
 
 SUBDIRS = \
 	cesm_utils \
-	python_utils \
+	mpi_utils \
 	reshaper \
 	averager \
 	timeseries \

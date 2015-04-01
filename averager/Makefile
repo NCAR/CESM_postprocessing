@@ -1,12 +1,16 @@
 all : develop
 
 test : FORCE
-	python -m unittest discover --start-directory averager/tests
+	python -m unittest discover --start-directory pyAverager/tests
 
 develop : install
 
+# NOTE: need to cd to pyAverager dir first before setup because
+# the Makefile can't live in the same dir as pyAverager due to 
+# different SVN repos (CESM and CISL). The setup.py operates
+# on relative paths so must be called from the pyAverager dir.
 install : FORCE
-	python setup.py install
+	cd pyAverager; python setup.py install
 
 clean : 
 	-rm -f *~ *.CKP *.ln *.BAK *.bak .*.bak \

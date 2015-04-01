@@ -33,7 +33,7 @@ import xml.etree.ElementTree as ET
 from cesm_utils import cesmEnvLib
 
 # import the MPI related module
-from pytools import parition.py simplecomm.py timekeeper.py vprinter.py
+from pytools import partition, simplecomm
 
 # load the pyreshaper modules
 from pyreshaper import specification, reshaper
@@ -221,7 +221,7 @@ def readArchiveXML(cesmEnv):
 # main
 #======
 
-def main(options, comm, rank, size):
+def main(options, scomm, rank, size):
     """
     """
     # initialize the CASEROOT environment dictionary
@@ -234,21 +234,15 @@ def main(options, comm, rank, size):
     specifiers = list()
 
     # loading the specifiers from the env_archive.xml  only needs to run on the master task (rank=0) 
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
     if rank == 0:
         specifiers = readArchiveXML(cesmEnv)
-    comm.Barrier()
+    scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
-    specifiers = comm.bcast(specifiers, root=0)
+    specifiers = scomm.partition(specifiers, func=partition.Duplicate(), involved=True)
 
     # create the PyReshaper object - uncomment when multiple specifiers is allowed
     reshpr = reshaper.create_reshaper(specifiers, serial=False, verbosity=2)
-
-    # Set the output limit - the limit on the number of time-series files per processor to write.
-    # A limit of 0 means write all output files.
-    reshpr.output_limit = 0
 
     # Run the conversion (slice-to-series) process 
     reshpr.convert()
@@ -264,14 +258,18 @@ def main(options, comm, rank, size):
 #===================================
 
 if __name__ == "__main__":
+    # initialize simplecomm object
+    scomm = simplecomm.create_comm(serial=False)
+
+    rank = scomm.get_rank()
+    size = scomm.get_size()
+
     if rank == 0:
         print('...Running on {0} cores'.format(size))
 
-    # need to use the pyTools helper 
     options = commandline_options()
     try:
-        status = main(options)
-        comm.Barrier()
+        status = main(options, scomm, rank, size)
         if rank == 0:
             print('Successfully completed generating variable time-series files')
         sys.exit(status)

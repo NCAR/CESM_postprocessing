@@ -1,12 +1,16 @@
 all : develop
 
 test : FORCE
-	python -m unittest discover --start-directory reshaper/tests
+	python -m unittest discover --start-directory pyReshaper/test
 
 develop : install
 
+# NOTE: need to cd to pyReshaper dir first before setup because
+# the Makefile can't live in the same dir as pyReshaper due to 
+# different SVN repos (CESM and CISL). The setup.py operates
+# on relative paths so must be called from the pyReshaper dir.
 install : FORCE
-	python setup.py install
+	cd pyReshaper; python setup.py install
 
 #
 clean : 
