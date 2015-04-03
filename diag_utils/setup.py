@@ -45,17 +45,17 @@ def get_dependencies():
     return readfile(DEPENDENCIES_FILE, lambda f: f.read().strip())
 
 setup(
-    name="diagnostics",
+    name="diag_utils",
     author="Alice Bertini",
     author_email="aliceb@ucar.edu",
-    packages=['diagnostics'],
+    packages=['diag_utils'],
     version=get_version(),
-    scripts=['diagnostics/ocn/ocn_diags_generator.py'],
-    install_requires=get_requires(),
+    #scripts=['diag_utils'],
+    #install_requires=get_requires(),
     #dependency_links=get_dependencies(),
     include_package_data=True,
     zip_safe=True,
-    test_suite="diagnostics.tests",
-    description="CESM Python Diagnostics Tools.",
+    test_suite="diag_utils.tests",
+    description="CESM diagnostics utilities.",
     use_2to3=True,
 )

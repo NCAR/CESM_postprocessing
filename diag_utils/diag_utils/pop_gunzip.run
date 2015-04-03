@@ -1,0 +1,17 @@
+#! /bin/tcsh -f
+#BSUB -n 10
+#BSUB -R "span[ptile=15]"
+#BSUB -q geyser
+#BSUB -N
+#BSUB -a poe
+#BSUB -o pop_gunzip.stdout.%J
+#BSUB -e pop_gunzip.stderr.%J
+#BSUB -J pop_gunzip
+#BSUB -W 1:00
+#BSUB -P P93300606
+set maxthrds = 2
+
+mpirun.lsf ./pop_gunzip.py >>& ./popGunzipStatus
+
+echo "pop_gunzip.run ended" >>& ./popGunzipStatus
+

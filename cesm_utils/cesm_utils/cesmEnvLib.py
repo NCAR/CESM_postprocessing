@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
 """
-This module provides functions for parsing all the $CASEROOT/env_*.xml files
+This module provides utility functions for working with the $CASEROOT/env_*.xml files
 except the env_archive.xml file which is parsed in the cesm_tseries_generate.py
-This script lives in the CASEROOT/Tools directory after create_newcase is run.
 __________________________
 Created on Apr 30, 2014
 Updated Sept 4, 2014 - make sure execute permission is allowed

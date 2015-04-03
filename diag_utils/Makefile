@@ -1,7 +1,7 @@
 all : develop
 
 test : FORCE
-	python -m unittest discover --start-directory diagnostics/tests
+	python -m unittest discover --start-directory diag_utils/tests
 
 develop : FORCE
 	python setup.py $@

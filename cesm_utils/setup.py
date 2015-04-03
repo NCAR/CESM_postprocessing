@@ -56,6 +56,6 @@ setup(
     include_package_data=True,
     zip_safe=True,
     test_suite="cesm_utils.tests",
-    description="CESM utilities.",
+    description="CESM CASEROOT utilities.",
     use_2to3=True,
 )

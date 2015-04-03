@@ -1,7 +1,7 @@
 all : develop
 
 test : FORCE
-	python -m unittest discover --start-directory pyReshaper/test
+	python -m unittest discover --start-directory pyReshaper/tests/yellowstone
 
 develop : install
 

@@ -19,6 +19,7 @@ ENVNAME=cesm-env2
 
 SUBDIRS = \
 	cesm_utils \
+	diag_utils \
 	mpi_utils \
 	reshaper \
 	averager \

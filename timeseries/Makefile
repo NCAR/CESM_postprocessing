@@ -1,7 +1,7 @@
 all : develop
 
 test : FORCE
-	python -m unittest discover --start-directory timeseries/tests
+	python -m unittest discover --start-directory test
 
 develop : FORCE
 	python setup.py $@

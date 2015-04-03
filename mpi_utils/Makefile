@@ -1,13 +1,17 @@
 all : develop
 
 test : FORCE
-	python -m unittest discover --start-directory mpi_utils/tests
+	python -m unittest discover --start-directory pyTools/asaptools/test
 
-develop : FORCE
-	python setup.py $@
+develop : install
+
+# NOTE: need to cd to pyTools dir first before setup because
+# the Makefile can't live in the same dir as mpi_utils due to 
+# different SVN repos (CESM and CISL). The setup.py operates
+# on relative paths so must be called from the pyTools/asaptools dir.
 
 install : FORCE
-	python setup.py $@
+	cd pyTools; python setup.py install
 
 clean : 
 	-rm -f *~ *.CKP *.ln *.BAK *.bak .*.bak \

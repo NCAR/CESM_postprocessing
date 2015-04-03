@@ -1,0 +1,13 @@
+#! /bin/csh -f
+
+cat > templar <<EOF
+  bsub < ./pop_gunzip.run
+EOF
+source templar
+if ($status != 0) then
+  echo "ERROR: pop_gunzip.submit problem sourcing templar " 
+endif
+rm templar
+echo "pop_gunzip.run submitted" >>& ./popGunzipStatus
+
+
