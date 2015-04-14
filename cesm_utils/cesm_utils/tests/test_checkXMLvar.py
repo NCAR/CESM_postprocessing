@@ -9,7 +9,7 @@ from __future__ import print_function
 import os
 import unittest
 
-from diag_utils import diagUtilsLib
+from cesm_utils import cesmEnvLib
 
 class test_checkEnv(unittest.TestCase):
     def setUp(self):
@@ -21,13 +21,13 @@ class test_checkEnv(unittest.TestCase):
     def test_defaultEnvVar(self):
         """ test to see if path env can be read from through checkEnv
         """
-        found = diagUtilsLib.checkEnv("PATH", ".")
+        found = cesmEnvLib.checkEnv("PATH", ".")
         self.assertTrue(found)
 
     def test_invalidEnvVar(self):
         """ test to see if invalid var raises an error
         """
-        self.assertRaises(diagUtilsLib.checkEnv("blah", "."))
+        self.assertRaises(Exception, cesmEnvLib.checkEnv, "blah", ".")
 
 if __name__ == '__main__':
     unittest.main()

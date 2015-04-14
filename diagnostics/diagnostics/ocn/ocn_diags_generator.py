@@ -47,7 +47,7 @@ else:
     from configparser import ConfigParser as config_parser
 
 from cesm_utils import cesmEnvLib
-from diagnostics.utils import diag_utils
+from diag_utils import diagUtilsLib
 
 # import the MPI related module
 from pytools import parition, simplecomm
@@ -132,7 +132,7 @@ def initialize_main(envDict, options):
     caseroot = options.caseroot[0]
 
     # check if CCSMROOT is defined - if not, try to get it from the xmlquery in CASEROOT
-    diag_utils.checkEnv('CCSMROOT', caseroot)
+    cesmEnvLib.checkEnv('CCSMROOT', caseroot)
 
     # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_diags_ocn.xml']
@@ -182,9 +182,9 @@ def initialize_main(envDict, options):
 
     return envDict
 
-#================================================
+#===================================================
 # initialize_model_vs_obs - initialization on rank 0
-#================================================
+#===================================================
 def initialize_model_vs_obs(envDict, scomm, rank):
     """initialize_model_vs_obs - initialize settings on rank 0 for model vs. Observations
     
@@ -204,12 +204,12 @@ def initialize_model_vs_obs(envDict, scomm, rank):
 
         # clean out the old working plot files from the workdir
         if envDict['CLEANUP_FILES'].upper() in ['T','TRUE']:
-            diag_utils.purge(workdir, '.*\.pro')
-            diag_utils.purge(workdir, '.*\.gif')
-            diag_utils.purge(workdir, '.*\.dat')
-            diag_utils.purge(workdir, '.*\.ps')
-            diag_utils.purge(workdir, '.*\.png')
-            diag_utils.purge(workdir, '.*\.html')
+            cesmEnvLib.purge(workdir, '.*\.pro')
+            cesmEnvLib.purge(workdir, '.*\.gif')
+            cesmEnvLib.purge(workdir, '.*\.dat')
+            cesmEnvLib.purge(workdir, '.*\.ps')
+            cesmEnvLib.purge(workdir, '.*\.png')
+            cesmEnvLib.purge(workdir, '.*\.html')
 
         # create the plot.dat file in the workdir used by all NCL plotting routines
         create_plot_dat(envDict['WORKDIR'], envDict['XYRANGE'], envDict['DEPTHS'])
@@ -223,7 +223,7 @@ def initialize_model_vs_obs(envDict, scomm, rank):
             os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
 
         # check if gridfile exists and is readable
-        rc, err_msg = diag_utils.checkFile(os.environ['gridfile'], 'read')
+        rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
         if not rc:
             raise OSError(err_msg)
         envDict['GRIDFILE'] = os.environ['gridfile']
@@ -244,7 +244,7 @@ def initialize_model_vs_obs(envDict, scomm, rank):
             sys.path.append(envDict['ECOPATH'])
 
             # check if extract_zavg exists and is executable
-            rc, err_msg = diag_utils.checkFile(envDict['{0}/extract_zavg.sh'.format(envDict['ECOPATH'])],'exec')
+            rc, err_msg = cesmEnvLib.checkFile(envDict['{0}/extract_zavg.sh'.format(envDict['ECOPATH'])],'exec')
             if not rc:
                 raise OSError(err_msg)
 
@@ -405,7 +405,7 @@ def create_plot_dat(workdir, xyrange, depths):
     """
     cwd = os.getcwd()
     os.chdir(workdir)
-    rc, err_msg = diag_utils.checkFile('plot.dat', 'read')
+    rc, err_msg = cesmEnvLib.checkFile('plot.dat', 'read')
     if not rc:
         file = open('plot.dat','w')
         file.write( xyrange + '\n')
@@ -428,7 +428,7 @@ def convert_plots(workdir, scomm):
     os.chdir(workdir)
 
     # check if the convert command exists
-    rc = diag_utils.which('convert')
+    rc = cesmEnvLib.which('convert')
     if rc in ['None']:
         print('ocn_diags_generator.py WARNING: unable to find convert command in path. Skipping plot conversion from ps to gif')
     else:
@@ -444,7 +444,7 @@ def convert_plots(workdir, scomm):
             
             # check if the GIF file alreay exists and remove it to regen
             gifFile = '{0}.gif'.format(plotname[0])
-            rc, err_msg = diag_utils.checkFile(gifFile,'write')
+            rc, err_msg = cesmEnvLib.checkFile(gifFile,'write')
             if rc:
                 os.remove(gifFile)
         
@@ -471,12 +471,12 @@ def create_za(workdir, tavgfile, gridfile, toolpath):
 
     # generate the global zonal average file used for most of the plots
     zaFile = '{0}/za_{1}'.format(workdir, tavgfile)
-    rc, err_msg = diag_utils.checkFile(zaFile, 'read')
+    rc, err_msg = cesmEnvLib.checkFile(zaFile, 'read')
     if not rc:
         print('     Checking on the zonal average (za) file compiled fortran code.')
         # check that the za executable exists
         zaCommand = '{0}/za'.format(toolpath)
-        rc, err_msg = diag_utils.checkFile(zaCommand, 'exec')
+        rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
         if not rc:
             raise OSError(err_msg)
         
@@ -511,7 +511,7 @@ def getEcoSysVars(ecoSysVarsFile, varList):
     """
 
     # check in the ecoSysVarsFile exists and is readable
-    rc, err_msg = diag_utils.checkFile(ecoSysVarsFile, 'read')
+    rc, err_msg = cesmEnvLib.checkFile(ecoSysVarsFile, 'read')
     if not rc:
         raise OSError(err_msg)
     
@@ -544,20 +544,20 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName):
     while year <= int(stop_year):
         # check if file already exists before appending to the avgList
         avgFile = '{0}.{1}.nc'.format(avgFileBaseName, year)
-        rc, err_msg = diag_utils.checkFile(avgFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
         if not rc: 
             avgList.append('ya:{0}'.format(year))
             year += 1
 
     # check if mavg file already exist
     avgFile = '{0}_mavg.nc'.format(avgFileBaseName)
-    rc, err_msg = diag_utils.checkFile(avgFile, 'read')
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if not rc:
         avgList.append('mavg:{0}:{1}'.format(int(start_year), int(stop_year)))
 
     # check if tavg file already exist
     avgFile = '{0}_tavg.nc'.format(avgFileBaseName)
-    rc, err_msg = diag_utils.checkFile(avgFile, 'read')
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if not rc:
         avgList.append('tavg:{0}:{1}'.format(int(start_year), int(stop_year)))
 
@@ -581,10 +581,10 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
 
     # link to the mavg file for the za and plotting routings
     avgFile = '{0}_mavg.nc'.format(avgFileBaseName)
-    rc, err_msg = diag_utils.checkFile(avgFile, 'read')
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
         mavgFile = '{0}/mavg.{1}.{2}.nc'.format(workdir, start_year, stop_year)
-        rc1, err_msg1 = diag_utils.checkFile(mavgFile, 'read')
+        rc1, err_msg1 = cesmEnvLib.checkFile(mavgFile, 'read')
         if not rc1:
             print('...before mavg symlink: {0} to {1}'.format(avgFile,mavgFile))
             os.symlink(avgFile, mavgFile)
@@ -593,10 +593,10 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
 
     # link to the tavg file
     avgFile = '{0}_tavg.nc'.format(avgFileBaseName)
-    rc, err_msg = diag_utils.checkFile(avgFile, 'read')
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
         tavgFile = '{0}/tavg.{1}.{2}.nc'.format(workdir, start_year, stop_year)
-        rc1, err_msg1 = diag_utils.checkFile(tavgFile, 'read')
+        rc1, err_msg1 = cesmEnvLib.checkFile(tavgFile, 'read')
         if not rc1:
             print('...before tavg symlink: {0} to {1}'.format(avgFile,tavgFile))
             os.symlink(avgFile, tavgFile)
@@ -608,10 +608,10 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
     while year <= int(stop_year):
         # check if file already exists before appending to the avgList
         avgFile = '{0}.{1}.nc'.format(avgFileBaseName, year)
-        rc, err_msg = diag_utils.checkFile(avgFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
         if rc:
             workAvgFile = '{0}/{1}.{2}.nc'.format(workdir, case_prefix, year)
-            rc1, err_msg1 = diag_utils.checkFile(workAvgFile, 'read')
+            rc1, err_msg1 = cesmEnvLib.checkFile(workAvgFile, 'read')
             if not rc1:
                 print('...before yearly avg symlink: {0} to {1}'.format(avgFile,workAvgFile))
                 os.symlink(avgFile, workAvgFile)

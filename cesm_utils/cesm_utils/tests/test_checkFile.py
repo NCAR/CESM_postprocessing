@@ -9,7 +9,7 @@ from __future__ import print_function
 import os
 import unittest
 
-from diag_utils import diagUtilsLib
+from cesm_utils import cesmEnvLib
 
 class test_checkFile(unittest.TestCase):
     def setUp(self):
@@ -21,13 +21,13 @@ class test_checkFile(unittest.TestCase):
     def test_defaultFile(self):
         """ test to see if a known file can be read
         """
-        found = diagUtilsLib.checkFile("./test_checkXMLvar.py", "read")
+        found = cesmEnvLib.checkFile("./test_checkXMLvar.py", "read")
         self.assertTrue(found)
 
     def test_invalidFile(self):
         """ test to see if invalid file raises an error
         """
-        self.assertRaises(diagUtilsLib.checkFile("blah", "write"))
+        self.assertRaises(cesmEnvLib.checkFile("blah", "write"))
 
 if __name__ == '__main__':
     unittest.main()

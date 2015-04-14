@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl" href="config_definition.xsl" ?>
+
+<config_definition>
+
+<!-- ======================================================================= -->
+<!-- env_postprocess.xml                                                     -->
+<!-- ======================================================================= -->
+
+<entry id="POSTPROCESS_VIRTUALENV" 
+ type="string"
+ valid_values=""  
+ value="$SRCROOT/postprocessing/cesm-env2" 
+ group="postprocess"
+ sdesc="post processing python virtual environment path location relative to the SRCROOT"
+ ldesc="
+Path to the post processing python virtual environment created by the create_python_env.sh
+script in the postprocessing directory. The create_python_env.sh script is run once per
+CESM source code installation."
+></entry> 
+
+<entry id="GENERATE_TIMESERIES" 
+ type="logical"
+ valid_values="TRUE,FALSE"  
+ value="FALSE" 
+ group="postprocess"
+ sdesc="logical to generate time-series files from the history time-slice files"
+ ldesc="
+If TRUE, create the single variable time series files using the history time slice files.
+All the time invariant metadata is included in each variable time series file header. 
+Rules for how the tseries files are created are specified in the env_archive.xml file."
+></entry> 
+
+<entry id="NTASKS_TIMESERIES" 
+ type="integer"
+ valid_values=""  
+ value="8" 
+ group="postprocess"
+ sdesc="number of time series mpi tasks"
+ ldesc="
+Value reset depending on which supported machine is being used to generate variable time series
+files from history time slice files."
+></entry> 
+
+<entry id="SAVE_HISTORY_SLICE_FILES" 
+ type="logical"
+ valid_values="TRUE,FALSE"  
+ value="FALSE" 
+ group="postprocess"
+ sdesc="logical to save history time slice files after the variable time series have been generated"
+ ldesc="
+If TRUE, none of the history time slice files will be deleted from the $DOUT_S_ROOT/$CASE location after the
+variable time series files are successfully generated. *WARNING* setting this option to TRUE can
+more than double the disk space used by the output data for a given job."
+></entry> 
+
+<entry id="GENERATE_DIAGS_ATM"  
+ type="logical"
+ valid_values="TRUE,FALSE"  
+ value="FALSE" 
+ group="postprocess"
+ sdesc="logical to call the AMWG diagnostics plotting packages as part
+of the CESM run script after the successful completion of the short term 
+archiver"
+ ldesc="
+If TRUE, this calls the AMWG diagnostics package parallel python wrapper
+script to generate climatological plots associated with the run job output.
+See the AMWG diagnostics documentation for more details."
+></entry> 
+
+<entry id="NTASKS_DIAGS_ATM" 
+ type="integer"
+ valid_values=""  
+ value="8" 
+ group="postprocess"
+ sdesc="number of atmosphere diagnostics mpi tasks"
+ ldesc="
+Value reset depending on which supported machine is being used to generate diagnostics."
+></entry> 
+
+<entry id="GENERATE_DIAGS_ICE"  
+ type="logical"
+ valid_values="TRUE,FALSE"  
+ value="FALSE" 
+ group="postprocess"
+ sdesc="logical to call the PCWG diagnostics plotting packages as part
+of the CESM run script after the successful completion of the short term 
+archiver"
+ ldesc="
+If TRUE, this calls the PCWG diagnostics package parallel python wrapper
+script to generate climatological plots associated with the run job output.
+See the PCWG diagnostics documentation for more details."
+></entry> 
+
+<entry id="NTASKS_DIAGS_ICE" 
+ type="integer"
+ valid_values=""  
+ value="8" 
+ group="postprocess"
+ sdesc="number of sea-ice diagnostics mpi tasks"
+ ldesc="
+Value reset depending on which supported machine is being used to generate diagnostics."
+></entry> 
+
+<entry id="GENERATE_DIAGS_LND"  
+ type="logical"
+ valid_values="TRUE,FALSE"  
+ value="FALSE" 
+ group="postprocess"
+ sdesc="logical to call the LMWG diagnostics plotting packages as part
+of the CESM run script after the successful completion of the short term 
+archiver"
+ ldesc="
+If TRUE, this calls the LMWG diagnostics package parallel python wrapper
+script to generate climatological plots associated with the run job output.
+See the LMWG diagnostics documentation for more details."
+></entry> 
+
+<entry id="NTASKS_DIAGS_LND" 
+ type="integer"
+ valid_values=""  
+ value="8" 
+ group="postprocess"
+ sdesc="number of land diagnostics mpi tasks"
+ ldesc="
+Value reset depending on which supported machine is being used to generate diagnostics."
+></entry> 
+
+<entry id="GENERATE_DIAGS_OCN" 
+ type="logical"
+ valid_values="TRUE,FALSE"  
+ value="FALSE" 
+ group="postprocess"
+ sdesc="logical to call the OMWG diagnostics plotting packages as part
+of the CESM run script after the successful completion of the short term 
+archiver"
+ ldesc="
+If TRUE, this calls the OMWG diagnostics package parallel python wrapper
+script to generate climatological plots associated with the run job output.
+See the OMWG diagnostics documentation for more details."
+></entry> 
+
+<entry id="NTASKS_DIAGS_OCN" 
+ type="integer"
+ valid_values=""  
+ value="8" 
+ group="postprocess"
+ sdesc="number of ocean diagnostics mpi tasks"
+ ldesc="
+Value reset depending on which supported machine is being used to generate diagnostics."
+></entry> 
+
+<!-- End postprocessing configuration definitions -->
+
+</config_definition>

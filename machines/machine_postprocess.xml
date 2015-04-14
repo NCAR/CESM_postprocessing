@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<machine_postprocess>
+
+  <machine name="goldbach">
+    <timeseries_pes>8</timeseries_pes>
+    <atm_diags_pes>8</atm_diags_pes>
+    <ice_diags_pes>8</ice_diags_pes>
+    <lnd_diags_pes>8</lnd_diags_pes>
+    <ocn_diags_pes>8</ocn_diags_pes>
+  </machine>
+
+  <machine name="yellowstone">
+    <timeseries_pes>64</timeseries_pes>
+    <atm_diags_pes>124</atm_diags_pes>
+    <ice_diags_pes>124</ice_diags_pes>
+    <lnd_diags_pes>124</lnd_diags_pes>
+    <ocn_diags_pes>124</ocn_diags_pes>
+  </machine>
+
+</machine_postprocess>
+

@@ -1,59 +1,238 @@
-Notes:
+#!/usr/bin/env python
+"""Read the necessary xml files from the postprocessing configuration system and translate
+them into bash scripts for batch submission of postprocessing tasks. 
 
-Step A. create_python_env.sh machines/module_[machinename].sh - sets up the cesm-env2 virtualenv in the CESM/postprocessing source tree
-- can be run in source dir for collections
-- can be run as part of create_newcase --postprocessing
-- can be run standalone after a case has been created from CESM/postprocessing 
+Arguments:
+caseroot (mandatory) - full path to a valid CESM case
 
-1. load modules for this machine into env
-2. make env
-3. activate
-4. make install
-5. compile/install additional tools - see Ben's bitbucket example for configure-cesmxml
-6. make test
-7. deactivate
+Creates files: 
+$CASEROOT/env_postprocess.xml
+$CASEROOT/env_diags_atm.xml
+$CASEROOT/env_diags_ice.xml
+$CASEROOT/env_diags_lnd.xml
+$CASEROOT/env_diags_ocn.xml
+$CASEROOT/$CASENAME.timeseries
+$CASEROOT/$CASENAME.diagnostics
 
-************** a clean cesm-env2 virtualenv now exists ***************
+__________________________
+Created on April, 2015
 
-Step B. create_postprocessing --caseroot [caseroot] (python script)
-- can be run from create_newcase --postprocessing 
-- can be run stand-alone from CESM/postprocessing
+Author: CSEG <cseg@cgd.ucar.edu>
+"""
 
-QUESTION - does virtual-env need to be activated first before create_postprocessing can be run??
-if so, then create_postprocessing.py needs to be installed in the virtualenv and called
-by a create_postprocess.sh script...
+from __future__ import print_function
 
-1. parse/copy config_env files into caseroot 
-   - includes a postprocess.xml (which contains 5 key/value pairs for what gets run (tseries, ocn, atm, lnd, ice)
+import sys
 
-1.1 based on compset, set defaults for postprocess.xml (T or F)
-   -includes Logic to look at compset first letter and choose which diagnostics to turn on in postprocess.xml
+# check the system python version and require 2.7.x or greater
+if sys.hexversion < 0x02070000:
+    print(70 * "*")
+    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("It appears that you are running python {0}".format(
+            ".".join(str(x) for x in sys.version_info[0:3])))
+    print(70 * "*")
+    sys.exit(1)
 
-2. create batch script bash files - 2 total (tseries and diags)
-   - these machines files are very simple for prototyping only 
-   - read machines/batch directives
-   - read batch template (start with basic built-in template lib)
-   - write batch runscripts to the caseroot
-     - CASEROOT/[casename].timeseries
-     - CASEROOT/[casename].diagnostics
+#
+# built-in modules
+#
+import argparse
+import collections
+import re
+import os
+import platform
+import pprint
+import traceback
 
-3. tseries batch script [casename].timeseries
-   - get the caseroot from current location
-   - activate the virtualenv
-   - calls mpiexec cesm_tseries_wrapper.py --caseroot [caseroot]
-      - reads CASEROOT/env_archive.xml 
-      - calls pyReshaper 
-      - deletes history slice files (DOUT_S_SAVE_HISTORY_FILES == FALSE by default)
+#
+# installed dependencies
+#
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
 
-4. diag batch script [casename].diagnostics --component [ocn|atm|lnd|ice] 
-   - get the caseroot from current location
-   - activate the virtualenv
-   - can be submitted concurrently for each component
-     - calls mpiexec cesm_diags_wrapper.py --component [ocn|atm|lnd|ice] 
-       for now, start with ocn/cesm_diags_wrapper.py --caseroot [caseroot]
-   - get the ssh keys to scp diag html and gif files to a webserver
+if sys.version_info[0] == 2:
+    from ConfigParser import SafeConfigParser as config_parser
+else:
+    from configparser import ConfigParser as config_parser
+
+#
+# activate the virtual environment that was created by create_python_env.sh
+#
+if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
+    err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
+                   'Please run $SRCROOT/postprocessing/create_python_env.sh -machine_dir [machine directory] -machine [machine name]')
+    raise OSError(err_msg)
+
+execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
+
+#
+# import modules installed in the virtual environment
+#
+from cesm_utils import cesmEnvLib
+import jinja2
+
+# -------------------------------------------------------------------------------
+# define a class to be used for the xml entry, id, sdesc values
+# -------------------------------------------------------------------------------
+class XmlEntry(object):
+    def __init__(self):
+        self._id = ''
+        self._value = ''
+        self._sdesc = ''
+    
+    def id(self):
+        return self._id
+    
+    def value(self):
+        return self._value
+
+    def sdesc(self):
+        return self._sdesc
+
+# -------------------------------------------------------------------------------
+# commandline_options - parse any command line options
+# -------------------------------------------------------------------------------
+
+def commandline_options():
+    """Process the command line arguments.
+
+    """
+    parser = argparse.ArgumentParser(
+        description='Read the necessary xml files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks.')
+
+    parser.add_argument('--backtrace', action='store_true',
+                        help='show exception backtraces as extra debugging '
+                        'output')
+
+    parser.add_argument('--debug', action='store_true',
+                        help='extra debugging output')
 
 
+    parser.add_argument('--caseroot', nargs=1, required=True, 
+                        help='fully quailfied path to case root directory')
+
+    options = parser.parse_args()
+
+    # check to make sure CASEROOT is a valid, readable directory
+    if not os.path.isdir(options.caseroot[0]):
+        err_msg = 'create_postprocess ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
+        raise OSError(err_msg)
+
+    return options
 
 
+# -------------------------------------------------------------------------------
+# create_env_postprocess - generate the env_postprocess.xml 
+# -------------------------------------------------------------------------------
+def create_env_postprocess(envDict):
+    """create the env_postprocess.xml file in the CASEROOT
+    
+    Arguments:
+    envDict (dictionary) - environment dictionary
+    
+    Returns:
+    envDict (dictionary) - environment dictionary
+    """
+    xml_list = []
+    config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_DIR'])
+    rc, err_msg = cesmEnvLib.checkFile(config_file, 'read')
+    if rc:
+        xml_tree = etree.ElementTree()
+        xml_tree = parse(config_file)
+        for entry_tag in xml_tree.findall('entry'):
+            xml_list.append(XmlEntry(entry_tag.get('id'), entry_tag.get('value'), entry_tag.get('sdesc')))
+        # the xml_list now contains a list of XmlEntry classes that can be written to a template
+    else:
+        raise OSError(err_msg)
 
+# -------------------------------------------------------------------------------
+# create_env_diags
+# -------------------------------------------------------------------------------
+def create_env_diags(envDict):
+    pass
+
+
+# -------------------------------------------------------------------------------
+# create_tseries_batch
+# -------------------------------------------------------------------------------
+def create_tseries_batch(envDict):
+    pass
+
+
+# -------------------------------------------------------------------------------
+# create_diags_batch
+# -------------------------------------------------------------------------------
+def create_diags_batch(envDict):
+    pass
+
+
+# -------------------------------------------------------------------------------
+# initialize_main - initialization from main
+# -------------------------------------------------------------------------------
+def initialize_main(envDict, options):
+    """initialize_main - initialize main settings
+    
+    Arguments:
+    options (list) - input options from command line
+    envDict (dictionary) - environment dictionary
+
+    Return:
+    envDict (dictionary) - environment dictionary
+    """
+    # CASEROOT is given on the command line as required option --caseroot
+    caseroot = options.caseroot[0]
+
+    # check if CCSMROOT is defined - if not, try to get it from the xmlquery in CASEROOT
+    cesmEnvLib.checkEnv('CCSMROOT', caseroot)
+
+    # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
+    env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
+    envDict = cesmEnvLib.readXML(caseroot, env_file_list)
+
+    # refer to the caseroot that was specified on the command line instead of what
+    # is read in the environment as the caseroot may have changed from what is listed
+    # in the env xml
+    envDict['CASEROOT'] = caseroot
+
+    return envDict
+
+# -------------------------------------------------------------------------------
+# main
+# -------------------------------------------------------------------------------
+def main(options):
+    """
+    """
+    # initialize the environment dictionary
+    envDict = dict()
+    envDict = initialize_main(envDict, options)
+
+    # set the postprocessing dir in the envDict
+    envDict['POSTPROCESS_DIR'] = os.getcwd()
+
+    # generate the env_postprocess.xml file
+    # TODO - needs to check the compset to see what is active 
+    create_env_postprocess(envDict)
+
+    # generate the env_diags_[component].xml files
+    create_env_diags(envDict)
+
+    # generate the timeseries batch submit script
+    create_tseries_batch(envDict)
+
+    # generate the diagnostics batch submit scripts
+    create_diags_batch(envDict)
+    
+#===================================
+
+if __name__ == "__main__":
+    options = commandline_options()
+    try:
+        status = main(options)
+        sys.exit(status)
+    except Exception as error:
+        print(str(error))
+        if options.backtrace:
+            traceback.print_exc()
+        sys.exit(1)

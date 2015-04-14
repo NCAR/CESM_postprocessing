@@ -6,7 +6,7 @@ and the Python package for time slice-to-series operation, pyReshaper.
 
 It resides in the $CCSMROOT/postprocessing/cesm-env2
 __________________________
-Created on May 21, 2014
+Created on May, 2014
 
 @author: CSEG <cseg@cgd.ucar.edu>
 """
@@ -45,7 +45,7 @@ def commandline_options():
     """Process the command line arguments.
     """
     parser = argparse.ArgumentParser(
-        description='ocn_diags_generator: CESM wrapper python program for Ocean Diagnostics packages.')
+        description='cesm_tseries_generator: CESM wrapper python program to create variable time series files from history time slice files.')
 
     parser.add_argument('--backtrace', action='store_true',
                         help='show exception backtraces as extra debugging '
@@ -61,7 +61,7 @@ def commandline_options():
 
     # check to make sure CASEROOT is a valid, readable directory
     if not os.path.isdir(options.caseroot[0]):
-        err_msg = 'ocn_diags_generator.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
+        err_msg = 'cesm_tseries_generator.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
         raise OSError(err_msg)
 
     return options
