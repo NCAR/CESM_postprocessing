@@ -33,6 +33,10 @@ M       diagnostics/diagnostics/ocn/ocn_diags_generator.py
 M       diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
 M       diagnostics/Makefile
 X       reshaper/pyReshaper
+D       templates/template.tseries_generate
+A  +    templates/template.ocn_diagsnostics
+A  +    templates/template.timeseries
+D       templates/template.ocn_diags_generate
 
 ================================================================================
 	
