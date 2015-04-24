@@ -27,10 +27,11 @@ function Usage {
     echo "     - deactivate env"
     echo ""
     echo "OPTIONS"
-    echo "     -machine_dir           specify a CESM supported machine directory where the"
-    echo "                            [machine]_modules.sh script resides"
-    echo "     -machine               specify a CESM supported machine name"
-    echo "     -help                  Print this help message and exit"
+    echo "     -machine_dir    specify a CESM supported machine directory where the"
+    echo "                     [machine]_modules.sh script resides. If not specifed,"
+    echo "                     defaults to ./machines."
+    echo "     -machine        specify a CESM supported machine name."
+    echo "     -help           Print this help message and exit"
 }
 
 #======================================================================

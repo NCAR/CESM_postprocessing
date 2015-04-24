@@ -8,6 +8,7 @@
     <ice_diags_pes>8</ice_diags_pes>
     <lnd_diags_pes>8</lnd_diags_pes>
     <ocn_diags_pes>8</ocn_diags_pes>
+    <mpi_command>mpiexec</mpi_command>
   </machine>
 
   <machine name="yellowstone">
@@ -16,6 +17,7 @@
     <ice_diags_pes>124</ice_diags_pes>
     <lnd_diags_pes>124</lnd_diags_pes>
     <ocn_diags_pes>124</ocn_diags_pes>
+    <mpi_command>mpirun.lsf</mpi_command>
   </machine>
 
 </machine_postprocess>

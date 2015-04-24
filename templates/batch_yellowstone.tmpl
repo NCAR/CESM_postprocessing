@@ -1,11 +1,11 @@
-#BSUB -n 4
+#BSUB -n {{ pes }}
 #BSUB -R "span[ptile=15]"
 #BSUB -q regular
 #BSUB -N
 #BSUB -a poe
 #BSUB -x
-#BSUB -o postprocess.stdout.%J
-#BSUB -e postprocess.stderr.%J
+#BSUB -o {{ processName }}.stdout.%J
+#BSUB -e {{ processName }}.stderr.%J
 #BSUB -J CESM_postprocessing
 #BSUB -W 02:00
-#BSUB -P P93300606
+#BSUB -P {{ project }} 

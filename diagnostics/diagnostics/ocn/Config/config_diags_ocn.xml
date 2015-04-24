@@ -1,4 +1,4 @@
- <?xml version="1.0"?>
+<?xml version="1.0"?>
 
 <!-- =========================================================================== -->
 <!-- Ocean Model Working Group Diagnostics XML                                   -->
@@ -1043,13 +1043,5 @@
 	 sdesc="Controls whether to create depth profiles of Regional area-average TEMP and SALT bias and stddev plots"
 	 ldesc="Logical to control whether to create depth profiles of Regional area-average TEMP and SALT bias and stddev
 		plots (TRUE) or not (FALSE)."></entry>
-
-  <entry id=""
-	 type="logical"
-	 valid_values="TRUE,FALSE"
-	 value="TRUE"
-	 group="ocn_plot"
-	 sdesc=""
-	 ldesc=""></entry>
 
 </config_definition>

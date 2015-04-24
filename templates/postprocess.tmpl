@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+#
+# template to activate the virtualenv, call post process program, deactivate virtualenv
+#
+
+{{ batchdirectives }}
+mpirun={{ mpirun }}
+
+# xmlquery to get POSTPROCESS_VIRTUALENV, BATCHSUBMIT variable settings
+virtualEnvDir=`./xmlquery POSTPROCESS_VIRTUALENV -value`
+caseRoot=`./xmlquery CASEROOT -value`
+
+if [ ! -e $virtualEnvDir ]; then
+    echo "***********************************************************************************"
+    echo "{{ processName }} exiting due to non-existant python virtual environment in $virtualEnvDir."
+    echo "You must run $SRCROOT/postprocessing/create_python_env.sh -machine [machine] first."
+    echo "***********************************************************************************"
+    exit
+fi
+
+cd $virtualEnvDir/bin
+activate virtualenv
+
+$mpirun ./{{ postProcessCmd }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/{{ processName }}.log 2>&1
+
+deactivate
+

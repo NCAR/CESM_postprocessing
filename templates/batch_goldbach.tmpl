@@ -1,0 +1,7 @@
+#PBS -N {{ processName }}
+#PBS -q regular
+#PBS -l nodes={{ pes }}:ppn=16
+#PBS -l walltime=02:00
+#PBS -r n
+#PBS -o {{ processName }}.stdout
+#PBS -e {{ processName }}.stderr

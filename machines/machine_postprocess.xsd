@@ -13,6 +13,7 @@
 	      <xs:element name="ice_diags_pes" type="xs:string"/>
 	      <xs:element name="lnd_diags_pes" type="xs:string"/>
 	      <xs:element name="ocn_diags_pes" type="xs:string"/>
+	      <xs:element name="mpi_command" type="xs:string"/>
 	    </xs:sequence>
 	    <xs:attribute name="name" type="xs:string" use="required"/>
 	  </xs:complexType>

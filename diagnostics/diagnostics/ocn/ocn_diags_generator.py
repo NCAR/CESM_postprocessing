@@ -904,6 +904,7 @@ def main(options, scomm, rank, size):
         print('...calling sys.path.append')
     sys.path.append(envDict['PATH'])
     sys.path.append(envDict['OCN_DIAG_PATH'])
+
     scomm.sync()
 
     # set the shell env using the values set in the XML and read into the envDict

@@ -1,0 +1,59 @@
+Notes:
+
+Step A. create_python_env.sh machines/module_[machinename].sh - sets up the cesm-env2 virtualenv in the CESM/postprocessing source tree
+- can be run in source dir for collections
+- can be run as part of create_newcase --postprocessing
+- can be run standalone after a case has been created from CESM/postprocessing 
+
+1. load modules for this machine into env
+2. make env
+3. activate
+4. make install
+5. compile/install additional tools - see Ben's bitbucket example for configure-cesmxml
+6. make test
+7. deactivate
+
+************** a clean cesm-env2 virtualenv now exists ***************
+
+Step B. create_postprocessing --caseroot [caseroot] (python script)
+- can be run from create_newcase --postprocessing 
+- can be run stand-alone from CESM/postprocessing
+
+QUESTION - does virtual-env need to be activated first before create_postprocessing can be run??
+if so, then create_postprocessing.py needs to be installed in the virtualenv and called
+by a create_postprocess.sh script...
+
+1. parse/copy config_env files into caseroot 
+   - includes a postprocess.xml (which contains 5 key/value pairs for what gets run (tseries, ocn, atm, lnd, ice)
+
+1.1 based on compset, set defaults for postprocess.xml (T or F)
+   -includes Logic to look at compset first letter and choose which diagnostics to turn on in postprocess.xml
+
+2. create batch script bash files - 2 total (tseries and diags)
+   - these machines files are very simple for prototyping only 
+   - read machines/batch directives
+   - read batch template (start with basic built-in template lib)
+   - write batch runscripts to the caseroot
+     - CASEROOT/[casename].timeseries
+     - CASEROOT/[casename].diagnostics
+
+3. tseries batch script [casename].timeseries
+   - get the caseroot from current location
+   - activate the virtualenv
+   - calls mpiexec cesm_tseries_wrapper.py --caseroot [caseroot]
+      - reads CASEROOT/env_archive.xml 
+      - calls pyReshaper 
+      - deletes history slice files (DOUT_S_SAVE_HISTORY_FILES == FALSE by default)
+
+4. diag batch script [casename].diagnostics --component [ocn|atm|lnd|ice] 
+   - get the caseroot from current location
+   - activate the virtualenv
+   - can be submitted concurrently for each component
+     - calls mpiexec cesm_diags_wrapper.py --component [ocn|atm|lnd|ice] 
+       for now, start with ocn/cesm_diags_wrapper.py --caseroot [caseroot]
+   - get the ssh keys to scp diag html and gif files to a webserver
+
+
+
+
+

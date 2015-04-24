@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<config_definition>
+
+<!-- ======================================================================= -->
+<!-- env_postprocess.xml                                                     -->
+<!-- boolean (True / False) controls for enabling post processing tasks      -->
+<!-- ======================================================================= -->
+
+{% for xml in xml_list %}
+<!--"{{ xml._sdesc }}" -->
+<entry id="{{ xml._id }}" value="{{ xml._value }}" />
+{% endfor %}
+
+<!-- ====================================== -->
+</config_definition>
