@@ -883,8 +883,8 @@ def main(options, scomm, rank, size):
     model vs. model (optional BGC - ecosystem)
     model time-series (optional BGC - ecosystem)
 
-    The env_ocn_diags_settings.xml configuration file defines the way the diagnostics are generated. 
-    See (modelnl website here...) for a complete desciption of the env_ocn_diags_settings XML options.
+    The env_diags_ocn.xml configuration file defines the way the diagnostics are generated. 
+    See (modelnl website here...) for a complete desciption of the env_diags_ocn XML options.
     """
     # initialize the environment dictionary
     envDict = dict()

@@ -4,7 +4,7 @@
 This script provides an interface between the CESM CASE environment 
 and the Python package for time slice-to-series operation, pyReshaper.
 
-It resides in the $CCSMROOT/postprocessing/cesm-env2
+It resides in the $SRCROOT/postprocessing/cesm-env2
 __________________________
 Created on May, 2014
 
@@ -23,6 +23,7 @@ if sys.hexversion < 0x02070000:
     print(70 * '*')
     sys.exit(1)
 
+import argparse
 import sys
 import os
 import glob
@@ -33,7 +34,7 @@ import xml.etree.ElementTree as ET
 from cesm_utils import cesmEnvLib
 
 # import the MPI related module
-from pytools import partition, simplecomm
+from asaptools import partition, simplecomm
 
 # load the pyreshaper modules
 from pyreshaper import specification, reshaper
@@ -69,22 +70,24 @@ def commandline_options():
 #==========================================================================================
 # readArchiveXML - read the $CASEROOT/env_archive.xml file and build the pyReshaper classes
 #==========================================================================================
-def readArchiveXML(cesmEnv):
+def readArchiveXML(caseroot, dout_s_root, casename):
     """ reads the $CASEROOT/env_archive.xml file and builds a fully defined list of 
          reshaper specifications to be passed to the pyReshaper tool.
 
     Arguments:
-    cesmEnv (dictionary) - CESM case environment dictionary
+    caseroot (string) - case root path
+    dout_s_root (string) - short term archive root path
+    casename (string) - casename
     """
     specifiers = list()
     xml_tree = ET.ElementTree()
 # check if the env_archive.xml file exists
-    if ( not os.path.isfile('cesmEnv["CASEROOT"]/env_archive.xml') ):
-        err_msg = "cesm_tseries_generator.py ERROR: env_archive.xml does not exist."
+    if ( not os.path.isfile('{0}/env_archive.xml'.format(caseroot)) ):
+        err_msg = "cesm_tseries_generator.py ERROR: {0}/env_archive.xml does not exist.".format(caseroot)
         raise OSError(err_msg)
     else:
 # parse the xml
-        xml_tree.parse('cesmEnv["CASEROOT"]/env_archive.xml')
+        xml_tree.parse('{0}/env_archive.xml'.format(caseroot))
 
 # loop through all the comp_archive_spec elements to find the tseries related elements
         for comp_archive_spec in xml_tree.findall("components/comp_archive_spec"):
@@ -121,7 +124,7 @@ def readArchiveXML(cesmEnv):
 # check if the tseries_output_subdir is specified and create the tseries_output_dir
                         if file_spec.find("tseries_output_subdir") is not None:
                             tseries_output_subdir = file_spec.find("tseries_output_subdir").text
-                            tseries_output_dir = '/'.join( [cesmEnv["DOUT_S_ROOT"], rootdir,tseries_output_subdir] )
+                            tseries_output_dir = '/'.join( [dout_s_root, rootdir,tseries_output_subdir] )
                             if not os.path.exists(tseries_output_dir):
                                 os.makedirs(tseries_output_dir)
                         else:
@@ -149,7 +152,7 @@ def readArchiveXML(cesmEnv):
 
 # get a list of all the input files for this stream from the archive location
                         history_files = list()
-                        in_file_path = '/'.join( [cesmEnv["DOUT_S_ROOT"],rootdir,subdir] )                        
+                        in_file_path = '/'.join( [dout_s_root,rootdir,subdir] )                        
                         all_in_files = os.listdir(in_file_path)
 
 # check that there are actually a list of history files to work with
@@ -181,7 +184,7 @@ def readArchiveXML(cesmEnv):
                                 stream = last_file_parts[-4]+"."+last_file_parts[-3]
 
 # create the tseries output prefix needs to end with a "."
-                            tseries_output_prefix = tseries_output_dir+"/"+cesmEnv["CASE"]+"."+comp_name+"."+stream+"."
+                            tseries_output_prefix = tseries_output_dir+"/"+casename+"."+comp_name+"."+stream+"."
 
 # format the time series variable output suffix based on the tseries_tper setting suffix needs to start with a "."
                             if tseries_tper == "yearly":
@@ -227,15 +230,19 @@ def main(options, scomm, rank, size):
     # initialize the CASEROOT environment dictionary
     cesmEnv = dict()
 
+    # CASEROOT is given on the command line as required option --caseroot
+    caseroot = options.caseroot[0]
+
     # cesmEnv["id"] = "value" parsed from the CASEROOT/env_*.xml files
-    cesmEnv = cesmEnvLib.readCesmXML()
+    env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
+    cesmEnv = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # initialize the specifiers list to contain the list of specifier classes
     specifiers = list()
 
     # loading the specifiers from the env_archive.xml  only needs to run on the master task (rank=0) 
     if rank == 0:
-        specifiers = readArchiveXML(cesmEnv)
+        specifiers = readArchiveXML(caseroot, cesmEnv['DOUT_S_ROOT'], cesmEnv['CASE'])
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper

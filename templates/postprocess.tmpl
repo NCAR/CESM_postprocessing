@@ -4,24 +4,30 @@
 #
 
 {{ batchdirectives }}
-mpirun={{ mpirun }}
 
-# xmlquery to get POSTPROCESS_VIRTUALENV, BATCHSUBMIT variable settings
-virtualEnvDir=`./xmlquery POSTPROCESS_VIRTUALENV -value`
-caseRoot=`./xmlquery CASEROOT -value`
-
-if [ ! -e $virtualEnvDir ]; then
-    echo "***********************************************************************************"
-    echo "{{ processName }} exiting due to non-existant python virtual environment in $virtualEnvDir."
+if [ ! -e {{ virtualEnvDir }} ]; then
+    echo "************************************************************************************"
+    echo "CESM {{ processName }} exiting due to non-existant python virtual environment in"
+    echo "    {{ virtualEnvDir }}"
     echo "You must run $SRCROOT/postprocessing/create_python_env.sh -machine [machine] first."
     echo "***********************************************************************************"
     exit
 fi
 
-cd $virtualEnvDir/bin
-activate virtualenv
+cd {{ virtualEnvDir }}
+pwd
+. activate
 
-$mpirun ./{{ postProcessCmd }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/{{ processName }}.log 2>&1
+echo "******************************************"
+echo "Start {{ processName }} generation $(date)"
+echo "******************************************"
+
+{{ mpirun }} ./{{ postProcessCmd }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/{{ processName }}.log 2>&1
+
+echo "******************************************"
+echo "End {{ processName }} generation $(date)"
+echo "******************************************"
 
 deactivate
+cd {{ caseRoot }}
 

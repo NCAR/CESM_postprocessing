@@ -215,8 +215,10 @@ ${pp_dir}/cesm-env2.
 All interaction with the virtual environment including activating and deactivating is done via
 the post processing tools that reside in the experiment CASE directory and are created 
 using the create_postprocessing script. These include:
+env_postprocess.xml
+env_diags_[component].xml
 [CASENAME].timeseries
-[CASENAME].diagnostics"
+[CASENAME].[component]_diagnostics"
 print_result $status "$info"
 
 exit 0
