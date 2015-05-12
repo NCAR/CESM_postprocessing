@@ -4,6 +4,31 @@ SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
 ================================================================================
 This file describes what tags were created and why
 ================================================================================
+
+Originator: aliceb
+Date: 12 May 2015
+Model: postprocessing
+Version: postprocessing_20150512
+One-line: not fully tested version with non-working ocn_diags integration
+
+M       create_python_env.sh
+M       machines/machine_postprocess.xsd
+M       machines/yellowstone_modules.sh
+M       machines/machine_postprocess.xml
+M       templates/postprocess.tmpl
+M       SVN_EXTERNAL_DIRECTORIES
+M       create_postprocess
+M       diagnostics/diagnostics/ocn/Plots/ocn_diags_plot_bc.py
+M       diagnostics/diagnostics/ocn/Plots/zonal_average_3d_fields.py
+M       diagnostics/diagnostics/ocn/Plots/surface_flux_fields.py
+M       diagnostics/diagnostics/ocn/Plots/surface_fields.py
+M       diagnostics/diagnostics/ocn/Plots/moc_fields.py
+A       diagnostics/diagnostics/ocn/ocn_diags_generator_serial.py
+M       diagnostics/diagnostics/ocn/ocn_diags_generator.py
+M       cesm_utils/cesm_utils/cesmEnvLib.py
+M       timeseries/timeseries/cesm_tseries_generator.py
+
+================================================================================
 	
 Originator: aliceb
 Date: 04 May 2015

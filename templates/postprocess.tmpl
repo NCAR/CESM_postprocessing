@@ -18,6 +18,10 @@ cd {{ virtualEnvDir }}
 pwd
 . activate
 
+{% for module in modules %}
+{{ module }}
+{% endfor %}
+
 echo "******************************************"
 echo "Start {{ processName }} generation $(date)"
 echo "******************************************"

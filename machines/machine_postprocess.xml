@@ -9,6 +9,9 @@
     <lnd_diags_pes>8</lnd_diags_pes>
     <ocn_diags_pes>8</ocn_diags_pes>
     <mpi_command>mpiexec</mpi_command>
+    <modules>
+      <module></module>
+    </modules>
   </machine>
 
   <machine name="yellowstone">
@@ -18,6 +21,10 @@
     <lnd_diags_pes>124</lnd_diags_pes>
     <ocn_diags_pes>124</ocn_diags_pes>
     <mpi_command>mpirun.lsf</mpi_command>
+    <modules>
+      <module>module load ncl</module>
+      <module>module load nco</module>
+    </modules>
   </machine>
 
 </machine_postprocess>

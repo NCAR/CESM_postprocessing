@@ -82,7 +82,8 @@ def setXmlEnv(indict):
 
 
 #==============================================
-# checkEnv - check if a XML env var is defined WARNING - this doesn't work in virtual env because of perl XML::LibXML!!!
+# checkEnv - check if a XML env var is defined 
+# WARNING - this doesn't work in virtual env because of perl XML::LibXML!!!
 #==============================================
 def checkEnv(varname, relpath):
     """checkEnv - check if an env var is defined

@@ -212,13 +212,18 @@ cd $curdir
 status="SUCCESS"
 info="$progname - CESM post processing virtual environment installed successfully in 
 ${pp_dir}/cesm-env2.
+
+**********************************************************************************************
+
 All interaction with the virtual environment including activating and deactivating is done via
-the post processing tools that reside in the experiment CASE directory and are created 
-using the create_postprocessing script. These include:
-env_postprocess.xml
-env_diags_[component].xml
-[CASENAME].timeseries
-[CASENAME].[component]_diagnostics"
+the post processing tools that reside in the experiment caseroot directory and are created 
+using the create_postprocessing --caseroot [caseroot] script. These include:
+    env_postprocess.xml
+    env_diags_[component].xml
+    [CASENAME].timeseries
+    [CASENAME].[component]_diagnostics
+
+**********************************************************************************************"
 print_result $status "$info"
 
 exit 0

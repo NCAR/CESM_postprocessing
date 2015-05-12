@@ -16,13 +16,9 @@ import shutil
 import subprocess
 import jinja2
 
-# import the diag_utils module
-if os.path.isdir('../diag_utils'):
-    sys.path.append('../diag_utils')
-    import diag_utils
-else:
-    err_msg = 'surface_fields.py ERROR: diag_utils.py required and not found in ../diag_utils'
-    raise OSError(err_msg)
+# import the helper utility module
+from cesm_utils import cesmEnvLib
+from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
@@ -50,13 +46,13 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
         # check that temperature observation TOBSFILE exists and is readable
-        rc, err_msg = diag_utils.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE']), 'read')
+        rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE']), 'read')
         if not rc:
             raise OSError(err_msg)
 
         # check the TEMP observation zonal average file 
         zaTempFile = '{0}/za_{1}'.format( env['WORKDIR'], env['TOBSFILE'] )
-        rc, err_msg = diag_utils.checkFile(zaTempFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(zaTempFile, 'read')
         if not rc:
             # change to the workdir
             cwd = os.getcwd()
@@ -75,7 +71,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
 
             # call zaCommand 
             zaCommand = '{0}/za'.format(env['TOOLPATH'])
-            rc, err_msg = diag_utils.checkFile(zaCommand, 'exec')
+            rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
             if not rc:
                 raise OSError(err_msg)
 
@@ -92,13 +88,13 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
             os.chdir(cwd)
 
         # check that salinity observation SOBSFILE exists and is readable
-        rc, err_msg = diag_utils.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE']), 'read')
+        rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE']), 'read')
         if not rc:
             raise OSError(err_msg)
 
         # check the SALT observation zonal average file 
         zaSaltFile = '{0}/za_{1}'.format( env['WORKDIR'], env['SOBSFILE'] )
-        rc, err_msg = diag_utils.checkFile(zaSaltFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(zaSaltFile, 'read')
         if not rc:
       
             # change to the workdir
@@ -118,7 +114,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
 
             # call zaCommand 
             zaCommand = '{0}/za'.format(env['TOOLPATH'])
-            rc, err_msg = diag_utils.checkFile(zaCommand, 'exec')
+            rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
             if not rc:
                 raise OSError(err_msg)
 
@@ -143,7 +139,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         # generate_plots with field_3d_za.ncl command
         # put the ncl file names in a list variable for the class 
         # so can eventually read that list from XML
-        diag_utils.generate_ncl_plots(env, 'field_3d_za.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'field_3d_za.ncl')        
 
     def _create_html(self, workdir):
         """Creates and renders html that is returned to the calling wrapper
@@ -161,7 +157,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
             for j in range(num_cols - 2):
                 plot_file = exp_plot_list[j]
                 gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:

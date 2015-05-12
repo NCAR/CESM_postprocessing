@@ -184,6 +184,7 @@ def read_machine_xml(machineName, xmlFile, compList):
     peDict (dictionary) - PE count for each postprocess task
     """
     xmlDict = dict()
+    xmlDict['modules'] = []
     found = False
     rc, err_msg = cesmEnvLib.checkFile(xmlFile, 'read')
     if rc:
@@ -204,6 +205,10 @@ def read_machine_xml(machineName, xmlFile, compList):
                 # get the mpi run command
                 xmlDict['mpi_command'] = xmlmachine.find('mpi_command').text
 
+                # loop through the module list
+                for modules in xmlmachine.findall("modules"):
+                    xmlDict['modules'].append(modules.find('module').text)
+
         if not found:
             err_msg = ('create_postprocess ERROR: Invalid machine "{0}" requested for postprocessing'.format(machine))
             raise OSError(err_msg)
@@ -215,7 +220,7 @@ def read_machine_xml(machineName, xmlFile, compList):
 # -------------------------------------------------------------------------------
 # create_batch - create the batch files for post processing submission
 # -------------------------------------------------------------------------------
-def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName, project, caseRoot):
+def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName, project, caseRoot, modules):
     """create the batch submission files for post processing
 
     Arguments:
@@ -264,6 +269,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     # get the postprocessing run template 
     template = templateEnv.get_template( runTmpl )
     templateVars = { 'batchdirectives' : batchdirectives,
+                     'modules' : modules,
                      'mpirun' : mpiCmd,
                      'processName' : processName,
                      'postProcessCmd' : postProcessCmd,
@@ -361,7 +367,7 @@ def main(options):
     postProcessCmd = 'cesm_tseries_generator.py'
     outFile = '{0}/{1}.timeseries'.format(envDict['CASEROOT'], envDict['CASE'])
     create_batch(envDict['POSTPROCESS_DIR'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
-                 machine['mpi_command'], outFile, 'timeseries', envDict['PROJECT'], envDict['CASEROOT'])
+                 machine['mpi_command'], outFile, 'timeseries', envDict['PROJECT'], envDict['CASEROOT'], envDict['modules'])
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
@@ -369,7 +375,8 @@ def main(options):
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
         outFile = '{0}/{1}.{2}_diagnostics'.format(envDict['CASEROOT'], envDict['CASE'], comp)
         create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_diags_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
-                     machine['mpi_command'], outFile,'{0}_diagnostics'.format(comp), envDict['PROJECT'], envDict['CASEROOT'])
+                     machine['mpi_command'], outFile,'{0}_diagnostics'.format(comp), envDict['PROJECT'], envDict['CASEROOT'],
+                     envDict['modules'])
     
 #===================================
 

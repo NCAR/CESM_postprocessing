@@ -14,13 +14,10 @@ import traceback
 import os
 import jinja2
 
-# import the diag_utils module
-if os.path.isdir('../diag_utils'):
-    sys.path.append('../diag_utils')
-    import diag_utils
-else:
-    err_msg = 'surface_fields.py ERROR: diag_utils.py required and not found in ../diag_utils'
-    raise OSError(err_msg)
+
+# import the helper utility module
+from cesm_utils import cesmEnvLib
+from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
@@ -46,13 +43,13 @@ class SurfaceFields(OceanDiagnosticPlot):
 
         # check the observation sea surface height file
         sshFile = '{0}/{1}'.format( env['SSHOBSDIR'], env['SSHOBSFILE'] )
-        rc, err_msg = diag_utils.checkFile(sshFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(sshFile, 'read')
         if not rc:
             raise OSError(err_msg)
 
         # check if the link to the observation sea surface height file exists and is readable
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['SSHOBSFILE'])
-        rc, err_msg = diag_utils.checkFile(linkFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
         if not rc:
             os.symlink(sshFile, linkFile)
 
@@ -62,13 +59,13 @@ class SurfaceFields(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # generate_plots with ssh.ncl command
-        diag_utils.generate_ncl_plots(env, 'ssh.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'ssh.ncl')        
 
         # generate_plots with field_2d.ncl command
-        diag_utils.generate_ncl_plots(env, 'field_2d.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'field_2d.ncl')        
 
         # generate_plots with field_2d_za.ncl command
-        diag_utils.generate_ncl_plots(env, 'field_2d_za.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'field_2d_za.ncl')        
 
 
     def _create_html(self, workdir):
@@ -87,7 +84,7 @@ class SurfaceFields(OceanDiagnosticPlot):
             for j in range(num_cols):
                 plot_file = self._expectedPlots[index]
                 gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -101,7 +98,7 @@ class SurfaceFields(OceanDiagnosticPlot):
             for i in range(num_last_row):
                 plot_file = self._expectedPlots[index]
                 gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -126,7 +123,7 @@ class SurfaceFields(OceanDiagnosticPlot):
             for j in range(num_cols):
                 plot_file = self._za_expectedPlots[index]
                 gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -140,7 +137,7 @@ class SurfaceFields(OceanDiagnosticPlot):
             for i in range(num_last_row):
                 plot_file = self._za_expectedPlots[index]
                 gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:

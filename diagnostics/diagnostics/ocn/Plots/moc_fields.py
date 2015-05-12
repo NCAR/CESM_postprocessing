@@ -15,13 +15,9 @@ import os
 import shutil
 import jinja2
 
-# import the diag_utils module
-if os.path.isdir('../diag_utils'):
-    sys.path.append('../diag_utils')
-    import diag_utils
-else:
-    err_msg = 'moc_fields.py ERROR: diag_utils.py required and not found in ../../diag_utils'
-    raise OSError(err_msg)
+# import the helper utility module
+from cesm_utils import cesmEnvLib
+from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
@@ -49,7 +45,7 @@ class MOCFields(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # generate_plots with field_3d_za.ncl command
-        diag_utils.generate_ncl_plots(env, 'moc_netcdf.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'moc_netcdf.ncl')        
 
 
     def _create_html(self, workdir):
@@ -61,7 +57,7 @@ class MOCFields(OceanDiagnosticPlot):
 
         for plot_file in self._expectedPlots:
             gif_file = '{0}.gif'.format(plot_file)
-            rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+            rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
             if not rc:
                 plot_list.append('{0} - Error'.format(plot_file))
             else:

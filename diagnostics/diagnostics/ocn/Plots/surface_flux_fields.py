@@ -14,13 +14,9 @@ import traceback
 import os
 import jinja2
 
-# import the diag_utils module
-if os.path.isdir('../diag_utils'):
-    sys.path.append('../diag_utils')
-    import diag_utils
-else:
-    err_msg = 'surface_flux_fields.py ERROR: diag_utils.py required and not found in ../diag_utils'
-    raise OSError(err_msg)
+# import the helper utility module
+from cesm_utils import cesmEnvLib
+from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
@@ -58,37 +54,37 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
 
         # check if the flux file exists and is readable
         sourceFile = '{0}/{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
-        rc, err_msg = diag_utils.checkFile(sourceFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if not rc:
             raise OSError(err_msg)
 
         # check if the link to the flux file exists and is readable
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['FLUXOBSFILE'])
-        rc, err_msg = diag_utils.checkFile(linkFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
         if not rc:
             os.symlink(sourceFile, linkFile)
 
         # check if the zonal average flux file exists and is readable
         sourceFile = '{0}/za_{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
-        rc, err_msg = diag_utils.checkFile(sourceFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if not rc:
             raise OSError(err_msg)
 
         # check if the link to the zonal average flux file exists and is readable
         linkFile = '{0}/za_{1}'.format(env['WORKDIR'],env['FLUXOBSFILE'])
-        rc, err_msg = diag_utils.checkFile(linkFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
         if not rc:
             os.symlink(sourceFile, linkFile)
 
         # check if surface winds and wind stress file exists
         sourceFile = '{0}/{1}'.format(env['WINDOBSDIR'],env['WINDOBSFILE'])
-        rc, err_msg = diag_utils.checkFile(sourceFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if not rc:
             raise OSError(err_msg)
 
         # check if the link to the winds file exists and is readable
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['WINDOBSFILE'])
-        rc, err_msg = diag_utils.checkFile(linkFile, 'read')
+        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
         if not rc:
             os.symlink(sourceFile, linkFile)
 
@@ -96,13 +92,13 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         # commenting out until hear back from Keith Lindsey if this file is needed
         # it does not exist in the popdiag distribution
         #sourceFile = '{0}/za_{1}'.format(env['WINDOBSDIR'],env['WINDOBSFILE'])
-        #rc, err_msg = diag_utils.checkFile(sourceFile, 'read')
+        #rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         #if not rc:
         #    raise OSError(err_msg)
 
         # check if the link to the zonal average wind file exists and is readable
         #linkFile = '{0}/za_{1}'.format(env['WORKDIR'],env['WINDOBSFILE'])
-        #rc, err_msg = diag_utils.checkFile(linkFile, 'read')
+        #rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
         #if not rc:
         #    os.symlink(sourceFile, linkFile)
 
@@ -112,10 +108,10 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # call the generate_plots with sfcflx.ncl command
-        diag_utils.generate_ncl_plots(env, 'sfcflx.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'sfcflx.ncl')        
 
         # call the generate_plots with sfcflx_za.ncl command
-        diag_utils.generate_ncl_plots(env, 'sfcflx_za.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'sfcflx_za.ncl')        
 
 
     def _create_html(self, workdir):
@@ -134,7 +130,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             for j in range(num_cols):
                 plot_file = self._expectedPlots[index]
                 gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -148,7 +144,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             for i in range(num_last_row):
                 plot_file = self._expectedPlots[index]
                 gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -173,7 +169,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             for j in range(num_cols):
                 plot_file = self._za_expectedPlots[index]
                 gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -187,7 +183,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             for i in range(num_last_row):
                 plot_file = self._za_expectedPlots[index]
                 gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = diag_utils.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:

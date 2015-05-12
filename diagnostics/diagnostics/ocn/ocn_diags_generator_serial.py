@@ -102,34 +102,21 @@ def check_ncl_nco(envDict):
     envDict (dictionary) - environment dictionary
     """
     print('...before checking NCL')
-    print('... envDict - PATH = {0}'.format(envDict['PATH']))
-    cmd = ['ncl', '-V']
     try:
-        subprocess.check_output(cmd, env=envDict)
+        subprocess.check_output( ['ncl', '-V'], env=envDict)
     except subprocess.CalledProcessError as e:
-        print('NCL encountered a problem.')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
-        print('    {0} - {1}'.format(e.cmd, e.output))
-        sys.exit(1)
-    except OSError as e:
         print('NCL is required to run the ocean diagnostics package')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
-        print('    {0} - {1}'.format(e.errno, e.strerror))
+        print('ERROR: {0} call to ncl failed with error:'.format(self.name()))
+        print('    {0} - {1}'.format(e.cmd, e.output))
         sys.exit(1)
 
     print('...before checking ncks')
-    cmd = ['ncks', '--version']
     try:
-        subprocess.check_output(cmd , env=envDict)
+        subprocess.check_output( ['ncks', '--version'], env=envDict)
     except subprocess.CalledProcessError as e:
         print('NCO ncks is required to run the ocean diagnostics package')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
+        print('ERROR: {0} call to ncks failed with error:'.format(self.name()))
         print('    {0} - {1}'.format(e.cmd, e.output))
-        sys.exit(1)
-    except OSError as e:
-        print('NCO ncks is required to run the ocean diagnostics package')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
-        print('    {0} - {1}'.format(e.errno, e.strerror))
         sys.exit(1)
 
     return 0
@@ -175,10 +162,7 @@ def initialize_main(envDict, caseroot, scomm, rank, size):
         envDict['TOBSFILE'] = envDict['TOBSFILE_V42']
         envDict['SOBSFILE'] = envDict['SOBSFILE_V42']
 
-    # add the os.environ['PATH'] to the envDict['PATH']
-    envDict['PATH'] += os.pathsep + os.environ['PATH']
-
-    scomm.sync()
+    ##scomm.sync()
 
     # initialize some global variables needed for all plotting types
     start_year = 0
@@ -228,7 +212,7 @@ def initialize_model_vs_obs(envDict, scomm, rank):
     workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
     if not os.path.exists(workdir) and rank == 0:
         os.mkdir(workdir)
-    scomm.sync()
+    ##scomm.sync()
 
     envDict['WORKDIR'] = workdir
 
@@ -240,7 +224,7 @@ def initialize_model_vs_obs(envDict, scomm, rank):
         cesmEnvLib.purge(workdir, '.*\.ps')
         cesmEnvLib.purge(workdir, '.*\.png')
         cesmEnvLib.purge(workdir, '.*\.html')
-    scomm.sync()
+    ##scomm.sync()
 
     if rank == 0:
         # create the plot.dat file in the workdir used by all NCL plotting routines
@@ -248,7 +232,7 @@ def initialize_model_vs_obs(envDict, scomm, rank):
 
         # create symbolic links between the tavgdir and the workdir
         createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'])
-    scomm.sync()
+    ##scomm.sync()
 
     # setup the gridfile based on the resolution
     os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
@@ -290,7 +274,7 @@ def initialize_model_vs_obs(envDict, scomm, rank):
                 err_msg = 'ocn_diags_generator.py ERROR: command {0} failed.'.format(zavg_command)
                 raise OSError(err_msg)
  
-    scomm.sync()
+    ##scomm.sync()
 
     return envDict
 
@@ -504,7 +488,7 @@ def convert_plots(workdir, scomm):
                 print('    {0} - {1}'.format(e.cmd, e.output))
             else:
                 continue
-        scomm.sync()
+        ##scomm.sync()
 
     os.chdir(cwd)
 
@@ -761,7 +745,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
         print('...... reg_obs_file_suffix = {0}'.format(reg_obs_file_suffix))
         print('...... main_comm = {0}'.format(scomm))
 
-    scomm.sync()
+    ##scomm.sync()
 
     # pyAveSpecifier is a pyAverage specifier
     pyAveSpecifier = specification.create_specifier(
@@ -790,7 +774,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
     print("... before run_pyAverager scomm rank={0}, size={1}".format(scomm.get_rank(), scomm.get_size()))
     PyAverager.run_pyAverager(pyAveSpecifier)
 
-    scomm.sync()
+    ##scomm.sync()
 
     return 0
 
@@ -823,14 +807,14 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
         print('... calling buildOcnAvgList')
     if rank == 0:
         averageList = buildOcnAvgList(start_year, stop_year, avgFileBaseName)
-    scomm.sync()
+    ##scomm.sync()
 
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
         if rank == 0 and DEBUG:
             print('... calling callPyAverager')
-        scomm.sync()
+        ##scomm.sync()
 
         callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, scomm, rank, size)
     else:
@@ -854,14 +838,14 @@ def model_vs_obs(envDict, scomm, rank, size):
     """
     if rank == 0 and DEBUG:
         print('...calling initialize_model_vs_obs')
-    scomm.sync()
+    ##scomm.sync()
 
     # initialize the model vs. obs environment
     envDict = initialize_model_vs_obs(envDict, scomm, rank)
 
     if rank == 0 and DEBUG:
         print('...calling setXmlEnv in model_vs_obs')
-    scomm.sync()
+    ##scomm.sync()
 
     # set the shell env using the values set in the XML and read into the envDict
     cesmEnvLib.setXmlEnv(envDict)
@@ -898,19 +882,19 @@ def model_vs_obs(envDict, scomm, rank, size):
 
         # dispatch mpi plotting jobs here
         print('Generating plots in parallel:')
-    scomm.sync()
+    ##scomm.sync()
     user_plot_list = scomm.partition(user_plot_list, func=partition.EqualStride(), involved=True)
     
     for user_plot in user_plot_list:
         user_plot.generate_plots(envDict)  
-    scomm.sync()
+    ##scomm.sync()
             
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
     if rank == 0 and DEBUG:
         print('... before convert_plots')
     convert_plots(envDict['WORKDIR'], scomm)
-    scomm.sync()
+    ##scomm.sync()
 
     if rank == 0:
         print('Creating plot html header:')
@@ -953,7 +937,7 @@ def model_vs_obs(envDict, scomm, rank, size):
 
         print('Successfully completed generating ocean diagnostics model vs. observation plots')
 
-    scomm.sync()
+    ##scomm.sync()
     return 0
 
 #================
@@ -1033,19 +1017,19 @@ def main(options, scomm, rank, size):
         print('...before checking NCL and NCO')
         rc = check_ncl_nco(envDict)
         print('...after checking NCL and NCO')
-    scomm.sync()
+    ##scomm.sync()
 
     if rank == 0 and DEBUG:
         print('...calling sys.path.append')
     sys.path.append(envDict['PATH'])
-    sys.path.append(envDict['OCNDIAG_PATH'])
-    scomm.sync()
+##    sys.path.append(envDict['OCNDIAG_PATH'])
+    ##scomm.sync()
 
     # set the shell env using the values set in the XML and read into the envDict
     if rank == 0 and DEBUG:
         print('...calling setXmlEnv')
     cesmEnvLib.setXmlEnv(envDict)
-    scomm.sync()
+    ##scomm.sync()
 
     # model vs. observations
     if envDict['MODEL_VS_OBS'].upper() in ['T','TRUE']:
@@ -1068,10 +1052,13 @@ def main(options, scomm, rank, size):
 
 if __name__ == "__main__":
     # initialize simplecomm object
-    scomm = simplecomm.create_comm(serial=False)
+#    scomm = simplecomm.create_comm(serial=False)
+#    rank = scomm.get_rank()
+#    size = scomm.get_size()
 
-    rank = scomm.get_rank()
-    size = scomm.get_size()
+    scomm = ''
+    rank = 0
+    size = 1
 
     options = commandline_options()
     DEBUG = options.debug

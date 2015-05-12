@@ -17,22 +17,8 @@ import traceback
 import os
 import subprocess
 
-# import the diag_utils module
-#if os.path.isdir('../diag_utils'):
-#    sys.path.append('../diag_utils')
-#    import diag_utils
-#else:
-#    err_msg = 'ocn_diags_plot_bc.py ERROR: diag_utils.py required and not found in ../diag_utils'
-#    raise OSError(err_msg)
-
-# import the cesm_utils module
-if os.path.isdir('../../cesm_utils'):
-    sys.path.append('../../cesm_utils')
-    import cesmEnvLib
-else:
-    err_msg = 'ocn_diags_plot_bc.py ERROR: cesmEnvLib.py required and not found in ../../cesm_utils'
-    raise OSError(err_msg)
-
+# import the helper utility module
+from cesm_utils import cesmEnvLib
 
 class OceanDiagnosticPlot(object):
     """This is the base class defining the common interface for all

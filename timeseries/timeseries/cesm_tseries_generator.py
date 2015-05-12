@@ -31,6 +31,7 @@ import re
 import string
 import pprint
 import xml.etree.ElementTree as ET
+
 from cesm_utils import cesmEnvLib
 
 # import the MPI related module
