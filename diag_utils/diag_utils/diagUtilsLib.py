@@ -10,6 +10,7 @@ Created on Apr 01, 2015
 import os
 import re
 import subprocess
+from cesm_utils import cesmEnvLib
 
 #============================================================
 # generate_ncl_plots - call a nclPlotFile via subprocess call
@@ -27,7 +28,7 @@ def generate_ncl_plots(env, nclPlotFile):
     # check if the nclPlotFile exists - 
     # don't exit if it does not exists just print a warning.
     nclFile = '{0}/{1}'.format(env['NCLPATH'],nclPlotFile)
-    rc, err_msg = checkFile(nclFile, 'read')
+    rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
     if rc:
         try:
             print('      calling NCL plot routine {0}'.format(nclPlotFile))

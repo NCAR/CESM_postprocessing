@@ -22,37 +22,51 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-class MOCFields(OceanDiagnosticPlot):
-    """Meridional Overturning Circulation plots
+class SeasonalCycle(OceanDiagnosticPlot):
+    """Seasonal Cycle Plots
     """
 
     def __init__(self):
-        super(MOCFields, self).__init__()
-        self._expectedPlots = [ 'MOC', 'MOC_TOTAL', 'MOC_EI', 'HT', 'FWT' ]
-        self._name = 'Meridional Overturning Circulation - Meridional Heat & Freshwater Transports'
-        self._shortname = 'MOC'
-        self._template_file = 'moc_fields.tmpl'
+        super(SeasonalCycle, self).__init__()
+        self._expectedPlots = [ 'EQ_PAC_SST_SEASONAL_CYCLE' ]
+        self._name = 'Seasonal Cycle Plots'
+        self._shortname = 'SCP'
+        self._template_file = 'seasonal_cycle.tmpl'
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(MOCFields, self).check_prerequisites(env)
+        super(SeasonalCycle, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
+
+        # set SEASAVGFILE env var to the envDict['SEASAVGTEMP'] file
+        os.environ['SEASAVGFILE'] = env['SEASAVGTEMP']
+
+        # set a link to SSTOBSDIR/SSTOBSFILE
+        sourceFile = '{0}/{1}'.format(env['SSTOBSDIR'], env['SSTOBSFILE'])
+        linkFile = '{0}/{1}'.format(env['WORKDIR'], env['SSTOBSFILE'])
+        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
+        if rc:
+            rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
+            if not rc1:
+                os.symlink(sourceFile, linkFile)
+        else:
+            raise OSError(err_msg)
+
 
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
+            
         # generate_plots with field_3d_za.ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'moc_netcdf.ncl')        
-
+        diagUtilsLib.generate_ncl_plots(env, 'sst_eq_pac_seasonal_cycle.ncl')        
 
     def _create_html(self, workdir, templatePath):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
-        num_cols = 5
+        num_cols = 1
         plot_list = []
 
         for plot_file in self._expectedPlots:

@@ -51,10 +51,10 @@ class OceanDiagnosticPlot(object):
         """
         raise RuntimeError ('Generate plots must be implimented in the sub-class')
     
-    def get_html(self, workdir):
+    def get_html(self, workdir, templatePath):
         """This method returns the html snippet for the plot.
         """
-        self._create_html(workdir)
+        self._create_html(workdir, templatePath)
         return self._html
 
 # todo move these classes to another file

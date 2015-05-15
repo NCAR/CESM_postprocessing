@@ -22,21 +22,21 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-class MOCFields(OceanDiagnosticPlot):
-    """Meridional Overturning Circulation plots
+class WesternBoundary(OceanDiagnosticPlot):
+    """Western Boundary Current & DWBC diagnostics
     """
 
     def __init__(self):
-        super(MOCFields, self).__init__()
-        self._expectedPlots = [ 'MOC', 'MOC_TOTAL', 'MOC_EI', 'HT', 'FWT' ]
-        self._name = 'Meridional Overturning Circulation - Meridional Heat & Freshwater Transports'
-        self._shortname = 'MOC'
-        self._template_file = 'moc_fields.tmpl'
+        super(WesternBoundary, self).__init__()
+        self._expectedPlots = [ 'DWBC' ]
+        self._name = 'Western Boundary Currents'
+        self._shortname = 'DWBC'
+        self._template_file = 'western_boundary.tmpl'
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(MOCFields, self).check_prerequisites(env)
+        super(WesternBoundary, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
     def generate_plots(self, env):
@@ -45,14 +45,14 @@ class MOCFields(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # generate_plots with field_3d_za.ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'moc_netcdf.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'dwbc.ncl')        
 
 
     def _create_html(self, workdir, templatePath):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
-        num_cols = 5
+        num_cols = 1
         plot_list = []
 
         for plot_file in self._expectedPlots:

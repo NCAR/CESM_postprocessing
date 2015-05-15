@@ -33,7 +33,7 @@ class SurfaceFields(OceanDiagnosticPlot):
 
         self._name = '2D Surface Fields'
         self._shortname = 'FLD2D'
-        self._template_file = './Templates/{0}'.format('surface_fields.tmpl')
+        self._template_file = 'surface_fields.tmpl'
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -68,7 +68,7 @@ class SurfaceFields(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'field_2d_za.ncl')        
 
 
-    def _create_html(self, workdir):
+    def _create_html(self, workdir, templatePath):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
@@ -150,7 +150,7 @@ class SurfaceFields(OceanDiagnosticPlot):
             plot_za_table.append(plot_list)
 
         # create a jinja2 template object
-        templateLoader = jinja2.FileSystemLoader( searchpath='.' )
+        templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
         templateEnv = jinja2.Environment( loader=templateLoader )
 
         template = templateEnv.get_template( self._template_file )

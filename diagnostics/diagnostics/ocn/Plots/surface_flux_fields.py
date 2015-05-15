@@ -38,7 +38,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
 
         self._name = '2D Surface Flux Fields'
         self._shortname = 'SFCFLX'
-        self._template_file = './Templates/{0}'.format('surface_flux_fields.tmpl')
+        self._template_file = 'surface_flux_fields.tmpl'
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -114,7 +114,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'sfcflx_za.ncl')        
 
 
-    def _create_html(self, workdir):
+    def _create_html(self, workdir, templatePath):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
@@ -196,7 +196,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             plot_za_table.append(plot_list)
 
         # create a jinja2 template object
-        templateLoader = jinja2.FileSystemLoader( searchpath='.' )
+        templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
         templateEnv = jinja2.Environment( loader=templateLoader )
 
         template = templateEnv.get_template( self._template_file )
