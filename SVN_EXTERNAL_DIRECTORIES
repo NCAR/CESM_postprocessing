@@ -1,4 +1,4 @@
-averager/pyAverager        https://subversion.ucar.edu/asap/pyAverager/tags/pyAverager_20150512d
+averager/pyAverager        https://proxy.subversion.ucar.edu/pubasap/pyAverager/tags/v0.9.1
 reshaper/pyReshaper        https://proxy.subversion.ucar.edu/pubasap/pyReshaper/tags/v0.9.1
 mpi_utils/pyTools          https://proxy.subversion.ucar.edu/pubasap/pyTools/tags/v0.3
 ocn_diag		   https://svn-ccsm-models.cgd.ucar.edu/tools/proc_ocn/pop_diag/branches/popdiag_cesm_postprocessing

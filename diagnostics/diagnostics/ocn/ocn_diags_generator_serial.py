@@ -88,64 +88,21 @@ def commandline_options():
 
     # check to make sure CASEROOT is a valid, readable directory
     if not os.path.isdir(options.caseroot[0]):
-        err_msg = 'ocn_diags_generator.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
+        err_msg = ' ERROR: ocn_diags_generator.py invalid option --caseroot {0}'.format(options.caseroot[0])
         raise OSError(err_msg)
 
     return options
 
 
-#=======================================================================
-# check_ncl_nco - check if NCL and NCO/ncks are installed and accessible
-#=======================================================================
-def check_ncl_nco(envDict):
-    """ check that NCL and NCO/ncks are installed and accessible
-
-    Arguments:
-    envDict (dictionary) - environment dictionary
-    """
-    print('...before checking NCL')
-    print('... envDict - PATH = {0}'.format(envDict['PATH']))
-    cmd = ['ncl', '-V']
-    try:
-        subprocess.check_output(cmd, env=envDict)
-    except subprocess.CalledProcessError as e:
-        print('NCL encountered a problem.')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
-        print('    {0} - {1}'.format(e.cmd, e.output))
-        sys.exit(1)
-    except OSError as e:
-        print('NCL is required to run the ocean diagnostics package')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
-        print('    {0} - {1}'.format(e.errno, e.strerror))
-        sys.exit(1)
-
-    print('...before checking ncks')
-    cmd = ['ncks', '--version']
-    try:
-        subprocess.check_output(cmd , env=envDict)
-    except subprocess.CalledProcessError as e:
-        print('NCO ncks is required to run the ocean diagnostics package')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
-        print('    {0} - {1}'.format(e.cmd, e.output))
-        sys.exit(1)
-    except OSError as e:
-        print('NCO ncks is required to run the ocean diagnostics package')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
-        print('    {0} - {1}'.format(e.errno, e.strerror))
-        sys.exit(1)
-
-    return 0
-
 #============================================
 # initialize_main - initialization from main
 #============================================
-def initialize_main(envDict, caseroot, scomm, rank, size):
+def initialize_main(envDict, caseroot):
     """initialize_main - initialize settings on rank 0 
     
     Arguments:
     envDict (dictionary) - environment dictionary
     options (list) - input options from command line
-    scomm (object) - simple communicator object
 
     Return:
     envDict (dictionary) - environment dictionary
@@ -154,7 +111,7 @@ def initialize_main(envDict, caseroot, scomm, rank, size):
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_postprocess.xml', 'env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
-    if rank == 0 and options.debug:
+    if DEBUG:
         print('... envDict after readXML')
 ##        for k,v in envDict.iteritems():
 ##            print('...... envDict[{0}] = {1}'.format(k, v))
@@ -168,8 +125,8 @@ def initialize_main(envDict, caseroot, scomm, rank, size):
     envDict['OCNDIAG_PATH'] += os.pathsep + os.environ['PATH']
 
     # strip the OCNDIAG_ prefix from the envDict entries before setting the 
-    # enviroment to allow for compatibility with all the OMWG diag routine calls
-    envDict = stripOCNDIAG(envDict)
+    # enviroment to allow for compatibility with all the diag routine calls
+    envDict = diagUtilsLib.strip_prefix(envDict, 'OCNDIAG_')
 
     # special variable mapped from the CESM env to the OCN diags env
     envDict['RESOLUTION'] = envDict['OCN_GRID']
@@ -179,7 +136,6 @@ def initialize_main(envDict, caseroot, scomm, rank, size):
     if envDict['VERTICAL'] == '42':
         envDict['TOBSFILE'] = envDict['TOBSFILE_V42']
         envDict['SOBSFILE'] = envDict['SOBSFILE_V42']
-    #scomm.sync()
 
     # initialize some global variables needed for all plotting types
     start_year = 0
@@ -188,34 +144,24 @@ def initialize_main(envDict, caseroot, scomm, rank, size):
     in_dir = '{0}/ocn/hist'.format(envDict['DOUT_S_ROOT'])
 
     # get model history file information from the DOUT_S_ROOT archive location
-    if rank == 0 and DEBUG:
+    if DEBUG:
         print('...calling checkHistoryFiles')
-    start_year, stop_year, in_dir, htype = checkHistoryFiles(
+    start_year, stop_year, in_dir, htype = diagUtilsLib.checkHistoryFiles(
         envDict['GENERATE_TIMESERIES'], envDict['DOUT_S_ROOT'], 
-        envDict['CASE'],
-        envDict['YEAR0'], envDict['YEAR1'], rank )
+        envDict['CASE'], envDict['YEAR0'], envDict['YEAR1'], 
+        'ocn', 'pop.h.*.nc', '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc')
 
     envDict['YEAR0'] = start_year
-    envDict['YEAR1'] = stop_year
+    envDict['YEAR1'] = "1851"
     envDict['in_dir'] = in_dir
     envDict['htype'] = htype
-
-    # setup the list of variables to compute specific averages - TODO test ecosys vars
-    varList = []
-    if checkEcoSysOptions(envDict):
-        varList = getEcoSysVars(envDict['ECOSYSVARSFILE'], varList)
-
-    # generate the climatology files used for all plotting types using the pyAverager
-    if rank == 0 and DEBUG:
-        print('...calling createClimFiles')
-    createClimFiles(start_year, stop_year, in_dir, htype, envDict['TAVGDIR'], envDict['CASE'], varList, scomm, rank, size)
 
     return envDict
 
 #===================================================
 # initialize_model_vs_obs - initialization on rank 0
 #===================================================
-def initialize_model_vs_obs(envDict, scomm, rank):
+def initialize_model_vs_obs(envDict):
     """initialize_model_vs_obs - initialize settings on rank 0 for model vs. Observations
     
     Arguments:
@@ -227,35 +173,31 @@ def initialize_model_vs_obs(envDict, scomm, rank):
     # create the working directory if it doesn't already exists
     subdir = 'pd.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
     workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
-    if rank == 0 or DEBUG:
+    if DEBUG:
         print('...checking workdir = {0}'.format(workdir))
-        try:
-            os.makedirs(workdir)
-        except OSError as exception:
-            if exception.errno != errno.EEXIST:
-                err_msg = 'ocn_diags_generator.py ERROR: problem accessing the working directory {0}'.format(workdir)
-                raise OSError(err_msg)
-    #scomm.sync()
+    try:
+        os.makedirs(workdir)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            err_msg = 'ERROR: ocn_diags_generator.py problem accessing the working directory {0}'.format(workdir)
+            raise OSError(err_msg)
 
     envDict['WORKDIR'] = workdir
 
     # clean out the old working plot files from the workdir
-    if envDict['CLEANUP_FILES'].upper() in ['T','TRUE'] and rank == 0:
+    if envDict['CLEANUP_FILES'].upper() in ['T','TRUE']:
         cesmEnvLib.purge(workdir, '.*\.pro')
         cesmEnvLib.purge(workdir, '.*\.gif')
         cesmEnvLib.purge(workdir, '.*\.dat')
         cesmEnvLib.purge(workdir, '.*\.ps')
         cesmEnvLib.purge(workdir, '.*\.png')
         cesmEnvLib.purge(workdir, '.*\.html')
-    #scomm.sync()
 
-    if rank == 0:
-        # create the plot.dat file in the workdir used by all NCL plotting routines
-        create_plot_dat(envDict['WORKDIR'], envDict['XYRANGE'], envDict['DEPTHS'])
+    # create the plot.dat file in the workdir used by all NCL plotting routines
+    create_plot_dat(envDict['WORKDIR'], envDict['XYRANGE'], envDict['DEPTHS'])
 
-        # create symbolic links between the tavgdir and the workdir
-        createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'])
-    #scomm.sync()
+    # create symbolic links between the tavgdir and the workdir
+    createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'])
 
     # setup the gridfile based on the resolution
     os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
@@ -263,11 +205,10 @@ def initialize_model_vs_obs(envDict, scomm, rank):
         os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
 
     # check if gridfile exists and is readable
-    if rank == 0:
-        rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
-        if not rc:
-            raise OSError(err_msg)
-    #scomm.sync()
+    rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
+    if not rc:
+        raise OSError(err_msg)
+
     envDict['GRIDFILE'] = os.environ['gridfile']
 
     # check the resolution and decide if some plot modules should be turned off
@@ -276,15 +217,9 @@ def initialize_model_vs_obs(envDict, scomm, rank):
         os.environ['PM_KAPPAZ'] = 'FALSE'
 
     # create the global zonal average file used by most of the plotting classes
-    if rank == 0 or DEBUG:
+    if DEBUG:
         print('...calling create_za')
-        create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'], envDict )
-        print('...after create_za')        
-    #scomm.sync()
-
-    if rank == 0 and DEBUG:
-        print('...before model_vs_obs_ecosys check')        
-    #scomm.sync()
+    create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'], envDict )
 
     # setup of ecosys files
     if envDict['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
@@ -299,163 +234,13 @@ def initialize_model_vs_obs(envDict, scomm, rank):
             raise OSError(err_msg)
 
         # call the ecosystem zonal average extraction modules
-        if rank == 0:
-            zavg_command = '{0}/extract_zavg.sh {1} {2} {3} {4}'.format(envDict['ECOPATH'],envDict['CASE'],str(start_year),str(stop_year),ecoSysVars)
-            rc = os.system(zavg_command)
-            if rc:
-                err_msg = 'ocn_diags_generator.py ERROR: command {0} failed.'.format(zavg_command)
-                raise OSError(err_msg)
+        zavg_command = '{0}/extract_zavg.sh {1} {2} {3} {4}'.format(envDict['ECOPATH'],envDict['CASE'],str(start_year),str(stop_year),ecoSysVars)
+        rc = os.system(zavg_command)
+        if rc:
+            err_msg = 'ERROR: ocn_diags_generator.py command {0} failed.'.format(zavg_command)
+            raise OSError(err_msg)
  
-    if rank == 0 and DEBUG:
-        print('...end of initialize_model_vs_obs')
-    #scomm.sync()
-
     return envDict
-
-#============================================
-# stripOCN - strip the 'OCNDIAG_' from the id
-#============================================
-def stripOCNDIAG(indict):
-    """stripOCN - Read the indict and strip off the leading 'OCNDIAG_' from the id element (key).
-    
-    Arguments:
-    indict - dictionary input with OCNDIAG_ from the id element
-
-    Return:
-    outdict - dictionary with OCNDIAG_ stripped from the id element
-    """
-    outdict = dict()
-
-    for k,v in indict.iteritems():
-        if k.startswith('OCNDIAG_'):
-            outdict[k[8:]] = v
-        else:
-            outdict[k] = v
-
-    return outdict
-
-#=============================================================
-# filterPick - return filenames that match a pattern in a list
-#=============================================================
-def filterPick(files,regex):
-    return [m.group(0) for f in files for m in [regex.search(f)] if m]
-
-
-#======================================
-# checkXMLyears - check run year bounds
-#======================================
-def checkXMLyears(hfstart_year, hfstop_year, rstart_year, rstop_year, rank):
-    """checkXMLyears - check that the years requested in the XML fall within the
-    bounds of the actual history files available
-
-    Arguments:
-    hfstart_year (string) - model job start year
-    hfstop_year (string) -  model job end year
-    rstart_year (string) - requested start year for diagnostics
-    rstop_year (string) - requested stop year for diagnostics
-    rank (integer) - rank value
-
-    Return:
-    start_year (string) - for average calculations
-    stop_year (string) - for average calculations
-    """
-    # make sure the requested years from the XML are in range with the actual history files
-    if not int(hfstart_year) <= int(rstart_year) <= int(hfstop_year) and rank == 0:
-        err_msg = 'ocn_diags_generator.py ERROR: requested XML YEAR0 = {0} does not fall within range of actual available model history file years: {1}-{2}'.format(rstart_year, hfstart_year, hfstop_year)
-        raise OSError(err_msg)
-
-    if not int(hfstart_year) <= int(rstop_year) <= int(hfstop_year) and rank == 0:
-        err_msg = 'ocn_diags_generator.py ERROR: requested XML YEAR1 = {0} does not fall within range of actual available model history file years: {1}-{2}'.format(rstop_year, hfstart_year, hfstop_year)
-        raise OSError(err_msg)
-
-    if int(rstop_year) < int(rstart_year) and rank == 0:
-        err_msg = 'ocn_diags_generator.py ERROR: requested XML YEAR1 = {0} is less than YEAR0 = {1}'.format(rstop_year, rstart_year)
-        raise OSError(err_msg)
-
-    start_year = rstart_year
-    stop_year = rstop_year
-
-    return (start_year, stop_year)
-
-#========================================
-# checkHistoryFiles - check history files
-#========================================
-def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, rank):
-    """checkHistoryFiles - check if variable history time-series 
-    files or history time-slice files exist
-    in the DOUT_S_ROOT location. Then check the actual run files 
-    to get the start and stop years to compare against
-    the XML specified YEAR0 and YEAR1. The OMWG diags 
-    package only works with monthly average history files
-    to generate annual mean history files. 
-
-    Arguments:
-    tseries (boolean) - corresponds to XML variable DOUT_S_TSERIES_GENERATE
-    dout_s_root (string) - corresponds to XML variable DOUT_S_ROOT disk archive location
-    case (string) - corresponds to XML variable CASE name
-    rstart_year (string) - requested diagnostics model start year from XML env_diags_ocn.xml
-    rstop_year (string) - requested diagnostics model stop year from XML env_diags_ocn.xml
-
-    Return:
-    start_year (string) - start year as defined by the history files
-    stop_year (string) - last year as defined by the history files
-    in_dir (string) - directory location of history files
-    hType (string) - history file type (slice or series)
-    """
-    if tseries.upper() in ['T','TRUE'] :
-        htype = 'series'
-        in_dir = '{0}/ocn/proc/tseries/monthly'.format(dout_s_root)
-    else :
-        htype = 'slice'
-        in_dir = '{0}/ocn/hist'.format(dout_s_root)
-
-    # check the in_dir directory exists 
-    if not os.path.isdir(in_dir) and rank == 0 :
-        err_msg = 'ocn_diags_generator.py ERROR: {0} directory is not available.'.format(in_dir)
-        raise OSError(err_msg)
-
-    # get the file paths and formats - TO DO may need to get this from namelist var or env_archive
-    files = '{0}.pop.h.*.nc'.format(case)
-    fformat = '{0}/{1}'.format(in_dir, files)
-
-    if htype == 'slice':
-        # get the first and last years from the first and last monthly history files
-        allHfiles = sorted(glob.glob(fformat))
-        pattern = re.compile('.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc')
-        hfiles = filterPick(allHfiles, pattern)
-
-        # TO-DO open a history time-slice file and make sure it's monthly data
-
-        # the first element of the hfiles list has the start year
-        tlist = hfiles[0].split('.')
-        slist = tlist[-2].split('-')
-        hfstart_year = slist[0]
-        hfstart_month = slist[1]
-
-        # the last element of the hfiles list has the stop year
-        tlist = hfiles[-1].split('.')
-        slist = tlist[-2].split('-')
-        hfstop_year = slist[0]
-        hfstop_month = slist[1]
-
-    elif htype == 'series':
-        hfiles = sorted(glob.glob(fformat))
-
-        # TO-DO open a history time-series file and make sure it's monthly data
-
-        # the first variable time series file has the stop and start years
-        tlist = hfiles[0].split('.')
-        slist = tlist[-2].split('-')
-        hfstart_year = slist[0][:4]
-        hfstart_month = slist[0][4:6]
-        hfstop_year = slist[1][:4]
-        hfstop_month = slist[1][4:6]
-
-    # check if the XML YEAR0 and YEAR1 are within the actual start_year and stop_year bounds 
-    # defined by the actual history files
-    start_year, stop_year = checkXMLyears(hfstart_year, hfstop_year, rstart_year, rstop_year, rank)
-
-    return (start_year, stop_year, in_dir, htype)
 
 
 #==========================================================
@@ -483,10 +268,101 @@ def create_plot_dat(workdir, xyrange, depths):
 
     return 0
 
+
+#========================================================================
+# callPyAverager - create the climatology files by calling the pyAverager
+#========================================================================
+def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, varList, scomm):
+    """setup the pyAverager specifier class with specifications to create
+       the climatology files in parallel.
+
+       Arguments:
+       start_year (integer) - starting year for diagnostics
+       stop_year (integer) - ending year for diagnositcs
+       in_dir (string) - input directory with either history time slice or variable time series files
+       htype (string) - 'series' or 'slice' depending on input history file type
+       tavgdir (string) - output directory for climatology files
+       case_prefix (string) - input filename prefix
+       averageList (list) - list of averages to be created
+       varList (list) - list of variables. Note: an empty list implies all variables.
+       scomm (object) - simple communicator object
+    """
+    mean_diff_rms_obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
+    region_nc_var = 'REGION_MASK'
+    regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
+    region_wgt_var = 'TAREA'
+    obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
+    obs_file = 'obs.nc'
+    reg_obs_file_suffix = '_hor_mean_obs.nc'
+
+    wght = False
+    ncfrmt = 'netcdf'
+    serial = True
+    clobber = True
+    date_pattern = 'yyyymm-yyyymm'
+    suffix = 'nc'
+
+    scomm.sync()
+
+    if scomm.is_manager():
+        print('... calling specification.create_specifier with following args')
+        print('...... in_directory = {0}'.format(in_dir))
+        print('...... out_directory = {0}'.format(tavgdir))
+        print('...... prefix = {0}'.format(case_prefix))
+        print('...... suffix = {0}'.format(suffix))
+        print('...... date_pattern = {0}'.format(date_pattern))
+        print('...... hist_type = {0}'.format(htype))
+        print('...... avg_list = {0}'.format(averageList))
+        print('...... weighted = {0}'.format(wght))
+        print('...... ncformat = {0}'.format(ncfrmt))
+        print('...... varlist = {0}'.format(varList))
+        print('...... serial = {0}'.format(serial))
+        print('...... clobber = {0}'.format(clobber))
+        print('...... mean_diff_rms_obs_dir = {0}'.format(mean_diff_rms_obs_dir))
+        print('...... region_nc_var = {0}'.format(region_nc_var))
+        print('...... regions = {0}'.format(regions))
+        print('...... region_wgt_var = {0}'.format(region_wgt_var))
+        print('...... obs_dir = {0}'.format(obs_dir))
+        print('...... obs_file = {0}'.format(obs_file))
+        print('...... reg_obs_file_suffix = {0}'.format(reg_obs_file_suffix))
+        print('...... main_comm = {0}'.format(scomm))
+
+    scomm.sync()
+
+    pyAveSpecifier = specification.create_specifier(
+        in_directory = in_dir,
+        out_directory = tavgdir,
+        prefix = case_prefix,
+        suffix=suffix,
+        date_pattern=date_pattern,
+        hist_type = htype,
+        avg_list = averageList,
+        weighted = wght,
+        ncformat = ncfrmt,
+        varlist = varList,
+        serial = serial,
+        clobber = clobber,
+        mean_diff_rms_obs_dir = mean_diff_rms_obs_dir,
+        region_nc_var = region_nc_var,
+        regions = regions,
+        region_wgt_var = region_wgt_var,
+        obs_dir = obs_dir,
+        obs_file = obs_file,
+        reg_obs_file_suffix = reg_obs_file_suffix,
+        main_comm = scomm)
+
+    scomm.sync()
+    # call the pyAverager
+    if DEBUG:
+        print("... before run_pyAverager scomm rank={0}, size={1}".format(scomm.get_rank(), scomm.get_size()))
+    PyAverager.run_pyAverager(pyAveSpecifier)
+
+    scomm.sync()
+
 #=======================================================
 # convert_plots - convert plots from ps to gif
 #=======================================================
-def convert_plots(workdir, scomm, rank):
+def convert_plots(workdir, scomm):
     """convert_plots - convert plot files from ps to gif
 
     """
@@ -496,17 +372,16 @@ def convert_plots(workdir, scomm, rank):
     # check if the convert command exists
     rc = cesmEnvLib.which('convert')
     if rc in ['None']:
-        print('ocn_diags_generator.py WARNING: unable to find convert command in path. Skipping plot conversion from ps to gif')
+        print('WARNING: ocn_diags_generator.py unable to find convert command in path. Skipping plot conversion from ps to gif')
     else:
         psFiles = list()
-        if rank == 0:
+        if scomm.is_manager():
             psFiles = sorted(glob.glob('*.ps'))
             print('... psFiles = {0}'.format(psFiles))
-        #scomm.sync()
+        scomm.sync()
 
         # partition the list of psFiles across the available tasks
-##        local_psFiles = scomm.partition(psFiles, func=partition.EqualStride(), involved=True)
-        local_psFiles = psFiles
+        local_psFiles = scomm.partition(psFiles, func=partition.EqualStride(), involved=True)
 
         for ps in local_psFiles:
             plotname = ps.split('.')
@@ -527,7 +402,7 @@ def convert_plots(workdir, scomm, rank):
                 print('    {0} - {1}'.format(e.cmd, e.output))
             else:
                 continue
-        #scomm.sync()
+        scomm.sync()
 
     os.chdir(cwd)
 
@@ -598,7 +473,7 @@ def getEcoSysVars(ecoSysVarsFile, varList):
 #============================================================
 # buildOcnAvgList - build the list of averages to be computed
 #============================================================
-def buildOcnAvgList(start_year, stop_year, avgFileBaseName):
+def buildOcnAvgList(start_year, stop_year, avgFileBaseName, varList):
     """buildAvgList - build the list of averages to be computed
     by the pyAverager. Checks if the file exists or not already.
 
@@ -613,32 +488,33 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName):
     avgList = []
     year = int(start_year)
 
-    # start with the annual averages with all variable
-    print('... enter buildOcnAvgList')
-    while year <= int(stop_year):
-        # check if file already exists before appending to the avgList
-        avgFile = '{0}.{1}.nc'.format(avgFileBaseName, year)
-        print('... avgFile = {0}'.format(avgFile))
-        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-        if not rc: 
-            avgList.append('ya:{0}'.format(year))
-        year += 1
+    if len(varList) == 0:
+        # start with the annual averages for all variables
+        print('... enter buildOcnAvgList')
+        while year <= int(stop_year):
+            # check if file already exists before appending to the avgList
+            avgFile = '{0}.{1}.nc'.format(avgFileBaseName, year)
+            print('... avgFile = {0}'.format(avgFile))
+            rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+            if not rc: 
+                avgList.append('ya:{0}'.format(year))
+            year += 1
 
     # check if mavg file already exists
-#    avgFile = '{0}_mavg.nc'.format(avgFileBaseName)
-    avgFile = 'mavg_{0}-{1}.nc'.format(start_year, stop_year)
-    print('... mavgFile = {0}'.format(avgFile))
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgList.append('mavg:{0}:{1}'.format(int(start_year), int(stop_year)))
+    #    avgFile = '{0}_mavg.nc'.format(avgFileBaseName)
+        avgFile = 'mavg_{0}-{1}.nc'.format(start_year, stop_year)
+        print('... mavgFile = {0}'.format(avgFile))
+        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+        if not rc:
+            avgList.append('mavg:{0}:{1}'.format(int(start_year), int(stop_year)))
 
     # check if tavg file already exists
-#    avgFile = '{0}_tavg.nc'.format(avgFileBaseName)
-    avgFile = 'tavg_{0}-{1}.nc'.format(start_year, stop_year)
-    print('... tavgFile = {0}'.format(avgFile))
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgList.append('tavg:{0}:{1}'.format(int(start_year), int(stop_year)))
+    #    avgFile = '{0}_tavg.nc'.format(avgFileBaseName)
+        avgFile = 'tavg_{0}-{1}.nc'.format(start_year, stop_year)
+        print('... tavgFile = {0}'.format(avgFile))
+        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+        if not rc:
+            avgList.append('tavg:{0}:{1}'.format(int(start_year), int(stop_year)))
 
     # the following are for timeseries.... TODO - check if timeseries is specified
     # append the MOC and monthly MOC files
@@ -647,6 +523,14 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName):
     
     # append the horizontal mean concatenation
 ##    avgList.append('hor.meanConcat:{0}:{1}'.format(int(start_year), int(stop_year)))
+
+    else:
+        # check if need to create the monthly averages for just specific variables
+        for varName in varList:
+            varFile = '{0}.{1}.mavg_{2}-{3}.nc'.format(avgFileBaseName, varName, start_year, stop_year)
+        rc, err_msg = cesmEnvLib.checkFile(varFile, 'read')
+        if not rc:
+            avgList.append('mavg:{0}:{1}'.format(int(start_year), int(stop_year)))
 
     print('... exit buildOcnAvgList avgList = {0}'.format(avgList))
     return avgList
@@ -730,124 +614,10 @@ def setupPlots(envDict):
     return requested_plots
 
 
-#========================================================================
-# callPyAverager - create the climatology files by calling the pyAverager
-#========================================================================
-def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, varList, scomm, rank, size):
-    """setup the pyAverager specifier class with specifications to create
-       the climatology files in parallel.
-
-       Arguments:
-       start_year (integer) - starting year for diagnostics
-       stop_year (integer) - ending year for diagnositcs
-       in_dir (string) - input directory with either history time slice or variable time series files
-       htype (string) - 'series' or 'slice' depending on input history file type
-       tavgdir (string) - output directory for climatology files
-       case_prefix (string) - input filename prefix
-       averageList (list) - list of averages to be created
-       varList (list) - list of variables. Note: an empty list implies all variables.
-       scomm (object) - simple communicator object
-       rank (integer) - task size
-       size (integer) - number of tasks
-    """
-    mean_diff_rms_obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
-    region_nc_var = 'REGION_MASK'
-    regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
-    region_wgt_var = 'TAREA'
-    obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
-    obs_file = 'obs.nc'
-    reg_obs_file_suffix = '_hor_mean_obs.nc'
-
-    wght = False
-    ncfrmt = 'netcdf'
-    serial = False
-    clobber = True
-    date_pattern = 'yyyymm-yyyymm'
-    suffix = 'nc'
-
-    if rank == 0 and DEBUG:
-        print('... calling specification.create_specifier with following args')
-        print('...... in_directory = {0}'.format(in_dir))
-        print('...... out_directory = {0}'.format(tavgdir))
-        print('...... prefix = {0}'.format(case_prefix))
-        print('...... suffix = {0}'.format(suffix))
-        print('...... date_pattern = {0}'.format(date_pattern))
-        print('...... hist_type = {0}'.format(htype))
-        print('...... avg_list = {0}'.format(averageList))
-        print('...... weighted = {0}'.format(wght))
-        print('...... ncformat = {0}'.format(ncfrmt))
-        print('...... varlist = {0}'.format(varList))
-        print('...... serial = {0}'.format(serial))
-        print('...... clobber = {0}'.format(clobber))
-        print('...... mean_diff_rms_obs_dir = {0}'.format(mean_diff_rms_obs_dir))
-        print('...... region_nc_var = {0}'.format(region_nc_var))
-        print('...... regions = {0}'.format(regions))
-        print('...... region_wgt_var = {0}'.format(region_wgt_var))
-        print('...... obs_dir = {0}'.format(obs_dir))
-        print('...... obs_file = {0}'.format(obs_file))
-        print('...... reg_obs_file_suffix = {0}'.format(reg_obs_file_suffix))
-        print('...... main_comm = {0}'.format(scomm))
-
-    #scomm.sync()
-
-#    if len(varList) > 0:
-        # temporary work-around to exclude an empty varList
-#        pyAveSpecifier = specification.create_specifier(
-#            in_directory = in_dir,
-#            out_directory = tavgdir,
-#            prefix = case_prefix,
-#            suffix=suffix,
-#            date_pattern=date_pattern,
-#            hist_type = htype,
-#            avg_list = averageList,
-#            weighted = wght,
-#            ncformat = ncfrmt,
-#            serial = serial,
-#            clobber = clobber,
-#            mean_diff_rms_obs_dir = mean_diff_rms_obs_dir,
-#            region_nc_var = region_nc_var,
-#            regions = regions,
-#            region_wgt_var = region_wgt_var,
-#            obs_dir = obs_dir,
-#            obs_file = obs_file,
-#            reg_obs_file_suffix = reg_obs_file_suffix,
-#            main_comm = scomm)
-#    else:
-        # pyAveSpecifier is a pyAverage specifier
-#        pyAveSpecifier = specification.create_specifier(
-#            in_directory = in_dir,
-#            out_directory = tavgdir,
-#            prefix = case_prefix,
-#            suffix=suffix,
-#            date_pattern=date_pattern,
-#            hist_type = htype,
-#            avg_list = averageList,
-#            weighted = wght,
-#            ncformat = ncfrmt,
-#            varlist = varList,
-#            serial = serial,
-#            clobber = clobber,
-#            mean_diff_rms_obs_dir = mean_diff_rms_obs_dir,
-#            region_nc_var = region_nc_var,
-#            regions = regions,
-#            region_wgt_var = region_wgt_var,
-#            obs_dir = obs_dir,
-#            obs_file = obs_file,
-#            reg_obs_file_suffix = reg_obs_file_suffix,
-#            main_comm = scomm)
-
-    # call the pyAverager
-    print('... before run_pyAverager scomm rank={0}, size={1}'.format(rank, size))
-#    PyAverager.run_pyAverager(pyAveSpecifier)
-
-    #scomm.sync()
-
-    return 0
-
 #=========================================================================
 # createClimFiles - create the climatology files by calling the pyAverager
 #=========================================================================
-def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarList, scomm, rank, size):
+def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarList, scomm):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -860,8 +630,6 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
        case (string) - case name
        inVarList (list) - if empty, then create climatology files for all vars, RHO, SALT and TEMP
        scomm (object) - simple communicator object
-       rank (integer) - task size
-       size (integer) - number of tasks
     """
     # create the list of averages to be computed
     avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
@@ -869,55 +637,56 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
     averageList = []
 
     # create the list of averages to be computed by the pyAverager
-    if rank == 0 and DEBUG:
+    if scomm.is_manager() and DEBUG:
         print('... calling buildOcnAvgList')
-    if rank == 0:
-        averageList = buildOcnAvgList(start_year, stop_year, avgFileBaseName)
-    #scomm.sync()
+        averageList = buildOcnAvgList(start_year, stop_year, avgFileBaseName, inVarList)
+    scomm.sync()
+
+    # need to bcast the averageList
+    tempList = list()
+    tempList = scomm.partition(averageList, func=partition.Duplicate(), involved=True)
+    if scomm.is_manager() and DEBUG:
+        print('... tempList after partition = {0}'.format(tempList))
 
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
-        if rank == 0 and DEBUG:
+        if scomm.is_manager() and DEBUG:
             print('... calling callPyAverager')
-        #scomm.sync()
-
-        callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, scomm, rank, size)
+        callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, scomm)
     else:
-        if rank == 0: 
+        if scomm.is_manager() and DEBUG:
             print('... averageList is null')
-
-    return 0
-
+    scomm.sync()
 
 #===============================================
 # setup model vs. observations plotting routines
 #===============================================
-def model_vs_obs(envDict, scomm, rank, size):
+def model_vs_obs(envDict, scomm):
     """model_vs_obs setup the model vs. observations dirs, generate necessary 
        zonal average climatology files and generate plots in parallel.
 
        Arguments:
        comm (object) - MPI global communicator object
        envDict (dictionary) - environment dictionary
-       pp (object) - prettyPrinter object
     """
-    if rank == 0 and DEBUG:
+    if scomm.is_manager() or DEBUG:
         print('...calling initialize_model_vs_obs')
-    #scomm.sync()
 
-    # initialize the model vs. obs environment
-    envDict = initialize_model_vs_obs(envDict, scomm, rank)
+        # initialize the model vs. obs environment
+        envDict = initialize_model_vs_obs(envDict)
 
-    if rank == 0 and DEBUG:
-        print('...calling setXmlEnv in model_vs_obs')
+        if DEBUG:
+            print('...calling setXmlEnv in model_vs_obs')
+    scomm.sync()
 
     # set the shell env using the values set in the XML and read into the envDict
+    # across all ranks
     cesmEnvLib.setXmlEnv(envDict)
 
     user_plot_list = list()
     full_plot_list = list()
-    if rank == 0:
+    if scomm.is_manager():
 
         # setup the plots to be called based on directives in the env_diags_ocn.xml file
         requested_plots = []
@@ -955,26 +724,24 @@ def model_vs_obs(envDict, scomm, rank, size):
         # save the full_plot_list before it is partitioned
         full_plot_list = user_plot_list
 
-    #scomm.sync()
+    scomm.sync()
 
-##    user_plot_list = scomm.partition(user_plot_list, func=partition.EqualStride(), involved=True)
+    user_plot_list = scomm.partition(user_plot_list, func=partition.EqualStride(), involved=True)
 
     for user_plot in user_plot_list:
         print('... user_plot = {0}'.format(user_plot))
         user_plot.generate_plots(envDict)
 
-    if rank == 0 and DEBUG:
-        print('... before scomm.sync')
-    #scomm.sync()
+    scomm.sync()
             
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
-    if rank == 0 or DEBUG:
+    if scomm.is_manager() or DEBUG:
         print('... before convert_plots')
-    convert_plots(envDict['WORKDIR'], scomm, rank)
-    #scomm.sync()
+    convert_plots(envDict['WORKDIR'], scomm)
+    scomm.sync()
 
-    if rank == 0:
+    if scomm.is_manager():
         print('Creating plot html header:')
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
@@ -1016,8 +783,7 @@ def model_vs_obs(envDict, scomm, rank, size):
 
         print('Successfully completed generating ocean diagnostics model vs. observation plots')
 
-    #scomm.sync()
-    return 0
+    scomm.sync()
 
 #================
 # model vs. model
@@ -1069,7 +835,7 @@ def model_vs_ts(envDict, start_year, stop_year, workdir):
 # main
 #======
 
-def main(options, scomm, rank, size):
+def main(options, scomm):
     """setup the environment for running the diagnostics in parallel. 
 
     Calls 3 different diagnostics generation types:
@@ -1081,39 +847,55 @@ def main(options, scomm, rank, size):
     See (modelnl website here...) for a complete desciption of the env_diags_ocn XML options.
     """
     # CASEROOT is given on the command line as required option --caseroot
-    caseroot = options.caseroot[0]
-    if rank == 0 and DEBUG:
-        print('... caseroot = {0}'.format(caseroot))
+    if scomm.is_manager():
+        caseroot = options.caseroot[0]
+        if DEBUG:
+            print('... caseroot = {0}'.format(caseroot))
 
-    # initialize the environment dictionary
-    envDict = dict()
+        # initialize the environment dictionary
+        envDict = dict()
 
-    if rank == 0:
-        print('...calling initialize_main on all ranks')
-    envDict = initialize_main(envDict, caseroot, scomm, rank, size)
+        if DEBUG:
+            print('...calling initialize_main')
+        envDict = initialize_main(envDict, caseroot)
 
-    if rank == 0:
-        print('...before checking NCL and NCO')
-        rc = check_ncl_nco(envDict)
-        print('...after checking NCL and NCO')
-    #scomm.sync()
+        if DEBUG:
+            print('...calling check_ncl_nco')
+        diagUtilsLib.check_ncl_nco(envDict)
 
-    if rank == 0 and DEBUG:
-        print('...calling sys.path.append')
-    sys.path.append(envDict['PATH'])
-    #scomm.sync()
+        sys.path.append(envDict['PATH'])
 
-    # set the shell env using the values set in the XML and read into the envDict
-    if rank == 0 and DEBUG:
-        print('...calling setXmlEnv')
-    cesmEnvLib.setXmlEnv(envDict)
-    #scomm.sync()
+        if checkEcoSysOptions(envDict):
+            varList = getEcoSysVars(envDict['ECOSYSVARSFILE'], varList)
+
+    scomm.sync()
+    varList = []
+
+    # broadcast envDict to all tasks
+    envDict = scomm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+    scomm.sync()
+
+    # generate the climatology files used for all plotting types using the pyAverager
+    if scomm.is_manager() and DEBUG:
+        print('...calling createClimFiles with varList = '.format(varList))
+    createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
+                    envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], varList, scomm)
+    scomm.sync()
+
+    # generate the climatology files for just variables TEMP, SALT and RHO
+    varList = ['TEMP','SALT','RHO']
+    if scomm.is_manager() and DEBUG:
+        print('...calling createClimFiles with varList = '.format(varList))
+    createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
+                    envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], varList, scomm)
+    scomm.sync()
 
     # model vs. observations
     if envDict['MODEL_VS_OBS'].upper() in ['T','TRUE']:
-        if rank == 0 and DEBUG:
+        if scomm.is_manager() or DEBUG:
             print('...calling model_vs_obs')
-        rc = model_vs_obs(envDict, scomm, rank, size)
+        model_vs_obs(envDict, scomm)
+    scomm.sync()
 
     # model vs. model - need  to checkHistoryFiles for the control run
 ##    if envDict['MODEL_VS_MODEL'].upper() in ['T','TRUE']:
@@ -1123,30 +905,24 @@ def main(options, scomm, rank, size):
 ##    if envDict['TS'].upper() in ['T','TRUE']:
 ##        rc = model_vs_ts(envDict, start_year, stop_year)
 
-    return 0
-
 #===================================
 
 
 if __name__ == "__main__":
     # initialize simplecomm object
-    #scomm = simplecomm.create_comm(serial=False)
-    scomm = ''
-
-    #rank = scomm.get_rank()
-    #size = scomm.get_size()
-    rank = 0
-    size = 1
+    scomm = simplecomm.create_comm(serial=True)
 
     options = commandline_options()
     DEBUG = options.debug
 
-    if rank == 0 and DEBUG:
-        print('...Running on {0} cores'.format(size))
+    if scomm.is_manager() and DEBUG:
+        print('...Running on {0} cores'.format(scomm.get_size()))
+    scomm.sync()
 
     try:
-        status = main(options, scomm, rank, size)
-        if rank == 0:
+        status = main(options, scomm)
+        scomm.sync()
+        if scomm.is_manager():
             print('Successfully completed generating ocean diagnostics')
         sys.exit(status)
 
