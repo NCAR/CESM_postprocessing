@@ -343,14 +343,15 @@ def main(options):
     compList = ['ocn']
 
     # generate the env_postprocess.xml file
-##    config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_DIR'])
-    config_file = '{0}/Tools/config_definition.xml'.format(envDict['CASEROOT'])
+    config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_DIR'])
+##    config_file = '{0}/Tools/config_definition.xml'.format(envDict['CASEROOT'])
     tmpl_file = 'env_postprocess.tmpl'
     env_file = '{0}/env_postprocess.xml'.format(envDict['CASEROOT'])
     create_env_file(envDict['POSTPROCESS_DIR'], config_file, tmpl_file, env_file, 'postprocess')
 
     # generate the env_diags_[component].xml files
     for comp in compList:
+        config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_DIR'], comp)
         tmpl_file = 'env_diags.tmpl'
         env_file = '{0}/env_diags_{1}.xml'.format(envDict['CASEROOT'], comp)
         create_env_file(envDict['POSTPROCESS_DIR'], config_file, tmpl_file, env_file, 'diags_{0}'.format(comp))

@@ -330,32 +330,33 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
 
     scomm.sync()
 
-    try: 
-        pyAveSpecifier = specification.create_specifier(
-            in_directory = in_dir,
-            out_directory = tavgdir,
-            prefix = case_prefix,
-            suffix=suffix,
-            date_pattern=date_pattern,
-            hist_type = htype,
-            avg_list = averageList,
-            weighted = wght,
-            ncformat = ncfrmt,
-            varlist = varList,
-            serial = serial,
-            clobber = clobber,
-            mean_diff_rms_obs_dir = mean_diff_rms_obs_dir,
-            region_nc_var = region_nc_var,
-            regions = regions,
-            region_wgt_var = region_wgt_var,
-            obs_dir = obs_dir,
-            obs_file = obs_file,
-            reg_obs_file_suffix = reg_obs_file_suffix,
-            main_comm = scomm)
-    except Exception as error:
-        print(str(error))
-        traceback.print_exc()
-        sys.exit(1)
+ #   try: 
+    pyAveSpecifier = specification.create_specifier(
+        in_directory = in_dir,
+        out_directory = tavgdir,
+        prefix = case_prefix,
+        suffix=suffix,
+        date_pattern=date_pattern,
+        hist_type = htype,
+        avg_list = averageList,
+        weighted = wght,
+        ncformat = ncfrmt,
+        varlist = varList,
+        serial = serial,
+        clobber = clobber,
+        mean_diff_rms_obs_dir = mean_diff_rms_obs_dir,
+        region_nc_var = region_nc_var,
+        regions = regions,
+        region_wgt_var = region_wgt_var,
+        obs_dir = obs_dir,
+        obs_file = obs_file,
+        reg_obs_file_suffix = reg_obs_file_suffix,
+        main_comm = scomm)
+
+#    except Exception as error:
+#        print(str(error))
+#        traceback.print_exc()
+#        sys.exit(1)
 
     scomm.sync()
 
@@ -393,6 +394,8 @@ def convert_plots(workdir, scomm):
 
     # broadcast the list of ps files to convert
     psFiles = scomm.partition(psFiles, func=partition.Duplicate(), involved=True)
+    if DEBUG:
+        print('DEBUG... psFiles = {0} on rank{1}'.format(psFiles, scomm.get_rank()))
     scomm.sync()
 
     # check if the convert command exists on all tasks
@@ -422,12 +425,11 @@ def convert_plots(workdir, scomm):
             # convert the image from ps to gif
             try:
                 if DEBUG:
-                    print('DEBUG..... size of {0} = {1} on rank = {2}'.format(ps, os.path.getsize(ps), scomm.get_rank()))
-                pipe = subprocess.Popen( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',ps,gifFile] )
-                pipe.wait()
-            except OSError as e:
+                    print('DEBUG..... size of {0} = {1}'.format(ps, os.path.getsize(ps)))
+                subprocess.check_call( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',ps,gifFile] )
+            except subprocess.CalledProcessError as e:
                 print('WARNING: convert_plots call to convert failed with error:')
-                print('    {0} - {1}'.format(e.errno, e.strerror))
+                print('    {0} - {1}'.format(e.cmd, e.output))
             else:
                 continue
         scomm.sync()
@@ -464,11 +466,10 @@ def create_za(workdir, tavgfile, gridfile, toolpath, envDict):
         cwd = os.getcwd()
         os.chdir(workdir)
         try:
-            pipe = subprocess.Popen( [zaCommand,'-O','-time_const','-grid_file',gridfile, tavgfile], env=envDict)
-            pipe.wait()
-        except OSError as e:
+            subprocess.check_call( [zaCommand,'-O','-time_const','-grid_file',gridfile, tavgfile], env=envDict)
+        except subprocess.CalledProcessError as e:
             print('ERROR: {0} call to {1} failed with error:'.format(self.name(), zaCommand))
-            print('    {0} - {1}'.format(e.errno, e.strerror))
+            print('    {0} - {1}'.format(e.cmd, e.output))
             sys.exit(1)
 
         if DEBUG:
@@ -758,30 +759,25 @@ def model_vs_obs(envDict, scomm):
             plot.check_prerequisites(envDict)
 
         # dispatch mpi plotting jobs here
-        #print('Generating plots in parallel:')
+        print('Generating plots in parallel:')
 
         # save the full_plot_list before it is partitioned
         full_plot_list = user_plot_list
         if DEBUG:
             print('DEBUG... user_plot_list before partition = {0}'.format(user_plot_list))
 
-        for plot in user_plot_list:
-            if DEBUG:
-                print('DEBUG... generating user_plot = {0}'.format(plot.__class__.__name__))
-            plot.generate_plots(envDict)
-
     scomm.sync()
 
-#    user_plot_list = scomm.partition(full_plot_list, func=partition.EqualStride(), involved=True)
-#    if scomm.is_manager() and DEBUG:
-#        print('DEBUG... user_plot_list after partition = {0}'.format(user_plot_list))
-#    scomm.sync()
+    user_plot_list = scomm.partition(full_plot_list, func=partition.EqualStride(), involved=True)
+    if scomm.is_manager() and DEBUG:
+        print('DEBUG... user_plot_list after partition = {0}'.format(user_plot_list))
+    scomm.sync()
 
-#    for user_plot in user_plot_list:
-#        if DEBUG:
-#            print('DEBUG... calling gnerate plots for = {0} on rank {1} in {2}'.format(user_plot, scomm.get_rank(), os.getcwd()))
-#        user_plot.generate_plots(envDict)
-#    scomm.sync()
+    for user_plot in user_plot_list:
+        if DEBUG:
+            print('DEBUG... calling gnerate plots for = {0} on rank {1}'.format(user_plot, scomm.get_rank()))
+        user_plot.generate_plots(envDict)
+    scomm.sync()
             
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
@@ -914,8 +910,6 @@ def main(options, scomm):
         if DEBUG:
             print('DEBUG...calling check_ncl_nco')
         diagUtilsLib.check_ncl_nco(envDict)
-        if DEBUG:
-            print('DEBUG...after check_ncl_nco')
 
         if checkEcoSysOptions(envDict):
             varList = getEcoSysVars(envDict['ECOSYSVARSFILE'], varList)

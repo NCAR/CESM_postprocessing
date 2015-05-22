@@ -44,7 +44,7 @@ class MOCFields(OceanDiagnosticPlot):
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
-        # generate_plots with field_3d_za.ncl command
+        # generate_plots with moc_netcdf.ncl command
         diagUtilsLib.generate_ncl_plots(env, 'moc_netcdf.ncl')        
 
 

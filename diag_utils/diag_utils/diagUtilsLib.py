@@ -23,31 +23,23 @@ def check_ncl_nco(envDict):
     Arguments:
     envDict (dictionary) - environment dictionary
     """
-    print('...before checking NCL')
-##    print('... envDict - PATH = {0}'.format(envDict['PATH']))
+
     cmd = ['ncl', '-V']
     try:
-        subprocess.check_output(cmd, env=envDict)
-    except subprocess.CalledProcessError as e:
-        print('NCL encountered a problem.')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
-        print('    {0} - {1}'.format(e.cmd, e.output))
-        sys.exit(1)
+        pipe = subprocess.Popen(cmd, env=envDict)
+        pipe.wait()
     except OSError as e:
         print('NCL is required to run the ocean diagnostics package')
         print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
         print('    {0} - {1}'.format(e.errno, e.strerror))
         sys.exit(1)
 
-    print('...before checking ncks')
     cmd = ['ncks', '--version']
     try:
-        subprocess.check_output(cmd , env=envDict)
-    except subprocess.CalledProcessError as e:
-        print('NCO ncks is required to run the ocean diagnostics package')
-        print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
-        print('    {0} - {1}'.format(e.cmd, e.output))
-        sys.exit(1)
+        print('DEBUG... before ncks check')
+        pipe = subprocess.Popen(cmd , env=envDict)
+        pipe.wait()
+        print('DEBUG... after ncks check')
     except OSError as e:
         print('NCO ncks is required to run the ocean diagnostics package')
         print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
@@ -74,10 +66,11 @@ def generate_ncl_plots(env, nclPlotFile):
     if rc:
         try:
             print('      calling NCL plot routine {0}'.format(nclPlotFile))
-            subprocess.check_output( ['ncl',nclFile], env=env)
-        except subprocess.CalledProcessError as e:
+            pipe = subprocess.Popen( ['ncl',nclFile], env=env)
+            pipe.wait()
+        except OSError as e:
             print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclfile))
-            print('    {0} - {1}'.format(e.cmd, e.output))
+            print('    {0} - {1}'.format(e.errno, e.strerror))
     else:
         print('{0}... continuing with additional plots.'.format(err_msg))
     os.chdir(cwd)
