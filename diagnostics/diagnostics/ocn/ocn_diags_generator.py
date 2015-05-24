@@ -254,17 +254,14 @@ def create_plot_dat(workdir, xyrange, depths):
     xyrange (string) - env['XYRANGE']
     depths (string) - env['DEPTHS']
     """
-    cwd = os.getcwd()
-    os.chdir(workdir)
-    rc, err_msg = cesmEnvLib.checkFile('plot.dat', 'read')
+    rc, err_msg = cesmEnvLib.checkFile('{0}/plot.dat'.format(workdir), 'read')
     if not rc:
-        file = open('plot.dat','w')
+        file = open('{0}/plot.dat'.format(workdir),'w')
         file.write( xyrange + '\n')
         numdepths = len(depths.split(','))
         file.write( str(numdepths) + '\n')
         file.write( depths + '\n')
         file.close()
-    os.chdir(cwd)
 
     return 0
 
@@ -376,65 +373,65 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
 #=======================================================
 # convert_plots - convert plots from ps to gif
 #=======================================================
-def convert_plots(workdir, scomm):
+def convert_plots(workdir, env, scomm):
     """convert_plots - convert plot files from ps to gif
 
     """
-    cwd = os.getcwd()
-    os.chdir(workdir)
-    scomm.sync()
+    if DEBUG:
+        print('DEBUG... in convert_plots rank = {0}'.format(scomm.get_rank()))
 
     psFiles = list()
-    if scomm.is_manager():
-        psFiles = sorted(glob.glob('*.ps'))
-        if DEBUG:
-            print('DEBUG... psFiles = {0}'.format(psFiles))
-    scomm.sync()
+    splitPath = list()
+    psFiles = sorted(glob.glob('{0}/*.ps'.format(workdir)))
+#    if DEBUG:
+#        print('DEBUG... psFiles = {0} on rank = {1}'.format(psFiles, scomm.get_rank()))
 
-    # broadcast the list of ps files to convert
-    psFiles = scomm.partition(psFiles, func=partition.Duplicate(), involved=True)
+    # partition the list of ps files to convert
+    local_psFiles = scomm.partition(psFiles, func=partition.EqualStride(), involved=True)
     scomm.sync()
 
     # check if the convert command exists on all tasks
     rc = cesmEnvLib.which('convert')
     if rc not in ['None']:
 
-        # partition the list of psFiles across the available tasks
-        local_psFiles = scomm.partition(psFiles, func=partition.EqualStride(), involved=True)
-        scomm.sync()
-
-        if DEBUG:
-            print('DEBUG... local_psFiles = {0} on rank = {1}'.format(local_psFiles, scomm.get_rank()))
+#        if DEBUG:
+#            print('DEBUG... local_psFiles = {0} on rank = {1}'.format(local_psFiles, scomm.get_rank()))
 
         for ps in local_psFiles:
-            plotname = ps.split('.')
-            if DEBUG:
-                print('DEBUG...... converting {0}'.format(ps))
-            
+            splitPath = ps.split('/')
+            plotname = splitPath[-1].split('.')
+#            if DEBUG:
+#                print('DEBUG..... splitPath = {0}, plotname = {1}'.format(splitPath, plotname))
+
             # check if the GIF file alreay exists and remove it to regen
-            gifFile = '{0}.gif'.format(plotname[0])
+            gifFile = '{0}/{1}.gif'.format(workdir, plotname[0])
+#            if DEBUG:
+#                print('DEBUG..... gifFile = {0}'.format(gifFile))
+#                print('DEBUG..... workdir = {0}'.format(workdir))
+
             rc, err_msg = cesmEnvLib.checkFile(gifFile,'write')
             if rc:
                 if DEBUG:
                     print('DEBUG...... removing {0}'.format(gifFile))
                 os.remove(gifFile)
-        
+
             # convert the image from ps to gif
             try:
                 if DEBUG:
-                    print('DEBUG..... size of {0} = {1} on rank = {2}'.format(ps, os.path.getsize(ps), scomm.get_rank()))
-                pipe = subprocess.Popen( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',ps,gifFile] )
+                    print('DEBUG..... converting {0} size = {1} on rank = {2}'.format(ps, os.path.getsize(ps), scomm.get_rank()))
+#                pipe = subprocess.Popen( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',ps,gifFile], cwd=workdir, env=env, shell=True )
+                pipe = subprocess.Popen( ['convert -trim -bordercolor white -border 5x5 -density 95 {0} {1}'.format(ps,gifFile)], cwd=workdir, env=env, shell=True )
                 pipe.wait()
+                if DEBUG:
+                    print('DEBUG..... created {0} size = {1} on rank = {2}'.format(gifFile, os.path.getsize(gifFile), scomm.get_rank()))
             except OSError as e:
                 print('WARNING: convert_plots call to convert failed with error:')
                 print('    {0} - {1}'.format(e.errno, e.strerror))
             else:
                 continue
-        scomm.sync()
     else:
         print('WARNING: convert_plots unable to find convert command in path.')
 
-    os.chdir(cwd)
     scomm.sync()
 
     return True
@@ -464,7 +461,8 @@ def create_za(workdir, tavgfile, gridfile, toolpath, envDict):
         cwd = os.getcwd()
         os.chdir(workdir)
         try:
-            pipe = subprocess.Popen( [zaCommand,'-O','-time_const','-grid_file',gridfile, tavgfile], env=envDict)
+#            pipe = subprocess.Popen( [zaCommand,'-O','-time_const','-grid_file', gridfile,tavgfile], cwd=workdir, env=envDict, shell=True)
+            pipe = subprocess.Popen(['{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)], cwd=workdir, env=envDict, shell=True)
             pipe.wait()
         except OSError as e:
             print('ERROR: {0} call to {1} failed with error:'.format(self.name(), zaCommand))
@@ -718,6 +716,9 @@ def model_vs_obs(envDict, scomm):
             print('DEBUG... calling setXmlEnv in model_vs_obs')
     scomm.sync()
 
+    # broadcast envDict to all tasks
+    envDict = scomm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+
     # set the shell env using the values set in the XML and read into the envDict
     # across all ranks
     cesmEnvLib.setXmlEnv(envDict)
@@ -765,29 +766,29 @@ def model_vs_obs(envDict, scomm):
         if DEBUG:
             print('DEBUG... user_plot_list before partition = {0}'.format(user_plot_list))
 
-        for plot in user_plot_list:
-            if DEBUG:
-                print('DEBUG... generating user_plot = {0}'.format(plot.__class__.__name__))
-            plot.generate_plots(envDict)
+#        for plot in user_plot_list:
+#            if DEBUG:
+#                print('DEBUG... generating user_plot = {0}'.format(plot.__class__.__name__))
+#            plot.generate_plots(envDict)
 
     scomm.sync()
 
-#    user_plot_list = scomm.partition(full_plot_list, func=partition.EqualStride(), involved=True)
+    user_plot_list = scomm.partition(full_plot_list, func=partition.EqualStride(), involved=True)
 #    if scomm.is_manager() and DEBUG:
 #        print('DEBUG... user_plot_list after partition = {0}'.format(user_plot_list))
-#    scomm.sync()
+    scomm.sync()
 
-#    for user_plot in user_plot_list:
-#        if DEBUG:
-#            print('DEBUG... calling gnerate plots for = {0} on rank {1} in {2}'.format(user_plot, scomm.get_rank(), os.getcwd()))
-#        user_plot.generate_plots(envDict)
-#    scomm.sync()
+    for user_plot in user_plot_list:
+        if DEBUG:
+            print('DEBUG... calling gnerate plots for = {0} on rank {1}'.format(user_plot, scomm.get_rank()))
+        user_plot.generate_plots(envDict)
+    scomm.sync()
             
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
     if scomm.is_manager() and DEBUG:
         print('DEBUG... before convert_plots')
-    convert_plots(envDict['WORKDIR'], scomm)
+    convert_plots(envDict['WORKDIR'], envDict, scomm)
     scomm.sync()
 
     if scomm.is_manager():
