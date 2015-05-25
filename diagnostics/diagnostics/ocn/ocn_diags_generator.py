@@ -41,7 +41,7 @@ import argparse
 import traceback
 import errno
 import jinja2
-
+import Image
 
 if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser as config_parser
@@ -383,54 +383,51 @@ def convert_plots(workdir, env, scomm):
     psFiles = list()
     splitPath = list()
     psFiles = sorted(glob.glob('{0}/*.ps'.format(workdir)))
-#    if DEBUG:
-#        print('DEBUG... psFiles = {0} on rank = {1}'.format(psFiles, scomm.get_rank()))
 
     # partition the list of ps files to convert
     local_psFiles = scomm.partition(psFiles, func=partition.EqualStride(), involved=True)
     scomm.sync()
 
     # check if the convert command exists on all tasks
-    rc = cesmEnvLib.which('convert')
-    if rc not in ['None']:
-
+##    rc = cesmEnvLib.which('convert')
+##    if rc not in ['None']:
 #        if DEBUG:
 #            print('DEBUG... local_psFiles = {0} on rank = {1}'.format(local_psFiles, scomm.get_rank()))
 
-        for ps in local_psFiles:
-            splitPath = ps.split('/')
-            plotname = splitPath[-1].split('.')
-#            if DEBUG:
-#                print('DEBUG..... splitPath = {0}, plotname = {1}'.format(splitPath, plotname))
+    for ps in local_psFiles:
+        splitPath = ps.split('/')
+        plotname = splitPath[-1].split('.')
 
-            # check if the GIF file alreay exists and remove it to regen
-            gifFile = '{0}/{1}.gif'.format(workdir, plotname[0])
-#            if DEBUG:
-#                print('DEBUG..... gifFile = {0}'.format(gifFile))
-#                print('DEBUG..... workdir = {0}'.format(workdir))
+        # check if the GIF file alreay exists and remove it to regen
+        gifFile = '{0}/{1}.gif'.format(workdir, plotname[0])
+        rc, err_msg = cesmEnvLib.checkFile(gifFile,'write')
+        if rc:
+            if DEBUG:
+                print('DEBUG...... removing {0}'.format(gifFile))
+            os.remove(gifFile)
 
-            rc, err_msg = cesmEnvLib.checkFile(gifFile,'write')
-            if rc:
-                if DEBUG:
-                    print('DEBUG...... removing {0}'.format(gifFile))
-                os.remove(gifFile)
+        # convert the image from ps to gif
+        try:
+            if DEBUG:
+                print('DEBUG..... converting {0} size = {1} on rank = {2}'.format(ps, os.path.getsize(ps), scomm.get_rank()))
+            Image.open(ps).save(gifFile, border='5x5', density='95', bordercolor='white', trim='trim')
+        except IOError:
+            print('ERROR: convert_plots failed to convert {0} to {1}'.format(ps, gifFile))
+        else:
+            continue
 
-            # convert the image from ps to gif
-            try:
-                if DEBUG:
-                    print('DEBUG..... converting {0} size = {1} on rank = {2}'.format(ps, os.path.getsize(ps), scomm.get_rank()))
-#                pipe = subprocess.Popen( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',ps,gifFile], cwd=workdir, env=env, shell=True )
-                pipe = subprocess.Popen( ['convert -trim -bordercolor white -border 5x5 -density 95 {0} {1}'.format(ps,gifFile)], cwd=workdir, env=env, shell=True )
-                pipe.wait()
-                if DEBUG:
-                    print('DEBUG..... created {0} size = {1} on rank = {2}'.format(gifFile, os.path.getsize(gifFile), scomm.get_rank()))
-            except OSError as e:
-                print('WARNING: convert_plots call to convert failed with error:')
-                print('    {0} - {1}'.format(e.errno, e.strerror))
-            else:
-                continue
-    else:
-        print('WARNING: convert_plots unable to find convert command in path.')
+#                pipe = subprocess.Popen( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',ps,gifFile], cwd=workdir, env=env )
+##                pipe = subprocess.Popen( ['convert -trim -bordercolor white -border 5x5 -density 95 {0} {1}'.format(ps,gifFile)], cwd=workdir, env=env, shell=True )
+##                pipe.wait()
+##                if DEBUG:
+##                    print('DEBUG..... created {0} size = {1} on rank = {2}'.format(gifFile, os.path.getsize(gifFile), scomm.get_rank()))
+##            except OSError as e:
+##                print('WARNING: convert_plots call to convert failed with error:')
+##                print('    {0} - {1}'.format(e.errno, e.strerror))
+##            else:
+##                continue
+##    else:
+##        print('WARNING: convert_plots unable to find convert command in path.')
 
     scomm.sync()
 
@@ -581,7 +578,6 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
     case_prefix = '{0}.pop.h'.format(case)
 
     # link to the mavg file for the za and plotting routings
-#    avgFile = '{0}_mavg.nc'.format(avgFileBaseName)
     avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, start_year, stop_year)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
@@ -595,7 +591,6 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
         raise OSError(err_msg)
 
     # link to the tavg file
-#    avgFile = '{0}_tavg.nc'.format(avgFileBaseName)
     avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, start_year, stop_year)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
@@ -675,7 +670,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
         averageList = buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir)
     scomm.sync()
 
-    # need to bcast the averageList
+    # bcast the averageList
     averageList = scomm.partition(averageList, func=partition.Duplicate(), involved=True)
     if scomm.is_manager():
         if DEBUG:
@@ -795,10 +790,8 @@ def model_vs_obs(envDict, scomm):
         print('Creating plot html header:')
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
-#        templateLoader = jinja2.PackageLoader('diagnostics', 'diagnostics/ocn/Templates' )
         templateEnv = jinja2.Environment( loader=templateLoader )
 
-#        TEMPLATE_FILE = './Templates/model_vs_obs.tmpl'
         TEMPLATE_FILE = 'model_vs_obs.tmpl'
         template = templateEnv.get_template( TEMPLATE_FILE )
     

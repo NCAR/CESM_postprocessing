@@ -67,11 +67,11 @@ def generate_ncl_plots(env, nclPlotFile):
     if rc:
         try:
             print('      calling NCL plot routine {0}'.format(nclPlotFile))
-#            pipe = subprocess.Popen( ['ncl',nclFile], cwd=env['WORKDIR'], env=env, shell=True)
+#            pipe = subprocess.Popen( ['ncl',nclFile], cwd=env['WORKDIR'], env=env)
             pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True)
-            pipe.wait()
-#            while pipe.poll() is None:
-#                time.sleep(0.5)
+#            pipe.wait()
+            while pipe.poll() is None:
+                time.sleep(0.5)
         except OSError as e:
             print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclfile))
             print('    {0} - {1}'.format(e.errno, e.strerror))
