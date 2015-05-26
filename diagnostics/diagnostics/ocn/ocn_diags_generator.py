@@ -411,6 +411,7 @@ def convert_plots(workdir, env, scomm):
             if DEBUG:
                 print('DEBUG..... converting {0} size = {1} on rank = {2}'.format(ps, os.path.getsize(ps), scomm.get_rank()))
             Image.open(ps).save(gifFile, border='5x5', density='95', bordercolor='white', trim='trim')
+#            Image.open(ps).save(gifFile)
         except IOError:
             print('ERROR: convert_plots failed to convert {0} to {1}'.format(ps, gifFile))
         else:
