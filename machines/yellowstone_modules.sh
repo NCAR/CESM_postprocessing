@@ -13,7 +13,6 @@ module load pynio/1.4.1
 module load matplotlib/1.4.3
 module load nco/4.4.4
 module load ncl/6.3.0
-module load pil/1.1.7-py2.7.7
 
 # may need basemap for ocn ecosys
 

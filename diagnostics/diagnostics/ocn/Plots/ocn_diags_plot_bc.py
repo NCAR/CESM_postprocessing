@@ -19,6 +19,7 @@ import subprocess
 
 # import the helper utility module
 from cesm_utils import cesmEnvLib
+from diag_utils import diagUtilsLib
 
 class OceanDiagnosticPlot(object):
     """This is the base class defining the common interface for all
@@ -50,11 +51,11 @@ class OceanDiagnosticPlot(object):
         """This is the base class for calling plots
         """
         raise RuntimeError ('Generate plots must be implimented in the sub-class')
-    
-    def get_html(self, workdir, templatePath):
+
+    def get_html(self, workdir, templatePath, imgFormat):
         """This method returns the html snippet for the plot.
         """
-        self._create_html(workdir, templatePath)
+        self._create_html(workdir, templatePath, imgFormat)
         return self._html
 
 # todo move these classes to another file

@@ -8,7 +8,7 @@
         {% if 'Error' in i %}
            <td>{{ i }}</td>
         {% else %}
-           <td><a href="{{ i }}.gif">{{ i }}</td>
+           <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</td>
         {% endif %}
     {% endfor %}
     </tr>

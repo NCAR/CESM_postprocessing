@@ -344,7 +344,6 @@ def main(options):
 
     # generate the env_postprocess.xml file
     config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_DIR'])
-##    config_file = '{0}/Tools/config_definition.xml'.format(envDict['CASEROOT'])
     tmpl_file = 'env_postprocess.tmpl'
     env_file = '{0}/env_postprocess.xml'.format(envDict['CASEROOT'])
     create_env_file(envDict['POSTPROCESS_DIR'], config_file, tmpl_file, env_file, 'postprocess')
@@ -378,6 +377,17 @@ def main(options):
         create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_diags_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile,'{0}_diagnostics'.format(comp), envDict['PROJECT'], envDict['CASEROOT'],
                      machine['modules'])
+
+    print('*****************************************************************************************')
+    print('')
+    print(' The CASEROOT {0}'.format(envDict['CASEROOT']))
+    print(' now contains all the necessary post-processing submit scripts and associated')
+    print(' XML configuration files. Please review the on-line documentation at')
+    print(' http://www2.cesm.ucar.edu for a complete description of how')
+    print(' to configure and use the CESM post-processing tools.')
+    print('')
+    print('*****************************************************************************************')
+    
     
 #===================================
 

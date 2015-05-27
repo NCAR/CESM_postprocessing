@@ -10,7 +10,7 @@
         {% elif i == '' %}
            <td></td>
         {% else %}
-           <td><a href="{{ i }}.gif">{{ i }}</td>
+           <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</td>
         {% endif %}
     {% endfor %}
     </tr>
@@ -28,7 +28,7 @@
         {% elif i == '' %}
            <td></td>
         {% else %}
-           <td><a href="{{ i }}.gif">{{ i }}</td>
+           <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</td>
         {% endif %}
     {% endfor %}
     </tr>

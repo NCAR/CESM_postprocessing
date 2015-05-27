@@ -14,7 +14,6 @@ import subprocess
 import time
 from cesm_utils import cesmEnvLib
 
-
 #=======================================================================
 # check_ncl_nco - check if NCL and NCO/ncks are installed and accessible
 #=======================================================================
@@ -232,5 +231,99 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     start_year, stop_year = checkXMLyears(hfstart_year, hfstop_year, rstart_year, rstop_year)
 
     return (start_year, stop_year, in_dir, htype)
+
+
+#=======================================================================
+# copy_html_files - scp files from workdir to remote directory 
+#=======================================================================
+def copy_html_files(env):
+    """ copy html files from workdir to remote dir.
+        Will prompt user if ssh keys are not set.
+
+    Arguments:
+    env (dictionary) - environment dictionary
+    """
+    remoteConnect = '{0}@{1}:{2}'.format(env['WEBLOGIN'], env['WEBHOST'], env['WEBDIR'])
+    print('Secure copying HTML and graphics files from {0} to {1}'.format(env['WORKDIR'], remoteConnect))
+
+    # make sure directory exists
+    try:
+        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}'".format(env['WEBLOGIN'],env['WEBHOST'],env['WEBDIR'])], env=env, shell=True)
+        pipe.wait()
+    except OSEerror as e:
+        print('WARNING: unable to create remote directory {0}'.format(env['WEBDIR']))
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+
+    localFiles = '{0}/*.html'.format(env['WORKDIR'])
+    try:
+        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+        pipe.wait()
+    except OSError as e:
+        print('WARNING: scp command failed with error::')
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+
+    localFiles = '{0}/logos'.format(env['WORKDIR'])
+    try:
+        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+        pipe.wait()
+    except OSError as e:
+        print('WARNING: scp command failed with error::')
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+
+    localFiles = '{0}/*.css'.format(env['WORKDIR'])
+    try:
+        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+        pipe.wait()
+    except OSError as e:
+        print('WARNING: scp command failed with error::')
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+
+    localFiles = '{0}/*.{1}'.format(env['WORKDIR'], env['IMAGEFORMAT'])
+    try:
+        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+        pipe.wait()
+    except OSError as e:
+        print('WARNING: scp command failed with error::')
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+
+
+#=============================================================
+# convert_plots - convert a list of plots from ps to imgFormat
+#=============================================================
+def convert_plots(workdir, imgFormat, env):
+    """convert_plots - convert plot files from ps to imgFormat
+
+    """
+    splitPath = list()
+    psFiles = list()
+    psFiles = sorted(glob.glob('{0}/*.ps'.format(workdir)))
+
+    # check if the convert command exists on all tasks
+    rc = cesmEnvLib.which('convert')
+    if rc not in ['None'] and imgFormat.lower() in ['png','gif']:
+        for ps in psFiles:
+            splitPath = ps.split('/')
+            plotname = splitPath[-1].split('.')
+
+            # check if the image file alreay exists and remove it to regen
+            imgFile = '{0}/{1}.{2}'.format(workdir, plotname[0], imgFormat)
+            rc, err_msg = cesmEnvLib.checkFile(imgFile,'write')
+            if rc:
+                print('DEBUG...... removing {0}'.format(imgFile))
+                os.remove(imgFile)
+
+            # convert the image from ps to imgFormat
+            try:
+                pipe = subprocess.Popen( ['convert -trim -bordercolor white -border 5x5 -density 95 {0} {1}'.format(ps, imgFile)], cwd=workdir, shell=True, env=env)
+                pipe.wait()
+                print('DEBUG..... created {0} size = {1}'.format(imgFile, os.path.getsize(imgFile)))
+            except OSError as e:
+                print('DEBUG..... trying to create {0}'.format(imgFile))
+                print('WARNING: convert_plots call to convert failed with error:')
+                print('    {0} - {1}'.format(e.errno, e.strerror))
+            else:
+                continue
+    else:
+        print('WARNING: convert_plots unable to find convert command in path.')
 
 

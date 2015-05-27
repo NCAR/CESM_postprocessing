@@ -48,7 +48,7 @@ class WesternBoundary(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'dwbc.ncl')        
 
 
-    def _create_html(self, workdir, templatePath):
+    def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
@@ -56,8 +56,8 @@ class WesternBoundary(OceanDiagnosticPlot):
         plot_list = []
 
         for plot_file in self._expectedPlots:
-            gif_file = '{0}.gif'.format(plot_file)
-            rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+            img_file = '{0}.{1}'.format(plot_file, imgFormat)
+            rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
             if not rc:
                 plot_list.append('{0} - Error'.format(plot_file))
             else:
@@ -74,7 +74,8 @@ class WesternBoundary(OceanDiagnosticPlot):
         # add the template variables
         templateVars = { 'title' : self._name,
                          'cols' : num_cols,
-                         'plot_table' : plot_table
+                         'plot_table' : plot_table,
+                         'imgFormat' : imgFormat
                          }
 
         # render the html template using the plot tables

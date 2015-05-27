@@ -8,10 +8,20 @@
 <!-- env_postprocess.xml                                                     -->
 <!-- ======================================================================= -->
 
+<entry id="POSTPROCESS_PATH" 
+ type="string"
+ valid_values=""  
+ value="$SRCROOT/postprocessing" 
+ group="postprocess"
+ sdesc="post processing location relative to the SRCROOT"
+ ldesc="
+Path to the post processing CESM source code installation."
+></entry> 
+
 <entry id="POSTPROCESS_VIRTUALENV" 
  type="string"
  valid_values=""  
- value="$SRCROOT/postprocessing/cesm-env2" 
+ value="$POSTPROCESS_PATH/cesm-env2" 
  group="postprocess"
  sdesc="post processing python virtual environment path location relative to the SRCROOT"
  ldesc="

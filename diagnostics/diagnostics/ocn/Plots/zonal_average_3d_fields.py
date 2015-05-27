@@ -141,7 +141,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         # so can eventually read that list from XML
         diagUtilsLib.generate_ncl_plots(env, 'field_3d_za.ncl')        
 
-    def _create_html(self, workdir, templatePath):
+    def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
@@ -156,8 +156,8 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
             
             for j in range(num_cols - 2):
                 plot_file = exp_plot_list[j]
-                gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                img_file = '{0}.{1}'.format(plot_file, imgFormat)
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -175,7 +175,8 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         templateVars = { 'title' : self._name,
                          'cols' : num_cols,
                          'plot_table' : plot_table,
-                         'label_list' : label_list
+                         'label_list' : label_list,
+                         'imgFormat' : imgFormat
                          }
 
         # render the html template using the plot tables

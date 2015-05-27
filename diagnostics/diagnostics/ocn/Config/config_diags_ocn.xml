@@ -110,6 +110,43 @@
 		(TRUE) or not (FALSE)."
 	 ></entry>
 
+  <entry id="OCNDIAG_WEBHOST"
+	 type="char"
+	 valid_values=""
+	 value=""
+	 group="diags_ocn"
+	 sdesc="Remote web host machine."
+	 ldesc="Remote web host machine to serve HTML pages and converted plots."
+	 ></entry>
+
+  <entry id="OCNDIAG_WEBLOGIN"
+	 type="char"
+	 valid_values=""
+	 value=""
+	 group="diags_ocn"
+	 sdesc="Remote web host login name."
+	 ldesc="Remote web host login name which can be used with ssh keys. If ssh key is not setup, 
+		then will prompt for login on remote web host machine."
+	 ></entry>
+
+  <entry id="OCNDIAG_WEBDIR"
+	 type="char"
+	 valid_values=""
+	 value=""
+	 group="diags_ocn"
+	 sdesc="Remote machine path to OMWG diagnostics HTML directory."
+	 ldesc=""
+	 ></entry>
+
+  <entry id="OCNDIAG_IMAGEFORMAT"
+	 type="char"
+	 valid_values="gif, jpg, png"
+	 value="png"
+	 group="diags_ocn"
+	 sdesc="Output image format supported by viewing in web browsers."
+	 ldesc=""
+	 ></entry>
+
   <entry id="OCNDIAG_APPEND"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
@@ -370,15 +407,6 @@
 	 ldesc=""
 	 ></entry>
 
-  <entry id="OCNDIAG_WEBDIR"
-	 type="char"
-	 valid_values=""
-	 value=""
-	 group="diags_ocn"
-	 sdesc="Remote machine path to OMWG diagnostics HTML directory."
-	 ldesc=""
-	 ></entry>
-
   <entry id="OCNDIAG_LIBPATH"
 	 type="char"
 	 valid_values=""
@@ -401,19 +429,10 @@
   <!--  define ocean diagnostics ncl specific environment variables                -->
   <!-- =========================================================================== -->
 
-  <entry id="OCNDIAG_NCARG_ROOT"
-	 type="char"
-	 valid_values=""
-	 value="/contrib/ncl-6.2.1/lib/ncarg"
-	 group="diags_ocn"
-	 sdesc="General NCL settings for all plotting routines"
-	 ldesc=""
-	 ></entry>
-
   <entry id="OCNDIAG_NCARG_COLORMAP_PATH"
 	 type="char"
 	 valid_values=""
-	 value="$OCNDIAG_NCLPATH/colormaps:$NCARG_ROOT/colormaps"
+	 value="$OCNDIAG_NCLPATH/colormaps:$NCARG_ROOT/lib/ncarg/colormaps"
 	 group="diags_ocn"
 	 sdesc="General NCL settings for all plotting routines"
 	 ldesc=""
@@ -431,7 +450,7 @@
   <entry id="OCNDIAG_NCL_PATH"
 	 type="char"
 	 valid_values=""
-	 value="~/src/NCL_TRUNK/ni/src/ncl"
+	 value=""
 	 group="diags_ocn"
 	 sdesc="Specific NCL path for model vs. model and model vs. obs plotting routines"
 	 ldesc=""
@@ -449,7 +468,7 @@
   <entry id="OCNDIAG_TS_NCL_PATH"
 	 type="char"
 	 valid_values=""
-	 value="/fs/local/apps/rsi/idl/bin:/fs/local/bin"
+	 value=""
 	 group="diags_ocn"
 	 sdesc="Specific NCL path for model time series plotting routines"
 	 ldesc=""
@@ -606,7 +625,7 @@
   <entry id="OCNDIAG_TOBSFILE"
 	 type="char"
 	 valid_values=""
-	 value="PHC2_TEMP_$OCN_GRID_ann_avg.nc"
+	 value="PHC2_TEMP_($OCN_GRID)_ann_avg.nc"
 	 group="diags_ocn"
 	 sdesc="Local machine file to temperature observations"
 	 ldesc=""
@@ -615,7 +634,7 @@
   <entry id="OCNDIAG_SOBSFILE"
 	 type="char"
 	 valid_values=""
-	 value="PHC2_SALT_$OCN_GRID_ann_avg.nc"
+	 value="PHC2_SALT_($OCN_GRID)_ann_avg.nc"
 	 group="diags_ocn"
 	 sdesc="Local machine file to salinity observations"
 	 ldesc=""
@@ -624,7 +643,7 @@
   <entry id="OCNDIAG_TOBSFILE_V42"
 	 type="char"
 	 valid_values=""
-	 value="PHC2_TEMP_$OCN_GRID_42lev_ann_avg.nc"
+	 value="PHC2_TEMP_($OCN_GRID)_42lev_ann_avg.nc"
 	 group="diags_ocn"
 	 sdesc="Local machine file to temperature observations at 42 vertical levels"
 	 ldesc=""
@@ -633,7 +652,7 @@
   <entry id="OCNDIAG_SOBSFILE_V42"
 	 type="char"
 	 valid_values=""
-	 value="PHC2_SALT_$OCN_GRID_42lev_ann_avg.nc"
+	 value="PHC2_SALT_($OCN_GRID)_42lev_ann_avg.nc"
 	 group="diags_ocn"
 	 sdesc="Local machine file to salinity observations at 42 vertical levels"
 	 ldesc=""
@@ -669,7 +688,7 @@
   <entry id="OCNDIAG_RHOOBSFILE"
 	 type="char"
 	 valid_values=""
-	 value="PHC2_RHO0_$OCN_GRID.nc"
+	 value="PHC2_RHO0_($OCN_GRID).nc"
 	 group="diags_ocn"
 	 sdesc="Local machine file to density observations"
 	 ldesc=""
@@ -705,7 +724,7 @@
   <entry id="OCNDIAG_TCLIMFILE"
 	 type="char"
 	 valid_values=""
-	 value="PHC2_TEMP_$OCN_GRID_ann_avg.nc"
+	 value="PHC2_TEMP_($OCN_GRID)_ann_avg.nc"
 	 group="diags_ocn"
 	 sdesc="Local machine file for OMWG diagnostics PHC2 temperature file"
 	 ldesc=""
@@ -714,7 +733,7 @@
   <entry id="OCNDIAG_SCLIMFILE"
 	 type="char"
 	 valid_values=""
-	 value="PHC2_SALT_$OCN_GRID_ann_avg.nc"
+	 value="PHC2_SALT_($OCN_GRID)_ann_avg.nc"
 	 group="diags_ocn"
 	 sdesc="Local machine file for OMWG diagnostics PHC2 salinity file"
 	 ldesc=""

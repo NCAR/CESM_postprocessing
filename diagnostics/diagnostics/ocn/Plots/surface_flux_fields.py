@@ -114,7 +114,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'sfcflx_za.ncl')        
 
 
-    def _create_html(self, workdir, templatePath):
+    def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
@@ -129,8 +129,8 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             plot_list = []
             for j in range(num_cols):
                 plot_file = self._expectedPlots[index]
-                gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                img_file = '{0}.{1}'.format(plot_file, imgFormat)
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -143,8 +143,8 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             plot_list = []
             for i in range(num_last_row):
                 plot_file = self._expectedPlots[index]
-                gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                img_file = '{0}.{1}'.format(plot_file, imgFormat)
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -168,8 +168,8 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             plot_list = []
             for j in range(num_cols):
                 plot_file = self._za_expectedPlots[index]
-                gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                img_file = '{0}.{1}'.format(plot_file, imgFormat)
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -182,8 +182,8 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             plot_list = []
             for i in range(num_last_row):
                 plot_file = self._za_expectedPlots[index]
-                gif_file = '{0}.gif'.format(plot_file)
-                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, gif_file), 'read' )
+                img_file = '{0}.{1}'.format(plot_file, imgFormat)
+                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
@@ -205,7 +205,8 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         templateVars = { 'title' : self._name,
                          'cols' : num_cols,
                          'plot_table' : plot_table,
-                         'plot_za_table' : plot_za_table
+                         'plot_za_table' : plot_za_table,
+                         'imgFormat' : imgFormat
                          }
 
         # render the html template using the plot tables

@@ -41,7 +41,6 @@ import argparse
 import traceback
 import errno
 import jinja2
-import Image
 
 if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser as config_parser
@@ -171,7 +170,7 @@ def initialize_model_vs_obs(envDict):
     envDict (dictionary) - environment dictionary
     """
     # create the working directory if it doesn't already exists
-    subdir = 'pd.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
+    subdir = 'model_vs_obs.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
     workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
     if DEBUG:
         print('DEBUG... checking workdir = {0}'.format(workdir))
@@ -369,70 +368,6 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
         print(str(error))
         traceback.print_exc()
         sys.exit(1)
-
-#=======================================================
-# convert_plots - convert plots from ps to gif
-#=======================================================
-def convert_plots(workdir, env, scomm):
-    """convert_plots - convert plot files from ps to gif
-
-    """
-    if DEBUG:
-        print('DEBUG... in convert_plots rank = {0}'.format(scomm.get_rank()))
-
-    psFiles = list()
-    splitPath = list()
-    psFiles = sorted(glob.glob('{0}/*.ps'.format(workdir)))
-
-    # partition the list of ps files to convert
-    local_psFiles = scomm.partition(psFiles, func=partition.EqualStride(), involved=True)
-    scomm.sync()
-
-    # check if the convert command exists on all tasks
-##    rc = cesmEnvLib.which('convert')
-##    if rc not in ['None']:
-#        if DEBUG:
-#            print('DEBUG... local_psFiles = {0} on rank = {1}'.format(local_psFiles, scomm.get_rank()))
-
-    for ps in local_psFiles:
-        splitPath = ps.split('/')
-        plotname = splitPath[-1].split('.')
-
-        # check if the GIF file alreay exists and remove it to regen
-        gifFile = '{0}/{1}.gif'.format(workdir, plotname[0])
-        rc, err_msg = cesmEnvLib.checkFile(gifFile,'write')
-        if rc:
-            if DEBUG:
-                print('DEBUG...... removing {0}'.format(gifFile))
-            os.remove(gifFile)
-
-        # convert the image from ps to gif
-        try:
-            if DEBUG:
-                print('DEBUG..... converting {0} size = {1} on rank = {2}'.format(ps, os.path.getsize(ps), scomm.get_rank()))
-            Image.open(ps).save(gifFile, border='5x5', density='95', bordercolor='white', trim='trim')
-#            Image.open(ps).save(gifFile)
-        except IOError:
-            print('ERROR: convert_plots failed to convert {0} to {1}'.format(ps, gifFile))
-        else:
-            continue
-
-#                pipe = subprocess.Popen( ['convert','-trim','-bordercolor','white','-border','5x5','-density','95',ps,gifFile], cwd=workdir, env=env )
-##                pipe = subprocess.Popen( ['convert -trim -bordercolor white -border 5x5 -density 95 {0} {1}'.format(ps,gifFile)], cwd=workdir, env=env, shell=True )
-##                pipe.wait()
-##                if DEBUG:
-##                    print('DEBUG..... created {0} size = {1} on rank = {2}'.format(gifFile, os.path.getsize(gifFile), scomm.get_rank()))
-##            except OSError as e:
-##                print('WARNING: convert_plots call to convert failed with error:')
-##                print('    {0} - {1}'.format(e.errno, e.strerror))
-##            else:
-##                continue
-##    else:
-##        print('WARNING: convert_plots unable to find convert command in path.')
-
-    scomm.sync()
-
-    return True
 
 #==============================================================================
 # create_za - generate the global zonal average file used for most of the plots
@@ -708,6 +643,8 @@ def model_vs_obs(envDict, scomm):
         # initialize the model vs. obs environment
         envDict = initialize_model_vs_obs(envDict)
 
+        envDict['IMAGEFORMAT'] = 'png'
+
         if DEBUG:
             print('DEBUG... calling setXmlEnv in model_vs_obs')
     scomm.sync()
@@ -762,16 +699,9 @@ def model_vs_obs(envDict, scomm):
         if DEBUG:
             print('DEBUG... user_plot_list before partition = {0}'.format(user_plot_list))
 
-#        for plot in user_plot_list:
-#            if DEBUG:
-#                print('DEBUG... generating user_plot = {0}'.format(plot.__class__.__name__))
-#            plot.generate_plots(envDict)
-
     scomm.sync()
 
     user_plot_list = scomm.partition(full_plot_list, func=partition.EqualStride(), involved=True)
-#    if scomm.is_manager() and DEBUG:
-#        print('DEBUG... user_plot_list after partition = {0}'.format(user_plot_list))
     scomm.sync()
 
     for user_plot in user_plot_list:
@@ -782,12 +712,11 @@ def model_vs_obs(envDict, scomm):
             
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
-    if scomm.is_manager() and DEBUG:
-        print('DEBUG... before convert_plots')
-    convert_plots(envDict['WORKDIR'], envDict, scomm)
-    scomm.sync()
+    if scomm.is_manager() and envDict['DOWEB'].upper() in ['T','TRUE']:
+        if DEBUG:
+            print('DEBUG... before convert_plots')
+        diagUtilsLib.convert_plots(envDict['WORKDIR'], envDict['IMAGEFORMAT'], envDict)
 
-    if scomm.is_manager():
         print('Creating plot html header:')
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
@@ -806,7 +735,7 @@ def model_vs_obs(envDict, scomm):
         plot_html = template.render( templateVars )
     
         for plot in full_plot_list:
-            plot_html += plot.get_html(envDict['WORKDIR'], templatePath)
+            plot_html += plot.get_html(envDict['WORKDIR'], templatePath, envDict['IMAGEFORMAT'])
 
         with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
             plot_html += tmpl.read()
@@ -824,6 +753,10 @@ def model_vs_obs(envDict, scomm):
 
         for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
             shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
+
+        if len(envDict['WEBDIR']) > 0 and len(envDict['WEBHOST']) > 0 and len(envDict['WEBLOGIN']) > 0:
+            # copy over the files to a remote web server and webdir 
+            diagUtilsLib.copy_html_files(envDict)
 
         print('*******************************************************************************')
         print('Successfully completed generating ocean diagnostics model vs. observation plots')
