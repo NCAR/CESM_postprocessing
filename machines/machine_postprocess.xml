@@ -12,6 +12,10 @@
     <modules>
       <module></module>
     </modules>
+    <za_fc></za_fc>
+    <za_fflags></za_fflags>
+    <za_include></za_include>
+    <za_libs></za_libs>
   </machine>
 
   <machine name="yellowstone">
@@ -24,7 +28,13 @@
     <modules>
       <module>module load ncl</module>
       <module>module load nco</module>
+      <module>module load intel</module>
+      <module>module load netcdf</module>
     </modules>
+    <za_fc>ifort</za_fc>
+    <za_fflags>-c -g -O2</za_fflags>
+    <za_include>-I/glade/apps/opt/netcdf/4.2/intel/12.1.4/include</za_include>
+    <za_libs>-L/glade/apps/opt/netcdf/4.2/intel/12.1.4/lib -lnetcdff -lnetcdf</za_libs>
   </machine>
 
 </machine_postprocess>

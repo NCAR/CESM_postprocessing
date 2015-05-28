@@ -207,6 +207,14 @@ module_check.py
 #----------------------------------------------------------------------
 deactivate
 
+#----------------------------------------------------------------------
+# compile and install ocn_diag zonal average (za) program
+#----------------------------------------------------------------------
+echo "---------------------------------------------------------"
+echo "$progname - Compiling ocn diagnostics zonal average tool."
+./compile_za --machine $machine --pproot $pp_dir
+echo "---------------------------------------------------------"
+
 cd $curdir
 
 status="SUCCESS"

@@ -110,8 +110,8 @@ def initialize_main(envDict, caseroot):
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_postprocess.xml', 'env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
-    if DEBUG:
-        print('DEBUG... envDict after readXML')
+##    if DEBUG:
+##        print('DEBUG... envDict after readXML')
 ##        for k,v in envDict.iteritems():
 ##            print('DEBUG...... envDict[{0}] = {1}'.format(k, v))
 
@@ -364,7 +364,6 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
         scomm.sync()
 
     except Exception as error:
-        print('DEBUG... exception on rank = {0}:'.format(scomm.get_rank()))
         print(str(error))
         traceback.print_exc()
         sys.exit(1)
@@ -380,8 +379,6 @@ def create_za(workdir, tavgfile, gridfile, toolpath, envDict):
     zaFile = '{0}/za_{1}'.format(workdir, tavgfile)
     rc, err_msg = cesmEnvLib.checkFile(zaFile, 'read')
     if not rc:
-        if DEBUG:
-            print('DEBUG... Checking on the zonal average (za) file compiled fortran code.')
         # check that the za executable exists
         zaCommand = '{0}/za'.format(toolpath)
         if DEBUG:
@@ -608,9 +605,6 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
 
     # bcast the averageList
     averageList = scomm.partition(averageList, func=partition.Duplicate(), involved=True)
-    if scomm.is_manager():
-        if DEBUG:
-            print('DEBUG... averageList after partition = {0}'.format(averageList))
 
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
@@ -690,9 +684,6 @@ def model_vs_obs(envDict, scomm):
         print('Checking prerequisite:')
         for plot in user_plot_list:
             plot.check_prerequisites(envDict)
-
-        # dispatch mpi plotting jobs here
-        #print('Generating plots in parallel:')
 
         # save the full_plot_list before it is partitioned
         full_plot_list = user_plot_list
@@ -842,8 +833,6 @@ def main(options, scomm):
         if DEBUG:
             print('DEBUG...calling check_ncl_nco')
         diagUtilsLib.check_ncl_nco(envDict)
-        if DEBUG:
-            print('DEBUG...after check_ncl_nco')
 
         if checkEcoSysOptions(envDict):
             varList = getEcoSysVars(envDict['ECOSYSVARSFILE'], varList)
@@ -853,9 +842,6 @@ def main(options, scomm):
 
     # broadcast envDict to all tasks
     envDict = scomm.partition(data=envDict, func=partition.Duplicate(), involved=True)
-    if DEBUG and scomm.is_manager():
-        print('DEBUG... envDict["CASE"]'.format(envDict["CASE"]))
-
     sys.path.append(envDict['PATH'])
     scomm.sync()
 

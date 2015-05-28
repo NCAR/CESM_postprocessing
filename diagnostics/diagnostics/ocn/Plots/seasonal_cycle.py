@@ -81,7 +81,7 @@ class SeasonalCycle(OceanDiagnosticPlot):
 
         # create a jinja2 template object
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
-        templateEnv = jinja2.Environment( loader=templateLoader )
+        templateEnv = jinja2.Environment( loader=templateLoader, keep_trailing_newline=False )
 
         template = templateEnv.get_template( self._template_file )
 
@@ -95,8 +95,5 @@ class SeasonalCycle(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        # remove the extra newlines
-        self._html = self._html.replace('\n','')
-
         return self._html
 

@@ -1,0 +1,223 @@
+#!/usr/bin/env python
+"""Read the necessary xml files from the postprocessing configuration system and generate 
+the appropriate system Makefile for the postprocessing/ocn_diags/tool_lib/zon_avg and compile
+it. This script is called once from the create_python_env.sh script and activates the
+virtualenv.
+__________________________
+Created on May, 2015
+
+Author: CSEG <cseg@cgd.ucar.edu>
+"""
+
+from __future__ import print_function
+
+import sys
+
+# check the system python version and require 2.7.x or greater
+if sys.hexversion < 0x02070000:
+    print(70 * "*")
+    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("It appears that you are running python {0}".format(
+            ".".join(str(x) for x in sys.version_info[0:3])))
+    print(70 * "*")
+    sys.exit(1)
+
+#
+# built-in modules
+#
+import argparse
+import collections
+import re
+import os
+import platform
+import pprint
+import traceback
+import subprocess
+import shutil
+
+#
+# installed dependencies
+#
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
+
+if sys.version_info[0] == 2:
+    from ConfigParser import SafeConfigParser as config_parser
+else:
+    from configparser import ConfigParser as config_parser
+
+#
+# activate the virtual environment that was created by create_python_env.sh
+#
+if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
+    err_msg = ('compile_za ERROR: the virtual environment cesm-env2 does not exist.' \
+               'Please run $SRCROOT/postprocessing/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
+    raise OSError(err_msg)
+
+execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
+
+#
+# import modules installed in the virtual environment
+#
+from cesm_utils import cesmEnvLib
+import jinja2
+
+
+# -------------------------------------------------------------------------------
+# commandline_options - parse any command line options
+# -------------------------------------------------------------------------------
+
+def commandline_options():
+    """Process the command line arguments.
+
+    """
+    parser = argparse.ArgumentParser(
+        description='Read the necessary xml files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks.')
+
+    parser.add_argument('--backtrace', action='store_true',
+                        help='show exception backtraces as extra debugging '
+                        'output')
+
+    parser.add_argument('--debug', action='store_true',
+                        help='extra debugging output')
+
+    parser.add_argument('--machine', nargs=1, required=True, 
+                        help='Supported machine name.')
+
+    parser.add_argument('--pproot', nargs=1, default='.',
+                        help='Post-processing root directory. Default "."')
+
+    options = parser.parse_args()
+
+    return options
+
+
+# -------------------------------------------------------------------------------
+# read_machine_xml
+# -------------------------------------------------------------------------------
+def read_machine_xml(machineName, xmlFile):
+    """ read_machine_xml - read the xmlFile with specified machine pe 
+    counts for postprocessing tasks.
+
+    Arguments:
+    machine (string) - machine name
+    xmlFile (string) - XML file containing machine pe layout for postprocessing
+
+    Return:
+    xmlDict (dictionary) - za variables defined in the XML file
+    """
+    xmlDict = dict()
+    xmlDict['modules'] = []
+    found = False
+    rc, err_msg = cesmEnvLib.checkFile(xmlFile, 'read')
+    if rc:
+        xml_tree = etree.ElementTree()
+        xml_tree.parse(xmlFile)
+
+        # find the matching machine name
+        for xmlmachine in xml_tree.findall('machine'):
+            if machineName.lower() == xmlmachine.get('name').lower():
+
+                found = True
+                xmlDict['za_fc'] = xmlmachine.find('za_fc').text
+                xmlDict['za_fflags'] = xmlmachine.find('za_fflags').text
+                xmlDict['za_include'] = xmlmachine.find('za_include').text
+                xmlDict['za_libs'] = xmlmachine.find('za_libs').text
+
+        if not found:
+            err_msg = ('compile_za ERROR: Invalid machine "{0}" requested for postprocessing'.format(machine))
+            raise OSError(err_msg)
+    else:
+        raise OSError(err_msg)
+
+    return xmlDict
+
+# -------------------------------------------------------------------------------
+# main
+# -------------------------------------------------------------------------------
+def main(options):
+    """
+    """
+    # get the machine dependent PE counts and mpi run command in a dictionary
+    machine = options.machine[0]
+    ppdir = options.pproot[0]
+
+    machineDict = dict()
+    machineDict = read_machine_xml(machine, '{0}/machines/machine_postprocess.xml'.format(ppdir))
+
+    # define the makefile template
+    za_makefile_tmpl = 'za_makefile.tmpl'
+    rc, err_msg = cesmEnvLib.checkFile('{0}/templates/{1}'.format(ppdir,za_makefile_tmpl), 'read')
+    if not rc:
+        raise OSError(err_msg)
+
+    # define the output file
+    out_makefile = '{0}/ocn_diag/tool_lib/zon_avg/makefile'.format(ppdir)
+    rc, err_msg = cesmEnvLib.checkFile(out_makefile, 'read')
+    if rc:
+        try:
+            subprocess.check_call( ['mv', out_makefile, '{0}.BKUP'.format(out_makefile) ] )
+        except subprocess.CalledProcessError as e:
+            print('compile_za: Cannot move {0} to {0}.BKUP'.format(out_makefile))
+            print('ERROR: manually change permissions on {0}'.format(out_makefile))
+            print('    {0} - {1}'.format(e.cmd, e.output))
+            sys.exit(1)
+
+
+    templateLoader = jinja2.FileSystemLoader( searchpath='{0}/templates'.format(ppdir) )
+    templateEnv = jinja2.Environment( loader=templateLoader )
+    template = templateEnv.get_template( za_makefile_tmpl )
+    templateVars = { 'za_fc' : machineDict['za_fc'],
+                     'za_fflags' : machineDict['za_fflags'],
+                     'za_include' : machineDict['za_include'],
+                     'za_libs' : machineDict['za_libs']}
+        
+    # render this template into the za makefile 
+    za_makefile = template.render( templateVars )
+
+    # write the makefile
+    with open( out_makefile, 'w') as fh:
+        fh.write(za_makefile)
+
+    # execute the make commands
+    cwd = os.getcwd()
+    os.chdir('{0}/ocn_diag/tool_lib/zon_avg'.format(ppdir))
+    try:
+        pipe = subprocess.Popen(['make', 'clean'])
+        pipe.wait()
+    except OSError as e:
+        print('compile_za: {0} failed to make clean:'.format(out_makefile))
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+        sys.exit(1)
+
+    try:
+        pipe = subprocess.Popen(['make'])
+        pipe.wait()
+    except OSError as e:
+        print('compile_za: {0} failed to compile with error:'.format(out_makefile))
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+        sys.exit(1)
+
+    # copy the za command to the tool_lib dir
+    os.chdir(cwd)
+    try:
+        shutil.copy2('{0}/ocn_diag/tool_lib/zon_avg/za'.format(ppdir), '{0}/ocn_diag/tool_lib/za'.format(ppdir))
+    except IOError as e:
+        print('compile_za: unable to copy za file')
+        sys.exit(1)
+        
+
+#===================================
+
+if __name__ == "__main__":
+    options = commandline_options()
+    try:
+        status = main(options)
+        sys.exit(status)
+    except Exception as error:
+        print(str(error))
+        if options.backtrace:
+            traceback.print_exc()
+        sys.exit(1)

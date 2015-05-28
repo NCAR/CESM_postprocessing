@@ -36,10 +36,8 @@ def check_ncl_nco(envDict):
 
     cmd = ['ncks', '--version']
     try:
-        print('DEBUG... before ncks check')
         pipe = subprocess.Popen(cmd , env=envDict)
         pipe.wait()
-        print('DEBUG... after ncks check')
     except OSError as e:
         print('NCO ncks is required to run the ocean diagnostics package')
         print('ERROR: {0} call to "{1}" failed with error:'.format('check_ncl_nco', ' '.join(cmd)))
@@ -309,16 +307,16 @@ def convert_plots(workdir, imgFormat, env):
             imgFile = '{0}/{1}.{2}'.format(workdir, plotname[0], imgFormat)
             rc, err_msg = cesmEnvLib.checkFile(imgFile,'write')
             if rc:
-                print('DEBUG...... removing {0}'.format(imgFile))
+                print('...... removing {0} before recreating'.format(imgFile))
                 os.remove(imgFile)
 
             # convert the image from ps to imgFormat
             try:
                 pipe = subprocess.Popen( ['convert -trim -bordercolor white -border 5x5 -density 95 {0} {1}'.format(ps, imgFile)], cwd=workdir, shell=True, env=env)
                 pipe.wait()
-                print('DEBUG..... created {0} size = {1}'.format(imgFile, os.path.getsize(imgFile)))
+                print('...... created {0} size = {1}'.format(imgFile, os.path.getsize(imgFile)))
             except OSError as e:
-                print('DEBUG..... trying to create {0}'.format(imgFile))
+                print('...... failed to create {0}'.format(imgFile))
                 print('WARNING: convert_plots call to convert failed with error:')
                 print('    {0} - {1}'.format(e.errno, e.strerror))
             else:
