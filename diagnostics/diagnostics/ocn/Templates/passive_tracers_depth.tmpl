@@ -1,0 +1,19 @@
+<h3>{{ title }}</h3>
+
+<table class="plot">
+{% for t in plot_table %}
+    <tr>
+    {% for i in t %}
+        {% if i in label_list %}
+           <td><b>{{ i }}:</b></td>
+        {% elif 'Error' in i %}
+           <td>{{ i }}</td>
+        {% else %}
+           <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</td>
+        {% endif %}
+    {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+
+<hr>

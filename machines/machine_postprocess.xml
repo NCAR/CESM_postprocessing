@@ -28,8 +28,6 @@
     <modules>
       <module>module load ncl</module>
       <module>module load nco</module>
-      <module>module load intel</module>
-      <module>module load netcdf</module>
     </modules>
     <za_fc>ifort</za_fc>
     <za_fflags>-c -g -O2</za_fflags>

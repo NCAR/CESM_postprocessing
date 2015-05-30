@@ -10,6 +10,10 @@ import zonal_average_3d_fields
 import moc_fields
 import western_boundary
 import seasonal_cycle
+import mixed_layer_depth
+import temp_salt_depth
+import passive_tracers_depth
+import eulerian_velocity
 
 def oceanDiagnosticPlotFactory(plot_type):
     """Create and return an object of the requested type.
@@ -32,6 +36,18 @@ def oceanDiagnosticPlotFactory(plot_type):
 
     elif plot_type == "PM_SEAS":
         plot = seasonal_cycle.SeasonalCycle()
+
+    elif plot_type == "PM_MLD":
+        plot = mixed_layer_depth.MixedLayerDepth()
+
+    elif plot_type == "PM_TSZ":
+        plot = temp_salt_depth.TempSaltDepth()
+
+    elif plot_type == "PM_PASSIVEZ":
+        plot = passive_tracers_depth.PassiveTracersDepth()
+
+    elif plot_type == "PM_VELZ":
+        plot = eulerian_velocity.EulerianVelocity()
 
     else:
         raise UnknownPlotType("WARNING: Unknown plot type requested: '{0}'".format(plot_type))

@@ -22,29 +22,30 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-class SeasonalCycle(OceanDiagnosticPlot):
-    """Seasonal Cycle Plots
+class MixedLayerDepth(OceanDiagnosticPlot):
+    """Mixed Layer Depth Plots
     """
 
     def __init__(self):
-        super(SeasonalCycle, self).__init__()
-        self._expectedPlots = [ 'EQ_PAC_SST_SEASONAL_CYCLE' ]
-        self._name = 'Seasonal Cycle Plots'
-        self._shortname = 'SCP'
-        self._template_file = 'seasonal_cycle.tmpl'
+        super(MixedLayerDepth, self).__init__()
+        self._expectedPlots = [ 'mld1', 'mld2' ]
+        self._webPlotsDict = { 'mld1' : 'MLD.125', 'mld2' : 'MLD.03' }
+        self._name = 'Mixed Layer Depth Plots'
+        self._shortname = 'MLD'
+        self._template_file = 'mixed_layer_depth.tmpl'
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(SeasonalCycle, self).check_prerequisites(env)
+        super(MixedLayerDepth, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
-        # set SEASAVGFILE env var to the envDict['SEASAVGTEMP'] file
-        os.environ['SEASAVGFILE'] = env['SEASAVGTEMP']
+        # set SEASAVGRHO env var to the envDict['SEASAVGRHO'] file
+        os.environ['SEASAVGRHO'] = env['SEASAVGRHO']
 
-        # set a link to SSTOBSDIR/SSTOBSFILE
-        sourceFile = '{0}/{1}'.format(env['SSTOBSDIR'], env['SSTOBSFILE'])
-        linkFile = '{0}/{1}'.format(env['WORKDIR'], env['SSTOBSFILE'])
+        # set a link to RHOOBSDIR/RHOOBSFILE
+        sourceFile = '{0}/{1}'.format(env['RHOOBSDIR'], env['RHOOBSFILE'])
+        linkFile = '{0}/{1}'.format(env['WORKDIR'], env['RHOOBSFILE'])
         rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if rc:
             rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
@@ -59,25 +60,25 @@ class SeasonalCycle(OceanDiagnosticPlot):
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
             
-        # generate_plots with sst_eq_pac_seasonal.ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'sst_eq_pac_seasonal_cycle.ncl')        
+        # generate_plots with compute_rho.ncl command
+        diagUtilsLib.generate_ncl_plots(env, 'compute_rho.ncl')        
+
+        # generate_plots with mld.ncl command
+        diagUtilsLib.generate_ncl_plots(env, 'mld.ncl')        
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        plot_table = []
-        num_cols = 1
-        plot_list = []
+        num_cols = 2
+        plot_table = dict()
 
-        for plot_file in self._expectedPlots:
+        for plot_file, label in self._webPlotsDict.iteritems():
             img_file = '{0}.{1}'.format(plot_file, imgFormat)
             rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
             if not rc:
-                plot_list.append('{0} - Error'.format(plot_file))
+                plot_table[label] = '{0} - Error'.format(plot_file)
             else:
-                plot_list.append(plot_file)
-
-        plot_table.append(plot_list)
+                plot_table[label] = plot_file
 
         # create a jinja2 template object
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
