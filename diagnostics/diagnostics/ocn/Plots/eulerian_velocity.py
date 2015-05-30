@@ -32,6 +32,7 @@ class EulerianVelocity(OceanDiagnosticPlot):
         self._expectedPlots_UVEL = [ 'UVEL0', 'UVEL50', 'UVEL100', 'UVEL200', 'UVEL300', 'UVEL500', 'UVEL1000', 'UVEL1500', 'UVEL2000', 'UVEL2500', 'UVEL3000', 'UVEL3500', 'UVEL4000' ]
         self._expectedPlots_VVEL = [ 'VVEL0', 'VVEL50', 'VVEL100', 'VVEL200', 'VVEL300', 'VVEL500', 'VVEL1000', 'VVEL1500', 'VVEL2000', 'VVEL2500', 'VVEL3000', 'VVEL3500', 'VVEL4000' ]
         self._expectedPlots_WVEL = [ 'WVEL0', 'WVEL50', 'WVEL100', 'WVEL200', 'WVEL300', 'WVEL500', 'WVEL1000', 'WVEL1500', 'WVEL2000', 'WVEL2500', 'WVEL3000', 'WVEL3500', 'WVEL4000' ]
+        self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
 
         self._name = 'Eulerian Velocity Components at Depth (meters)'
         self._shortname = 'VELZ'
@@ -57,26 +58,27 @@ class EulerianVelocity(OceanDiagnosticPlot):
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        plot_table = []
+        labels = ['UVEL','VVEL','WVEL']
         num_cols = 14
+        plot_table = []
 
-        label_list = ['UVEL','VVEL','WVEL']
+        for i in range(len(labels)):
+            plot_tuple_list = []
+            plot_tuple = (0, 'label','{0}:'.format(labels[i]))
+            plot_tuple_list.append(plot_tuple)
+            plot_list = eval('self._expectedPlots_{0}'.format(labels[i]))
 
-        for i in range(len(label_list)):
-            plot_list = []
-            plot_list.append(label_list[i])
-            exp_plot_list = eval('self._expectedPlots_{0}'.format(label_list[i]))
-            
-            for j in range(num_cols - 2):
-                plot_file = exp_plot_list[j]
-                img_file = '{0}.{1}'.format(plot_file, imgFormat)
+            for j in range(num_cols - 1):
+                img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
-                    plot_list.append('{0} - Error'.format(plot_file))
+                    plot_tuple = (j+1, self._linkNames[j],'{0} - Error'.format(img_file))
                 else:
-                    plot_list.append(plot_file)
+                    plot_tuple = (j+1, self._linkNames[j], img_file)
+                plot_tuple_list.append(plot_tuple)
 
-            plot_table.append(plot_list)
+            print('DEBUG... plot_tuple_list[{0}] = {1}'.format(i, plot_tuple_list))
+            plot_table.append(plot_tuple_list)
 
         # create a jinja2 template object
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
@@ -86,10 +88,8 @@ class EulerianVelocity(OceanDiagnosticPlot):
 
         # add the template variables
         templateVars = { 'title' : self._name,
-                         'cols' : num_cols,
                          'plot_table' : plot_table,
-                         'label_list' : label_list,
-                         'imgFormat' : imgFormat
+                         'num_rows' : len(labels),
                          }
 
         # render the html template using the plot tables

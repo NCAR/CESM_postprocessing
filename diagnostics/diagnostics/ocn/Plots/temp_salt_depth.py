@@ -100,7 +100,7 @@ class TempSaltDepth(OceanDiagnosticPlot):
             plot_tuple_list.append(plot_tuple)
             plot_list = eval('self._expectedPlots_{0}'.format(labels[i]))
 
-            for j in range(num_cols - 2):
+            for j in range(num_cols - 1):
                 img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:

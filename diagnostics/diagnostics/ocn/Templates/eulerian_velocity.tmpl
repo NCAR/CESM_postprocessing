@@ -1,16 +1,16 @@
 <h3>{{ title }}</h3>
 
 <table class="plot">
-{% for t in plot_table %}
+{% for i in range(num_rows) %}
     <tr>
-    {% for i in t %}
-        {% if i in label_list %}
-           <td><b>{{ i }}:</b></td>
-        {% elif 'Error' in i %}
-           <td>{{ i }}</td>
-        {% else %}
-           <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</td>
-        {% endif %}
+    {% for order, label, plot in plot_table[i] %}
+       {% if order == 0 %}
+          <td><b>{{ plot }}</b></td>	
+       {% elif 'Error' in plot %}
+          <td>{{ plot }}</td>	
+       {% else %}
+       	  <td><a href="{{ plot }}">{{ label }}</a></td>
+       {% endif %}
     {% endfor %}
     </tr>
 {% endfor %}

@@ -30,6 +30,7 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
     def __init__(self):
         super(PassiveTracersDepth, self).__init__()
         self._expectedPlots_IAGE = [ 'IAGE0', 'IAGE50', 'IAGE100', 'IAGE200', 'IAGE300', 'IAGE500', 'IAGE1000', 'IAGE1500', 'IAGE2000', 'IAGE2500', 'IAGE3000', 'IAGE3500', 'IAGE4000' ]
+        self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
 
         self._name = 'Passive Tracers at Depth (meters)'
         self._shortname = 'PASSIVEZ'
@@ -54,26 +55,27 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        plot_table = []
+        labels = ['IAGE']
         num_cols = 14
+        plot_table = []
 
-        label_list = ['IAGE']
+        for i in range(len(labels)):
+            plot_tuple_list = []
+            plot_tuple = (0, 'label','{0}:'.format(labels[i]))
+            plot_tuple_list.append(plot_tuple)
+            plot_list = eval('self._expectedPlots_{0}'.format(labels[i]))
 
-        for i in range(len(label_list)):
-            plot_list = []
-            plot_list.append(label_list[i])
-            exp_plot_list = eval('self._expectedPlots_{0}'.format(label_list[i]))
-            
-            for j in range(num_cols - 2):
-                plot_file = exp_plot_list[j]
-                img_file = '{0}.{1}'.format(plot_file, imgFormat)
+            for j in range(num_cols - 1):
+                img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
-                    plot_list.append('{0} - Error'.format(plot_file))
+                    plot_tuple = (j+1, self._linkNames[j],'{0} - Error'.format(img_file))
                 else:
-                    plot_list.append(plot_file)
+                    plot_tuple = (j+1, self._linkNames[j], img_file)
+                plot_tuple_list.append(plot_tuple)
 
-            plot_table.append(plot_list)
+            print('DEBUG... plot_tuple_list[{0}] = {1}'.format(i, plot_tuple_list))
+            plot_table.append(plot_tuple_list)
 
         # create a jinja2 template object
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
@@ -83,10 +85,8 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
 
         # add the template variables
         templateVars = { 'title' : self._name,
-                         'cols' : num_cols,
                          'plot_table' : plot_table,
-                         'label_list' : label_list,
-                         'imgFormat' : imgFormat
+                         'num_rows' : len(labels),
                          }
 
         # render the html template using the plot tables
