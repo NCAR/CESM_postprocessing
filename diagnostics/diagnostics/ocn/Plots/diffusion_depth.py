@@ -14,6 +14,7 @@ import traceback
 import os
 import shutil
 import subprocess
+import collections
 import jinja2
 
 # import the helper utility module
@@ -23,25 +24,26 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-class EulerianVelocity(OceanDiagnosticPlot):
+class DiffusionDepth(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
     """
 
     def __init__(self):
-        super(EulerianVelocity, self).__init__()
-        self._expectedPlots_UVEL = [ 'UVEL0', 'UVEL50', 'UVEL100', 'UVEL200', 'UVEL300', 'UVEL500', 'UVEL1000', 'UVEL1500', 'UVEL2000', 'UVEL2500', 'UVEL3000', 'UVEL3500', 'UVEL4000' ]
-        self._expectedPlots_VVEL = [ 'VVEL0', 'VVEL50', 'VVEL100', 'VVEL200', 'VVEL300', 'VVEL500', 'VVEL1000', 'VVEL1500', 'VVEL2000', 'VVEL2500', 'VVEL3000', 'VVEL3500', 'VVEL4000' ]
-        self._expectedPlots_WVEL = [ 'WVEL0', 'WVEL50', 'WVEL100', 'WVEL200', 'WVEL300', 'WVEL500', 'WVEL1000', 'WVEL1500', 'WVEL2000', 'WVEL2500', 'WVEL3000', 'WVEL3500', 'WVEL4000' ]
+        super(DiffusionDepth, self).__init__()
+        self._expectedPlots_KAPPA_ISOP = [ 'KAPPA_ISOP0', 'KAPPA_ISOP50', 'KAPPA_ISOP100', 'KAPPA_ISOP200', 'KAPPA_ISOP300', 'KAPPA_ISOP500', 
+                                           'KAPPA_ISOP1000', 'KAPPA_ISOP1500', 'KAPPA_ISOP2000', 'KAPPA_ISOP2500', 'KAPPA_ISOP3000', 'KAPPA_ISOP3500', 'KAPPA_ISOP4000' ]
+        self._expectedPlots_KAPPA_THIC = [ 'KAPPA_THIC0', 'KAPPA_THIC50', 'KAPPA_THIC100', 'KAPPA_THIC200', 'KAPPA_THIC300', 'KAPPA_THIC500', 
+                                           'KAPPA_THIC1000', 'KAPPA_THIC1500', 'KAPPA_THIC2000', 'KAPPA_THIC2500', 'KAPPA_THIC3000', 'KAPPA_THIC3500', 'KAPPA_THIC4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
 
-        self._name = 'Eulerian Velocity Components at Depth Levels'
-        self._shortname = 'VELZ'
-        self._template_file = 'eulerian_velocity.tmpl'
+        self._name = 'Diffusion Coefficients at Depth Levels'
+        self._shortname = 'KAPPAZ'
+        self._template_file = 'diffusion_depth.tmpl'
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(EulerianVelocity, self).check_prerequisites(env)
+        super(DiffusionDepth, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
     def generate_plots(self, env):
@@ -50,15 +52,13 @@ class EulerianVelocity(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # generate_plots with ncl commands
-        diagUtilsLib.generate_ncl_plots(env, 'uvelz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'vvelz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'wvelz.ncl')        
-
+        diagUtilsLib.generate_ncl_plots(env, 'kappa_isopz.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'kappa_thicz.ncl')        
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['UVEL','VVEL','WVEL']
+        labels = ['KAPPA_ISOP','KAPPA_THIC']
         num_cols = 14
         plot_table = []
 

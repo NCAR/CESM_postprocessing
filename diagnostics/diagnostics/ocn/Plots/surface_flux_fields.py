@@ -76,21 +76,20 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         if not rc:
             os.symlink(sourceFile, linkFile)
 
-        # check if surface winds and wind stress file exists
+        # check if the wind file exists and is readable
         sourceFile = '{0}/{1}'.format(env['WINDOBSDIR'],env['WINDOBSFILE'])
         rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if not rc:
             raise OSError(err_msg)
 
-        # check if the link to the winds file exists and is readable
+        # check if the link to the zonal average wind file exists and is readable
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['WINDOBSFILE'])
         rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
         if not rc:
             os.symlink(sourceFile, linkFile)
 
         # check if the zonal average wind file exists and is readable
-        # commenting out until hear back from Keith Lindsey if this file is needed
-        # it does not exist in the popdiag distribution
+        # this file does not exist - and not sure it is used in the ncl
         #sourceFile = '{0}/za_{1}'.format(env['WINDOBSDIR'],env['WINDOBSFILE'])
         #rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         #if not rc:

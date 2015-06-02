@@ -265,7 +265,7 @@
   <entry id="OCNDIAG_DIAGROOTPATH"
 	 type="char"
 	 valid_values=""
-	 value="$CESMROOT/omwg/popdiag"
+	 value="$POSTPROCESS_PATH/ocn_diag"
 	 group="diags_ocn"
 	 sdesc="Local machine fully qualified directory path to OMWG diagnostics package."
 	 ldesc="This value points to the local machine's fully qualified directory path 
@@ -276,7 +276,7 @@
   <entry id="OCNDIAG_OBSROOTPATH"
 	 type="char"
 	 valid_values=""
-	 value="$CESMROOT/omwg/obs_data"
+	 value="$DIAGOBSROOT/omwg/obs_data"
 	 group="diags_ocn"
 	 sdesc="Local machine fully qualified directory path to OMWG observational data."
 	 ldesc="This value points to the local machine's fully qualified directory path 
@@ -287,7 +287,7 @@
   <entry id="OCNDIAG_ECODATADIR"
 	 type="char"
 	 valid_values=""
-	 value="$CESMROOT/bgcwg/obgc_diag"
+	 value="$DIAGOBSROOT/bgcwg/obgc_diag"
 	 group="diags_ocn"
 	 sdesc="Local machine fully qualified directory path to BGCWG observational data."
 	 ldesc="This value points to the local machine's fully qualified directory path 

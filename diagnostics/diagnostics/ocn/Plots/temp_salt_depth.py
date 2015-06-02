@@ -34,7 +34,7 @@ class TempSaltDepth(OceanDiagnosticPlot):
         self._expectedPlots_SALT = [ 'SALT0', 'SALT50', 'SALT100', 'SALT200', 'SALT300', 'SALT500', 'SALT1000', 'SALT1500', 'SALT2000', 'SALT2500', 'SALT3000', 'SALT3500', 'SALT4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
 
-        self._name = 'Temperature and Salt at Depth'
+        self._name = 'Temperature and Salinity at Depth Levels'
         self._shortname = 'TSZ'
         self._template_file = 'temp_salt_depth.tmpl'
 

@@ -14,6 +14,13 @@ import mixed_layer_depth
 import temp_salt_depth
 import passive_tracers_depth
 import eulerian_velocity
+import bolus_velocity
+import diffusion_depth
+import equatorial_upperocean
+import horizontal_vector_fields
+import polar_temp_salt
+import basin_averages
+import regional_area
 
 def oceanDiagnosticPlotFactory(plot_type):
     """Create and return an object of the requested type.
@@ -48,6 +55,27 @@ def oceanDiagnosticPlotFactory(plot_type):
 
     elif plot_type == "PM_VELZ":
         plot = eulerian_velocity.EulerianVelocity()
+
+    elif plot_type == "PM_VELISOPZ":
+        plot = bolus_velocity.BolusVelocity()
+
+    elif plot_type == "PM_KAPPAZ":
+        plot = diffusion_depth.DiffusionDepth()
+
+    elif plot_type == "PM_UOEQ":
+        plot = equatorial_upperocean.EquatorialUpperocean()
+
+    elif plot_type == "PM_VECV":
+        plot = horizontal_vector_fields.HorizontalVectorFields()
+
+    elif plot_type == "PM_POLARTS":
+        plot = polar_temp_salt.PolarTempSalt()
+
+    elif plot_type == "PM_BASINAVGTS":
+        plot = basin_averages.BasinAverages()
+
+    elif plot_type == "PM_REGIONALTS":
+        plot = regional_area.RegionalArea()
 
     else:
         raise UnknownPlotType("WARNING: Unknown plot type requested: '{0}'".format(plot_type))

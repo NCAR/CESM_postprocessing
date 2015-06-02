@@ -748,6 +748,10 @@ def model_vs_obs(envDict, scomm):
         if len(envDict['WEBDIR']) > 0 and len(envDict['WEBHOST']) > 0 and len(envDict['WEBLOGIN']) > 0:
             # copy over the files to a remote web server and webdir 
             diagUtilsLib.copy_html_files(envDict)
+        else:
+            print('Web files successfully created in directory {0}'.format(envDict['WORKDIR']))
+            print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
+            print('You will need to manually copy the web files to a remote web server.')
 
         print('*******************************************************************************')
         print('Successfully completed generating ocean diagnostics model vs. observation plots')

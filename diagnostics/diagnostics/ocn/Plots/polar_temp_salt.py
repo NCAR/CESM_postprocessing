@@ -14,6 +14,7 @@ import traceback
 import os
 import shutil
 import subprocess
+import collections
 import jinja2
 
 # import the helper utility module
@@ -23,25 +24,31 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-class EulerianVelocity(OceanDiagnosticPlot):
+class PolarTempSalt(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
     """
 
     def __init__(self):
-        super(EulerianVelocity, self).__init__()
-        self._expectedPlots_UVEL = [ 'UVEL0', 'UVEL50', 'UVEL100', 'UVEL200', 'UVEL300', 'UVEL500', 'UVEL1000', 'UVEL1500', 'UVEL2000', 'UVEL2500', 'UVEL3000', 'UVEL3500', 'UVEL4000' ]
-        self._expectedPlots_VVEL = [ 'VVEL0', 'VVEL50', 'VVEL100', 'VVEL200', 'VVEL300', 'VVEL500', 'VVEL1000', 'VVEL1500', 'VVEL2000', 'VVEL2500', 'VVEL3000', 'VVEL3500', 'VVEL4000' ]
-        self._expectedPlots_WVEL = [ 'WVEL0', 'WVEL50', 'WVEL100', 'WVEL200', 'WVEL300', 'WVEL500', 'WVEL1000', 'WVEL1500', 'WVEL2000', 'WVEL2500', 'WVEL3000', 'WVEL3500', 'WVEL4000' ]
+        super(PolarTempSalt, self).__init__()
+        self._expectedPlots_Arctic_TEMP = [ 'Arctic_TEMP0', 'Arctic_TEMP50', 'Arctic_TEMP100', 'Arctic_TEMP200', 'Arctic_TEMP300', 'Arctic_TEMP500', 
+                                           'Arctic_TEMP1000', 'Arctic_TEMP1500', 'Arctic_TEMP2000', 'Arctic_TEMP2500', 'Arctic_TEMP3000', 'Arctic_TEMP3500', 'Arctic_TEMP4000' ]
+        self._expectedPlots_Arctic_SALT = [ 'Arctic_SALT0', 'Arctic_SALT50', 'Arctic_SALT100', 'Arctic_SALT200', 'Arctic_SALT300', 'Arctic_SALT500', 
+                                           'Arctic_SALT1000', 'Arctic_SALT1500', 'Arctic_SALT2000', 'Arctic_SALT2500', 'Arctic_SALT3000', 'Arctic_SALT3500', 'Arctic_SALT4000' ]
+        self._expectedPlots_Antarctic_TEMP = [ 'Antarctic_TEMP0', 'Antarctic_TEMP50', 'Antarctic_TEMP100', 'Antarctic_TEMP200', 'Antarctic_TEMP300', 'Antarctic_TEMP500', 
+                                           'Antarctic_TEMP1000', 'Antarctic_TEMP1500', 'Antarctic_TEMP2000', 'Antarctic_TEMP2500', 'Antarctic_TEMP3000', 'Antarctic_TEMP3500', 'Antarctic_TEMP4000' ]
+        self._expectedPlots_Antarctic_SALT = [ 'Antarctic_SALT0', 'Antarctic_SALT50', 'Antarctic_SALT100', 'Antarctic_SALT200', 'Antarctic_SALT300', 'Antarctic_SALT500', 
+                                           'Antarctic_SALT1000', 'Antarctic_SALT1500', 'Antarctic_SALT2000', 'Antarctic_SALT2500', 'Antarctic_SALT3000', 'Antarctic_SALT3500', 'Antarctic_SALT4000' ]
+
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
 
-        self._name = 'Eulerian Velocity Components at Depth Levels'
-        self._shortname = 'VELZ'
-        self._template_file = 'eulerian_velocity.tmpl'
+        self._name = 'Polar Temperature and Salinity at Depth Levels'
+        self._shortname = 'KAPPAZ'
+        self._template_file = 'diffusion_depth.tmpl'
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(EulerianVelocity, self).check_prerequisites(env)
+        super(PolarTempSalt, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
     def generate_plots(self, env):
@@ -50,15 +57,15 @@ class EulerianVelocity(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # generate_plots with ncl commands
-        diagUtilsLib.generate_ncl_plots(env, 'uvelz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'vvelz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'wvelz.ncl')        
-
+        diagUtilsLib.generate_ncl_plots(env, 'tempz_arctic.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'saltz_arctic.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'tempz_antarctic.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'saltz_antarctic.ncl')        
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['UVEL','VVEL','WVEL']
+        labels = ['Arctic_TEMP','Arctic_SALT','Antarctic_TEMP','Antarctic_SALT']
         num_cols = 14
         plot_table = []
 

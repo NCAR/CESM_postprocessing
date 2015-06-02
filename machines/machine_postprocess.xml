@@ -8,6 +8,7 @@
     <ice_diags_pes>8</ice_diags_pes>
     <lnd_diags_pes>8</lnd_diags_pes>
     <ocn_diags_pes>8</ocn_diags_pes>
+    <ocn_obs_root></ocn_obs_root>
     <mpi_command>mpiexec</mpi_command>
     <modules>
       <module></module>
@@ -24,6 +25,7 @@
     <ice_diags_pes>124</ice_diags_pes>
     <lnd_diags_pes>124</lnd_diags_pes>
     <ocn_diags_pes>124</ocn_diags_pes>
+    <ocn_obs_root>/glade/p/cesm</ocn_obs_root>
     <mpi_command>mpirun.lsf</mpi_command>
     <modules>
       <module>module load ncl</module>

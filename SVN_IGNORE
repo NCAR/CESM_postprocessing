@@ -1,3 +1,4 @@
-cesm-env
+cesm-env2
 *~
 *.egg-info
+*.mod

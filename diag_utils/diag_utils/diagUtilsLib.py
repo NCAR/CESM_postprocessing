@@ -298,13 +298,14 @@ def convert_plots(workdir, imgFormat, env):
 
     # check if the convert command exists on all tasks
     rc = cesmEnvLib.which('convert')
-    if rc not in ['None'] and imgFormat.lower() in ['png','gif']:
+    if rc is not None and imgFormat.lower() in ['png','gif']:
         for ps in psFiles:
             splitPath = ps.split('/')
             plotname = splitPath[-1].split('.')
+            plotname = ".".join(plotname[:-1])
 
             # check if the image file alreay exists and remove it to regen
-            imgFile = '{0}/{1}.{2}'.format(workdir, plotname[0], imgFormat)
+            imgFile = '{0}/{1}.{2}'.format(workdir, plotname, imgFormat)
             rc, err_msg = cesmEnvLib.checkFile(imgFile,'write')
             if rc:
                 print('...... removing {0} before recreating'.format(imgFile))
@@ -323,5 +324,6 @@ def convert_plots(workdir, imgFormat, env):
                 continue
     else:
         print('WARNING: convert_plots unable to find convert command in path.')
+        print('     Unable to convert ps formatted plots to {0}'.format(imgFormat))
 
 

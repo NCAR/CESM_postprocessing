@@ -23,25 +23,25 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-class EulerianVelocity(OceanDiagnosticPlot):
+class BolusVelocity(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
     """
 
     def __init__(self):
-        super(EulerianVelocity, self).__init__()
-        self._expectedPlots_UVEL = [ 'UVEL0', 'UVEL50', 'UVEL100', 'UVEL200', 'UVEL300', 'UVEL500', 'UVEL1000', 'UVEL1500', 'UVEL2000', 'UVEL2500', 'UVEL3000', 'UVEL3500', 'UVEL4000' ]
-        self._expectedPlots_VVEL = [ 'VVEL0', 'VVEL50', 'VVEL100', 'VVEL200', 'VVEL300', 'VVEL500', 'VVEL1000', 'VVEL1500', 'VVEL2000', 'VVEL2500', 'VVEL3000', 'VVEL3500', 'VVEL4000' ]
-        self._expectedPlots_WVEL = [ 'WVEL0', 'WVEL50', 'WVEL100', 'WVEL200', 'WVEL300', 'WVEL500', 'WVEL1000', 'WVEL1500', 'WVEL2000', 'WVEL2500', 'WVEL3000', 'WVEL3500', 'WVEL4000' ]
+        super(BolusVelocity, self).__init__()
+        self._expectedPlots_UISOP = [ 'UISOP0', 'UISOP50', 'UISOP100', 'UISOP200', 'UISOP300', 'UISOP500', 'UISOP1000', 'UISOP1500', 'UISOP2000', 'UISOP2500', 'UISOP3000', 'UISOP3500', 'UISOP4000' ]
+        self._expectedPlots_VISOP = [ 'VISOP0', 'VISOP50', 'VISOP100', 'VISOP200', 'VISOP300', 'VISOP500', 'VISOP1000', 'VISOP1500', 'VISOP2000', 'VISOP2500', 'VISOP3000', 'VISOP3500', 'VISOP4000' ]
+        self._expectedPlots_WISOP = [ 'WISOP0', 'WISOP50', 'WISOP100', 'WISOP200', 'WISOP300', 'WISOP500', 'WISOP1000', 'WISOP1500', 'WISOP2000', 'WISOP2500', 'WISOP3000', 'WISOP3500', 'WISOP4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
 
-        self._name = 'Eulerian Velocity Components at Depth Levels'
-        self._shortname = 'VELZ'
-        self._template_file = 'eulerian_velocity.tmpl'
+        self._name = 'Bolus Velocity Components at Depth Levels'
+        self._shortname = 'VELISOPZ'
+        self._template_file = 'bolus_velocity.tmpl'
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(EulerianVelocity, self).check_prerequisites(env)
+        super(BolusVelocity, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
     def generate_plots(self, env):
@@ -50,15 +50,15 @@ class EulerianVelocity(OceanDiagnosticPlot):
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
 
         # generate_plots with ncl commands
-        diagUtilsLib.generate_ncl_plots(env, 'uvelz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'vvelz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'wvelz.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'uisopz.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'visopz.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'wisopz.ncl')        
 
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['UVEL','VVEL','WVEL']
+        labels = ['UISOP','VISOP','WISOP']
         num_cols = 14
         plot_table = []
 

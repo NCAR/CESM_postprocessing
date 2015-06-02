@@ -1,0 +1,35 @@
+<h3>{{ title }}</h3>
+
+<table class="plot">
+<th colspan="{{ cols }}">Longitude-Depth</th>
+   <tr>
+   {% for order, label, plot in long_plot_table[0] %}
+       {% if 'Error' in plot %}
+          <td>{{ plot }}</td>	
+       {% else %}
+       	  <td><a href="{{ plot }}">{{ label }}</a></td>
+       {% endif %}
+   {% endfor %}
+   </tr>
+</table>
+
+<p/>
+
+<table class="plot">
+<th colspan="{{ cols }}">Latitude-Depth</th>
+{% for i in range(num_rows) %}
+    <tr>
+    {% for order, label, plot in lat_plot_table[i] %}
+       {% if order == 0 %}
+          <td><b>{{ plot }}</b></td>	
+       {% elif 'Error' in plot %}
+          <td>{{ plot }}</td>	
+       {% else %}
+       	  <td><a href="{{ plot }}">{{ label }}</a></td>
+       {% endif %}
+    {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+
+<hr>
