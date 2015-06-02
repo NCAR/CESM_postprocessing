@@ -692,6 +692,13 @@ def model_vs_obs(envDict, scomm):
 
     scomm.sync()
 
+    # broadcast envDict to all tasks
+    envDict = scomm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+
+    # set the shell env using the values set in the XML and read into the envDict
+    # across all ranks after initializing all the plot classes
+    cesmEnvLib.setXmlEnv(envDict)
+
     user_plot_list = scomm.partition(full_plot_list, func=partition.EqualStride(), involved=True)
     scomm.sync()
 

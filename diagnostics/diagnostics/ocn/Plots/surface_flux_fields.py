@@ -54,6 +54,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
 
         # check if the flux file exists and is readable
         sourceFile = '{0}/{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
+        print('DEBUG... surface flux obs file {0}'.format(sourceFile))
         rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if not rc:
             raise OSError(err_msg)
@@ -62,10 +63,15 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['FLUXOBSFILE'])
         rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
         if not rc:
-            os.symlink(sourceFile, linkFile)
-
+            try:
+                os.symlink(sourceFile, linkFile)
+            except Exception as e:
+                print('...error = {0}'.format(e))
+                raise OSError(e)
+            
         # check if the zonal average flux file exists and is readable
         sourceFile = '{0}/za_{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
+        print('DEBUG... surface flux za obs file {0}'.format(sourceFile))
         rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if not rc:
             raise OSError(err_msg)
@@ -78,6 +84,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
 
         # check if the wind file exists and is readable
         sourceFile = '{0}/{1}'.format(env['WINDOBSDIR'],env['WINDOBSFILE'])
+        print('DEBUG... surface flux wind obs file {0}'.format(sourceFile))
         rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if not rc:
             raise OSError(err_msg)
