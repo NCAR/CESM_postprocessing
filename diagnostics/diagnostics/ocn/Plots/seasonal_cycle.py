@@ -62,6 +62,11 @@ class SeasonalCycle(OceanDiagnosticPlot):
         # generate_plots with sst_eq_pac_seasonal.ncl command
         diagUtilsLib.generate_ncl_plots(env, 'sst_eq_pac_seasonal_cycle.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        self._convert_plots(workdir, imgFormat, self._expectedPlots)
+
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """

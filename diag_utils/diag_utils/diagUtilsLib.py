@@ -285,45 +285,4 @@ def copy_html_files(env):
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
 
-#=============================================================
-# convert_plots - convert a list of plots from ps to imgFormat
-#=============================================================
-def convert_plots(workdir, imgFormat, env):
-    """convert_plots - convert plot files from ps to imgFormat
-
-    """
-    splitPath = list()
-    psFiles = list()
-    psFiles = sorted(glob.glob('{0}/*.ps'.format(workdir)))
-
-    # check if the convert command exists on all tasks
-    rc = cesmEnvLib.which('convert')
-    if rc is not None and imgFormat.lower() in ['png','gif']:
-        for ps in psFiles:
-            splitPath = ps.split('/')
-            plotname = splitPath[-1].split('.')
-            plotname = ".".join(plotname[:-1])
-
-            # check if the image file alreay exists and remove it to regen
-            imgFile = '{0}/{1}.{2}'.format(workdir, plotname, imgFormat)
-            rc, err_msg = cesmEnvLib.checkFile(imgFile,'write')
-            if rc:
-                print('...... removing {0} before recreating'.format(imgFile))
-                os.remove(imgFile)
-
-            # convert the image from ps to imgFormat
-            try:
-                pipe = subprocess.Popen( ['convert -trim -bordercolor white -border 5x5 -density 95 {0} {1}'.format(ps, imgFile)], cwd=workdir, shell=True, env=env)
-                pipe.wait()
-                print('...... created {0} size = {1}'.format(imgFile, os.path.getsize(imgFile)))
-            except OSError as e:
-                print('...... failed to create {0}'.format(imgFile))
-                print('WARNING: convert_plots call to convert failed with error:')
-                print('    {0} - {1}'.format(e.errno, e.strerror))
-            else:
-                continue
-    else:
-        print('WARNING: convert_plots unable to find convert command in path.')
-        print('     Unable to convert ps formatted plots to {0}'.format(imgFormat))
-
 

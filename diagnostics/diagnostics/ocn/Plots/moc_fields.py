@@ -47,6 +47,10 @@ class MOCFields(OceanDiagnosticPlot):
         # generate_plots with moc_netcdf.ncl command
         diagUtilsLib.generate_ncl_plots(env, 'moc_netcdf.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        self._convert_plots(workdir, imgFormat, self._expectedPlots)
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper

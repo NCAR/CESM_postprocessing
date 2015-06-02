@@ -58,6 +58,46 @@ class OceanDiagnosticPlot(object):
         self._create_html(workdir, templatePath, imgFormat)
         return self._html
 
+    def _convert_plots(self, workdir, imgFormat, files):
+        """ This method converts the postscript plots to imgFormat
+        """
+    splitPath = list()
+    psFiles = list()
+    psFiles = sorted(files)
+
+    # check if the convert command exists on all tasks
+    rc = cesmEnvLib.which('convert')
+    if rc is not None and imgFormat.lower() in ['png','gif']:
+        for ps in psFiles:
+            splitPath = ps.split('/')
+            plotname = splitPath[-1].split('.')
+            plotname = ".".join(plotname[:-1])
+
+            # check if the image file alreay exists and remove it to regen
+            imgFile = '{0}/{1}.{2}'.format(workdir, plotname, imgFormat)
+            rc, err_msg = cesmEnvLib.checkFile(imgFile,'write')
+            if rc:
+                print('...... removing {0} before recreating'.format(imgFile))
+                os.remove(imgFile)
+
+            # convert the image from ps to imgFormat
+            try:
+                pipe = subprocess.Popen( ['convert -trim -bordercolor white -border 5x5 -density 95 {0} {1}'.format(ps, imgFile)], cwd=workdir, shell=True, env=env)
+                pipe.wait()
+                print('...... created {0} size = {1}'.format(imgFile, os.path.getsize(imgFile)))
+            except OSError as e:
+                print('...... failed to create {0}'.format(imgFile))
+                print('WARNING: convert_plots call to convert failed with error:')
+                print('    {0} - {1}'.format(e.errno, e.strerror))
+            else:
+                continue
+    else:
+        # TODO - need to create a script template to convert the plots
+        print('WARNING: convert_plots unable to find convert command in path.')
+        print('     Unable to convert ps formatted plots to {0}'.format(imgFormat))
+        print('Run the following command from a node with convert installed....')
+        
+
 # todo move these classes to another file
 class RecoverableError(RuntimeError):
     pass

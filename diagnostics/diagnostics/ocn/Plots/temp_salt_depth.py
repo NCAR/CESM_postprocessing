@@ -33,7 +33,7 @@ class TempSaltDepth(OceanDiagnosticPlot):
         self._expectedPlots_TEMP = [ 'TEMP0', 'TEMP50', 'TEMP100', 'TEMP200', 'TEMP300', 'TEMP500', 'TEMP1000', 'TEMP1500', 'TEMP2000', 'TEMP2500', 'TEMP3000', 'TEMP3500', 'TEMP4000' ]
         self._expectedPlots_SALT = [ 'SALT0', 'SALT50', 'SALT100', 'SALT200', 'SALT300', 'SALT500', 'SALT1000', 'SALT1500', 'SALT2000', 'SALT2500', 'SALT3000', 'SALT3500', 'SALT4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
-
+        self._labels = ['TEMP','SALT']
         self._name = 'Temperature and Salinity at Depth Levels'
         self._shortname = 'TSZ'
         self._template_file = 'temp_salt_depth.tmpl'
@@ -87,18 +87,26 @@ class TempSaltDepth(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'tempz.ncl')        
         diagUtilsLib.generate_ncl_plots(env, 'saltz.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        my_plot_list = list()
+        for i in range(len(self._labels)):
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._labels[i])))
+
+        self._convert_plots(workdir, imgFormat, my_plot_list)
+
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['TEMP','SALT']
         num_cols = 14
         plot_table = []
 
-        for i in range(len(labels)):
+        for i in range(len(self._labels)):
             plot_tuple_list = []
-            plot_tuple = (0, 'label','{0}:'.format(labels[i]))
+            plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
-            plot_list = eval('self._expectedPlots_{0}'.format(labels[i]))
+            plot_list = eval('self._expectedPlots_{0}'.format(self._labels[i]))
 
             for j in range(num_cols - 1):
                 img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
@@ -121,7 +129,7 @@ class TempSaltDepth(OceanDiagnosticPlot):
         # add the template variables
         templateVars = { 'title' : self._name,
                          'plot_table' : plot_table,
-                         'num_rows' : len(labels),
+                         'num_rows' : len(self._labels),
                          }
 
         # render the html template using the plot tables

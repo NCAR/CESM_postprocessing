@@ -33,7 +33,7 @@ class BolusVelocity(OceanDiagnosticPlot):
         self._expectedPlots_VISOP = [ 'VISOP0', 'VISOP50', 'VISOP100', 'VISOP200', 'VISOP300', 'VISOP500', 'VISOP1000', 'VISOP1500', 'VISOP2000', 'VISOP2500', 'VISOP3000', 'VISOP3500', 'VISOP4000' ]
         self._expectedPlots_WISOP = [ 'WISOP0', 'WISOP50', 'WISOP100', 'WISOP200', 'WISOP300', 'WISOP500', 'WISOP1000', 'WISOP1500', 'WISOP2000', 'WISOP2500', 'WISOP3000', 'WISOP3500', 'WISOP4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
-
+        self._labels = ['UISOP','VISOP','WISOP']
         self._name = 'Bolus Velocity Components at Depth Levels'
         self._shortname = 'VELISOPZ'
         self._template_file = 'bolus_velocity.tmpl'
@@ -54,19 +54,26 @@ class BolusVelocity(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'visopz.ncl')        
         diagUtilsLib.generate_ncl_plots(env, 'wisopz.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        my_plot_list = list()
+        for i in range(len(self._labels)):
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._labels[i])))
+
+        self._convert_plots(workdir, imgFormat, my_plot_list)
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['UISOP','VISOP','WISOP']
         num_cols = 14
         plot_table = []
 
-        for i in range(len(labels)):
+        for i in range(len(self._labels)):
             plot_tuple_list = []
-            plot_tuple = (0, 'label','{0}:'.format(labels[i]))
+            plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
-            plot_list = eval('self._expectedPlots_{0}'.format(labels[i]))
+            plot_list = eval('self._expectedPlots_{0}'.format(self._labels[i]))
 
             for j in range(num_cols - 1):
                 img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
@@ -89,7 +96,7 @@ class BolusVelocity(OceanDiagnosticPlot):
         # add the template variables
         templateVars = { 'title' : self._name,
                          'plot_table' : plot_table,
-                         'num_rows' : len(labels),
+                         'num_rows' : len(self._labels),
                          }
 
         # render the html template using the plot tables

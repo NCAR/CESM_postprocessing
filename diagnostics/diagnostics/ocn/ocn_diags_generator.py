@@ -652,88 +652,80 @@ def model_vs_obs(envDict, scomm):
 
     user_plot_list = list()
     full_plot_list = list()
+
+    # setup the plots to be called based on directives in the env_diags_ocn.xml file
+    requested_plot_names = []
+    local_requested_plots = list()
+    local_html_list = list()
+    
+
     if scomm.is_manager():
-
-        # setup the plots to be called based on directives in the env_diags_ocn.xml file
-        requested_plots = []
-
-        if DEBUG:
-            print('DEBUG... before setupPlots:')
-
-        requested_plots = setupPlots(envDict)
-
-        print('Generating list of plots:')
-
-        for request_plot in requested_plots:
-            try:
-                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(request_plot)
-                user_plot_list.append(plot)
-            except ocn_diags_plot_bc.RecoverableError as e:
-                # catch all recoverable errors, print a message and continue.
-                print(e)
-                print("Skipped '{0}' and continuing!".format(request_plot))
-            except RuntimeError as e:
-                # unrecoverable error, bail!
-                print(e)
-                return 1
-
+        requested_plot_names = setupPlots(envDict)
         print('User requested plots:')
-        for plot in user_plot_list:
-            print('  {0}'.format(plot.__class__.__name__))
+        for plot in requested_plot_names:
+            print('  {0}'.format(plot))
 
-        print('Checking prerequisite:')
-        for plot in user_plot_list:
-            plot.check_prerequisites(envDict)
+        if envDict['DOWEB'].upper() in ['T','TRUE']:
+            
+            print('Creating plot html header:')
+            templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
+            templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
+            templateEnv = jinja2.Environment( loader=templateLoader )
 
-        # save the full_plot_list before it is partitioned
-        full_plot_list = user_plot_list
-        if DEBUG:
-            print('DEBUG... user_plot_list before partition = {0}'.format(user_plot_list))
+            TEMPLATE_FILE = 'model_vs_obs.tmpl'
+            template = templateEnv.get_template( TEMPLATE_FILE )
+    
+            # Here we add a new input variable containing a list.
+            templateVars = { 'casename' : envDict['CASE'],
+                             'tagname' : envDict['CCSM_REPOTAG'],
+                             'start_year' : envDict['YEAR0'],
+                             'stop_year' : envDict['YEAR1']
+                             }
+
+            plot_html = template.render( templateVars )
 
     scomm.sync()
 
     # broadcast envDict to all tasks
-    envDict = scomm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+    requested_plot_names = scomm.partition(data=requested_plot_names, func=partition.Duplicate(), involved=True)
 
-    # set the shell env using the values set in the XML and read into the envDict
-    # across all ranks after initializing all the plot classes
-    cesmEnvLib.setXmlEnv(envDict)
-
-    user_plot_list = scomm.partition(full_plot_list, func=partition.EqualStride(), involved=True)
+    local_requested_plots = scomm.partition(requested_plot_names, func=partition.EqualStride(), involved=True)
     scomm.sync()
 
-    for user_plot in user_plot_list:
-        if DEBUG:
-            print('DEBUG... calling gnerate plots for = {0} on rank {1}'.format(user_plot, scomm.get_rank()))
-        user_plot.generate_plots(envDict)
+    for requested_plot in local_requested_plots:
+        try:
+            plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(requested_plot)
+
+            print('Checking prerequisite for {0} on rank {1}:'.format(plot.__class__.__name__, scomm.get_rank()))
+            plot.check_prerequisites(envDict)
+
+            print('Generating plots for {0} on rank {1}:'.format(plot.__class__.__name__, scomm.get_rank()))
+            plot.generate_plots(envDict)
+
+            print('Converting plots for {0} on rank {1}:'.format(plot.__class__.__name__, scomm.get_rank()))
+            plot.convert_plots(envDict['WORKDIR'], envDict['IMAGEFORMAT'])
+
+            html = plot.get_html(envDict['WORKDIR'], templatePath, envDict['IMAGEFORMAT'])
+            local_html_list.append(html)
+
+        except ocn_diags_plot_bc.RecoverableError as e:
+            # catch all recoverable errors, print a message and continue.
+            print(e)
+            print("Skipped '{0}' and continuing!".format(request_plot))
+        except RuntimeError as e:
+            # unrecoverable error, bail!
+            print(e)
+            return 1
+
     scomm.sync()
-            
+    # returns a tuple with the html string being the second member
+    all_html = scomm.collect(local_html_list)
+    
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
-    if scomm.is_manager() and envDict['DOWEB'].upper() in ['T','TRUE']:
-        if DEBUG:
-            print('DEBUG... before convert_plots')
-        diagUtilsLib.convert_plots(envDict['WORKDIR'], envDict['IMAGEFORMAT'], envDict)
-
-        print('Creating plot html header:')
-        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
-        templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
-        templateEnv = jinja2.Environment( loader=templateLoader )
-
-        TEMPLATE_FILE = 'model_vs_obs.tmpl'
-        template = templateEnv.get_template( TEMPLATE_FILE )
-    
-        # Here we add a new input variable containing a list.
-        templateVars = { 'casename' : envDict['CASE'],
-                         'tagname' : envDict['CCSM_REPOTAG'],
-                         'start_year' : envDict['YEAR0'],
-                         'stop_year' : envDict['YEAR1']
-                         }
-
-        plot_html = template.render( templateVars )
-    
-        for plot in full_plot_list:
-            plot_html += plot.get_html(envDict['WORKDIR'], templatePath, envDict['IMAGEFORMAT'])
+    if scomm.is_manager():
+        for each_html in all_html:
+            plot_html += each_html[1]
 
         with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
             plot_html += tmpl.read()

@@ -31,7 +31,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
                                 'LWDN_F', 'QFLUX', 'SFWF_TOTAL', 'EVAP_F', 'PREC_F',
                                 'SNOW_F', 'MELT_F', 'SALT_F', 'ROFF_F', 'TAUX',
                                 'TAUY', 'CURL' ]
-        self._za_expectedPlots = [ 'SHF_TOTAL_GLO_za', 'SHF_QSW_GLO_za', 'MELTH_F_GLO_za', 'SENH_F_GLO_za',
+        self._expectedPlots_za = [ 'SHF_TOTAL_GLO_za', 'SHF_QSW_GLO_za', 'MELTH_F_GLO_za', 'SENH_F_GLO_za',
                                    'LWUP_F_GLO_za', 'LWDN_F_GLO_za', 'QFLUX_GLO_za', 'SFWF_TOTAL_GLO_za',
                                    'EVAP_F_GLO_za', 'PREC_F_GLO_za', 'SNOW_F_GLO_za', 'MELT_F_GLO_za',
                                    'SALT_F_GLO_za', 'ROFF_F_GLO_za' ]
@@ -119,6 +119,11 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         # call the generate_plots with sfcflx_za.ncl command
         diagUtilsLib.generate_ncl_plots(env, 'sfcflx_za.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        self._convert_plots(workdir, imgFormat, self._expectedPlots)
+        self._convert_plots(workdir, imgFormat, self._expectedPlots_za)
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
@@ -165,7 +170,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         # work on the global zonal average 2d flux plots
         plot_za_table = []
 
-        num_plots = len(self._za_expectedPlots)
+        num_plots = len(self._expectedPlots_za)
         num_last_row = num_plots % num_cols
         num_rows = num_plots//num_cols
         index = 0
@@ -173,7 +178,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         for i in range(num_rows):
             plot_list = []
             for j in range(num_cols):
-                plot_file = self._za_expectedPlots[index]
+                plot_file = self._expectedPlots_za[index]
                 img_file = '{0}.{1}'.format(plot_file, imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
@@ -187,7 +192,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         if num_last_row > 0:
             plot_list = []
             for i in range(num_last_row):
-                plot_file = self._za_expectedPlots[index]
+                plot_file = self._expectedPlots_za[index]
                 img_file = '{0}.{1}'.format(plot_file, imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:

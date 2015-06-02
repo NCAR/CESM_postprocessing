@@ -34,6 +34,7 @@ class EulerianVelocity(OceanDiagnosticPlot):
         self._expectedPlots_WVEL = [ 'WVEL0', 'WVEL50', 'WVEL100', 'WVEL200', 'WVEL300', 'WVEL500', 'WVEL1000', 'WVEL1500', 'WVEL2000', 'WVEL2500', 'WVEL3000', 'WVEL3500', 'WVEL4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
 
+        self._labels = ['UVEL','VVEL','WVEL']
         self._name = 'Eulerian Velocity Components at Depth Levels'
         self._shortname = 'VELZ'
         self._template_file = 'eulerian_velocity.tmpl'
@@ -54,19 +55,26 @@ class EulerianVelocity(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'vvelz.ncl')        
         diagUtilsLib.generate_ncl_plots(env, 'wvelz.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        my_plot_list = list()
+        for i in range(len(self._labels)):
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._labels[i])))
+
+        self._convert_plots(workdir, imgFormat, my_plot_list)
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['UVEL','VVEL','WVEL']
         num_cols = 14
         plot_table = []
 
-        for i in range(len(labels)):
+        for i in range(len(self._labels)):
             plot_tuple_list = []
-            plot_tuple = (0, 'label','{0}:'.format(labels[i]))
+            plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
-            plot_list = eval('self._expectedPlots_{0}'.format(labels[i]))
+            plot_list = eval('self._expectedPlots_{0}'.format(self._labels[i]))
 
             for j in range(num_cols - 1):
                 img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
@@ -89,7 +97,7 @@ class EulerianVelocity(OceanDiagnosticPlot):
         # add the template variables
         templateVars = { 'title' : self._name,
                          'plot_table' : plot_table,
-                         'num_rows' : len(labels),
+                         'num_rows' : len(self._labels),
                          }
 
         # render the html template using the plot tables

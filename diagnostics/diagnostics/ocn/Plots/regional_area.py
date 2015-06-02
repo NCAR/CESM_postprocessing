@@ -30,6 +30,8 @@ class RegionalArea(OceanDiagnosticPlot):
         super(RegionalArea, self).__init__()
         self._expectedPlots_0_500 = [ 'regionalTbias.0-500', 'regionalSbias.0-500' ]
         self._expectedPlots_500_2000 = [ 'regionalTbias.500-2000', 'regionalSbias.500-2000' ]
+        self._depths = ['0_500','500_2000']
+        self._labels = ['0-500m','500-2000m']
         self._linkNames = ['TEMP', 'SALT']
         self._name = 'Regional Average Temperature and Salinity anomaly vs. depth'
         self._shortname = 'REGIONALTS'
@@ -85,20 +87,26 @@ class RegionalArea(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'regionalTbias2000m.ncl')        
         diagUtilsLib.generate_ncl_plots(env, 'regionalSbias2000m.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        my_plot_list = list()
+        for i in range(len(self._labels)):
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._labels[i])))
+
+        self._convert_plots(workdir, imgFormat, my_plot_list)
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['0-500m','500-2000m']
-        depths = ['0_500','500_2000']
         num_cols = 3
         plot_table = []
 
-        for i in range(len(labels)):
+        for i in range(len(self._labels)):
             plot_tuple_list = []
-            plot_tuple = (0, 'label','{0}:'.format(labels[i]))
+            plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
-            plot_list = eval('self._expectedPlots_{0}'.format(depths[i]))
+            plot_list = eval('self._expectedPlots_{0}'.format(self._depths[i]))
 
             for j in range(num_cols - 1):
                 img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
@@ -121,7 +129,7 @@ class RegionalArea(OceanDiagnosticPlot):
         # add the template variables
         templateVars = { 'title' : self._name,
                          'plot_table' : plot_table,
-                         'num_rows' : len(labels),
+                         'num_rows' : len(self._labels),
                          }
 
         # render the html template using the plot tables

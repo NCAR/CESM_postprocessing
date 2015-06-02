@@ -34,7 +34,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         self._expectedPlots_Pacific = [ 'TEMP_PAC_za', 'SALT_PAC_za', 'IAGE_PAC_za', 'KAPPA_ISOP_PAC_za', 'KAPPA_THIC_PAC_za' ]
         self._expectedPlots_Indian = [ 'TEMP_IND_za', 'SALT_IND_za', 'IAGE_IND_za', 'KAPPA_ISOP_IND_za', 'KAPPA_THIC_IND_za' ]
         self._expectedPlots_Southern = [ 'TEMP_SOU_za', 'SALT_SOU_za', 'IAGE_SOU_za', 'KAPPA_ISOP_SOU_za', 'KAPPA_THIC_SOU_za' ]
-
+        self._labels = ['Global','Atlantic','Pacific','Indian','Southern']
         self._name = '3D Fields, Zonally Averaged'
         self._shortname = 'FLD3DZA'
         self._template_file = 'zonal_average_3d_fields.tmpl'
@@ -141,18 +141,25 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         # so can eventually read that list from XML
         diagUtilsLib.generate_ncl_plots(env, 'field_3d_za.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        my_plot_list = list()
+        for i in range(len(self._labels)):
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._labels[i])))
+
+        self._convert_plots(workdir, imgFormat, my_plot_list)
+
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
         num_cols = 6
 
-        label_list = ['Global','Atlantic','Pacific','Indian','Southern']
-
-        for i in range(len(label_list)):
+        for i in range(len(self._labels)):
             plot_list = []
-            plot_list.append(label_list[i])
-            exp_plot_list = eval('self._expectedPlots_{0}'.format(label_list[i]))
+            plot_list.append(self._labels[i])
+            exp_plot_list = eval('self._expectedPlots_{0}'.format(self._labels[i]))
             
             for j in range(num_cols - 2):
                 plot_file = exp_plot_list[j]
@@ -175,7 +182,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         templateVars = { 'title' : self._name,
                          'cols' : num_cols,
                          'plot_table' : plot_table,
-                         'label_list' : label_list,
+                         'label_list' : self._labels,
                          'imgFormat' : imgFormat
                          }
 

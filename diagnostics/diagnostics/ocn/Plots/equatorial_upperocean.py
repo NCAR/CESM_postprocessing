@@ -42,8 +42,9 @@ class EquatorialUpperocean(OceanDiagnosticPlot):
         self._expectedPlots_Latitude_Depth_235 = [ 'T_235E', 'S_235E', 'PD_235E', 'U_235E' ]  
         self._expectedPlots_Latitude_Depth_250 = [ 'T_250E', 'S_250E', 'PD_250E', 'U_250E' ]  
         self._expectedPlots_Latitude_Depth_265 = [ 'T_265E', 'S_265E', 'PD_265E', 'U_265E' ]  
-
         self._latitude_linkNames = [ 'TEMP', 'SALT', 'PD', 'UVEL' ]
+
+        self._suffix = ['Longitude_Depth','Latitude_Depth_143','Latitude_Depth_156', 'Latitude_Depth_165','Latitude_Depth_180', 'Latitude_Depth_190','Latitude_Depth_205', 'Latitude_Depth_220','Latitude_Depth_235', 'Latitude_Depth_250','Latitude_Depth_265']
 
         self._name = 'Equatorial Upperocean'
         self._shortname = 'UOEQ'
@@ -115,6 +116,14 @@ class EquatorialUpperocean(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'T_eq_meridional.ncl')        
         diagUtilsLib.generate_ncl_plots(env, 'PD_eq_meridional.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        my_plot_list = list()
+        for i in range(len(self._suffix)):
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._suffix[i])))
+
+        self._convert_plots(workdir, imgFormat, my_plot_list)
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper

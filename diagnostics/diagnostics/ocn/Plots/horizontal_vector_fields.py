@@ -32,7 +32,7 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
         self._expectedPlots_VELOCITY = [ 'VELOCITY0', 'VELOCITY50', 'VELOCITY100', 'VELOCITY200', 'VELOCITY300', 'VELOCITY500', 'VELOCITY1000', 
                                          'VELOCITY1500', 'VELOCITY2000', 'VELOCITY2500', 'VELOCITY3000', 'VELOCITY3500', 'VELOCITY4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
-
+        self._label = ['VELOCITY']
         self._name = 'Horizontal Vector Fields at Depth'
         self._shortname = 'VECV'
         self._template_file = 'horizontal_vector_fields.tmpl'
@@ -51,18 +51,26 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
         # generate_plots with ncl command
         diagUtilsLib.generate_ncl_plots(env, 'vecvelz.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        my_plot_list = list()
+        for i in range(len(self._labels)):
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._labels[i])))
+
+        self._convert_plots(workdir, imgFormat, my_plot_list)
+
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['VELOCITY']
         num_cols = 14
         plot_table = []
 
-        for i in range(len(labels)):
+        for i in range(len(self._labels)):
             plot_tuple_list = []
-            plot_tuple = (0, 'label','{0}:'.format(labels[i]))
+            plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
-            plot_list = eval('self._expectedPlots_{0}'.format(labels[i]))
+            plot_list = eval('self._expectedPlots_{0}'.format(self._labels[i]))
 
             for j in range(num_cols - 1):
                 img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
@@ -85,7 +93,7 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
         # add the template variables
         templateVars = { 'title' : self._name,
                          'plot_table' : plot_table,
-                         'num_rows' : len(labels),
+                         'num_rows' : len(self._labels),
                          }
 
         # render the html template using the plot tables

@@ -32,6 +32,7 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
         self._expectedPlots_IAGE = [ 'IAGE0', 'IAGE50', 'IAGE100', 'IAGE200', 'IAGE300', 'IAGE500', 'IAGE1000', 'IAGE1500', 'IAGE2000', 'IAGE2500', 'IAGE3000', 'IAGE3500', 'IAGE4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
 
+        self._labels = ['IAGE']
         self._name = 'Passive Tracers at Depth Levels'
         self._shortname = 'PASSIVEZ'
         self._template_file = 'passive_tracers_depth.tmpl'
@@ -52,18 +53,26 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
         # so can eventually read that list from XML
         diagUtilsLib.generate_ncl_plots(env, 'iagez.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        my_plot_list = list()
+        for i in range(len(self._labels)):
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._labels[i])))
+
+        self._convert_plots(workdir, imgFormat, my_plot_list)
+
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['IAGE']
         num_cols = 14
         plot_table = []
 
-        for i in range(len(labels)):
+        for i in range(len(self._labels)):
             plot_tuple_list = []
-            plot_tuple = (0, 'label','{0}:'.format(labels[i]))
+            plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
-            plot_list = eval('self._expectedPlots_{0}'.format(labels[i]))
+            plot_list = eval('self._expectedPlots_{0}'.format(self._labels[i]))
 
             for j in range(num_cols - 1):
                 img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
@@ -86,7 +95,7 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
         # add the template variables
         templateVars = { 'title' : self._name,
                          'plot_table' : plot_table,
-                         'num_rows' : len(labels),
+                         'num_rows' : len(self._labels),
                          }
 
         # render the html template using the plot tables

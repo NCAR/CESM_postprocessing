@@ -29,7 +29,7 @@ class SurfaceFields(OceanDiagnosticPlot):
     def __init__(self):
         super(SurfaceFields, self).__init__()
         self._expectedPlots = [ 'SSH', 'HBLT', 'HMXL', 'DIA_DEPTH', 'TLT', 'INT_DEPTH', 'SU', 'SV', 'BSF' ]
-        self._za_expectedPlots = [ 'SSH_GLO_za', 'HBLT_GLO_za', 'HMXL_GLO_za', 'DIA_DEPTH_GLO_za', 'TLT_GLO_za', 'INT_DEPTH_GLO_za' ]
+        self._expectedPlots_za = [ 'SSH_GLO_za', 'HBLT_GLO_za', 'HMXL_GLO_za', 'DIA_DEPTH_GLO_za', 'TLT_GLO_za', 'INT_DEPTH_GLO_za' ]
 
         self._name = '2D Surface Fields'
         self._shortname = 'FLD2D'
@@ -67,6 +67,11 @@ class SurfaceFields(OceanDiagnosticPlot):
         # generate_plots with field_2d_za.ncl command
         diagUtilsLib.generate_ncl_plots(env, 'field_2d_za.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        self._convert_plots(workdir, imgFormat, self._expectedPlots)
+        self._convert_plots(workdir, imgFormat, self._expectedPlots_za)
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
@@ -113,7 +118,7 @@ class SurfaceFields(OceanDiagnosticPlot):
         # work on the global zonal average 2d flux plots
         plot_za_table = []
 
-        num_plots = len(self._za_expectedPlots)
+        num_plots = len(self._expectedPlots_za)
         num_last_row = num_plots % num_cols
         num_rows = num_plots//num_cols
         index = 0
@@ -121,7 +126,7 @@ class SurfaceFields(OceanDiagnosticPlot):
         for i in range(num_rows):
             plot_list = []
             for j in range(num_cols):
-                plot_file = self._za_expectedPlots[index]
+                plot_file = self._expectedPlots_za[index]
                 img_file = '{0}.{1}'.format(plot_file, imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
@@ -135,7 +140,7 @@ class SurfaceFields(OceanDiagnosticPlot):
         if num_last_row > 0:
             plot_list = []
             for i in range(num_last_row):
-                plot_file = self._za_expectedPlots[index]
+                plot_file = self._expectedPlots_za[index]
                 img_file = '{0}.{1}'.format(plot_file, imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:

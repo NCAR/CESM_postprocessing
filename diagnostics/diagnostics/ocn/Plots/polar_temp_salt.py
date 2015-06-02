@@ -40,7 +40,7 @@ class PolarTempSalt(OceanDiagnosticPlot):
                                            'Antarctic_SALT1000', 'Antarctic_SALT1500', 'Antarctic_SALT2000', 'Antarctic_SALT2500', 'Antarctic_SALT3000', 'Antarctic_SALT3500', 'Antarctic_SALT4000' ]
 
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
-
+        self._labels = ['Arctic_TEMP','Arctic_SALT','Antarctic_TEMP','Antarctic_SALT']
         self._name = 'Polar Temperature and Salinity at Depth Levels'
         self._shortname = 'KAPPAZ'
         self._template_file = 'diffusion_depth.tmpl'
@@ -62,18 +62,27 @@ class PolarTempSalt(OceanDiagnosticPlot):
         diagUtilsLib.generate_ncl_plots(env, 'tempz_antarctic.ncl')        
         diagUtilsLib.generate_ncl_plots(env, 'saltz_antarctic.ncl')        
 
+    def convert_plots(self, workdir, imgFormat):
+        """Converts plots for this class
+        """
+        my_plot_list = list()
+        for i in range(len(self._labels)):
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._labels[i])))
+
+        self._convert_plots(workdir, imgFormat, my_plot_list)
+
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        labels = ['Arctic_TEMP','Arctic_SALT','Antarctic_TEMP','Antarctic_SALT']
+
         num_cols = 14
         plot_table = []
 
-        for i in range(len(labels)):
+        for i in range(len(self._labels)):
             plot_tuple_list = []
-            plot_tuple = (0, 'label','{0}:'.format(labels[i]))
+            plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
-            plot_list = eval('self._expectedPlots_{0}'.format(labels[i]))
+            plot_list = eval('self._expectedPlots_{0}'.format(self._labels[i]))
 
             for j in range(num_cols - 1):
                 img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
@@ -96,7 +105,7 @@ class PolarTempSalt(OceanDiagnosticPlot):
         # add the template variables
         templateVars = { 'title' : self._name,
                          'plot_table' : plot_table,
-                         'num_rows' : len(labels),
+                         'num_rows' : len(self._labels),
                          }
 
         # render the html template using the plot tables
