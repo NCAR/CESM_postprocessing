@@ -19,6 +19,23 @@
     <za_libs></za_libs>
   </machine>
 
+  <machine name="rosie">
+    <timeseries_pes>2</timeseries_pes>
+    <atm_diags_pes>2</atm_diags_pes>
+    <ice_diags_pes>2</ice_diags_pes>
+    <lnd_diags_pes>2</lnd_diags_pes>
+    <ocn_diags_pes>2</ocn_diags_pes>
+    <ocn_obs_root></ocn_obs_root>
+    <mpi_command></mpi_command>
+    <modules>
+      <module></module>
+    </modules>
+    <za_fc></za_fc>
+    <za_fflags></za_fflags>
+    <za_include></za_include>
+    <za_libs></za_libs>
+  </machine>
+
   <machine name="yellowstone">
     <timeseries_pes>64</timeseries_pes>
     <atm_diags_pes>124</atm_diags_pes>

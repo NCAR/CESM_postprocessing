@@ -101,7 +101,7 @@ def commandline_options():
 
     """
     parser = argparse.ArgumentParser(
-        description='Read the necessary xml files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks.')
+        description='Read the necessary xml files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks. The options specified are passed to the post processing submission scripts.')
 
     parser.add_argument('--backtrace', action='store_true',
                         help='show exception backtraces as extra debugging '
@@ -227,7 +227,7 @@ def read_machine_xml(machineName, xmlFile, compList):
 # -------------------------------------------------------------------------------
 # create_batch - create the batch files for post processing submission
 # -------------------------------------------------------------------------------
-def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName, project, caseRoot, modules):
+def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName, project, caseRoot, modules, options):
     """create the batch submission files for post processing
 
     Arguments:
@@ -241,6 +241,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     processName (string) - post processing name for batch submission
     project (string) - project account number
     caseRoot (string) - case root directory path
+    options (object) - commandline options
     """
     # first check if outFile already exists, if so delete and recreate
     rc, err_msg = cesmEnvLib.checkFile(outFile, 'read')
@@ -261,7 +262,15 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(virtualEnvDir, postProcessCmd), 'read')
     if not rc:
         raise OSError(err_msg)
-    
+
+    debug = ''
+    if options.debug:
+        debug = '--debug'
+
+    backtrace = ''
+    if options.backtrace:
+        backtrace = '--backtrace'
+
     # all files look good so start parsing the template file starting with the batchTmpl
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}/templates'.format(ppDir) )
     templateEnv = jinja2.Environment( loader=templateLoader )
@@ -281,7 +290,9 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
                      'processName' : processName,
                      'postProcessCmd' : postProcessCmd,
                      'caseRoot' : caseRoot,
-                     'virtualEnvDir' : virtualEnvDir }
+                     'virtualEnvDir' : virtualEnvDir,
+                     'debug' : debug,
+                     'backtrace' : backtrace }
 
     # render this template into the runScript string
     runScript = template.render( templateVars )
@@ -374,7 +385,7 @@ def main(options):
     postProcessCmd = 'cesm_tseries_generator.py'
     outFile = '{0}/{1}.timeseries'.format(envDict['CASEROOT'], envDict['CASE'])
     create_batch(envDict['POSTPROCESS_DIR'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
-                 machine['mpi_command'], outFile, 'timeseries', envDict['PROJECT'], envDict['CASEROOT'], machine['modules'])
+                 machine['mpi_command'], outFile, 'timeseries', envDict['PROJECT'], envDict['CASEROOT'], machine['modules'], options)
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
@@ -383,7 +394,7 @@ def main(options):
         outFile = '{0}/{1}.{2}_diagnostics'.format(envDict['CASEROOT'], envDict['CASE'], comp)
         create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_diags_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile,'{0}_diagnostics'.format(comp), envDict['PROJECT'], envDict['CASEROOT'],
-                     machine['modules'])
+                     machine['modules'], options)
 
     print('*****************************************************************************************')
     print('')

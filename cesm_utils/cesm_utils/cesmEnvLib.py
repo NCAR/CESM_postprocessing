@@ -10,6 +10,7 @@ Updated Sept 4, 2014 - make sure execute permission is allowed
 """
 import os
 import re
+import subprocess
 import xml.etree.ElementTree as ET
 
 re_val = re.compile(r'\$(\{([A-Za-z0-9_]+)\}|[A-Za-z0-9_]+)')
@@ -102,8 +103,8 @@ def checkEnv(varname, relpath):
         if not rc:
           raise OSError(err_msg)
 
-        command = 'xmlquery -valonly {0}'.format(varname)
-        output = os.popen(command).read()
+        command = './xmlquery -valonly {0}'.format(varname)
+        output = subprocess.check_output(['./xmlquery','-valonly',varname])
         xmllist = output.split(' ')
         os.environ[varname] = (xmllist.pop()).rstrip('\n')
         if not os.path.isdir(os.environ[varname]) :
