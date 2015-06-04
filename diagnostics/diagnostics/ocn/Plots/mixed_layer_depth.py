@@ -40,7 +40,7 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         super(MixedLayerDepth, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
-        # set SEASAVGRHO env var to the envDict['SEASAVGRHO'] file
+        # set SEASAVGRHO env var to the envDict['SEASAVGRHO'] output file name
         os.environ['SEASAVGRHO'] = env['SEASAVGRHO']
 
         # set a link to RHOOBSDIR/RHOOBSFILE
@@ -60,10 +60,8 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
             
-        # generate_plots with compute_rho.ncl command
+        # generate_plots with ncl commands
         diagUtilsLib.generate_ncl_plots(env, 'compute_rho.ncl')        
-
-        # generate_plots with mld.ncl command
         diagUtilsLib.generate_ncl_plots(env, 'mld.ncl')        
 
     def convert_plots(self, workdir, imgFormat):

@@ -92,7 +92,7 @@ class RegionalArea(OceanDiagnosticPlot):
         """
         my_plot_list = list()
         for i in range(len(self._labels)):
-            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._labels[i])))
+            my_plot_list.extend(eval('self._expectedPlots_{0}'.format(self._depths[i])))
 
         self._convert_plots(workdir, imgFormat, my_plot_list)
 

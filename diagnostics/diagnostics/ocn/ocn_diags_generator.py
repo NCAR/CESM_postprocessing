@@ -26,29 +26,32 @@ if sys.hexversion < 0x02070000:
     print(70 * '*')
     sys.exit(1)
 
-# import additional modules
+# import core python modules
+import argparse
 import datetime
-import time
-import os, getopt
+import errno
+import getopt
 import glob
+import itertools
+import os
 import re
+import shlex
+import shutil
 import string
 import subprocess
-import shutil
-import shlex
-import xml.etree.ElementTree as ET
-import argparse
+import time
 import traceback
-import errno
-import itertools
+import xml.etree.ElementTree as ET
 
+# import modules installed by pip into virtualenv
 import jinja2
 
+# import local modules for postprocessing
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
-# import the MPI related module
-from asaptools import partition, simplecomm
+# import the MPI related modules
+from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the pyaverager
 from pyaverager import specification, PyAverager
@@ -74,8 +77,8 @@ def commandline_options():
                         help='show exception backtraces as extra debugging '
                         'output')
 
-    parser.add_argument('--debug', action='store_true',
-                        help='extra debugging output')
+    parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
+                        help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
@@ -88,7 +91,6 @@ def commandline_options():
         raise OSError(err_msg)
 
     return options
-
 
 #============================================
 # initialize_main - initialization from main
@@ -103,10 +105,11 @@ def initialize_main(envDict, caseroot):
     Return:
     envDict (dictionary) - environment dictionary
     """
-    # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
+    # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_postprocess.xml', 'env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
+    # debug print out the envDict
 ##    if DEBUG:
 ##        print('DEBUG... envDict after readXML')
 ##        for k,v in envDict.iteritems():
@@ -140,8 +143,7 @@ def initialize_main(envDict, caseroot):
     in_dir = '{0}/ocn/hist'.format(envDict['DOUT_S_ROOT'])
 
     # get model history file information from the DOUT_S_ROOT archive location
-    if DEBUG:
-        print('DEBUG... calling checkHistoryFiles')
+    debugMsg('calling checkHistoryFiles', header=True)
     start_year, stop_year, in_dir, htype = diagUtilsLib.checkHistoryFiles(
         envDict['GENERATE_TIMESERIES'], envDict['DOUT_S_ROOT'], 
         envDict['CASE'], envDict['YEAR0'], envDict['YEAR1'], 
@@ -169,8 +171,8 @@ def initialize_model_vs_obs(envDict):
     # create the working directory if it doesn't already exists
     subdir = 'model_vs_obs.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
     workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
-    if DEBUG:
-        print('DEBUG... checking workdir = {0}'.format(workdir))
+    #debugMsg('workdir = {0}'.format(workdir), header=True)
+
     try:
         os.makedirs(workdir)
     except OSError as exception:
@@ -216,6 +218,9 @@ def initialize_model_vs_obs(envDict):
     if DEBUG:
         print('DEBUG... calling create_za')
     create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'], envDict )
+
+
+
 
     # setup of ecosys files
     if envDict['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
@@ -838,7 +843,7 @@ def model_vs_ts(envDict, start_year, stop_year, workdir):
 # main
 #======
 
-def main(options, scomm):
+def main(options, scomm, debug):
     """setup the environment for running the diagnostics in parallel. 
 
     Calls 3 different diagnostics generation types:
@@ -879,8 +884,7 @@ def main(options, scomm):
     scomm.sync()
 
     # generate the climatology files used for all plotting types using the pyAverager
-    if DEBUG and scomm.is_manager():
-        print('DEBUG... calling createClimFiles')
+    debugMsg('calling createClimFiles', header=True)
     try:
         createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
                         envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], varList, scomm)
@@ -913,15 +917,19 @@ if __name__ == "__main__":
     # initialize simplecomm object
     scomm = simplecomm.create_comm(serial=False)
 
+    # initialize global vprinter object for printing debug messages
+    header = "[" + str(scomm.get_rank()) + "/" + str(scomm.get_size()) + "]: DEBUG... "
+    debugMsg = vprinter.VPrinter(header=header, verbosity=0)
+
+    # get commandline options
     options = commandline_options()
-    DEBUG = options.debug
 
-    if DEBUG and scomm.is_manager():
-        print('DEBUG...Running on {0} cores'.format(scomm.get_size()))
-    scomm.sync()
-
+    # set the debugMsg verbosity level if the debug option is specified
+    if options.debug:
+        debugMsg.verbosity = options.debug[0]
+    
     try:
-        status = main(options, scomm)
+        status = main(options, scomm, debugMsg)
         scomm.sync()
         if scomm.is_manager():
             print('***************************************************')

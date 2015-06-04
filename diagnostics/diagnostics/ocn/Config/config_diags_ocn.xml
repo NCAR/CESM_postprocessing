@@ -390,9 +390,9 @@
   <entry id="OCNDIAG_SEASAVGRHO"
 	 type="char"
 	 valid_values=""
-	 value="mavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1.nc"
+	 value="$CASE.pop.h.RHO.mavg_($OCNDIAG_YEAR0)-($OCNDIAG_YEAR1).nc"
 	 group="diags_ocn"
-	 sdesc="Local machine filename for sea monthly average densities for mixed layer depths"
+	 sdesc="Local machine output filename for sea monthly average densities for mixed layer depths"
 	 ldesc="This environment variable is set to null unless the plot_mod OCNDIAG_PM_MLD=TRUE
 		(mixed layer depth plots) in the env_ocn_plots.xml file. In which case, it is
 		set to the same value as $CASE.pop.h.RHO.mavg_$OCNDIAG_YEAR0-$OCNDIAG_YEAR1.nc"

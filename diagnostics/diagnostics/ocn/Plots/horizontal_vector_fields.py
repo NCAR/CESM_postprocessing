@@ -32,7 +32,7 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
         self._expectedPlots_VELOCITY = [ 'VELOCITY0', 'VELOCITY50', 'VELOCITY100', 'VELOCITY200', 'VELOCITY300', 'VELOCITY500', 'VELOCITY1000', 
                                          'VELOCITY1500', 'VELOCITY2000', 'VELOCITY2500', 'VELOCITY3000', 'VELOCITY3500', 'VELOCITY4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
-        self._label = ['VELOCITY']
+        self._labels = ['VELOCITY']
         self._name = 'Horizontal Vector Fields at Depth'
         self._shortname = 'VECV'
         self._template_file = 'horizontal_vector_fields.tmpl'

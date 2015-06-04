@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 """
-This module provides utility functions for working with the $CASEROOT/env_*.xml files
-except the env_archive.xml file which is parsed in the cesm_tseries_generate.py
+This module provides utility functions for working with the CESM $CASEROOT/env_*.xml files
+except the env_archive.xml file which is parsed in the cesm_tseries_generate.py directly.
 __________________________
 Created on Apr 30, 2014
 Updated Sept 4, 2014 - make sure execute permission is allowed
@@ -163,7 +163,7 @@ def purge(dir, pattern):
 # which - check if a file is in the sys.path
 #===========================================   
 def which(program):
-    import os
+
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
@@ -179,4 +179,3 @@ def which(program):
                 return exe_file
 
     return None
-
