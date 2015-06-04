@@ -40,12 +40,9 @@ import xml.etree.ElementTree as ET
 import argparse
 import traceback
 import errno
-import jinja2
+import itertools
 
-if sys.version_info[0] == 2:
-    from ConfigParser import SafeConfigParser as config_parser
-else:
-    from configparser import ConfigParser as config_parser
+import jinja2
 
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
@@ -723,11 +720,16 @@ def model_vs_obs(envDict, scomm):
             return 1
 
     scomm.sync()
+    html_msg_tag = 5
 
     if scomm.get_size() > 1:
         if scomm.is_manager():
-            rank, all_html = scomm.collect()
-            all_html[:0] = local_html_list
+            all_html  = [local_html_list]
+
+            for n in range(1,scomm.get_size()):
+                rank, temp_html = scomm.collect(tag=html_msg_tag)
+                all_html.append(temp_html)
+
             try:
                 print('DEBUG... all_html = {0}'.format(all_html))
             except Exception as e:
@@ -739,7 +741,8 @@ def model_vs_obs(envDict, scomm):
                 print('rank: e = {0}, rank = {1}'.format(e, rank))
 
         else:
-            return_code = scomm.collect(data=local_html_list)
+            return_code = scomm.collect(data=local_html_list, tag=html_msg_tag)
+
 
     if scomm.is_manager():
         print('DEBUG... rank = {0}, all_html = {1}'.format(rank, all_html))
@@ -747,6 +750,8 @@ def model_vs_obs(envDict, scomm):
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
     if scomm.is_manager():
+        # merge the all_html list of lists into a single list
+        all_html = list(itertools.chain.from_iterable(all_html))
         for each_html in all_html:
             if DEBUG:
                 print('DEBUG... each_html = {0}'.format(each_html))
