@@ -87,7 +87,6 @@ class BasinAverages(OceanDiagnosticPlot):
         """
         self._convert_plots(workdir, imgFormat, self._expectedPlots)
 
-
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """

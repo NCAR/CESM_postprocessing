@@ -656,8 +656,9 @@ def model_vs_obs(envDict, scomm):
     # setup the plots to be called based on directives in the env_diags_ocn.xml file
     requested_plot_names = []
     local_requested_plots = list()
-    local_html_list = list()
     
+    # define the templatePath for all tasks
+    templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
 
     if scomm.is_manager():
         requested_plot_names = setupPlots(envDict)
@@ -668,7 +669,7 @@ def model_vs_obs(envDict, scomm):
         if envDict['DOWEB'].upper() in ['T','TRUE']:
             
             print('Creating plot html header:')
-            templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
+
             templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
             templateEnv = jinja2.Environment( loader=templateLoader )
 
@@ -692,6 +693,8 @@ def model_vs_obs(envDict, scomm):
     local_requested_plots = scomm.partition(requested_plot_names, func=partition.EqualStride(), involved=True)
     scomm.sync()
 
+    # define the local_html_list
+    local_html_list = list()
     for requested_plot in local_requested_plots:
         try:
             plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(requested_plot)
@@ -706,7 +709,9 @@ def model_vs_obs(envDict, scomm):
             plot.convert_plots(envDict['WORKDIR'], envDict['IMAGEFORMAT'])
 
             html = plot.get_html(envDict['WORKDIR'], templatePath, envDict['IMAGEFORMAT'])
-            local_html_list.append(html)
+            
+            local_html_list.append(str(html))
+            print('DEBUG...  on rank {1} local_html_list = {0}'.format(local_html_list, scomm.get_rank()))
 
         except ocn_diags_plot_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
@@ -718,14 +723,34 @@ def model_vs_obs(envDict, scomm):
             return 1
 
     scomm.sync()
-    # returns a tuple with the html string being the second member
-    all_html = scomm.collect(local_html_list)
-    
+
+    if scomm.get_size() > 1:
+        if scomm.is_manager():
+            rank, all_html = scomm.collect()
+            all_html[:0] = local_html_list
+            try:
+                print('DEBUG... all_html = {0}'.format(all_html))
+            except Exception as e:
+                print('all_html: e = {0}, rank = {1}'.format(e, rank))
+
+            try:
+                print('DEBUG... rank = {0}'.format(rank))
+            except Exception as e:
+                print('rank: e = {0}, rank = {1}'.format(e, rank))
+
+        else:
+            return_code = scomm.collect(data=local_html_list)
+
+    if scomm.is_manager():
+        print('DEBUG... rank = {0}, all_html = {1}'.format(rank, all_html))
+
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
     if scomm.is_manager():
         for each_html in all_html:
-            plot_html += each_html[1]
+            if DEBUG:
+                print('DEBUG... each_html = {0}'.format(each_html))
+            plot_html += each_html
 
         with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
             plot_html += tmpl.read()

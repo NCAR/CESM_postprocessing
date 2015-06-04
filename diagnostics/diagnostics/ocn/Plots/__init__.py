@@ -1,1 +1,1 @@
-from . import moc_fields,  ocn_diags_plot_bc,  ocn_diags_plot_factory,  surface_fields,  surface_flux_fields,  zonal_average_3d_fields, western_boundary, seasonal_cycle
+from . import basin_averages, bolus_velocity, diffusion_depth, equatorial_upperocean, eulerian_velocity, horizontal_vector_fields, mixed_layer_depth, moc_fields,  ocn_diags_plot_bc,  ocn_diags_plot_factory,  passive_tracers_depth, polar_temp_salt, regional_area, seasonal_cycle, surface_fields,  surface_flux_fields, temp_salt_depth, western_boundary, zonal_average_3d_fields
