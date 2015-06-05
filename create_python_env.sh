@@ -27,9 +27,7 @@ function Usage {
     echo "     - deactivate env"
     echo ""
     echo "OPTIONS"
-    echo "     -machine_dir    specify a CESM supported machine directory where the"
-    echo "                     [machine]_modules.sh script resides. If not specifed,"
-    echo "                     defaults to ./machines."
+    echo "     -cimeroot       specify the CESM / CIME root directory"
     echo "     -machine        specify a CESM supported machine name."
     echo "     -help           Print this help message and exit"
 }
@@ -83,8 +81,8 @@ machine=''
 #----------------------------------------------------------------------
 while [ $# -gt 0 ]; do
     case $1 in
-        -machine_dir )
-            machine_dir=$2
+        -cimeroot )
+            cimeroot=$2
             shift
             ;;
         -machine )
@@ -111,10 +109,10 @@ done
 #----------------------------------------------------------------------
 error=0  # no errors yet
 
-if [ -z $machine_dir ]; then
-    status="WARNING"
-    info="$progname: machine_dir not specified. Using ${pp_dir}/machines." >&2
-    error=0
+if [ -z $cimeroot ]; then
+    status="ERROR"
+    info="$progname: A valid CESM / CIME root must be specified." >&2
+    error=1
 fi
 if [ -z $machine ]; then
     status="ERROR"
@@ -212,7 +210,21 @@ deactivate
 #----------------------------------------------------------------------
 echo "---------------------------------------------------------"
 echo "$progname - Compiling ocn diagnostics zonal average tool."
-./compile_za --machine $machine --pproot $pp_dir
+cd $pp_dir/ocn_diag/tool_lib/zon_avg
+
+# run the make clean command
+make clean
+
+# generate the necessary Macros file
+$cimeroot/machines/configure -mach $machine -mpi mpi-serial
+
+# run the make command
+make
+
+# link the za compiled code to one level up for the NCL
+ln -s $pp_dir/ocn_diag/tool_lib/zon_avg/za $pp_dir/ocn_diag/tool_lib/za
+
+##./compile_za --machine $machine --pproot $pp_dir
 echo "---------------------------------------------------------"
 
 cd $curdir
