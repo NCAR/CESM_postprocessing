@@ -44,38 +44,6 @@ class TempSaltDepth(OceanDiagnosticPlot):
         super(TempSaltDepth, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
-        # check that temperature observation TOBSFILE exists and is readable
-        rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE']), 'read')
-        if not rc:
-            raise OSError(err_msg)
-
-        # set a link to TSOBSDIR/TOBSFILE
-        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE'])
-        linkFile = '{0}/{1}'.format(env['WORKDIR'], env['TOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if rc:
-            rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
-            if not rc1:
-                os.symlink(sourceFile, linkFile)
-        else:
-            raise OSError(err_msg)
-
-        # check that salinity observation SOBSFILE exists and is readable
-        rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE']), 'read')
-        if not rc:
-            raise OSError(err_msg)
-
-        # set a link to TSOBSDIR/SOBSFILE
-        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE'])
-        linkFile = '{0}/{1}'.format(env['WORKDIR'], env['SOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if rc:
-            rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
-            if not rc1:
-                os.symlink(sourceFile, linkFile)
-        else:
-            raise OSError(err_msg)
-
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """

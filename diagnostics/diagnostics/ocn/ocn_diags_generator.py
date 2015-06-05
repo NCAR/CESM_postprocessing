@@ -95,12 +95,13 @@ def commandline_options():
 #============================================
 # initialize_main - initialization from main
 #============================================
-def initialize_main(envDict, caseroot):
+def initialize_main(envDict, caseroot, debugMsg):
     """initialize_main - initialize settings on rank 0 
     
     Arguments:
     envDict (dictionary) - environment dictionary
-    options (list) - input options from command line
+    caseroot (string) - case root
+    debugMsg (object) - vprinter object for printing debugging messages
 
     Return:
     envDict (dictionary) - environment dictionary
@@ -110,10 +111,7 @@ def initialize_main(envDict, caseroot):
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
-##    if DEBUG:
-##        print('DEBUG... envDict after readXML')
-##        for k,v in envDict.iteritems():
-##            print('DEBUG...... envDict[{0}] = {1}'.format(k, v))
+    debugMsg('envDict after readXML = {0}'.format(envDict), header=True, verbosity=2)
 
     # refer to the caseroot that was specified on the command line instead of what
     # is read in the environment as the caseroot may have changed from what is listed
@@ -156,14 +154,60 @@ def initialize_main(envDict, caseroot):
 
     return envDict
 
+
+#======================================================================
+# seupt_obs - setup common observation symlinks in workdir on rank 0
+#======================================================================
+def setup_obs(env, debugMsg):
+    """initialize_model_vs_obs - initialize settings on rank 0 for model vs. Observations
+    
+    Arguments:
+    env (dictionary) - environment dictionary
+    debugMsg (object) - vprinter object for printing debugging messages
+    """
+    
+    # check that temperature observation TOBSFILE exists and is readable
+    rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE']), 'read')
+    if not rc:
+        raise OSError(err_msg)
+
+    # set a link to TSOBSDIR/TOBSFILE
+    sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE'])
+    linkFile = '{0}/{1}'.format(env['WORKDIR'], env['TOBSFILE'])
+    rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
+    if rc:
+        rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
+        if not rc1:
+            os.symlink(sourceFile, linkFile)
+    else:
+        raise OSError(err_msg)
+
+    # check that salinity observation SOBSFILE exists and is readable
+    rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE']), 'read')
+    if not rc:
+        raise OSError(err_msg)
+
+    # set a link to TSOBSDIR/SOBSFILE
+    sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE'])
+    linkFile = '{0}/{1}'.format(env['WORKDIR'], env['SOBSFILE'])
+    rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
+    if rc:
+        rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
+        if not rc1:
+            os.symlink(sourceFile, linkFile)
+    else:
+        raise OSError(err_msg)
+
+
 #===================================================
 # initialize_model_vs_obs - initialization on rank 0
 #===================================================
-def initialize_model_vs_obs(envDict):
+def initialize_model_vs_obs(envDict, debugMsg):
     """initialize_model_vs_obs - initialize settings on rank 0 for model vs. Observations
     
     Arguments:
     envDict (dictionary) - environment dictionary
+    debugMsg (object) - vprinter object for printing debugging messages
 
     Return:
     envDict (dictionary) - environment dictionary
@@ -171,7 +215,7 @@ def initialize_model_vs_obs(envDict):
     # create the working directory if it doesn't already exists
     subdir = 'model_vs_obs.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
     workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
-    #debugMsg('workdir = {0}'.format(workdir), header=True)
+    debugMsg('workdir = {0}'.format(workdir), header=True)
 
     try:
         os.makedirs(workdir)
@@ -211,16 +255,15 @@ def initialize_model_vs_obs(envDict):
 
     # check the resolution and decide if some plot modules should be turned off
     if envDict['RESOLUTION'] == 'tx0.1v2' :
-        os.environ['PM_VELISOPZ'] = 'FALSE'
-        os.environ['PM_KAPPAZ'] = 'FALSE'
+        envDict['PM_VELISOPZ'] = os.environ['PM_VELISOPZ'] = 'FALSE'
+        envDict['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
 
     # create the global zonal average file used by most of the plotting classes
-    if DEBUG:
-        print('DEBUG... calling create_za')
+    debugMsg('calling create_za', header=True)
     create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'], envDict )
 
-
-
+    debugMsg('calling setup_obs', header=True)
+    setup_obs(envDict, debugMsg)
 
     # setup of ecosys files
     if envDict['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
@@ -270,7 +313,7 @@ def create_plot_dat(workdir, xyrange, depths):
 #========================================================================
 # callPyAverager - create the climatology files by calling the pyAverager
 #========================================================================
-def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, varList, scomm):
+def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, varList, scomm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -302,29 +345,29 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
 
     scomm.sync()
 
-    if scomm.is_manager() and DEBUG:
-        print('DEBUG... calling specification.create_specifier with following args')
-        print('DEBUG...... in_directory = {0}'.format(in_dir))
-        print('DEBUG...... out_directory = {0}'.format(tavgdir))
-        print('DEBUG...... prefix = {0}'.format(case_prefix))
-        print('DEBUG...... suffix = {0}'.format(suffix))
-        print('DEBUG...... date_pattern = {0}'.format(date_pattern))
-        print('DEBUG...... hist_type = {0}'.format(htype))
-        print('DEBUG...... avg_list = {0}'.format(averageList))
-        print('DEBUG...... weighted = {0}'.format(wght))
-        print('DEBUG...... ncformat = {0}'.format(ncfrmt))
-        print('DEBUG...... varlist = {0}'.format(varList))
-        print('DEBUG...... serial = {0}'.format(serial))
-        print('DEBUG...... clobber = {0}'.format(clobber))
-        print('DEBUG...... mean_diff_rms_obs_dir = {0}'.format(mean_diff_rms_obs_dir))
-        print('DEBUG...... region_nc_var = {0}'.format(region_nc_var))
-        print('DEBUG...... regions = {0}'.format(regions))
-        print('DEBUG...... region_wgt_var = {0}'.format(region_wgt_var))
-        print('DEBUG...... obs_dir = {0}'.format(obs_dir))
-        print('DEBUG...... obs_file = {0}'.format(obs_file))
-        print('DEBUG...... reg_obs_file_suffix = {0}'.format(reg_obs_file_suffix))
-        print('DEBUG...... main_comm = {0}'.format(scomm))
-        print('DEBUG...... scomm = {0}'.format(scomm.__dict__))
+    if scomm.is_manager():
+        debugMsg('calling specification.create_specifier with following args', header=True)
+        debugMsg('... in_directory = {0}'.format(in_dir), header=True)
+        debugMsg('... out_directory = {0}'.format(tavgdir), header=True)
+        debugMsg('... prefix = {0}'.format(case_prefix), header=True)
+        debugMsg('... suffix = {0}'.format(suffix), header=True)
+        debugMsg('... date_pattern = {0}'.format(date_pattern), header=True)
+        debugMsg('... hist_type = {0}'.format(htype), header=True)
+        debugMsg('... avg_list = {0}'.format(averageList), header=True)
+        debugMsg('... weighted = {0}'.format(wght), header=True)
+        debugMsg('... ncformat = {0}'.format(ncfrmt), header=True)
+        debugMsg('... varlist = {0}'.format(varList), header=True)
+        debugMsg('... serial = {0}'.format(serial), header=True)
+        debugMsg('... clobber = {0}'.format(clobber), header=True)
+        debugMsg('... mean_diff_rms_obs_dir = {0}'.format(mean_diff_rms_obs_dir), header=True)
+        debugMsg('... region_nc_var = {0}'.format(region_nc_var), header=True)
+        debugMsg('... regions = {0}'.format(regions), header=True)
+        debugMsg('... region_wgt_var = {0}'.format(region_wgt_var), header=True)
+        debugMsg('... obs_dir = {0}'.format(obs_dir), header=True)
+        debugMsg('... obs_file = {0}'.format(obs_file), header=True)
+        debugMsg('... reg_obs_file_suffix = {0}'.format(reg_obs_file_suffix), header=True)
+        debugMsg('... main_comm = {0}'.format(scomm), header=True)
+        debugMsg('... scomm = {0}'.format(scomm.__dict__), header=True)
 
     scomm.sync()
 
@@ -557,9 +600,9 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
 
 
 #=============================================
-# setupPlots - get the list of plots to create
+# setup_plots - get the list of plots to create
 #=============================================
-def setupPlots(envDict):
+def setup_plots(envDict):
     """setupPlots - read the XML directives on which plots to create
        and return a list of NCL plotting routines to be run in parallel
 
@@ -579,7 +622,7 @@ def setupPlots(envDict):
 #=========================================================================
 # createClimFiles - create the climatology files by calling the pyAverager
 #=========================================================================
-def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarList, scomm):
+def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarList, scomm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -600,8 +643,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
 
     # create the list of averages to be computed by the pyAverager
     if scomm.is_manager():
-        if DEBUG:
-            print('DEBUG... calling buildOcnAvgList')
+        debugMsg('calling buildOcnAvgList', header=True)
         averageList = buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir)
     scomm.sync()
 
@@ -611,38 +653,33 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
-        if scomm.is_manager():
-            if DEBUG:
-                print('DEBUG... calling callPyAverager')
-        callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, scomm)
+        debugMsg('calling callPyAverager', header=True)
+        callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, scomm, debugMsg)
         scomm.sync()
     else:
-        if scomm.is_manager():
-            if DEBUG:
-                print('DEBUG... averageList is null')
+        debugMsg('averageList is null', header=True)
 
 #===============================================
 # setup model vs. observations plotting routines
 #===============================================
-def model_vs_obs(envDict, scomm):
+def model_vs_obs(envDict, scomm, debugMsg):
     """model_vs_obs setup the model vs. observations dirs, generate necessary 
        zonal average climatology files and generate plots in parallel.
 
        Arguments:
        comm (object) - MPI global communicator object
        envDict (dictionary) - environment dictionary
+       debugMsg (object) - vprinter object for printing debugging messages
     """
     if scomm.is_manager():
-        if DEBUG:
-            print('DEBUG... calling initialize_model_vs_obs')
+        debugMsg('calling initialize_model_vs_obs', header=True)
 
         # initialize the model vs. obs environment
-        envDict = initialize_model_vs_obs(envDict)
+        envDict = initialize_model_vs_obs(envDict, debugMsg)
 
         envDict['IMAGEFORMAT'] = 'png'
 
-        if DEBUG:
-            print('DEBUG... calling setXmlEnv in model_vs_obs')
+        debugMsg('calling setXmlEnv in model_vs_obs', header=True)
     scomm.sync()
 
     # broadcast envDict to all tasks
@@ -652,9 +689,6 @@ def model_vs_obs(envDict, scomm):
     # across all ranks
     cesmEnvLib.setXmlEnv(envDict)
 
-    user_plot_list = list()
-    full_plot_list = list()
-
     # setup the plots to be called based on directives in the env_diags_ocn.xml file
     requested_plot_names = []
     local_requested_plots = list()
@@ -663,14 +697,14 @@ def model_vs_obs(envDict, scomm):
     templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
 
     if scomm.is_manager():
-        requested_plot_names = setupPlots(envDict)
+        requested_plot_names = setup_plots(envDict)
         print('User requested plots:')
         for plot in requested_plot_names:
             print('  {0}'.format(plot))
 
         if envDict['DOWEB'].upper() in ['T','TRUE']:
             
-            print('Creating plot html header:')
+            debugMsg('Creating plot html header', header=True)
 
             templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
             templateEnv = jinja2.Environment( loader=templateLoader )
@@ -701,19 +735,19 @@ def model_vs_obs(envDict, scomm):
         try:
             plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(requested_plot)
 
-            print('Checking prerequisite for {0} on rank {1}:'.format(plot.__class__.__name__, scomm.get_rank()))
+            debugMsg('Checking prerequisite for {0}'.format(plot.__class__.__name__), header=True)
             plot.check_prerequisites(envDict)
 
-            print('Generating plots for {0} on rank {1}:'.format(plot.__class__.__name__, scomm.get_rank()))
+            debugMsg('Generating plots for {0}'.format(plot.__class__.__name__), header=True)
             plot.generate_plots(envDict)
 
-            print('Converting plots for {0} on rank {1}:'.format(plot.__class__.__name__, scomm.get_rank()))
+            debugMsg('Converting plots for {0}'.format(plot.__class__.__name__), header=True)
             plot.convert_plots(envDict['WORKDIR'], envDict['IMAGEFORMAT'])
 
             html = plot.get_html(envDict['WORKDIR'], templatePath, envDict['IMAGEFORMAT'])
             
             local_html_list.append(str(html))
-            print('DEBUG...  on rank {1} local_html_list = {0}'.format(local_html_list, scomm.get_rank()))
+            debugMsg('local_html_list = {0}'.format(local_html_list), header=True, verbosity=2)
 
         except ocn_diags_plot_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
@@ -725,7 +759,9 @@ def model_vs_obs(envDict, scomm):
             return 1
 
     scomm.sync()
-    html_msg_tag = 5
+
+    # define a tag for the MPI collection of all local_html_list variables
+    html_msg_tag = 1
 
     if scomm.get_size() > 1:
         if scomm.is_manager():
@@ -735,44 +771,34 @@ def model_vs_obs(envDict, scomm):
                 rank, temp_html = scomm.collect(tag=html_msg_tag)
                 all_html.append(temp_html)
 
-            try:
-                print('DEBUG... all_html = {0}'.format(all_html))
-            except Exception as e:
-                print('all_html: e = {0}, rank = {1}'.format(e, rank))
-
-            try:
-                print('DEBUG... rank = {0}'.format(rank))
-            except Exception as e:
-                print('rank: e = {0}, rank = {1}'.format(e, rank))
-
+            debugMsg('all_html = {0}'.format(all_html), header=True, verbosity=2)
         else:
             return_code = scomm.collect(data=local_html_list, tag=html_msg_tag)
 
-
-    if scomm.is_manager():
-        print('DEBUG... rank = {0}, all_html = {1}'.format(rank, all_html))
+    scomm.sync()
 
     # if envDict['MODEL_VS_OBS_ECOSYS').upper() in ['T','TRUE'] :
 
     if scomm.is_manager():
+
         # merge the all_html list of lists into a single list
         all_html = list(itertools.chain.from_iterable(all_html))
         for each_html in all_html:
-            if DEBUG:
-                print('DEBUG... each_html = {0}'.format(each_html))
+            debugMsg('each_html = {0}'.format(each_html), header=True, verbosity=2)
             plot_html += each_html
 
+        debugMsg('Adding footer html', header=True)
         with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
             plot_html += tmpl.read()
 
-            print('Writing plot html:')
+        debugMsg('Writing plot html', header=True)
         with open( '{0}/index.html'.format(envDict['WORKDIR']), 'w') as index:
             index.write(plot_html)
 
-        print('Copying stylesheet:')
+        debugMsg('Copying stylesheet', header=True)
         shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(envDict['WORKDIR']))
 
-        print('Copying logo files:')
+        debugMsg('Copying logo files', header=True)
         if not os.path.exists('{0}/logos'.format(envDict['WORKDIR'])):
             os.mkdir('{0}/logos'.format(envDict['WORKDIR']))
 
@@ -843,7 +869,7 @@ def model_vs_ts(envDict, start_year, stop_year, workdir):
 # main
 #======
 
-def main(options, scomm, debug):
+def main(options, scomm, debugMsg):
     """setup the environment for running the diagnostics in parallel. 
 
     Calls 3 different diagnostics generation types:
@@ -851,8 +877,13 @@ def main(options, scomm, debug):
     model vs. model (optional BGC - ecosystem)
     model time-series (optional BGC - ecosystem)
 
+    Arguments:
+    options (object) - command line options
+    scomm (object) - MPI simple communicator object
+    debugMsg (object) - vprinter object for printing debugging messages
+
     The env_diags_ocn.xml configuration file defines the way the diagnostics are generated. 
-    See (modelnl website here...) for a complete desciption of the env_diags_ocn XML options.
+    See (website URL here...) for a complete desciption of the env_diags_ocn XML options.
     """
 
     # initialize the environment dictionary
@@ -861,15 +892,12 @@ def main(options, scomm, debug):
     # CASEROOT is given on the command line as required option --caseroot
     if scomm.is_manager():
         caseroot = options.caseroot[0]
-        if DEBUG:
-            print('DEBUG... caseroot = {0}'.format(caseroot))
+        debugMsg('caseroot = {0}'.format(caseroot), header=True)
 
-        if DEBUG:
-            print('DEBUG...calling initialize_main')
-        envDict = initialize_main(envDict, caseroot)
+        debugMsg('calling initialize_main', header=True)
+        envDict = initialize_main(envDict, caseroot, debugMsg)
 
-        if DEBUG:
-            print('DEBUG...calling check_ncl_nco')
+        debugMsg('calling check_ncl_nco', header=True)
         diagUtilsLib.check_ncl_nco(envDict)
 
         if checkEcoSysOptions(envDict):
@@ -887,7 +915,7 @@ def main(options, scomm, debug):
     debugMsg('calling createClimFiles', header=True)
     try:
         createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
-                        envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], varList, scomm)
+                        envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], varList, scomm, debugMsg)
     except Exception as error:
         print(str(error))
         traceback.print_exc()
@@ -897,9 +925,8 @@ def main(options, scomm, debug):
 
     # model vs. observations
     if envDict['MODEL_VS_OBS'].upper() in ['T','TRUE']:
-        if DEBUG and scomm.is_manager():
-            print('DEBUG... calling model_vs_obs')
-        model_vs_obs(envDict, scomm)
+        debugMsg('calling model_vs_obs',header=True)
+        model_vs_obs(envDict, scomm, debugMsg)
     scomm.sync()
 
     # model vs. model - need  to checkHistoryFiles for the control run
@@ -917,16 +944,13 @@ if __name__ == "__main__":
     # initialize simplecomm object
     scomm = simplecomm.create_comm(serial=False)
 
-    # initialize global vprinter object for printing debug messages
-    header = "[" + str(scomm.get_rank()) + "/" + str(scomm.get_size()) + "]: DEBUG... "
-    debugMsg = vprinter.VPrinter(header=header, verbosity=0)
-
     # get commandline options
     options = commandline_options()
 
-    # set the debugMsg verbosity level if the debug option is specified
+    # initialize global vprinter object for printing debug messages
     if options.debug:
-        debugMsg.verbosity = options.debug[0]
+        header = "[" + str(scomm.get_rank()) + "/" + str(scomm.get_size()) + "]: DEBUG... "
+        debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
     
     try:
         status = main(options, scomm, debugMsg)
