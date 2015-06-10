@@ -39,9 +39,6 @@ class SeasonalCycle(OceanDiagnosticPlot):
         super(SeasonalCycle, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
-        # set SEASAVGFILE env var to the envDict['SEASAVGTEMP'] file
-        os.environ['SEASAVGFILE'] = env['SEASAVGTEMP']
-
         # set a link to SSTOBSDIR/SSTOBSFILE
         sourceFile = '{0}/{1}'.format(env['SSTOBSDIR'], env['SSTOBSFILE'])
         linkFile = '{0}/{1}'.format(env['WORKDIR'], env['SSTOBSFILE'])

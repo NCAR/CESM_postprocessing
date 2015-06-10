@@ -24,11 +24,6 @@
 		</xs:complexType>
 	      </xs:element>
 
-	      <xs:element name="za_fc" type="xs:string"/>
-	      <xs:element name="za_fflags" type="xs:string"/>
-	      <xs:element name="za_include" type="xs:string"/>
-	      <xs:element name="za_libs" type="xs:string"/>
-
 	    </xs:sequence>
 	    <xs:attribute name="name" type="xs:string" use="required"/>
 	  </xs:complexType>

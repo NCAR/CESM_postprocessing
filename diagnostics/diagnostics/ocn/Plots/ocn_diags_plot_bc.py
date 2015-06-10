@@ -46,6 +46,16 @@ class OceanDiagnosticPlot(object):
         """
         print('  Checking generic prerequisites for ocean diagnostics plot.')
         print('  Setup the environment for NCL')
+
+        # set SEASAVGFILE env var to the envDict['MAVGFILE'] file
+        env['SEASAVGFILE'] = env['MAVGFILE']
+
+        # set SEASAVGTEMP env var to the envDict['MAVGFILE'] file
+        env['SEASAVGTEMP'] = env['MAVGFILE']
+
+        # set SEASAVGSALT env var to the envDict['MAVGFILE'] file
+        env['SEASAVGSALT'] = env['MAVGFILE']
+
         cesmEnvLib.setXmlEnv(env)
 
     def generate_plots(self, env):

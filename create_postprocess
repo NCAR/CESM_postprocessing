@@ -107,9 +107,8 @@ def commandline_options():
                         help='show exception backtraces as extra debugging '
                         'output')
 
-    parser.add_argument('--debug', action='store_true',
-                        help='extra debugging output')
-
+    parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
+                        help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
@@ -265,7 +264,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
 
     debug = ''
     if options.debug:
-        debug = '--debug'
+        debug = '--debug {0}'.format(options.debug[0])
 
     backtrace = ''
     if options.backtrace:

@@ -60,10 +60,6 @@ from pyaverager import specification, PyAverager
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
 from diagnostics.ocn.Plots import ocn_diags_plot_factory
 
-# set the debug flag to false by default - can override with the
-# --debug command line option
-DEBUG = False
-
 #=====================================================
 # commandline_options - parse any command line options
 #=====================================================
@@ -238,8 +234,8 @@ def initialize_model_vs_obs(envDict, debugMsg):
     # create the plot.dat file in the workdir used by all NCL plotting routines
     create_plot_dat(envDict['WORKDIR'], envDict['XYRANGE'], envDict['DEPTHS'])
 
-    # create symbolic links between the tavgdir and the workdir
-    createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'])
+    # create symbolic links between the tavgdir and the workdir and get the real names of the mavg and tavg files
+    envDict['MAVGFILE'], envDict['TAVGFILE'] = createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'], debugMsg)
 
     # setup the gridfile based on the resolution
     os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
@@ -260,7 +256,7 @@ def initialize_model_vs_obs(envDict, debugMsg):
 
     # create the global zonal average file used by most of the plotting classes
     debugMsg('calling create_za', header=True)
-    create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'], envDict )
+    create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'], envDict, debugMsg )
 
     debugMsg('calling setup_obs', header=True)
     setup_obs(envDict, debugMsg)
@@ -401,8 +397,8 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
     scomm.sync()
 
     # call the pyAverager
-    if scomm.is_manager() and DEBUG:
-        print("DEBUG...  before run_pyAverager")
+    if scomm.is_manager():
+        debugMsg("calling run_pyAverager")
 
     try:
         PyAverager.run_pyAverager(pyAveSpecifier)
@@ -416,7 +412,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
 #==============================================================================
 # create_za - generate the global zonal average file used for most of the plots
 #==============================================================================
-def create_za(workdir, tavgfile, gridfile, toolpath, envDict):
+def create_za(workdir, tavgfile, gridfile, toolpath, envDict, debugMsg):
     """generate the global zonal average file used for most of the plots
     """
 
@@ -426,8 +422,6 @@ def create_za(workdir, tavgfile, gridfile, toolpath, envDict):
     if not rc:
         # check that the za executable exists
         zaCommand = '{0}/za'.format(toolpath)
-        if DEBUG:
-            print('DEBUG... zonal average command = {0}'.format(zaCommand))
         rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
         if not rc:
             raise OSError(err_msg)
@@ -435,8 +429,9 @@ def create_za(workdir, tavgfile, gridfile, toolpath, envDict):
         # call the za fortran code from within the workdir
         cwd = os.getcwd()
         os.chdir(workdir)
+        testCmd = '{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)
+        debugMsg('zonal average command = {0}'.format(testCmd), header=True)
         try:
-#            pipe = subprocess.Popen( [zaCommand,'-O','-time_const','-grid_file', gridfile,tavgfile], cwd=workdir, env=envDict, shell=True)
             pipe = subprocess.Popen(['{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)], cwd=workdir, env=envDict, shell=True)
             pipe.wait()
         except OSError as e:
@@ -444,8 +439,7 @@ def create_za(workdir, tavgfile, gridfile, toolpath, envDict):
             print('    {0} - {1}'.format(e.errno, e.strerror))
             sys.exit(1)
 
-        if DEBUG:
-            print('DEBUG... zonal average created')
+        debugMsg('zonal average created', header=True)
         os.chdir(cwd)
 
     return True
@@ -481,8 +475,8 @@ def getEcoSysVars(ecoSysVarsFile, varList):
 #============================================================
 # buildOcnAvgList - build the list of averages to be computed
 #============================================================
-def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir):
-    """buildAvgList - build the list of averages to be computed
+def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg):
+    """buildOcnAvgList - build the list of averages to be computed
     by the pyAverager. Checks if the file exists or not already.
 
     Arguments:
@@ -493,39 +487,40 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir):
     Return:
     avgList (list) - list of averages to be passed to the pyaverager
     """
+
     avgList = []
+    padding = 4
     year = int(start_year)
 
     # start with the annual averages for all variables
-    if DEBUG:
-        print('DEBUG... enter buildOcnAvgList')
     while year <= int(stop_year):
         # check if file already exists before appending to the avgList
-        avgFile = '{0}.{1}.nc'.format(avgFileBaseName, year)
-        if DEBUG:
-            print('DEBUG... avgFile = {0}'.format(avgFile))
+        syear = str(year)
+        zyear = syear.zfill(padding)
+        avgFile = '{0}.{1}.nc'.format(avgFileBaseName, zyear)
+        debugMsg('avgFile = {0}'.format(avgFile), header=True)
         rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
         if not rc: 
-            avgList.append('ya:{0}'.format(year))
+            avgList.append('ya:{0}'.format(zyear))
         year += 1
 
+    # prepend the years with 0's
+    zstart_year = start_year.zfill(padding)
+    zstop_year = stop_year.zfill(padding)
+
     # check if mavg file already exists
-    #    avgFile = '{0}_mavg.nc'.format(avgFileBaseName)
-    avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, start_year, stop_year)
-    if DEBUG:
-        print('DEBUG... mavgFile = {0}'.format(avgFile))
+    avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
+    debugMsg('mavgFile = {0}'.format(avgFile))
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if not rc:
-        avgList.append('mavg:{0}:{1}'.format(int(start_year), int(stop_year)))
+        avgList.append('mavg:{0}:{1}'.format(zstart_year, zstop_year))
 
     # check if tavg file already exists
-    #    avgFile = '{0}_tavg.nc'.format(avgFileBaseName)
-    avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, start_year, stop_year)
-    if DEBUG:
-        print('DEBUG... tavgFile = {0}'.format(avgFile))
+    avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
+    debugMsg('tavgFile = {0}'.format(avgFile))
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if not rc:
-        avgList.append('tavg:{0}:{1}'.format(int(start_year), int(stop_year)))
+        avgList.append('tavg:{0}:{1}'.format(zstart_year, zstop_year))
 
     # the following are for timeseries.... TODO - check if timeseries is specified
     # append the MOC and monthly MOC files
@@ -535,14 +530,13 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir):
     # append the horizontal mean concatenation
 ##    avgList.append('hor.meanConcat:{0}:{1}'.format(int(start_year), int(stop_year)))
 
-    if DEBUG:
-        print('DEBUG... exit buildOcnAvgList avgList = {0}'.format(avgList))
+    debugMsg('exit buildOcnAvgList avgList = {0}'.format(avgList))
     return avgList
 
 #================================================================
 # createLinks - create symbolic links between tavgdir and workdir
 #================================================================
-def createLinks(start_year, stop_year, tavgdir, workdir, case):
+def createLinks(start_year, stop_year, tavgdir, workdir, case, debugMsg):
     """createLinks - create symbolic links between tavgdir and workdir
 
     Arguments:
@@ -552,31 +546,36 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
     workdir (string) - working directory for diagnostics
     case (string) - case name
     """
+    padding = 4
     avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
     case_prefix = '{0}.pop.h'.format(case)
 
+    # prepend the years with 0's
+    zstart_year = start_year.zfill(padding)
+    zstop_year = stop_year.zfill(padding)
+
     # link to the mavg file for the za and plotting routings
-    avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, start_year, stop_year)
+    mavgFileBase = 'mavg.{0}.{1}.nc'.format(zstart_year, zstop_year)
+    avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
-        mavgFile = '{0}/mavg.{1}.{2}.nc'.format(workdir, start_year, stop_year)
+        mavgFile = '{0}/mavg.{1}.{2}.nc'.format(workdir, zstart_year, zstop_year)
         rc1, err_msg1 = cesmEnvLib.checkFile(mavgFile, 'read')
         if not rc1:
-            if DEBUG:
-                print('DEBUG... before mavg symlink: {0} to {1}'.format(avgFile,mavgFile))
+            debugMsg('before mavg symlink: {0} to {1}'.format(avgFile,mavgFile), header=True)
             os.symlink(avgFile, mavgFile)
     else:
         raise OSError(err_msg)
 
     # link to the tavg file
-    avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, start_year, stop_year)
+    tavgFileBase = 'tavg.{0}.{1}.nc'.format(zstart_year, zstop_year)
+    avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
-        tavgFile = '{0}/tavg.{1}.{2}.nc'.format(workdir, start_year, stop_year)
+        tavgFile = '{0}/tavg.{1}.{2}.nc'.format(workdir, zstart_year, zstop_year)
         rc1, err_msg1 = cesmEnvLib.checkFile(tavgFile, 'read')
         if not rc1:
-            if DEBUG:
-                print('DEBUG... before tavg symlink: {0} to {1}'.format(avgFile,tavgFile))
+            debugMsg('before tavg symlink: {0} to {1}'.format(avgFile,tavgFile), header=True)
             os.symlink(avgFile, tavgFile)
     else:
         raise OSError(err_msg)
@@ -585,18 +584,19 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
     year = int(start_year)
     while year <= int(stop_year):
         # check if file already exists before appending to the avgList
-        avgFile = '{0}.{1}.nc'.format(avgFileBaseName, year)
+        syear = str(year)
+        zyear = syear.zfill(padding)
+        avgFile = '{0}.{1}.nc'.format(avgFileBaseName, zyear)
         rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
         if rc:
-            workAvgFile = '{0}/{1}.{2}.nc'.format(workdir, case_prefix, year)
+            workAvgFile = '{0}/{1}.{2}.nc'.format(workdir, case_prefix, zyear)
             rc1, err_msg1 = cesmEnvLib.checkFile(workAvgFile, 'read')
             if not rc1:
-                if DEBUG:
-                    print('DEBUG... before yearly avg symlink: {0} to {1}'.format(avgFile,workAvgFile))
+                debugMsg('before yearly avg symlink: {0} to {1}'.format(avgFile,workAvgFile), header=True)
                 os.symlink(avgFile, workAvgFile)
         year += 1
 
-    return 0
+    return mavgFileBase, tavgFileBase
 
 
 #=============================================
@@ -644,7 +644,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
     # create the list of averages to be computed by the pyAverager
     if scomm.is_manager():
         debugMsg('calling buildOcnAvgList', header=True)
-        averageList = buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir)
+        averageList = buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg)
     scomm.sync()
 
     # bcast the averageList

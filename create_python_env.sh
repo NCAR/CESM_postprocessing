@@ -216,20 +216,20 @@ cd $pp_dir/ocn_diag/tool_lib/zon_avg
 make clean
 
 # generate the necessary Macros file
-$cimeroot/machines/configure -mach $machine -mpi mpi-serial
+$cimeroot/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot
 
 # run the make command
 make
 
 # link the za compiled code to one level up for the NCL
-ln -s $pp_dir/ocn_diag/tool_lib/zon_avg/za $pp_dir/ocn_diag/tool_lib/za
+ln -sf $pp_dir/ocn_diag/tool_lib/zon_avg/za $pp_dir/ocn_diag/tool_lib/za
 
 ##./compile_za --machine $machine --pproot $pp_dir
 echo "---------------------------------------------------------"
 
 cd $curdir
 
-status="SUCCESS"
+status=""
 info="$progname - CESM post processing virtual environment installed successfully in 
 ${pp_dir}/cesm-env2.
 

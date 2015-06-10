@@ -6,6 +6,29 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: aliceb
+Date: 10 June 2015
+Model: postprocessing
+Version: postprocessing_20150610
+One-line: testing with longer runs on geyser with plots conversion in serial
+
+M       create_python_env.sh
+M       machines/machine_postprocess.xsd
+M       machines/machine_postprocess.xml
+M       templates/batch_yellowstone.tmpl
+M       SVN_EXTERNAL_DIRECTORIES
+M       create_postprocess
+M       diagnostics/diagnostics/ocn/Plots/regional_area.py
+M       diagnostics/diagnostics/ocn/Plots/ocn_diags_plot_bc.py
+M       diagnostics/diagnostics/ocn/Plots/seasonal_cycle.py
+D       diagnostics/diagnostics/ocn/ocn_diags_generator_dev.py
+D       diagnostics/diagnostics/ocn/ocn_diags_generator_serial.py
+M       diagnostics/diagnostics/ocn/ocn_diags_generator.py
+D       diagnostics/diagnostics/ocn/ocn_diags_generator_mpi.py
+M       timeseries/timeseries/cesm_tseries_generator.py
+
+================================================================================
+
+Originator: aliceb
 Date: 02 June 2015
 Model: postprocessing
 Version: postprocessing_20150602

@@ -24,12 +24,13 @@ if sys.hexversion < 0x02070000:
     sys.exit(1)
 
 import argparse
-import sys
-import os
 import glob
+import os
+import pprint
 import re
 import string
-import pprint
+import sys
+import traceback
 import xml.etree.ElementTree as ET
 
 from cesm_utils import cesmEnvLib
@@ -53,8 +54,8 @@ def commandline_options():
                         help='show exception backtraces as extra debugging '
                         'output')
 
-    parser.add_argument('--debug', action='store_true',
-                        help='extra debugging output')
+    parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
+                        help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
@@ -82,36 +83,36 @@ def readArchiveXML(caseroot, dout_s_root, casename):
     """
     specifiers = list()
     xml_tree = ET.ElementTree()
-# check if the env_archive.xml file exists
+    # check if the env_archive.xml file exists
     if ( not os.path.isfile('{0}/env_archive.xml'.format(caseroot)) ):
         err_msg = "cesm_tseries_generator.py ERROR: {0}/env_archive.xml does not exist.".format(caseroot)
         raise OSError(err_msg)
     else:
-# parse the xml
+        # parse the xml
         xml_tree.parse('{0}/env_archive.xml'.format(caseroot))
 
-# loop through all the comp_archive_spec elements to find the tseries related elements
+        # loop through all the comp_archive_spec elements to find the tseries related elements
         for comp_archive_spec in xml_tree.findall("components/comp_archive_spec"):
             comp = comp_archive_spec.get("name")
             rootdir = comp_archive_spec.find("rootdir").text
             multi_instance = comp_archive_spec.find("multi_instance").text
 
-# for now, set instance value to empty string implying only 1 instance
+            # for now, set instance value to empty string implying only 1 instance
             instance = ""
 
-# loop through all the files/file_spec elements
+            # loop through all the files/file_spec elements
             for file_spec in comp_archive_spec.findall("files/file_extension"):
                 file_extension = file_spec.get("suffix")
                 subdir = file_spec.find("subdir").text
 
-# check if tseries_create is an element for this file_spec
+                # check if tseries_create is an element for this file_spec
                 if file_spec.find("tseries_create") is not None:
                     tseries_create = file_spec.find("tseries_create").text
 
-# check if the tseries_create element is set to TRUE            
+                    # check if the tseries_create element is set to TRUE            
                     if tseries_create.upper() in ["T","TRUE"]:
 
-# check if tseries_format is an element for this file_spec and if it is valid
+                        # check if tseries_format is an element for this file_spec and if it is valid
                         if file_spec.find("tseries_output_format") is not None:
                             tseries_output_format = file_spec.find("tseries_output_format").text
                             if tseries_output_format not in ["netcdf","netcdf4","netcdf4c"]:
@@ -122,7 +123,7 @@ def readArchiveXML(caseroot, dout_s_root, casename):
                             raise TypeError(err_msg)
 
 
-# check if the tseries_output_subdir is specified and create the tseries_output_dir
+                        # check if the tseries_output_subdir is specified and create the tseries_output_dir
                         if file_spec.find("tseries_output_subdir") is not None:
                             tseries_output_subdir = file_spec.find("tseries_output_subdir").text
                             tseries_output_dir = '/'.join( [dout_s_root, rootdir,tseries_output_subdir] )
@@ -131,9 +132,8 @@ def readArchiveXML(caseroot, dout_s_root, casename):
                         else:
                             err_msg = "cesm_tseries_generator.py error: tseries_output_subdir undefined for data stream {0}.*.{1}".format(comp,file_extension)
                             raise TypeError(err_msg)
-                        
 
-# check if tseries_tper is specified and is valid 
+                        # check if tseries_tper is specified and is valid 
                         if file_spec.find("tseries_tper") is not None:
                             tseries_tper = file_spec.find("tseries_tper").text
                             if tseries_tper not in ["yearly","monthly","weekly","daily","hourly6","hourly3","hourly1","min30"]:
@@ -143,25 +143,24 @@ def readArchiveXML(caseroot, dout_s_root, casename):
                             err_msg = "cesm_tseries_generator.py error: tseries_tper undefined for data stream {0}.*.{1}".format(comp,file_extension)
                             raise TypeError(err_msg)
 
-
-# load the tseries_time_variant_variables into a list
+                        # load the tseries_time_variant_variables into a list
                         if comp_archive_spec.find("tseries_time_variant_variables") is not None:
                             variable_list = list()
                             for variable in comp_archive_spec.findall("tseries_time_variant_variables/variable"):
                                 variable_list.append(variable.text)
 
-
-# get a list of all the input files for this stream from the archive location
+                        # get a list of all the input files for this stream from the archive location
                         history_files = list()
                         in_file_path = '/'.join( [dout_s_root,rootdir,subdir] )                        
                         all_in_files = os.listdir(in_file_path)
 
-# check that there are actually a list of history files to work with
+                        # check that there are actually a list of history files to work with
                         for in_file in all_in_files:
                             if re.search(file_extension, in_file):
                                 history_files.append(in_file_path+"/"+in_file)
 
-# sort the list of input history files in order to get the output suffix from the first and last file
+                        # sort the list of input history files in order to get the output suffix 
+                        # from the first and last file
                         if len(history_files) > 0:
                             history_files.sort()
 
@@ -175,19 +174,21 @@ def readArchiveXML(caseroot, dout_s_root, casename):
                             last_file_parts = last_file.split( "." )
                             last_file_time = last_file_parts[-2]
 
-# get the actual component name from the history file - will also need to deal with the instance numbers based on the comp_name
+                            # get the actual component name from the history file 
+                            # will also need to deal with the instance numbers based on the comp_name
                             comp_name = last_file_parts[-4]
                             stream = last_file_parts[-3]
 
-# check for pop.h nday1 and nyear1 history streams
+                            # check for pop.h nday1 and nyear1 history streams
                             if last_file_parts[-3] in ["nday1","nyear1"]:
                                 comp_name = last_file_parts[-5]
                                 stream = last_file_parts[-4]+"."+last_file_parts[-3]
 
-# create the tseries output prefix needs to end with a "."
+                            # create the tseries output prefix needs to end with a "."
                             tseries_output_prefix = tseries_output_dir+"/"+casename+"."+comp_name+"."+stream+"."
 
-# format the time series variable output suffix based on the tseries_tper setting suffix needs to start with a "."
+                            # format the time series variable output suffix based on the 
+                            # tseries_tper setting suffix needs to start with a "."
                             if tseries_tper == "yearly":
                                 tseries_output_suffix = "."+start_file_time+"-"+last_file_time+".nc"
                             elif tseries_tper == "monthly":
@@ -199,12 +200,10 @@ def readArchiveXML(caseroot, dout_s_root, casename):
                                 last_time_parts = last_file_time.split( "-" )
                                 tseries_output_suffix = "."+start_time_parts[0]+start_time_parts[1]+start_time_parts[2]+"-"+last_time_parts[0]+last_time_parts[1]+last_time_parts[2]+".nc"
 
-# START HERE... need to create specifiers based on the tseries_filecat_years spec
-
-# get a reshpaer specification object
+                            # get a reshpaer specification object
                             spec = specification.create_specifier()
 
-# populate the spec object with data for this history stream
+                            # populate the spec object with data for this history stream
                             spec.input_file_list = history_files
                             spec.netcdf_format = tseries_output_format
                             spec.output_file_prefix = tseries_output_prefix
@@ -216,7 +215,7 @@ def readArchiveXML(caseroot, dout_s_root, casename):
                             dbg = [comp_name, spec.input_file_list, spec.netcdf_format, spec.output_file_prefix, spec.output_file_suffix, spec.time_variant_metadata]
                             pp.pprint(dbg)
                             
-# append this spec to the list of specifiers
+                            # append this spec to the list of specifiers
                             specifiers.append(spec)
 
     return specifiers
