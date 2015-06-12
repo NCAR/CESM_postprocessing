@@ -160,7 +160,7 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     to generate annual mean history files. 
 
     Arguments:
-    tseries (boolean) - corresponds to XML variable DOUT_S_TSERIES_GENERATE
+    tseries (boolean) - corresponds to XML variable GENERATE_TIMESERIES
     dout_s_root (string) - corresponds to XML variable DOUT_S_ROOT disk archive location
     case (string) - corresponds to XML variable CASE name
     rstart_year (string) - requested diagnostics model start year from XML env_diags_ocn.xml

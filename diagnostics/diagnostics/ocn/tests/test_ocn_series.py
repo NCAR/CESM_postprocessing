@@ -9,11 +9,11 @@ scomm = simplecomm.create_comm(serial=False)
 
 #### User modify ####
 
-in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.01/ocn/proc/tseries/monthly'
-out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.01/ocn/proc/tavg/annual'
-pref= 'b.e13.B1850C5CN.f19_g16.01.pop.h'
+in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007/ocn/proc/tseries/monthly'
+out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007/ocn/proc/tavg/annual'
+pref= 'b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007.pop.h'
 htype= 'series'
-average = ['ya:1850', 'ya:1851', 'ya:1852', 'ya:1853', 'ya:1854', 'mavg:1850:1854', 'tavg:1850:1854']
+average = ['ya:0070', 'ya:0071', 'ya:0072', 'ya:0073', 'ya:0074', 'ya:0075', 'mavg:0070:0075', 'tavg:0070:0075']
 wght= False
 ncfrmt = 'netcdf'
 serial=False

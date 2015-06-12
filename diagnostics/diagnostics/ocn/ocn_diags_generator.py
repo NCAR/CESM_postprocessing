@@ -129,6 +129,7 @@ def initialize_main(envDict, caseroot, debugMsg):
     if envDict['VERTICAL'] == '42':
         envDict['TOBSFILE'] = envDict['TOBSFILE_V42']
         envDict['SOBSFILE'] = envDict['SOBSFILE_V42']
+    debugMsg('TOBSFILE = {0}, SOBSFILE= {1}'.format(envDict['TOBSFILE'], envDict['SOBSFILE']))
 
     # initialize some global variables needed for all plotting types
     start_year = 0
@@ -399,15 +400,14 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
     # call the pyAverager
     if scomm.is_manager():
         debugMsg("calling run_pyAverager")
-
     try:
         PyAverager.run_pyAverager(pyAveSpecifier)
-        scomm.sync()
-
     except Exception as error:
         print(str(error))
         traceback.print_exc()
         sys.exit(1)
+
+    scomm.sync()
 
 #==============================================================================
 # create_za - generate the global zonal average file used for most of the plots
@@ -432,12 +432,19 @@ def create_za(workdir, tavgfile, gridfile, toolpath, envDict, debugMsg):
         testCmd = '{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)
         debugMsg('zonal average command = {0}'.format(testCmd), header=True)
         try:
-            pipe = subprocess.Popen(['{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)], cwd=workdir, env=envDict, shell=True)
-            pipe.wait()
-        except OSError as e:
-            print('ERROR: {0} call to {1} failed with error:'.format(self.name(), zaCommand))
-            print('    {0} - {1}'.format(e.errno, e.strerror))
+            subprocess.check_call(['{0}'.format(zaCommand), '-O', '-time_const', '-grid_file', '{0}'.format(gridfile), '{0}'.format(tavgfile)])
+        except CalledProcessError as e:
+            print('ERROR: {0} subprocess call to {1} failed with error:'.format(self.name(), e.cmd))
+            print('    {0} - {1}'.format(e.returncode, e.output))
             sys.exit(1)
+
+#        try:
+#            pipe = subprocess.Popen(['{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)], cwd=workdir, env=envDict, shell=True)
+#            pipe.wait()
+#        except OSError as e:
+#            print('ERROR: {0} call to {1} failed with error:'.format(self.name(), zaCommand))
+#            print('    {0} - {1}'.format(e.errno, e.strerror))
+#            sys.exit(1)
 
         debugMsg('zonal average created', header=True)
         os.chdir(cwd)
@@ -490,23 +497,25 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg):
 
     avgList = []
     padding = 4
-    year = int(start_year)
+#    year = int(start_year)
 
     # start with the annual averages for all variables
-    while year <= int(stop_year):
-        # check if file already exists before appending to the avgList
-        syear = str(year)
-        zyear = syear.zfill(padding)
-        avgFile = '{0}.{1}.nc'.format(avgFileBaseName, zyear)
-        debugMsg('avgFile = {0}'.format(avgFile), header=True)
-        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-        if not rc: 
-            avgList.append('ya:{0}'.format(zyear))
-        year += 1
+#    while year <= int(stop_year):
+#        # check if file already exists before appending to the avgList
+#        syear = str(year)
+#        zyear = syear.zfill(padding)
+#        avgFile = '{0}.{1}.nc'.format(avgFileBaseName, zyear)
+#        debugMsg('avgFile = {0}'.format(avgFile), header=True)
+#        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+#        if not rc: 
+#            avgList.append('ya:{0}'.format(zyear))
+#        year += 1
 
     # prepend the years with 0's
-    zstart_year = start_year.zfill(padding)
-    zstop_year = stop_year.zfill(padding)
+#    zstart_year = start_year.zfill(padding)
+#    zstop_year = stop_year.zfill(padding)
+    zstart_year = start_year
+    zstop_year = stop_year
 
     # check if mavg file already exists
     avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
@@ -636,6 +645,8 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
        inVarList (list) - if empty, then create climatology files for all vars, RHO, SALT and TEMP
        scomm (object) - simple communicator object
     """
+    scomm.sync()
+
     # create the list of averages to be computed
     avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
     case_prefix = '{0}.pop.h'.format(case)
@@ -649,15 +660,17 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarLi
 
     # bcast the averageList
     averageList = scomm.partition(averageList, func=partition.Duplicate(), involved=True)
+    scomm.sync()
 
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
         debugMsg('calling callPyAverager', header=True)
         callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, scomm, debugMsg)
-        scomm.sync()
     else:
         debugMsg('averageList is null', header=True)
+
+    scomm.sync()
 
 #===============================================
 # setup model vs. observations plotting routines
