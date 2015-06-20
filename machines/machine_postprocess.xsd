@@ -8,12 +8,8 @@
 	<xs:element name="machine" maxOccurs="unbounded">
 	  <xs:complexType>
 	    <xs:sequence>
+
 	      <xs:element name="timeseries_pes" type="xs:string"/>
-	      <xs:element name="atm_diags_pes" type="xs:string"/>
-	      <xs:element name="ice_diags_pes" type="xs:string"/>
-	      <xs:element name="lnd_diags_pes" type="xs:string"/>
-	      <xs:element name="ocn_diags_pes" type="xs:string"/>
-	      <xs:element name="ocn_obs_root" type="xs:string"/>
 	      <xs:element name="mpi_command" type="xs:string"/>
 
 	      <xs:element name="modules">
@@ -24,13 +20,32 @@
 		</xs:complexType>
 	      </xs:element>
 
+	      <xs:element name="components" maxOccurs="unbounded">
+		<xs:complexType>
+		  <xs:sequence>
+		    
+		    <xs:element name="component" maxOccurs="unbounded">
+		      <xs:complexType>
+			<xs:sequence>
+			  <xs:element name="averages_pes" type="xs:string"/>
+			  <xs:element name="diagnostics_pes" type="xs:string"/>
+			  <xs:element name="obs_root" type="xs:string"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		      </xs:complexType>
+		    </xs:element>
+
+		  </xs:sequence>
+		</xs:complexType>
+	      </xs:element>
+
 	    </xs:sequence>
 	    <xs:attribute name="name" type="xs:string" use="required"/>
 	  </xs:complexType>
 	</xs:element>
-
+	
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-
+	
 </xs:schema> 

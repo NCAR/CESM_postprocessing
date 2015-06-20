@@ -12,8 +12,8 @@ $CASEROOT/env_diags_ice.xml
 $CASEROOT/env_diags_lnd.xml
 $CASEROOT/env_diags_ocn.xml
 $CASEROOT/$CASENAME.timeseries
-$CASEROOT/$CASENAME.diagnostics
-
+$CASEROOT/$CASENAME.$COMP_averages
+$CASEROOT/$CASENAME.$COMP_diagnostics
 __________________________
 Created on April, 2015
 
@@ -175,14 +175,13 @@ def create_env_file(ppDir, configFile, tmplFile, envFile, group, obs_root):
 # -------------------------------------------------------------------------------
 # read_machine_xml
 # -------------------------------------------------------------------------------
-def read_machine_xml(machineName, xmlFile, compList):
+def read_machine_xml(machineName, xmlFile):
     """ read_machine_xml - read the xmlFile with specified machine pe 
     counts for postprocessing tasks.
 
     Arguments:
     machine (string) - machine name
     xmlFile (string) - XML file containing machine pe layout for postprocessing
-    compList (list) - list of active components
 
     Return:
     peDict (dictionary) - PE count for each postprocess task
@@ -203,17 +202,20 @@ def read_machine_xml(machineName, xmlFile, compList):
                 # get the timeseries pes first
                 xmlDict['timeseries_pes'] = xmlmachine.find('timeseries_pes').text
 
-                # loop through the compList to get the component diagnostics PE layouts
-                # and observation data root
-                for comp in compList:
-                    xmlDict['{0}_diags_pes'.format(comp)] = xmlmachine.find('{0}_diags_pes'.format(comp)).text
-                    xmlDict['{0}_obs_root'.format(comp)] = xmlmachine.find('{0}_obs_root'.format(comp)).text
                 # get the mpi run command
                 xmlDict['mpi_command'] = xmlmachine.find('mpi_command').text
 
                 # loop through the module list
                 for mod in xmlmachine.findall("modules/module"):
                     xmlDict['modules'].append(mod.text)
+
+                # loop through the compList to get the component PE layouts
+                # and observation data root
+                for comp in xmlmachine.findall("components/component"):
+                    compName = comp.get("name").lower()
+                    xmlDict['{0}_averages_pes'.format(compName)] = comp.find('averages_pes').text
+                    xmlDict['{0}_diagnostics_pes'.format(compName)] = comp.find('diagnostics_pes').text
+                    xmlDict['{0}_obs_root'.format(compName)] = comp.find('obs_root').text
 
         if not found:
             err_msg = ('create_postprocess ERROR: Invalid machine "{0}" requested for postprocessing'.format(machine))
@@ -361,7 +363,7 @@ def main(options):
 
     # get the machine dependent variables, modules and mpi run command in a dictionary
     machine = dict()
-    machine = read_machine_xml(envDict['MACH'], '{0}/machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_DIR']), compList)
+    machine = read_machine_xml(envDict['MACH'], '{0}/machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_DIR']))
 
     # generate the env_postprocess.xml file
     config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_DIR'])
@@ -388,10 +390,17 @@ def main(options):
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
+        # generate the averages batch submit script
+        postProcessCmd = '{0}_avg_generator.py'.format(comp)
+        outFile = '{0}/{1}.{2}_averages'.format(envDict['CASEROOT'], envDict['CASE'], comp)
+        create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
+                     machine['mpi_command'], outFile,'{0}_averages'.format(comp), envDict['PROJECT'], envDict['CASEROOT'],
+                     machine['modules'], options)
+
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
         outFile = '{0}/{1}.{2}_diagnostics'.format(envDict['CASEROOT'], envDict['CASE'], comp)
-        create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_diags_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
+        create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile,'{0}_diagnostics'.format(comp), envDict['PROJECT'], envDict['CASEROOT'],
                      machine['modules'], options)
 

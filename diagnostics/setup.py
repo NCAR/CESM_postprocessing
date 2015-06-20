@@ -50,7 +50,7 @@ setup(
     author_email="aliceb@ucar.edu",
     packages=['diagnostics'],
     version=get_version(),
-    scripts=['diagnostics/ocn/ocn_diags_generator.py'],
+    scripts=['diagnostics/ocn/ocn_diags_generator.py','diagnostics/ocn/ocn_avg_generator.py'],
     install_requires=get_requires(),
     #dependency_links=get_dependencies(),
     include_package_data=True,

@@ -4,10 +4,11 @@
 This script provides an interface between:
 1. the CESM case environment,
 2. the ocean diagnostics environment defined in XML files,
-3. the Python package for averaging operations in parallel
-4. the popdiag zonal average and plotting packages
+3. the popdiag zonal average and plotting packages
 
-It is called from the run script and resides in the $CCSMROOT/postprocessing/cesm-env2
+It is called from the run script and resides in the $SRCROOT/postprocessing/cesm-env2.
+and assumes that the ocn_avg_generator.py script has been run to generate the
+ocean climatology files for the given run.
 __________________________
 Created on October 28, 2014
 
@@ -53,10 +54,11 @@ from diag_utils import diagUtilsLib
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
-# import the pyaverager
-from pyaverager import specification, PyAverager
+#import the diags classes
+import ocn_diags_bc
+import ocn_diags_factory
 
-# import the plot modules 
+# import the plot classes
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
 from diagnostics.ocn.Plots import ocn_diags_plot_factory
 
@@ -196,93 +198,6 @@ def setup_obs(env, debugMsg):
         raise OSError(err_msg)
 
 
-#===================================================
-# initialize_model_vs_obs - initialization on rank 0
-#===================================================
-def initialize_model_vs_obs(envDict, debugMsg):
-    """initialize_model_vs_obs - initialize settings on rank 0 for model vs. Observations
-    
-    Arguments:
-    envDict (dictionary) - environment dictionary
-    debugMsg (object) - vprinter object for printing debugging messages
-
-    Return:
-    envDict (dictionary) - environment dictionary
-    """
-    # create the working directory if it doesn't already exists
-    subdir = 'model_vs_obs.{0}_{1}'.format(envDict['YEAR0'], envDict['YEAR1'])
-    workdir = '{0}/{1}'.format(envDict['WORKDIR'], subdir)
-    debugMsg('workdir = {0}'.format(workdir), header=True)
-
-    try:
-        os.makedirs(workdir)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            err_msg = 'ERROR: ocn_diags_generator.py problem accessing the working directory {0}'.format(workdir)
-            raise OSError(err_msg)
-
-    envDict['WORKDIR'] = workdir
-
-    # clean out the old working plot files from the workdir
-    if envDict['CLEANUP_FILES'].upper() in ['T','TRUE']:
-        cesmEnvLib.purge(workdir, '.*\.pro')
-        cesmEnvLib.purge(workdir, '.*\.gif')
-        cesmEnvLib.purge(workdir, '.*\.dat')
-        cesmEnvLib.purge(workdir, '.*\.ps')
-        cesmEnvLib.purge(workdir, '.*\.png')
-        cesmEnvLib.purge(workdir, '.*\.html')
-
-    # create the plot.dat file in the workdir used by all NCL plotting routines
-    create_plot_dat(envDict['WORKDIR'], envDict['XYRANGE'], envDict['DEPTHS'])
-
-    # create symbolic links between the tavgdir and the workdir and get the real names of the mavg and tavg files
-    envDict['MAVGFILE'], envDict['TAVGFILE'] = createLinks(envDict['YEAR0'], envDict['YEAR1'], envDict['TAVGDIR'], envDict['WORKDIR'], envDict['CASE'], debugMsg)
-
-    # setup the gridfile based on the resolution
-    os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
-    if envDict['VERTICAL'] == '42':
-        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(envDict['DIAGROOTPATH'],envDict['RESOLUTION'])
-
-    # check if gridfile exists and is readable
-    rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
-    if not rc:
-        raise OSError(err_msg)
-
-    envDict['GRIDFILE'] = os.environ['gridfile']
-
-    # check the resolution and decide if some plot modules should be turned off
-    if envDict['RESOLUTION'] == 'tx0.1v2' :
-        envDict['PM_VELISOPZ'] = os.environ['PM_VELISOPZ'] = 'FALSE'
-        envDict['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
-
-    # create the global zonal average file used by most of the plotting classes
-    debugMsg('calling create_za', header=True)
-    create_za( envDict['WORKDIR'], envDict['TAVGFILE'], envDict['GRIDFILE'], envDict['TOOLPATH'], envDict, debugMsg )
-
-    debugMsg('calling setup_obs', header=True)
-    setup_obs(envDict, debugMsg)
-
-    # setup of ecosys files
-    if envDict['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
-        # setup some ecosys environment settings
-        os.environ['POPDIR'] = 'TRUE'
-        os.environ['PME'] = '1'
-        sys.path.append(envDict['ECOPATH'])
-
-        # check if extract_zavg exists and is executable
-        rc, err_msg = cesmEnvLib.checkFile(envDict['{0}/extract_zavg.sh'.format(envDict['ECOPATH'])],'exec')
-        if not rc:
-            raise OSError(err_msg)
-
-        # call the ecosystem zonal average extraction modules
-        zavg_command = '{0}/extract_zavg.sh {1} {2} {3} {4}'.format(envDict['ECOPATH'],envDict['CASE'],str(start_year),str(stop_year),ecoSysVars)
-        rc = os.system(zavg_command)
-        if rc:
-            err_msg = 'ERROR: ocn_diags_generator.py command {0} failed.'.format(zavg_command)
-            raise OSError(err_msg)
- 
-    return envDict
-
 
 #==========================================================
 # create_plot_dat - create the plot.dat file in the workdir
@@ -306,241 +221,6 @@ def create_plot_dat(workdir, xyrange, depths):
 
     return 0
 
-
-#========================================================================
-# callPyAverager - create the climatology files by calling the pyAverager
-#========================================================================
-def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, varList, scomm, debugMsg):
-    """setup the pyAverager specifier class with specifications to create
-       the climatology files in parallel.
-
-       Arguments:
-       start_year (integer) - starting year for diagnostics
-       stop_year (integer) - ending year for diagnositcs
-       in_dir (string) - input directory with either history time slice or variable time series files
-       htype (string) - 'series' or 'slice' depending on input history file type
-       tavgdir (string) - output directory for climatology files
-       case_prefix (string) - input filename prefix
-       averageList (list) - list of averages to be created
-       varList (list) - list of variables. Note: an empty list implies all variables.
-       scomm (object) - simple communicator object
-    """
-    mean_diff_rms_obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
-    region_nc_var = 'REGION_MASK'
-    regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
-    region_wgt_var = 'TAREA'
-    obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
-    obs_file = 'obs.nc'
-    reg_obs_file_suffix = '_hor_mean_obs.nc'
-
-    wght = False
-    ncfrmt = 'netcdf'
-    serial = False
-    clobber = True
-    date_pattern = 'yyyymm-yyyymm'
-    suffix = 'nc'
-
-    scomm.sync()
-
-    if scomm.is_manager():
-        debugMsg('calling specification.create_specifier with following args', header=True)
-        debugMsg('... in_directory = {0}'.format(in_dir), header=True)
-        debugMsg('... out_directory = {0}'.format(tavgdir), header=True)
-        debugMsg('... prefix = {0}'.format(case_prefix), header=True)
-        debugMsg('... suffix = {0}'.format(suffix), header=True)
-        debugMsg('... date_pattern = {0}'.format(date_pattern), header=True)
-        debugMsg('... hist_type = {0}'.format(htype), header=True)
-        debugMsg('... avg_list = {0}'.format(averageList), header=True)
-        debugMsg('... weighted = {0}'.format(wght), header=True)
-        debugMsg('... ncformat = {0}'.format(ncfrmt), header=True)
-        debugMsg('... varlist = {0}'.format(varList), header=True)
-        debugMsg('... serial = {0}'.format(serial), header=True)
-        debugMsg('... clobber = {0}'.format(clobber), header=True)
-        debugMsg('... mean_diff_rms_obs_dir = {0}'.format(mean_diff_rms_obs_dir), header=True)
-        debugMsg('... region_nc_var = {0}'.format(region_nc_var), header=True)
-        debugMsg('... regions = {0}'.format(regions), header=True)
-        debugMsg('... region_wgt_var = {0}'.format(region_wgt_var), header=True)
-        debugMsg('... obs_dir = {0}'.format(obs_dir), header=True)
-        debugMsg('... obs_file = {0}'.format(obs_file), header=True)
-        debugMsg('... reg_obs_file_suffix = {0}'.format(reg_obs_file_suffix), header=True)
-        debugMsg('... main_comm = {0}'.format(scomm), header=True)
-        debugMsg('... scomm = {0}'.format(scomm.__dict__), header=True)
-
-    scomm.sync()
-
-    try: 
-        pyAveSpecifier = specification.create_specifier(
-            in_directory = in_dir,
-            out_directory = tavgdir,
-            prefix = case_prefix,
-            suffix=suffix,
-            date_pattern=date_pattern,
-            hist_type = htype,
-            avg_list = averageList,
-            weighted = wght,
-            ncformat = ncfrmt,
-            varlist = varList,
-            serial = serial,
-            clobber = clobber,
-            mean_diff_rms_obs_dir = mean_diff_rms_obs_dir,
-            region_nc_var = region_nc_var,
-            regions = regions,
-            region_wgt_var = region_wgt_var,
-            obs_dir = obs_dir,
-            obs_file = obs_file,
-            reg_obs_file_suffix = reg_obs_file_suffix,
-            main_comm = scomm)
-    except Exception as error:
-        print(str(error))
-        traceback.print_exc()
-        sys.exit(1)
-
-    scomm.sync()
-
-    # call the pyAverager
-    if scomm.is_manager():
-        debugMsg("calling run_pyAverager")
-    try:
-        PyAverager.run_pyAverager(pyAveSpecifier)
-    except Exception as error:
-        print(str(error))
-        traceback.print_exc()
-        sys.exit(1)
-
-    scomm.sync()
-
-#==============================================================================
-# create_za - generate the global zonal average file used for most of the plots
-#==============================================================================
-def create_za(workdir, tavgfile, gridfile, toolpath, envDict, debugMsg):
-    """generate the global zonal average file used for most of the plots
-    """
-
-    # generate the global zonal average file used for most of the plots
-    zaFile = '{0}/za_{1}'.format(workdir, tavgfile)
-    rc, err_msg = cesmEnvLib.checkFile(zaFile, 'read')
-    if not rc:
-        # check that the za executable exists
-        zaCommand = '{0}/za'.format(toolpath)
-        rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
-        if not rc:
-            raise OSError(err_msg)
-        
-        # call the za fortran code from within the workdir
-        cwd = os.getcwd()
-        os.chdir(workdir)
-        testCmd = '{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)
-        debugMsg('zonal average command = {0}'.format(testCmd), header=True)
-        try:
-            subprocess.check_call(['{0}'.format(zaCommand), '-O', '-time_const', '-grid_file', '{0}'.format(gridfile), '{0}'.format(tavgfile)])
-        except CalledProcessError as e:
-            print('ERROR: {0} subprocess call to {1} failed with error:'.format(self.name(), e.cmd))
-            print('    {0} - {1}'.format(e.returncode, e.output))
-            sys.exit(1)
-
-#        try:
-#            pipe = subprocess.Popen(['{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)], cwd=workdir, env=envDict, shell=True)
-#            pipe.wait()
-#        except OSError as e:
-#            print('ERROR: {0} call to {1} failed with error:'.format(self.name(), zaCommand))
-#            print('    {0} - {1}'.format(e.errno, e.strerror))
-#            sys.exit(1)
-
-        debugMsg('zonal average created', header=True)
-        os.chdir(cwd)
-
-    return True
-
-
-#=======================================================
-# checkEcoSysOptions (stub)
-#=======================================================
-def checkEcoSysOptions(envDict):
-    """checkEcoSysOptions - check the ecosystem XML options settings
-    """
-    return False
-
-#=======================================================
-# getEcoSysVars (stub)
-#=======================================================
-def getEcoSysVars(ecoSysVarsFile, varList):
-    """getEcoSysVars - read the appropriate ecosystem text file of variables
-    """
-
-    # check in the ecoSysVarsFile exists and is readable
-    rc, err_msg = cesmEnvLib.checkFile(ecoSysVarsFile, 'read')
-    if not rc:
-        raise OSError(err_msg)
-    
-    shutil.copy2( ecoSysVarsFile, workdir )
-    with open( ecoSysVarsFile, 'r' )  as varfile:
-        ecoSysVars = []
-        ecoSysVars = varfile.read().replace('\n',' ').split()
-
-    return varList.append(ecoSysVars)
-
-#============================================================
-# buildOcnAvgList - build the list of averages to be computed
-#============================================================
-def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg):
-    """buildOcnAvgList - build the list of averages to be computed
-    by the pyAverager. Checks if the file exists or not already.
-
-    Arguments:
-    start_year (string) - starting year
-    stop_year (string) - ending year
-    avgFileBaseName (string) - avgFileBaseName (tavgdir/case.[stream].)
-
-    Return:
-    avgList (list) - list of averages to be passed to the pyaverager
-    """
-
-    avgList = []
-    padding = 4
-#    year = int(start_year)
-
-    # start with the annual averages for all variables
-#    while year <= int(stop_year):
-#        # check if file already exists before appending to the avgList
-#        syear = str(year)
-#        zyear = syear.zfill(padding)
-#        avgFile = '{0}.{1}.nc'.format(avgFileBaseName, zyear)
-#        debugMsg('avgFile = {0}'.format(avgFile), header=True)
-#        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-#        if not rc: 
-#            avgList.append('ya:{0}'.format(zyear))
-#        year += 1
-
-    # prepend the years with 0's
-#    zstart_year = start_year.zfill(padding)
-#    zstop_year = stop_year.zfill(padding)
-    zstart_year = start_year
-    zstop_year = stop_year
-
-    # check if mavg file already exists
-    avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
-    debugMsg('mavgFile = {0}'.format(avgFile))
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgList.append('mavg:{0}:{1}'.format(zstart_year, zstop_year))
-
-    # check if tavg file already exists
-    avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
-    debugMsg('tavgFile = {0}'.format(avgFile))
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgList.append('tavg:{0}:{1}'.format(zstart_year, zstop_year))
-
-    # the following are for timeseries.... TODO - check if timeseries is specified
-    # append the MOC and monthly MOC files
-##    avgList.append('moc:{0}:{1}'.format(int(start_year), int(stop_year)))
-##    avgList.append('mocm:{0}:{1}'.format(int(start_year), int(stop_year)))
-    
-    # append the horizontal mean concatenation
-##    avgList.append('hor.meanConcat:{0}:{1}'.format(int(start_year), int(stop_year)))
-
-    debugMsg('exit buildOcnAvgList avgList = {0}'.format(avgList))
-    return avgList
 
 #================================================================
 # createLinks - create symbolic links between tavgdir and workdir
@@ -607,7 +287,6 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, debugMsg):
 
     return mavgFileBase, tavgFileBase
 
-
 #=============================================
 # setup_plots - get the list of plots to create
 #=============================================
@@ -626,51 +305,6 @@ def setup_plots(envDict):
             requested_plots.append(key)
 
     return requested_plots
-
-
-#=========================================================================
-# createClimFiles - create the climatology files by calling the pyAverager
-#=========================================================================
-def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, inVarList, scomm, debugMsg):
-    """setup the pyAverager specifier class with specifications to create
-       the climatology files in parallel.
-
-       Arguments:
-       start_year (integer) - starting year for diagnostics
-       stop_year (integer) - ending year for diagnositcs
-       in_dir (string) - input directory with either history time slice or variable time series files
-       htype (string) - 'series' or 'slice' depending on input history file type
-       tavgdir (string) - output directory for averages
-       case (string) - case name
-       inVarList (list) - if empty, then create climatology files for all vars, RHO, SALT and TEMP
-       scomm (object) - simple communicator object
-    """
-    scomm.sync()
-
-    # create the list of averages to be computed
-    avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
-    case_prefix = '{0}.pop.h'.format(case)
-    averageList = []
-
-    # create the list of averages to be computed by the pyAverager
-    if scomm.is_manager():
-        debugMsg('calling buildOcnAvgList', header=True)
-        averageList = buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg)
-    scomm.sync()
-
-    # bcast the averageList
-    averageList = scomm.partition(averageList, func=partition.Duplicate(), involved=True)
-    scomm.sync()
-
-    # if the averageList is empty, then all the climatology files exist with all variables
-    if len(averageList) > 0:
-        # call the pyAverager with the inVarList
-        debugMsg('calling callPyAverager', header=True)
-        callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, scomm, debugMsg)
-    else:
-        debugMsg('averageList is null', header=True)
-
-    scomm.sync()
 
 #===============================================
 # setup model vs. observations plotting routines
@@ -831,52 +465,6 @@ def model_vs_obs(envDict, scomm, debugMsg):
         print('*******************************************************************************')
 
     scomm.sync()
-
-#================
-# model vs. model
-#================
-def model_vs_model(envDict, start_year, stop_year, workdir):
-    """model_vs_model setup the model vs. model dirs, generate necessary climatology files
-       and generate plots in parallel.
-
-       Arguments:
-       start_year - starting year for diagnostics
-       stop_year - ending year for diagnositcs
-
-    """
-
-    # setup the plots to be called
-    plotXMLfile = '{0}/Diagnostics/ocn/config_ocn_model_vs_model_plots.xml'.format(envDict['CASEROOT'])
-    setupPlots(workdir, plotXMLfile, start_year, stop_year)
-
-    if envDict['MODEL_VS_MODEL_ECOSYS'].upper() in ['T','TRUE'] :
-        plotXMLfile = '{0}/Diagnostics/ocn/config_ocn_model_vs_model_ecosys_plots.xml'.format(envDict['CASEROOT'])
-        setupPlots(workdir, plotXMLfile, start_year, stop_year)
-    
-    return 0
-
-#==================================
-# model vs. observation time series
-#==================================
-def model_vs_ts(envDict, start_year, stop_year, workdir):
-    """model_vs_ts setup the model vs. observational time series dirs, generate necessary climatology files
-       and generate plots in parallel.
-
-       Arguments:
-       start_year - starting year for diagnostics
-       stop_year - ending year for diagnositcs
-
-    """
-
-    # setup the plots to be called
-    plotXMLfile = '{0}/Diagnostics/ocn/config_ocn_model_ts_plots.xml'.format(envDict['CASEROOT'])
-    setupPlots( workdir, plotXMLfile, start_year, stop_year )
-
-    if envDict['TS_ECOSYS'].upper() in ['T','TRUE'] :
-        plotXMLfile = '{0}/Diagnostics/ocn/config_ocn_model_ts_ecosys_plots.xml'.format(envDict['CASEROOT'])
-        setupPlots(workdir, plotXMLfile, start_year, stop_year)
-
-    return 0
 
 #======
 # main

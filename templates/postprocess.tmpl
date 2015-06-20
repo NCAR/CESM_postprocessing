@@ -6,11 +6,12 @@
 {{ batchdirectives }}
 
 if [ ! -e {{ virtualEnvDir }} ]; then
-    echo "************************************************************************************"
+    echo "*************************************************************************************"
     echo "CESM {{ processName }} exiting due to non-existant python virtual environment in"
     echo "    {{ virtualEnvDir }}"
-    echo "You must run $SRCROOT/postprocessing/create_python_env.sh -machine [machine] first."
-    echo "***********************************************************************************"
+    echo "You must first run:"
+    echo "$SRCROOT/postprocessing/create_python_env.sh -machine [machine] -cimeroot [$CIMEROOT]"
+    echo "*************************************************************************************"
     exit
 fi
 
