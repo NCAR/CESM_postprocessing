@@ -12,6 +12,7 @@ if sys.hexversion < 0x02070000:
 
 import traceback
 import os
+import errno
 
 # import the helper utility module
 from cesm_utils import cesmEnvLib
@@ -24,11 +25,16 @@ class modelVsObs(OceanDiagnostic):
     """model vs. observations ocean diagnostics setup
     """
     def __init__(self):
+        """ initialize
+        """
         super(modelVsObs, self).__init__()
 
-        self._name = 'Model vs. Observations'
+        self._name = 'MODEL_VS_OBS'
+        self._title = 'Model vs. Observations'
 
-    def check_prerequisties(self, env, debugMsg):
+    def check_prerequisites(self, env, debugMsg):
+        """ check prerequisites
+        """
         super(modelVsObs, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
 
@@ -41,103 +47,187 @@ class modelVsObs(OceanDiagnostic):
             os.makedirs(workdir)
         except OSError as exception:
             if exception.errno != errno.EEXIST:
-                err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(self.__class__.__name__),workdir)
-            raise OSError(err_msg)
+                err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(self.__class__.__name__, workdir)
+                raise OSError(err_msg)
 
-#start here...
-    env['WORKDIR'] = workdir
+        env['WORKDIR'] = workdir
 
-    # clean out the old working plot files from the workdir
-    if env['CLEANUP_FILES'].upper() in ['T','TRUE']:
-        cesmEnvLib.purge(workdir, '.*\.pro')
-        cesmEnvLib.purge(workdir, '.*\.gif')
-        cesmEnvLib.purge(workdir, '.*\.dat')
-        cesmEnvLib.purge(workdir, '.*\.ps')
-        cesmEnvLib.purge(workdir, '.*\.png')
-        cesmEnvLib.purge(workdir, '.*\.html')
+        # clean out the old working plot files from the workdir
+        if env['CLEANUP_FILES'].upper() in ['T','TRUE']:
+            cesmEnvLib.purge(workdir, '.*\.pro')
+            cesmEnvLib.purge(workdir, '.*\.gif')
+            cesmEnvLib.purge(workdir, '.*\.dat')
+            cesmEnvLib.purge(workdir, '.*\.ps')
+            cesmEnvLib.purge(workdir, '.*\.png')
+            cesmEnvLib.purge(workdir, '.*\.html')
 
-    # create the plot.dat file in the workdir used by all NCL plotting routines
-    create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
+        # create the plot.dat file in the workdir used by all NCL plotting routines
+        diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
-    # create symbolic links between the tavgdir and the workdir and get the real names of the mavg and tavg files
-    env['MAVGFILE'], env['TAVGFILE'] = createLinks(env['YEAR0'], env['YEAR1'], env['TAVGDIR'], env['WORKDIR'], env['CASE'], debugMsg)
+        # create symbolic links between the tavgdir and the workdir and get the real names of the mavg and tavg files
+        env['MAVGFILE'], env['TAVGFILE'] = diagUtilsLib.createLinks(env['YEAR0'], env['YEAR1'], env['TAVGDIR'], env['WORKDIR'], env['CASE'], debugMsg)
 
-    # setup the gridfile based on the resolution
-    os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
-    if env['VERTICAL'] == '42':
-        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
+        # setup the gridfile based on the resolution
+        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
+        if env['VERTICAL'] == '42':
+            os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
 
-    # check if gridfile exists and is readable
-    rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
-    if not rc:
-        raise OSError(err_msg)
-
-    env['GRIDFILE'] = os.environ['gridfile']
-
-    # check the resolution and decide if some plot modules should be turned off
-    if env['RESOLUTION'] == 'tx0.1v2' :
-        env['PM_VELISOPZ'] = os.environ['PM_VELISOPZ'] = 'FALSE'
-        env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
-
-    # create the global zonal average file used by most of the plotting classes
-    debugMsg('calling create_za', header=True)
-    create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env, debugMsg )
-
-    debugMsg('calling setup_obs', header=True)
-    setup_obs(env, debugMsg)
-
-    # setup of ecosys files
-    if env['MODEL_VS_OBS_ECOSYS'].upper() in ['T','TRUE'] :
-        # setup some ecosys environment settings
-        os.environ['POPDIR'] = 'TRUE'
-        os.environ['PME'] = '1'
-        sys.path.append(env['ECOPATH'])
-
-        # check if extract_zavg exists and is executable
-        rc, err_msg = cesmEnvLib.checkFile(env['{0}/extract_zavg.sh'.format(env['ECOPATH'])],'exec')
+        # check if gridfile exists and is readable
+        rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
         if not rc:
             raise OSError(err_msg)
 
-        # call the ecosystem zonal average extraction modules
-        zavg_command = '{0}/extract_zavg.sh {1} {2} {3} {4}'.format(env['ECOPATH'],env['CASE'],str(start_year),str(stop_year),ecoSysVars)
-        rc = os.system(zavg_command)
-        if rc:
-            err_msg = 'ERROR: ocn_diags_generator.py command {0} failed.'.format(zavg_command)
-            raise OSError(err_msg)
- 
-    return env
+        env['GRIDFILE'] = os.environ['gridfile']
 
+        # check the resolution and decide if some plot modules should be turned off
+        if env['RESOLUTION'] == 'tx0.1v2' :
+            env['PM_VELISOPZ'] = os.environ['PM_VELISOPZ'] = 'FALSE'
+            env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
 
-#==============================================================================
-# create_za - generate the global zonal average file used for most of the plots
-#==============================================================================
-def create_za(workdir, tavgfile, gridfile, toolpath, env, debugMsg):
-    """generate the global zonal average file used for most of the plots
-    """
+        # create the global zonal average file used by most of the plotting classes
+        debugMsg('calling create_za', header=True)
+        diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env, debugMsg )
 
-    # generate the global zonal average file used for most of the plots
-    zaFile = '{0}/za_{1}'.format(workdir, tavgfile)
-    rc, err_msg = cesmEnvLib.checkFile(zaFile, 'read')
-    if not rc:
-        # check that the za executable exists
-        zaCommand = '{0}/za'.format(toolpath)
-        rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
-        if not rc:
-            raise OSError(err_msg)
+        return env
+
+    def run_diagnostics(self, env, scomm, debugMsg):
+        """ call the necessary plotting routines to generate diagnostics plots
+        """
+        super(modelVsObs, self).run_diagnostics(env, scomm, debugMsg)
+
+        # all the plot module XML vars start with PM_ 
+        # TODO modify the XML so that the different diag types can specify different plots
+        requested_plots = []
+        for key, value in env.iteritems():
+            if (re.search("\APM_", key) and value.upper() in ['T','TRUE']):
+                requested_plots.append(key)
+
+        # setup the plots to be called based on directives in the env_diags_ocn.xml file
+        requested_plot_names = []
+        local_requested_plots = list()
+    
+        # define the templatePath for all tasks
+        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
+
+        if scomm.is_manager():
+# START HERE to get requested plots for this diag type - need to update XML and make this
+# a private method...
+            requested_plot_names = setup_plots(env)
+            print('User requested plots:')
+            for plot in requested_plot_names:
+                print('  {0}'.format(plot))
+
+            if env['DOWEB'].upper() in ['T','TRUE']:
+                
+                debugMsg('Creating plot html header', header=True)
+
+                templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
+                templateEnv = jinja2.Environment( loader=templateLoader )
+                
+                TEMPLATE_FILE = 'model_vs_obs.tmpl'
+                template = templateEnv.get_template( TEMPLATE_FILE )
+    
+                # test the template variables
+                templateVars = { 'casename' : env['CASE'],
+                                 'tagname' : env['CCSM_REPOTAG'],
+                                 'start_year' : env['YEAR0'],
+                                 'stop_year' : env['YEAR1']
+                                 }
+
+                plot_html = template.render( templateVars )
+
+        scomm.sync()
+
+        # broadcast requested plot names to all tasks
+        requested_plot_names = scomm.partition(data=requested_plot_names, func=partition.Duplicate(), involved=True)
+
+        local_requested_plots = scomm.partition(requested_plot_names, func=partition.EqualStride(), involved=True)
+        scomm.sync()
+
+        # define the local_html_list
+        local_html_list = list()
+        for requested_plot in local_requested_plots:
+            try:
+                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(requested_plot)
+
+                debugMsg('Checking prerequisite for {0}'.format(plot.__class__.__name__), header=True)
+                plot.check_prerequisites(env)
+
+                debugMsg('Generating plots for {0}'.format(plot.__class__.__name__), header=True)
+                plot.generate_plots(env)
+
+                debugMsg('Converting plots for {0}'.format(plot.__class__.__name__), header=True)
+                plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
+
+                html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
+            
+                local_html_list.append(str(html))
+                debugMsg('local_html_list = {0}'.format(local_html_list), header=True, verbosity=2)
+
+            except ocn_diags_plot_bc.RecoverableError as e:
+                # catch all recoverable errors, print a message and continue.
+                print(e)
+                print("Skipped '{0}' and continuing!".format(request_plot))
+            except RuntimeError as e:
+                # unrecoverable error, bail!
+                print(e)
+                return 1
+
+        scomm.sync()
+
+        # define a tag for the MPI collection of all local_html_list variables
+        html_msg_tag = 1
+
+        if scomm.get_size() > 1:
+            if scomm.is_manager():
+                all_html  = [local_html_list]
+                
+                for n in range(1,scomm.get_size()):
+                    rank, temp_html = scomm.collect(tag=html_msg_tag)
+                    all_html.append(temp_html)
+
+                debugMsg('all_html = {0}'.format(all_html), header=True, verbosity=2)
+            else:
+                return_code = scomm.collect(data=local_html_list, tag=html_msg_tag)
+
+        scomm.sync()
         
-        # call the za fortran code from within the workdir
-        cwd = os.getcwd()
-        os.chdir(workdir)
-        testCmd = '{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)
-        debugMsg('zonal average command = {0}'.format(testCmd), header=True)
-        try:
-            subprocess.check_call(['{0}'.format(zaCommand), '-O', '-time_const', '-grid_file', '{0}'.format(gridfile), '{0}'.format(tavgfile)])
-        except CalledProcessError as e:
-            print('ERROR: {0} subprocess call to {1} failed with error:'.format(self.name(), e.cmd))
-            print('    {0} - {1}'.format(e.returncode, e.output))
-            sys.exit(1)
+        if scomm.is_manager():
 
-        debugMsg('zonal average created', header=True)
-        os.chdir(cwd)
+            # merge the all_html list of lists into a single list
+            all_html = list(itertools.chain.from_iterable(all_html))
+            for each_html in all_html:
+                debugMsg('each_html = {0}'.format(each_html), header=True, verbosity=2)
+                plot_html += each_html
 
-    return True
+            debugMsg('Adding footer html', header=True)
+            with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
+                plot_html += tmpl.read()
+
+            debugMsg('Writing plot html', header=True)
+            with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
+                index.write(plot_html)
+
+            debugMsg('Copying stylesheet', header=True)
+            shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(env['WORKDIR']))
+
+            debugMsg('Copying logo files', header=True)
+            if not os.path.exists('{0}/logos'.format(env['WORKDIR'])):
+                os.mkdir('{0}/logos'.format(env['WORKDIR']))
+
+            for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
+                shutil.copy(filename, '{0}/logos'.format(env['WORKDIR']))
+
+            if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
+                # copy over the files to a remote web server and webdir 
+                diagUtilsLib.copy_html_files(env)
+            else:
+                print('Web files successfully created in directory {0}'.format(env['WORKDIR']))
+                print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
+                print('You will need to manually copy the web files to a remote web server.')
+
+            print('*******************************************************************************')
+            print('Successfully completed generating ocean diagnostics model vs. observation plots')
+            print('*******************************************************************************')
+
+

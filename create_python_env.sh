@@ -241,6 +241,7 @@ using the create_postprocessing --caseroot [caseroot] script. These include:
     env_postprocess.xml
     env_diags_[component].xml
     [CASENAME].timeseries
+    [CASENAME].[component]_averages
     [CASENAME].[component]_diagnostics
 
 **********************************************************************************************"

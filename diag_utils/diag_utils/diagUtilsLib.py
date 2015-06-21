@@ -285,4 +285,132 @@ def copy_html_files(env):
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
 
+#==============================================================================
+# create_za - generate the ocean global zonal average file used for most of the plots
+#==============================================================================
+def create_za(workdir, tavgfile, gridfile, toolpath, env, debugMsg):
+    """generate the global zonal average file used for most of the plots
+    """
+    # generate the global zonal average file used for most of the plots
+    zaFile = '{0}/za_{1}'.format(workdir, tavgfile)
+    rc, err_msg = cesmEnvLib.checkFile(zaFile, 'read')
+    if not rc:
+        # check that the za executable exists
+        zaCommand = '{0}/za'.format(toolpath)
+        rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
+        if not rc:
+            raise OSError(err_msg)
+        
+        # call the za fortran code from within the workdir
+        cwd = os.getcwd()
+        os.chdir(workdir)
+        testCmd = '{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)
+        debugMsg('zonal average command = {0}'.format(testCmd), header=True)
+        try:
+            subprocess.check_call(['{0}'.format(zaCommand), '-O', '-time_const', '-grid_file', '{0}'.format(gridfile), '{0}'.format(tavgfile)])
+        except CalledProcessError as e:
+            print('ERROR: {0} subprocess call to {1} failed with error:'.format(self.name(), e.cmd))
+            print('    {0} - {1}'.format(e.returncode, e.output))
+            sys.exit(1)
 
+        debugMsg('zonal average created', header=True)
+        os.chdir(cwd)
+
+
+
+#==========================================================
+# create_plot_dat - create the plot.dat file in the workdir
+#==========================================================
+def create_plot_dat(workdir, xyrange, depths):
+    """create plot.dot  file in the workdir
+
+    Arguments:
+    workdir (string) - work directory for plots
+    xyrange (string) - env['XYRANGE']
+    depths (string) - env['DEPTHS']
+    """
+    rc, err_msg = cesmEnvLib.checkFile('{0}/plot.dat'.format(workdir), 'read')
+    if not rc:
+        file = open('{0}/plot.dat'.format(workdir),'w')
+        file.write( xyrange + '\n')
+        numdepths = len(depths.split(','))
+        file.write( str(numdepths) + '\n')
+        file.write( depths + '\n')
+        file.close()
+
+    return 0
+
+
+#================================================================
+# createLinks - create symbolic links between tavgdir and workdir
+#================================================================
+def createLinks(start_year, stop_year, tavgdir, workdir, case, debugMsg):
+    """createLinks - create symbolic links between tavgdir and workdir
+
+    Arguments:
+    start_year (string) - starting year
+    stop_year (string) - ending year
+    tavgdir (string) - output directory for averages
+    workdir (string) - working directory for diagnostics
+    case (string) - case name
+    """
+    padding = 4
+    avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
+    case_prefix = '{0}.pop.h'.format(case)
+
+    # prepend the years with 0's
+    zstart_year = start_year.zfill(padding)
+    zstop_year = stop_year.zfill(padding)
+
+    # link to the mavg file for the za and plotting routines
+    mavgFileBase = 'mavg.{0}.{1}.nc'.format(zstart_year, zstop_year)
+    avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+    if rc:
+        mavgFile = '{0}/mavg.{1}.{2}.nc'.format(workdir, zstart_year, zstop_year)
+        rc1, err_msg1 = cesmEnvLib.checkFile(mavgFile, 'read')
+        if not rc1:
+            debugMsg('before mavg symlink: {0} to {1}'.format(avgFile,mavgFile), header=True)
+            os.symlink(avgFile, mavgFile)
+    else:
+        raise OSError(err_msg)
+
+    # link to the tavg file
+    tavgFileBase = 'tavg.{0}.{1}.nc'.format(zstart_year, zstop_year)
+    avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+    if rc:
+        tavgFile = '{0}/tavg.{1}.{2}.nc'.format(workdir, zstart_year, zstop_year)
+        rc1, err_msg1 = cesmEnvLib.checkFile(tavgFile, 'read')
+        if not rc1:
+            debugMsg('before tavg symlink: {0} to {1}'.format(avgFile,tavgFile), header=True)
+            os.symlink(avgFile, tavgFile)
+    else:
+        raise OSError(err_msg)
+
+    # link to all the annual history files 
+    year = int(start_year)
+    while year <= int(stop_year):
+        # check if file already exists before appending to the avgList
+        syear = str(year)
+        zyear = syear.zfill(padding)
+        avgFile = '{0}.{1}.nc'.format(avgFileBaseName, zyear)
+        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+        if rc:
+            workAvgFile = '{0}/{1}.{2}.nc'.format(workdir, case_prefix, zyear)
+            rc1, err_msg1 = cesmEnvLib.checkFile(workAvgFile, 'read')
+            if not rc1:
+                debugMsg('before yearly avg symlink: {0} to {1}'.format(avgFile,workAvgFile), header=True)
+                os.symlink(avgFile, workAvgFile)
+        year += 1
+
+    return mavgFileBase, tavgFileBase
+
+#================================================================
+# checkAvgFiles - check that the climotology average files exist
+#================================================================
+def checkAvgFiles(filelist):
+    """ check if the climatology files exist in the list of files passed in
+    """
+    rc = True
+    return rc
