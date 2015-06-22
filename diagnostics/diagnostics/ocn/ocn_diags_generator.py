@@ -167,7 +167,7 @@ def initialize_main(envDict, caseroot, debugMsg):
 # main
 #======
 
-def main(options, scomm, debugMsg):
+def main(options, main_comm, debugMsg):
     """setup the environment for running the diagnostics in parallel. 
 
     Calls 6 different diagnostics generation types:
@@ -177,7 +177,7 @@ def main(options, scomm, debugMsg):
 
     Arguments:
     options (object) - command line options
-    scomm (object) - MPI simple communicator object
+    main_comm (object) - MPI simple communicator object
     debugMsg (object) - vprinter object for printing debugging messages
 
     The env_diags_ocn.xml configuration file defines the way the diagnostics are generated. 
@@ -188,7 +188,7 @@ def main(options, scomm, debugMsg):
     envDict = dict()
 
     # CASEROOT is given on the command line as required option --caseroot
-    if scomm.is_manager():
+    if main_comm.is_manager():
         caseroot = options.caseroot[0]
         debugMsg('caseroot = {0}'.format(caseroot), header=True)
 
@@ -199,13 +199,13 @@ def main(options, scomm, debugMsg):
         diagUtilsLib.check_ncl_nco(envDict)
 
     # broadcast envDict to all tasks
-    envDict = scomm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+    envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
     sys.path.append(envDict['PATH'])
-    scomm.sync()
+    main_comm.sync()
 
     # get list of diagnostics types to be created
     diag_list = list()
-    if scomm.is_manager():
+    if main_comm.is_manager():
         diag_list = setup_diags(envDict)
         print('User requested diagnostics:')
         for diag in diag_list:
@@ -213,28 +213,58 @@ def main(options, scomm, debugMsg):
 
         # TODO - create a jinja template for the main links to all the diag classes
 
-    scomm.sync()
+    main_comm.sync()
 
     # TODO divide the main communicator into sub_communicators to be passed to each diag class
-    num_diags = len(diag_list)
+    num_of_diags = len(diag_list)
+    min_diags_per_comm = 1
 
-    # partition requested diagnostics types across tasks
+    # group[color_id] == intercommunicator
+    size = main_comm.get_size()
+    rank = main_comm.get_rank()
+
+    # split mpi comm world
+    temp_color = (rank % num_diags)
+    if (temp_color == num_of_diags):
+        temp_color = temp_color - 1
+    groups = []
+    for g in range(0,num_of_diags):
+        groups.append(g)
+    print 'g_rank:',rank,'size:',size,'temp_color:',temp_color,'#of groups',num_of_diags,'groups:',groups 
+    group = groups[temp_color]
+    inter_comm,multi_comm = spec.main_comm.divide(group)
+    color = inter_comm.get_color()
+    lsize = inter_comm.get_size()
+    lrank = inter_comm.get_rank()
+                
+    #g_master = spec.main_comm.is_manager()
+    l_master = inter_comm.is_manager()
+
     local_diag_list = list()
-    local_diag_list = scomm.partition(data=diag_list, func=partition.EqualStride(), involved=True)
+    if l_master:
+        local_diag_list = multi_comm.partition(diag_list,func=partition.EqualStride(),involved=True)
+        for b in range(1, lsize):
+            diags_send = inter_comm.ration(data=local_diag_list, tag=DIAG_LIST_TAG) 
+    else:
+        diags_send = inter_comm.ration(tag=DIAG_LIST_TAG)
 
-    for requested_diag in local_diag_list:
+    for requested_diag in diags_send:
         try:
             diag = ocn_diags_factory.oceanDiagnosticsFactory(requested_diag)
 
             # check the prerequisites for the diagnostics types
             debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
-            envDict = diag.check_prerequisites(envDict, debugMsg)
+            
+            if l_master:
+                envDict = diag.check_prerequisites(envDict, debugMsg)
 
             # set the shell env using the values set in the XML and read into the envDict
             # across all tasks
+
+            inter_comm.sync()
             cesmEnvLib.setXmlEnv(envDict)
 
-            diag.run_diagnostics(envDict, scomm, debugMsg)
+            diag.run_diagnostics(envDict, inter_comm, debugMsg)
             
         except ocn_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
@@ -245,7 +275,7 @@ def main(options, scomm, debugMsg):
             print(e)
             return 1
 
-    scomm.sync()
+    main_comm.sync()
 
 
 #===================================
@@ -253,7 +283,7 @@ def main(options, scomm, debugMsg):
 
 if __name__ == "__main__":
     # initialize simplecomm object
-    scomm = simplecomm.create_comm(serial=True)
+    main_comm = simplecomm.create_comm(serial=True)
 
     # get commandline options
     options = commandline_options()
@@ -261,13 +291,13 @@ if __name__ == "__main__":
     # initialize global vprinter object for printing debug messages
     # TODO - if debug option is not set, then debugMsg shouldn't fail
     if options.debug:
-        header = "[" + str(scomm.get_rank()) + "/" + str(scomm.get_size()) + "]: DEBUG... "
+        header = "[" + str(main_comm.get_rank()) + "/" + str(main_comm.get_size()) + "]: DEBUG... "
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
     
     try:
-        status = main(options, scomm, debugMsg)
-        scomm.sync()
-        if scomm.is_manager():
+        status = main(options, main_comm, debugMsg)
+        main_comm.sync()
+        if main_comm.is_manager():
             print('***************************************************')
             print('Successfully completed generating ocean diagnostics')
             print('***************************************************')

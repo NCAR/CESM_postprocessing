@@ -95,11 +95,10 @@ class modelVsObs(OceanDiagnostic):
         """
         super(modelVsObs, self).run_diagnostics(env, scomm, debugMsg)
 
-        # all the plot module XML vars start with PM_ 
-        # TODO modify the XML so that the different diag types can specify different plots
+        # all the plot module XML vars start with MVO_PM_ 
         requested_plots = []
         for key, value in env.iteritems():
-            if (re.search("\APM_", key) and value.upper() in ['T','TRUE']):
+            if (re.search("\AMVO_PM_", key) and value.upper() in ['T','TRUE']):
                 requested_plots.append(key)
 
         # setup the plots to be called based on directives in the env_diags_ocn.xml file
@@ -110,8 +109,6 @@ class modelVsObs(OceanDiagnostic):
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
 
         if scomm.is_manager():
-# START HERE to get requested plots for this diag type - need to update XML and make this
-# a private method...
             requested_plot_names = setup_plots(env)
             print('User requested plots:')
             for plot in requested_plot_names:

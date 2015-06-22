@@ -903,11 +903,20 @@
 	 ldesc=""
 	 ></entry>
 
-  <!-- ===================================================================== -->
-  <!--  define ocean diagnostics control variables for which plots to create -->
-  <!-- ===================================================================== -->
+  <!-- ============================================================================================== -->
+  <!--  define ocean diagnostics control variables for which plots to create for each diagnostic type -->
+  <!-- The following id prefixes are used to decipher which plots should be created.                  -->
+  <!-- MVO - model vs. observations                                                                   -->
+  <!-- MVOECOSYS - model vs. observations ecosystem                                                   -->
+  <!-- MVM - model vs. model                                                                          -->
+  <!-- MVMECOSYS - model vs. model ecosystem                                                          -->
+  <!-- MTS - model timeseries                                                                         -->
+  <!-- MTSECOSYS - model timeseries ecosystem                                                         -->
+  <!-- ============================================================================================== -->
 
-  <entry id="OCNDIAG_PM_SFC2D"
+  <!-- MVO - model vs. observations -->
+
+  <entry id="OCNDIAG_MVO_PM_SFC2D"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -916,7 +925,7 @@
 	 ldesc="Logical to control whether to create 2D surface flux plots (TRUE)
 		or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_FLD2D"
+  <entry id="OCNDIAG_MVO_PM_FLD2D"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -925,7 +934,7 @@
 	 ldesc="Logical to control whether to create other 2D variable (HMXL, SSH, BSF, etc...)
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_FLD3DZA"
+  <entry id="OCNDIAG_MVO_PM_FLD3DZA"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -934,7 +943,7 @@
 	 ldesc="Logical to control whether to create 3D fields zonally averaged
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_MOC"
+  <entry id="OCNDIAG_MVO_PM_MOC"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -943,7 +952,7 @@
 	 ldesc="Logical to control whether to create MOC and Heat/Freshwater transport plots
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_WBC"
+  <entry id="OCNDIAG_MVO_PM_WBC"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -952,8 +961,7 @@
 	 ldesc="Logical to control whether to create Western Boundary Current and DWBC diagnostics
 		plots (TRUE) or not (FALSE)."></entry>
 
-
-  <entry id="OCNDIAG_PM_SEAS"
+  <entry id="OCNDIAG_MVO_PM_SEAS"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -962,7 +970,7 @@
 	 ldesc="Logical to control whether to create seasonal cycle
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_MLD"
+  <entry id="OCNDIAG_MVO_PM_MLD"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -971,7 +979,7 @@
 	 ldesc="Logical to control whether to create mixed layer depth
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_TSZ"
+  <entry id="OCNDIAG_MVO_PM_TSZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -980,8 +988,7 @@
 	 ldesc="Logical to control whether to create temperature and salinity on depth surfaces, contours
 		plots (TRUE) or not (FALSE)."></entry>
 
-
-  <entry id="OCNDIAG_PM_PASSIVEZ"
+  <entry id="OCNDIAG_MVO_PM_PASSIVEZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -990,7 +997,7 @@
 	 ldesc="Logical to control whether to create passive traces at depth surfaces, contours
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_VELZ"
+  <entry id="OCNDIAG_MVO_PM_VELZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -999,7 +1006,7 @@
 	 ldesc="Logical to control whether to create Eulerian velocity (UCEL, VVEL, WVEL) on depth surfaces, contours
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_VELISOPZ"
+  <entry id="OCNDIAG_MVO_PM_VELISOPZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -1008,7 +1015,7 @@
 	 ldesc="Logical to control whether to create Bolus velocity components on depth surfaces, contours
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_KAPPAZ"
+  <entry id="OCNDIAG_MVO_PM_KAPPAZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -1017,7 +1024,7 @@
 	 ldesc="Logical to control whether to create diffusion coefficients on depth surfaces, contours
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_UOEQ"
+  <entry id="OCNDIAG_MVO_PM_UOEQ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -1026,7 +1033,7 @@
 	 ldesc="Logical to control whether to create upperocean at the equator; compared to PHC2, TOGA-TAO
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_VECV"
+  <entry id="OCNDIAG_MVO_PM_VECV"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -1035,7 +1042,7 @@
 	 ldesc="Logical to control whether to create horizontal vector/magnitude fields on depth surfaces, contours
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_POLARTS"
+  <entry id="OCNDIAG_MVO_PM_POLARTS"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -1044,7 +1051,7 @@
 	 ldesc="Logical to control whether to create polar TEMP and SALT on depth surfaces, contours
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_BASINAVGTS"
+  <entry id="OCNDIAG_MVO_PM_BASINAVGTS"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
@@ -1053,13 +1060,205 @@
 	 ldesc="Logical to control whether to create depth profiles of Basin-average TEMP and SALT
 		plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_PM_REGIONALTS"
+  <entry id="OCNDIAG_MVO_PM_REGIONALTS"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
 	 sdesc="Controls whether to create depth profiles of Regional area-average TEMP and SALT bias and stddev plots (regional_area)"
 	 ldesc="Logical to control whether to create depth profiles of Regional area-average TEMP and SALT bias and stddev
+		plots (TRUE) or not (FALSE)."></entry>
+
+
+  <!-- MVOECOSYS - model vs. observations ecosystem-->
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_SFC2D"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create 2D surface flux plots (surface_flux_fields)"
+	 ldesc="Logical to control whether to create 2D surface flux plots (TRUE)
+		or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_FLD2D"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create other 2D non-flux surface fields plots (surface_fields)"
+	 ldesc="Logical to control whether to create other 2D variable (HMXL, SSH, BSF, etc...)
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_FLD3DZA"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create 3D fields (zonal average) plots (zonal_average_3d_fields)"
+	 ldesc="Logical to control whether to create 3D fields zonally averaged
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_MOC"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create MOC and Heat/Freshwater transport plots (moc_fields)"
+	 ldesc="Logical to control whether to create MOC and Heat/Freshwater transport plots
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_WBC"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create Western Boundary Current and DWBC diagnostics plots (western_boundary)"
+	 ldesc="Logical to control whether to create Western Boundary Current and DWBC diagnostics
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_SEAS"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create seasonal cycle plots (seasonal_cycle)"
+	 ldesc="Logical to control whether to create seasonal cycle
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_MLD"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create mixed layer depth plots (mixed_layer_depth)"
+	 ldesc="Logical to control whether to create mixed layer depth
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_TSZ"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create TEMP and SALT at depth plots (temp_salt_depth)"
+	 ldesc="Logical to control whether to create temperature and salinity on depth surfaces, contours
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_PASSIVEZ"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create passive tracers at depth levels plot (passive_tracers_depth)"
+	 ldesc="Logical to control whether to create passive traces at depth surfaces, contours
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_VELZ"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create Eulerian velocity at depth levels plot (eulerian_velocity)"
+	 ldesc="Logical to control whether to create Eulerian velocity (UCEL, VVEL, WVEL) on depth surfaces, contours
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_VELISOPZ"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create Bolus velocity components at depth levels plot (bolus_velocity)"
+	 ldesc="Logical to control whether to create Bolus velocity components on depth surfaces, contours
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_KAPPAZ"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create diffusion coefficients at depth levels plot (diffusion_depth)"
+	 ldesc="Logical to control whether to create diffusion coefficients on depth surfaces, contours
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_UOEQ"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create upperocean at the equator; compared to PHC2, TOGA-TAO plots (equatorial_upperocean)"
+	 ldesc="Logical to control whether to create upperocean at the equator; compared to PHC2, TOGA-TAO
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_VECV"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create velocity vector/magnitude at depth levels plots (horizontal_vector_fields)"
+	 ldesc="Logical to control whether to create horizontal vector/magnitude fields on depth surfaces, contours
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_POLARTS"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create polar TEMP and SALT at depth levels plots (polar_temp_salt)"
+	 ldesc="Logical to control whether to create polar TEMP and SALT on depth surfaces, contours
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_BASINAVGTS"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create depth profiles of Basin-average TEMP and SALT plots (basin_averages)"
+	 ldesc="Logical to control whether to create depth profiles of Basin-average TEMP and SALT
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_REGIONALTS"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create depth profiles of Regional area-average TEMP and SALT bias and stddev plots (regional_area)"
+	 ldesc="Logical to control whether to create depth profiles of Regional area-average TEMP and SALT bias and stddev
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_E_MAPS"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create 2D maps of ecosystem fields (ecosys_2d_maps)"
+	 ldesc="Logical to control whether to create 2D maps of ecosystem fields
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_E_VERT"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create vertical cross-sections (155W and 23W) and basin zonal averages (ecosys_vertical)"
+	 ldesc="Logical to control whether to create vertical cross-sections (155W and 23W) and basin zonal averages
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_E_SEAS"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create seasonal cycle zonally averaged (2D or Z-int) for the ecosystem variables (ecosys_seasonal)"
+	 ldesc="Logical to control whether to create  seasonal cycle zonally averaged (2D or Z-int) for the ecosystem variables
+		plots (TRUE) or not (FALSE)."></entry>
+
+  <entry id="OCNDIAG_MVOECOSYS_PM_E_O2"
+	 type="logical"
+	 valid_values="TRUE,FALSE"
+	 value="TRUE"
+	 group="diags_ocn"
+	 sdesc="Controls whether to create plots of oxygen levels at beginning and end of period (ecosys_oxygen)"
+	 ldesc="Logical to control whether to create  plots of oxygen levels at beginning and end of period
 		plots (TRUE) or not (FALSE)."></entry>
 
 </config_definition>

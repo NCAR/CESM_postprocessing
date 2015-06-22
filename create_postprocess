@@ -143,7 +143,9 @@ def create_env_file(ppDir, configFile, tmplFile, envFile, group, obs_root):
     rc1, err_msg1 = cesmEnvLib.checkFile('{0}/templates/{1}'.format(ppDir, tmplFile), 'read')
 
     if rc:
+
         xml_tree = etree.ElementTree()
+        print ('configFile = {0}'.format(configFile))
         xml_tree.parse(configFile)
         for entry_tag in xml_tree.findall('entry'):
             if entry_tag.get('group').lower() == group:
