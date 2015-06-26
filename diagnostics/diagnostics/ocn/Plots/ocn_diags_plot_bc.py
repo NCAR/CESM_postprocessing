@@ -45,7 +45,6 @@ class OceanDiagnosticPlot(object):
 
         """
         print('  Checking generic prerequisites for ocean diagnostics plot.')
-        print('  Setup the environment for NCL')
 
         # set SEASAVGFILE env var to the envDict['MAVGFILE'] file
         env['SEASAVGFILE'] = env['MAVGFILE']

@@ -10,16 +10,31 @@ if sys.hexversion < 0x02070000:
     print(70 * "*")
     sys.exit(1)
 
-import traceback
-import os
+# import core python modules
 import errno
+import glob
+import itertools
+import os
+import re
+import shutil
+import traceback
+
+# import modules installed by pip into virtualenv
+import jinja2
 
 # import the helper utility module
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
+# import the MPI related modules
+from asaptools import partition, simplecomm, vprinter, timekeeper
+
 # import the diag baseclass module
 from ocn_diags_bc import OceanDiagnostic
+
+# import the plot classes
+from diagnostics.ocn.Plots import ocn_diags_plot_bc
+from diagnostics.ocn.Plots import ocn_diags_plot_factory
 
 class modelVsObs(OceanDiagnostic):
     """model vs. observations ocean diagnostics setup
@@ -32,40 +47,23 @@ class modelVsObs(OceanDiagnostic):
         self._name = 'MODEL_VS_OBS'
         self._title = 'Model vs. Observations'
 
-    def check_prerequisites(self, env, debugMsg):
+    def check_prerequisites(self, env):
         """ check prerequisites
         """
-        super(modelVsObs, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
-
-        # create the working directory if it doesn't already exists
-        subdir = 'model_vs_obs.{0}_{1}'.format(env['YEAR0'], env['YEAR1'])
-        workdir = '{0}/{1}'.format(env['WORKDIR'], subdir)
-        debugMsg('workdir = {0}'.format(workdir), header=True)
-
-        try:
-            os.makedirs(workdir)
-        except OSError as exception:
-            if exception.errno != errno.EEXIST:
-                err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(self.__class__.__name__, workdir)
-                raise OSError(err_msg)
-
-        env['WORKDIR'] = workdir
+        super(modelVsObs, self).check_prerequisites(env)
 
         # clean out the old working plot files from the workdir
         if env['CLEANUP_FILES'].upper() in ['T','TRUE']:
-            cesmEnvLib.purge(workdir, '.*\.pro')
-            cesmEnvLib.purge(workdir, '.*\.gif')
-            cesmEnvLib.purge(workdir, '.*\.dat')
-            cesmEnvLib.purge(workdir, '.*\.ps')
-            cesmEnvLib.purge(workdir, '.*\.png')
-            cesmEnvLib.purge(workdir, '.*\.html')
+            cesmEnvLib.purge(env['WORKDIR'], '.*\.pro')
+            cesmEnvLib.purge(env['WORKDIR'], '.*\.gif')
+            cesmEnvLib.purge(env['WORKDIR'], '.*\.dat')
+            cesmEnvLib.purge(env['WORKDIR'], '.*\.ps')
+            cesmEnvLib.purge(env['WORKDIR'], '.*\.png')
+            cesmEnvLib.purge(env['WORKDIR'], '.*\.html')
 
         # create the plot.dat file in the workdir used by all NCL plotting routines
         diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
-
-        # create symbolic links between the tavgdir and the workdir and get the real names of the mavg and tavg files
-        env['MAVGFILE'], env['TAVGFILE'] = diagUtilsLib.createLinks(env['YEAR0'], env['YEAR1'], env['TAVGDIR'], env['WORKDIR'], env['CASE'], debugMsg)
 
         # setup the gridfile based on the resolution
         os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
@@ -85,39 +83,42 @@ class modelVsObs(OceanDiagnostic):
             env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
 
         # create the global zonal average file used by most of the plotting classes
-        debugMsg('calling create_za', header=True)
-        diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env, debugMsg )
+        print('    calling create_za')
+        diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env)
 
         return env
 
-    def run_diagnostics(self, env, scomm, debugMsg):
+    def run_diagnostics(self, env, scomm):
         """ call the necessary plotting routines to generate diagnostics plots
         """
-        super(modelVsObs, self).run_diagnostics(env, scomm, debugMsg)
+        super(modelVsObs, self).run_diagnostics(env, scomm)
+        scomm.sync()
 
-        # all the plot module XML vars start with MVO_PM_ 
-        requested_plots = []
-        for key, value in env.iteritems():
-            if (re.search("\AMVO_PM_", key) and value.upper() in ['T','TRUE']):
-                requested_plots.append(key)
-
-        # setup the plots to be called based on directives in the env_diags_ocn.xml file
-        requested_plot_names = []
+        # setup some global variables
+        requested_plots = list()
         local_requested_plots = list()
-    
+        local_html_list = list()
+
         # define the templatePath for all tasks
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
 
+        # all the plot module XML vars start with MVO_PM_  need to strip that off
+        for key, value in env.iteritems():
+            if (re.search("\AMVO_PM_", key) and value.upper() in ['T','TRUE']):
+                k = key[4:]
+                requested_plots.append(k)
+
+        print('before scomm.sync requested_plots = {0}'.format(requested_plots))
+        scomm.sync()
+
         if scomm.is_manager():
-            requested_plot_names = setup_plots(env)
-            print('User requested plots:')
-            for plot in requested_plot_names:
+            print('User requested plot modules:')
+            for plot in requested_plots:
                 print('  {0}'.format(plot))
 
             if env['DOWEB'].upper() in ['T','TRUE']:
                 
-                debugMsg('Creating plot html header', header=True)
-
+                print('Creating plot html header')
                 templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
                 templateEnv = jinja2.Environment( loader=templateLoader )
                 
@@ -131,35 +132,39 @@ class modelVsObs(OceanDiagnostic):
                                  'stop_year' : env['YEAR1']
                                  }
 
+                print('Rendering plot html header')
                 plot_html = template.render( templateVars )
 
         scomm.sync()
 
+#        print('Broadcast requested plots')
         # broadcast requested plot names to all tasks
-        requested_plot_names = scomm.partition(data=requested_plot_names, func=partition.Duplicate(), involved=True)
+#        requested_plots = scomm.partition(data=requested_plots, func=partition.Duplicate(), involved=True)
+#        scomm.sync()
 
-        local_requested_plots = scomm.partition(requested_plot_names, func=partition.EqualStride(), involved=True)
+        print('Partition requested plots')
+        # partition requested plots to all tasks
+        local_requested_plots = scomm.partition(requested_plots, func=partition.EqualStride(), involved=True)
         scomm.sync()
 
-        # define the local_html_list
-        local_html_list = list()
         for requested_plot in local_requested_plots:
             try:
                 plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(requested_plot)
 
-                debugMsg('Checking prerequisite for {0}'.format(plot.__class__.__name__), header=True)
+                print('Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)
 
-                debugMsg('Generating plots for {0}'.format(plot.__class__.__name__), header=True)
+                print('Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.generate_plots(env)
 
-                debugMsg('Converting plots for {0}'.format(plot.__class__.__name__), header=True)
+                print('Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
 
+                print('Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
             
                 local_html_list.append(str(html))
-                debugMsg('local_html_list = {0}'.format(local_html_list), header=True, verbosity=2)
+                #print('local_html_list = {0}'.format(local_html_list))
 
             except ocn_diags_plot_bc.RecoverableError as e:
                 # catch all recoverable errors, print a message and continue.
@@ -175,6 +180,8 @@ class modelVsObs(OceanDiagnostic):
         # define a tag for the MPI collection of all local_html_list variables
         html_msg_tag = 1
 
+        all_html = list()
+        all_html = [local_html_list]
         if scomm.get_size() > 1:
             if scomm.is_manager():
                 all_html  = [local_html_list]
@@ -183,7 +190,7 @@ class modelVsObs(OceanDiagnostic):
                     rank, temp_html = scomm.collect(tag=html_msg_tag)
                     all_html.append(temp_html)
 
-                debugMsg('all_html = {0}'.format(all_html), header=True, verbosity=2)
+                #print('all_html = {0}'.format(all_html))
             else:
                 return_code = scomm.collect(data=local_html_list, tag=html_msg_tag)
 
@@ -194,21 +201,21 @@ class modelVsObs(OceanDiagnostic):
             # merge the all_html list of lists into a single list
             all_html = list(itertools.chain.from_iterable(all_html))
             for each_html in all_html:
-                debugMsg('each_html = {0}'.format(each_html), header=True, verbosity=2)
+                #print('each_html = {0}'.format(each_html))
                 plot_html += each_html
 
-            debugMsg('Adding footer html', header=True)
+            print('Adding footer html')
             with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
                 plot_html += tmpl.read()
 
-            debugMsg('Writing plot html', header=True)
+            print('Writing plot html')
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
-            debugMsg('Copying stylesheet', header=True)
+            print('Copying stylesheet')
             shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(env['WORKDIR']))
 
-            debugMsg('Copying logo files', header=True)
+            print('Copying logo files')
             if not os.path.exists('{0}/logos'.format(env['WORKDIR'])):
                 os.mkdir('{0}/logos'.format(env['WORKDIR']))
 

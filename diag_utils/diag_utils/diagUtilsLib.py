@@ -288,7 +288,7 @@ def copy_html_files(env):
 #==============================================================================
 # create_za - generate the ocean global zonal average file used for most of the plots
 #==============================================================================
-def create_za(workdir, tavgfile, gridfile, toolpath, env, debugMsg):
+def create_za(workdir, tavgfile, gridfile, toolpath, env):
     """generate the global zonal average file used for most of the plots
     """
     # generate the global zonal average file used for most of the plots
@@ -305,7 +305,7 @@ def create_za(workdir, tavgfile, gridfile, toolpath, env, debugMsg):
         cwd = os.getcwd()
         os.chdir(workdir)
         testCmd = '{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)
-        debugMsg('zonal average command = {0}'.format(testCmd), header=True)
+        print('zonal average command = {0}'.format(testCmd))
         try:
             subprocess.check_call(['{0}'.format(zaCommand), '-O', '-time_const', '-grid_file', '{0}'.format(gridfile), '{0}'.format(tavgfile)])
         except CalledProcessError as e:
@@ -313,7 +313,7 @@ def create_za(workdir, tavgfile, gridfile, toolpath, env, debugMsg):
             print('    {0} - {1}'.format(e.returncode, e.output))
             sys.exit(1)
 
-        debugMsg('zonal average created', header=True)
+        print('zonal average created')
         os.chdir(cwd)
 
 
@@ -344,7 +344,7 @@ def create_plot_dat(workdir, xyrange, depths):
 #================================================================
 # createLinks - create symbolic links between tavgdir and workdir
 #================================================================
-def createLinks(start_year, stop_year, tavgdir, workdir, case, debugMsg):
+def createLinks(start_year, stop_year, tavgdir, workdir, case):
     """createLinks - create symbolic links between tavgdir and workdir
 
     Arguments:
@@ -370,7 +370,6 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, debugMsg):
         mavgFile = '{0}/mavg.{1}.{2}.nc'.format(workdir, zstart_year, zstop_year)
         rc1, err_msg1 = cesmEnvLib.checkFile(mavgFile, 'read')
         if not rc1:
-            debugMsg('before mavg symlink: {0} to {1}'.format(avgFile,mavgFile), header=True)
             os.symlink(avgFile, mavgFile)
     else:
         raise OSError(err_msg)
@@ -383,7 +382,6 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, debugMsg):
         tavgFile = '{0}/tavg.{1}.{2}.nc'.format(workdir, zstart_year, zstop_year)
         rc1, err_msg1 = cesmEnvLib.checkFile(tavgFile, 'read')
         if not rc1:
-            debugMsg('before tavg symlink: {0} to {1}'.format(avgFile,tavgFile), header=True)
             os.symlink(avgFile, tavgFile)
     else:
         raise OSError(err_msg)
@@ -400,7 +398,6 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, debugMsg):
             workAvgFile = '{0}/{1}.{2}.nc'.format(workdir, case_prefix, zyear)
             rc1, err_msg1 = cesmEnvLib.checkFile(workAvgFile, 'read')
             if not rc1:
-                debugMsg('before yearly avg symlink: {0} to {1}'.format(avgFile,workAvgFile), header=True)
                 os.symlink(avgFile, workAvgFile)
         year += 1
 

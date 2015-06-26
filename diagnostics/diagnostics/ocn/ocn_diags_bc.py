@@ -13,11 +13,14 @@ if sys.hexversion < 0x02070000:
     print(70 * "*")
     sys.exit(1)
 
-import traceback
+import errno
 import os
-import subprocess
+import traceback
 
-# import the helper utility module
+# import the MPI related modules
+from asaptools import partition, simplecomm, vprinter, timekeeper
+
+# import the helper utility modules
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
@@ -36,45 +39,67 @@ class OceanDiagnostic(object):
     def title(self):
         return self._title
 
+    def setup_workdir(self, env):
+        """This method sets up the unique working directory for a given diagnostic type
+        """
+        # create the working directory first before calling the base class prerequisites 
+        subdir = '{0}.{1}_{2}'.format(self._name.lower(), env['YEAR0'], env['YEAR1'])
+        workdir = '{0}/{1}'.format(env['WORKDIR'], subdir)
+        print('working directory = {0}'.format(workdir))
+
+        try:
+            os.makedirs(workdir)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(self.__class__.__name__, workdir)
+                raise OSError(err_msg)
+
+        # create symbolic links between the tavgdir and the workdir and get the real names of the mavg and tavg files
+        env['WORKDIR'] = workdir
+        env['MAVGFILE'], env['TAVGFILE'] = diagUtilsLib.createLinks(env['YEAR0'], env['YEAR1'], env['TAVGDIR'], env['WORKDIR'], env['CASE'])
+
+        return env
+
     def check_prerequisites(self, env):
         """This method does some generic checks for the prerequisites
         that are common to all diagnostics
         """
         print('  Checking generic prerequisites for ocean diagnostics.')
 
+        # setup the working directory for each diagnostics class
+        env = self.setup_workdir(env)
+
         # check that temperature observation TOBSFILE exists and is readable
-        rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE']), 'read')
+        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE'])
+        print('     Checking {0}'.format(sourceFile))
+        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if not rc:
             raise OSError(err_msg)
 
         # set a link to TSOBSDIR/TOBSFILE
-        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE'])
         linkFile = '{0}/{1}'.format(env['WORKDIR'], env['TOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if rc:
-            rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
-            if not rc1:
-                os.symlink(sourceFile, linkFile)
-        else:
-            raise OSError(err_msg)
+        print('     Linking {0}'.format(linkFile))
+        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
+        if not rc:
+            os.symlink(sourceFile, linkFile)
 
         # check that salinity observation SOBSFILE exists and is readable
-        rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE']), 'read')
+        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE'])
+        print('     Checking {0}'.format(sourceFile))
+        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
         if not rc:
             raise OSError(err_msg)
 
         # set a link to TSOBSDIR/SOBSFILE
-        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE'])
         linkFile = '{0}/{1}'.format(env['WORKDIR'], env['SOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if rc:
-            rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
-            if not rc1:
-                os.symlink(sourceFile, linkFile)
-        else:
-            raise OSError(err_msg)
+        print('     Linking {0}'.format(linkFile))
+        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
+        if not rc:
+            os.symlink(sourceFile, linkFile)
 
-    def run_diagnostics(self, env, scomm, debugMsg):
+        return env
+        
+    def run_diagnostics(self, env, scomm):
         """ base method for calling diagnostics
         """
         return

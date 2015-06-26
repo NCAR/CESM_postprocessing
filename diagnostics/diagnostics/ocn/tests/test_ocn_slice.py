@@ -19,10 +19,10 @@ in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alph
 out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007/ocn/proc/tavg/annual'
 pref= 'b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007.pop.h'
 htype= 'slice'
-average = ['ya:0070', 'ya:0071', 'ya:0072', 'ya:0073', 'ya:0074', 'ya:0075', 'mavg:0070:0075', 'tavg:0070:0075']
+average = ['mavg:0070:0075', 'tavg:0070:0075']
 wght= False
 ncfrmt = 'netcdf'
-serial=True
+serial=False
 
 var_list = []
 mean_diff_rms_obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'

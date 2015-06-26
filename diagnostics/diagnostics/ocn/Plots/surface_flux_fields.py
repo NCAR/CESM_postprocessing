@@ -43,8 +43,8 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(SurfaceFluxFields, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
+        super(SurfaceFluxFields, self).check_prerequisites(env)
 
         # setup the fluxobsdir and fluxobsfile based on the coupler version
         fluxobsdir = 'FLUXOBSDIR_CPL{0}'.format(env['CPL'])

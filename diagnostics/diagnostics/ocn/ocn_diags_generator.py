@@ -43,13 +43,9 @@ from diag_utils import diagUtilsLib
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
-#import the diags classes
-import ocn_diags_bc
-import ocn_diags_factory
-
-# import the plot classes
-from diagnostics.ocn.Plots import ocn_diags_plot_bc
-from diagnostics.ocn.Plots import ocn_diags_plot_factory
+#import the diagnosticss classes
+from diagnostics.ocn import ocn_diags_bc
+from diagnostics.ocn import ocn_diags_factory
 
 # define global debug message string variable
 debugMsg = ''
@@ -205,49 +201,63 @@ def main(options, main_comm, debugMsg):
 
     # get list of diagnostics types to be created
     diag_list = list()
-    if main_comm.is_manager():
-        diag_list = setup_diags(envDict)
-        print('User requested diagnostics:')
-        for diag in diag_list:
-            print('  {0}'.format(diag))
+    diag_list = setup_diags(envDict)
+    print('User requested diagnostics:')
+    for diag in diag_list:
+        print('  {0}'.format(diag))
 
         # TODO - create a jinja template for the main links to all the diag classes
 
     main_comm.sync()
 
-    # TODO divide the main communicator into sub_communicators to be passed to each diag class
+    # divide the main communicator into sub_communicators to be passed to each diag class
     num_of_diags = len(diag_list)
-    min_diags_per_comm = 1
+    if num_of_diags == 0:
+        print('No ocean diagnostics specified. Please check the {0}/env_diags_ocn.xml settings.'.format(envDict['CASEROOT']))
+        sys.exit(1)
 
-    # group[color_id] == intercommunicator
+    # initialize some variables for distributed diagnostics across the communicators
+    diags_send = diag_list
+    inter_comm = main_comm
     size = main_comm.get_size()
     rank = main_comm.get_rank()
+    l_master = main_comm.is_manager()
+    lsize = main_comm.get_size()
+    lrank = main_comm.get_rank()
 
-    # split mpi comm world
-    temp_color = (rank % num_diags)
-    if (temp_color == num_of_diags):
-        temp_color = temp_color - 1
-    groups = []
-    for g in range(0,num_of_diags):
-        groups.append(g)
-    print 'g_rank:',rank,'size:',size,'temp_color:',temp_color,'#of groups',num_of_diags,'groups:',groups 
-    group = groups[temp_color]
-    inter_comm,multi_comm = spec.main_comm.divide(group)
-    color = inter_comm.get_color()
-    lsize = inter_comm.get_size()
-    lrank = inter_comm.get_rank()
-                
-    #g_master = spec.main_comm.is_manager()
-    l_master = inter_comm.is_manager()
+    # split mpi comm world if the size of the communicator > 1 and the num_of_diags > 1
+    if size > 1 and num_of_diags > 1:
+        temp_color = (rank % num_of_diags)
+        if (temp_color == num_of_diags):
+            temp_color = temp_color - 1
+        groups = list()
+        for g in range(0,num_of_diags):
+            groups.append(g)
+        debugMsg('g_rank: {0}, size {1}, temp_color {2}, #of groups {3}, groups{4}'.format(rank, size, temp_color, num_of_diags, groups))
+        group = groups[temp_color]
+        inter_comm, multi_comm = main_comm.divide(group)
+        color = inter_comm.get_color()
+        lsize = inter_comm.get_size()
+        lrank = inter_comm.get_rank()
+        l_master = inter_comm.is_manager()
 
-    local_diag_list = list()
-    if l_master:
-        local_diag_list = multi_comm.partition(diag_list,func=partition.EqualStride(),involved=True)
-        for b in range(1, lsize):
-            diags_send = inter_comm.ration(data=local_diag_list, tag=DIAG_LIST_TAG) 
-    else:
-        diags_send = inter_comm.ration(tag=DIAG_LIST_TAG)
+        # partition the diag_list between communicators
+        local_diag_list = list()
+        if l_master:
+            local_diag_list = multi_comm.partition(diag_list,func=partition.EqualStride(),involved=True)
+            for b in range(1, lsize):
+                diags_send = inter_comm.ration(data=local_diag_list, tag=DIAG_LIST_TAG) 
+        else:
+            diags_send = inter_comm.ration(tag=DIAG_LIST_TAG)
 
+#    if size > 1 and num_of_diags == 1:
+#        diags_send = main_comm.partition(diag_list,func=partition.EqualStride(),involved=True)
+#        diags_send = diag_list
+
+    debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank))
+    inter_comm.sync()
+
+    # loop through the diags_send list
     for requested_diag in diags_send:
         try:
             diag = ocn_diags_factory.oceanDiagnosticsFactory(requested_diag)
@@ -256,15 +266,19 @@ def main(options, main_comm, debugMsg):
             debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
             
             if l_master:
-                envDict = diag.check_prerequisites(envDict, debugMsg)
-
-            # set the shell env using the values set in the XML and read into the envDict
-            # across all tasks
+                envDict = diag.check_prerequisites(envDict)
+                debugMsg('MAVGFILE = {0}, TAVGFILE = {1}'.format(envDict['MAVGFILE'], envDict['TAVGFILE']))
 
             inter_comm.sync()
+
+            # broadcast the envDict
+            envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+
+            # set the shell env using the values set in the XML and read into the envDict across all tasks
             cesmEnvLib.setXmlEnv(envDict)
 
-            diag.run_diagnostics(envDict, inter_comm, debugMsg)
+            debugMsg('inter_comm = {0}'.format(inter_comm))
+            diag.run_diagnostics(envDict, inter_comm)
             
         except ocn_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
@@ -283,7 +297,7 @@ def main(options, main_comm, debugMsg):
 
 if __name__ == "__main__":
     # initialize simplecomm object
-    main_comm = simplecomm.create_comm(serial=True)
+    main_comm = simplecomm.create_comm(serial=False)
 
     # get commandline options
     options = commandline_options()

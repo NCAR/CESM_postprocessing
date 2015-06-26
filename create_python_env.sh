@@ -224,7 +224,6 @@ make
 # link the za compiled code to one level up for the NCL
 ln -sf $pp_dir/ocn_diag/tool_lib/zon_avg/za $pp_dir/ocn_diag/tool_lib/za
 
-##./compile_za --machine $machine --pproot $pp_dir
 echo "---------------------------------------------------------"
 
 cd $curdir
