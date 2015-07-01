@@ -72,7 +72,7 @@ def commandline_options():
 #==========================================================================================
 # readArchiveXML - read the $CASEROOT/env_archive.xml file and build the pyReshaper classes
 #==========================================================================================
-def readArchiveXML(caseroot, dout_s_root, casename):
+def readArchiveXML(caseroot, dout_s_root, casename, debug):
     """ reads the $CASEROOT/env_archive.xml file and builds a fully defined list of 
          reshaper specifications to be passed to the pyReshaper tool.
 
@@ -210,10 +210,12 @@ def readArchiveXML(caseroot, dout_s_root, casename):
                             spec.output_file_suffix = tseries_output_suffix
                             spec.time_variant_metadata = variable_list
 
-                            dbg = list()
-                            pp = pprint.PrettyPrinter(indent=5)
-                            dbg = [comp_name, spec.input_file_list, spec.netcdf_format, spec.output_file_prefix, spec.output_file_suffix, spec.time_variant_metadata]
-                            pp.pprint(dbg)
+                            # print the specifier
+                            if debug:
+                                dbg = list()
+                                pp = pprint.PrettyPrinter(indent=5)
+                                dbg = [comp_name, spec.input_file_list, spec.netcdf_format, spec.output_file_prefix, spec.output_file_suffix, spec.time_variant_metadata]
+                                pp.pprint(dbg)
                             
                             # append this spec to the list of specifiers
                             specifiers.append(spec)
@@ -233,6 +235,9 @@ def main(options, scomm, rank, size):
     # CASEROOT is given on the command line as required option --caseroot
     caseroot = options.caseroot[0]
 
+    # set the debug level 
+    debug = options.debug[0]
+
     # cesmEnv["id"] = "value" parsed from the CASEROOT/env_*.xml files
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
     cesmEnv = cesmEnvLib.readXML(caseroot, env_file_list)
@@ -242,14 +247,14 @@ def main(options, scomm, rank, size):
 
     # loading the specifiers from the env_archive.xml  only needs to run on the master task (rank=0) 
     if rank == 0:
-        specifiers = readArchiveXML(caseroot, cesmEnv['DOUT_S_ROOT'], cesmEnv['CASE'])
+        specifiers = readArchiveXML(caseroot, cesmEnv['DOUT_S_ROOT'], cesmEnv['CASE'], debug)
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
     specifiers = scomm.partition(specifiers, func=partition.Duplicate(), involved=True)
 
     # create the PyReshaper object - uncomment when multiple specifiers is allowed
-    reshpr = reshaper.create_reshaper(specifiers, serial=False, verbosity=2)
+    reshpr = reshaper.create_reshaper(specifiers, serial=False, verbosity=debug)
 
     # Run the conversion (slice-to-series) process 
     reshpr.convert()
@@ -278,7 +283,9 @@ if __name__ == "__main__":
     try:
         status = main(options, scomm, rank, size)
         if rank == 0:
+            print('************************************************************')
             print('Successfully completed generating variable time-series files')
+            print('************************************************************')
         sys.exit(status)
 
 ##    except RunTimeError as error:

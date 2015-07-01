@@ -75,13 +75,13 @@ from cesm_utils import cesmEnvLib
 import jinja2
 
 # -------------------------------------------------------------------------------
-# define a class to be used for the xml entry, id, sdesc values
+# define a class to be used for the xml entry, id, desc values
 # -------------------------------------------------------------------------------
 class XmlEntry(object):
-    def __init__(self, id, value, sdesc):
+    def __init__(self, id, value, desc):
         self._id = id
         self._value = value
-        self._sdesc = sdesc
+        self._desc = desc
     
     def id(self):
         return self._id
@@ -89,8 +89,8 @@ class XmlEntry(object):
     def value(self):
         return self._value
 
-    def sdesc(self):
-        return self._sdesc
+    def desc(self):
+        return self._desc
 
 # -------------------------------------------------------------------------------
 # commandline_options - parse any command line options
@@ -112,6 +112,9 @@ def commandline_options():
 
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
+
+    parser.add_argument('--control-run', action='store_true', default=False,
+                        help='Controls whether or not to process climatology files for a control run using the settings in the caseroot env_diags_[component].xml files.')
 
     options = parser.parse_args()
 
@@ -149,7 +152,7 @@ def create_env_file(ppDir, configFile, tmplFile, envFile, group, obs_root):
         xml_tree.parse(configFile)
         for entry_tag in xml_tree.findall('entry'):
             if entry_tag.get('group').lower() == group:
-                xml_list.append(XmlEntry(entry_tag.get('id'), entry_tag.get('value'), entry_tag.get('sdesc')))
+                xml_list.append(XmlEntry(entry_tag.get('id'), entry_tag.get('value'), entry_tag.get('desc')))
 
         # add an additional entry for machine dependent input observation files root path
         if len(obs_root) > 0:
@@ -274,6 +277,13 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     if options.backtrace:
         backtrace = '--backtrace'
 
+    # check if the control run averages should be computed
+    computeAverages = False
+    controlRun = options.control_run
+    if controlRun:
+        if 'avg' in postProcessCmd:
+            computeAverages = True
+
     # all files look good so start parsing the template file starting with the batchTmpl
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}/templates'.format(ppDir) )
     templateEnv = jinja2.Environment( loader=templateLoader )
@@ -295,7 +305,9 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
                      'caseRoot' : caseRoot,
                      'virtualEnvDir' : virtualEnvDir,
                      'debug' : debug,
-                     'backtrace' : backtrace }
+                     'backtrace' : backtrace,
+                     'controlRun' : controlRun,
+                     'computeAverages' : computeAverages }
 
     # render this template into the runScript string
     runScript = template.render( templateVars )

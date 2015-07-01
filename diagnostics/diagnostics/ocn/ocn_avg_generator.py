@@ -61,6 +61,9 @@ def commandline_options():
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
 
+    parser.add_argument('--control-run', action='store_true', default=False,
+                        help='Controls whether or not to process climatology files for a control run using the settings in the caseroot env_diags_[component].xml files.')
+
     options = parser.parse_args()
 
     # check to make sure CASEROOT is a valid, readable directory
@@ -292,10 +295,24 @@ def initialize_envDict(envDict, caseroot, debugMsg):
     in_dir = '{0}/ocn/hist'.format(envDict['DOUT_S_ROOT'])
 
     # get model history file information from the DOUT_S_ROOT archive location
-    debugMsg('calling checkHistoryFiles', header=True)
+    debugMsg('calling checkHistoryFiles for control run', header=True)
+    time_series = envDict['GENERATE_TIMESERIES']
+    archive_dir = envDict['DOUT_S_ROOT']
+    case_name = envDict['CASE']
+    year0 = envDict['YEAR0']
+    year1 = envDict['YEAR1']
+
+    if options.control_run:
+        # get model history file information from the CNTRLCASE dir
+        debugMsg('calling checkHistoryFiles for control run', header=True)
+        time_series = envDict['CNTRLCASE_TIMESERIES']
+        archive_dir = envDict['CNTRLCASEDIR']
+        case_name = envDict['CNTRLCASE']
+        year0 = envDict['CNTRLYEAR0']
+        year1 = envDict['CNTRLYEAR1']
+
     start_year, stop_year, in_dir, htype = diagUtilsLib.checkHistoryFiles(
-        envDict['GENERATE_TIMESERIES'], envDict['DOUT_S_ROOT'], 
-        envDict['CASE'], envDict['YEAR0'], envDict['YEAR1'], 
+        time_series, archive_dir, case_name, year0, year1, 
         'ocn', 'pop.h.*.nc', '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc')
 
     envDict['YEAR0'] = start_year
@@ -335,9 +352,17 @@ def main(options, debugMsg):
 
     # generate the climatology files used for all plotting types using the pyAverager
     debugMsg('calling createClimFiles', header=True)
+    tavg_dir = envDict['TAVGDIR'] 
+    case_name = envDict['CASE']
+
+    if options.control_run:
+        debugMsg('calling createClimFiles for control run', header=True)
+        tavg_dir = envDict['CNTRLTAVGDIR']
+        case_name = envDict['CNTRLCASE']
+
     try:
         createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
-                        envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], varList, debugMsg)
+                        envDict['htype'], tavg_dir, case_name, varList, debugMsg)
     except Exception as error:
         print(str(error))
         traceback.print_exc()
@@ -351,6 +376,7 @@ if __name__ == "__main__":
     options = commandline_options()
 
     # initialize global vprinter object for printing debug messages
+    debugMsg = vprinter.VPrinter(header='', verbosity=0)
     if options.debug:
         header = 'ocn_avg_generator: DEBUG... '
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])

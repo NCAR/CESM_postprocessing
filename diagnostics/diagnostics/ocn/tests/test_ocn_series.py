@@ -1,6 +1,13 @@
 #!/usr/bin/env python2
 
 # import the MPI related module
+import sys
+
+sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_alpha05/postprocessing/averager/pyAverager")
+sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_alpha05/postprocessing/mpi_utils/pyTools")
+print(sys.path)
+
+# import the MPI related module
 from asaptools import partition, simplecomm
 
 from pyaverager import PyAverager, specification
@@ -13,7 +20,7 @@ in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alph
 out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007/ocn/proc/tavg/annual'
 pref= 'b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007.pop.h'
 htype= 'series'
-average = ['ya:0070', 'ya:0071', 'ya:0072', 'ya:0073', 'ya:0074', 'ya:0075', 'mavg:0070:0075', 'tavg:0070:0075']
+average = ['mavg:0070:0075', 'tavg:0070:0075']
 wght= False
 ncfrmt = 'netcdf'
 serial=False

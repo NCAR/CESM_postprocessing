@@ -1,5 +1,5 @@
 #!/bin/csh
-#BSUB -n 160
+#BSUB -n 124
 #BSUB -q regular
 #BSUB -N 
 #BSUB -W 2:00
@@ -13,7 +13,7 @@
 module load python 
 module load all-python-libs
 
-mpirun.lsf ./test_ocn_slice.py
+mpirun.lsf ./test_ocn_slice_control.py
 
 #deactivate
 

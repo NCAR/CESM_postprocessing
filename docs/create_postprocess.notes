@@ -15,13 +15,9 @@ Step A. create_python_env.sh machines/module_[machinename].sh - sets up the cesm
 
 ************** a clean cesm-env2 virtualenv now exists ***************
 
-Step B. create_postprocessing --caseroot [caseroot] (python script)
+Step B. create_postprocessing --caseroot [caseroot] (--debug [lvl]] [--backtrace] [--control-run]
 - can be run from create_newcase --postprocessing 
 - can be run stand-alone from CESM/postprocessing
-
-QUESTION - does virtual-env need to be activated first before create_postprocessing can be run??
-if so, then create_postprocessing.py needs to be installed in the virtualenv and called
-by a create_postprocess.sh script...
 
 1. parse/copy config_env files into caseroot 
    - includes a postprocess.xml (which contains 5 key/value pairs for what gets run (tseries, ocn, atm, lnd, ice)

@@ -15,7 +15,7 @@ scomm = simplecomm.create_comm(serial=False)
 
 #### User modify ####
 
-in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007/ocn/hist'
+in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007/ocn/hist/monthly'
 out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007/ocn/proc/tavg/annual'
 pref= 'b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007.pop.h'
 htype= 'slice'

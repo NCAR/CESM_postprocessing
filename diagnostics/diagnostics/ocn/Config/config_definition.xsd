@@ -15,8 +15,7 @@
 		<xs:attribute name="list" type="xs:string" use="optional"/>
 		<xs:attribute name="value" type="xs:string" use="optional"/>
 		<xs:attribute name="group" type="xs:string" use="optional"/>
-		<xs:attribute name="sdesc" type="xs:string" use="optional"/>
-		<xs:attribute name="ldesc" type="xs:string" use="optional"/>
+		<xs:attribute name="desc" type="xs:string" use="optional"/>
 	      </xs:extension>
 	    </xs:simpleContent>
 	  </xs:complexType>
