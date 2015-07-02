@@ -55,6 +55,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         env['FLUXOBSFILE'] = env[fluxobsfile]
 
         # TODO create a cesmEnvLib.symLink method for checking and linking files
+# START HERE....
 #**** start method
         # check if the flux file exists and is readable
         sourceFile = '{0}/{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
@@ -73,7 +74,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
             except Exception as e:
                 print('...error = {0}'.format(e))
                 raise OSError(e)
-#**** end         
+#**** end method
    
         # check if the zonal average flux file exists and is readable
         sourceFile = '{0}/za_{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
@@ -236,11 +237,10 @@ class SurfaceFluxFields_obs(SurfaceFluxFields):
         super(SurfaceFluxFields_obs, self).__init__()
         self._ncl = ['sfcflx.ncl', 'sfcflx_za.ncl']
 
-
-class SurfaceFluxFields_control(SurfaceFluxFields):
+class SurfaceFluxFields_model(SurfaceFluxFields):
 
     def __init__(self):
-        super(SurfaceFluxFields_control, self).__init__()
+        super(SurfaceFluxFields_model, self).__init__()
         self._ncl = ['sfcflx_diff.ncl', 'sfcflx_za_diff.ncl']
     
 

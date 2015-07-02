@@ -156,7 +156,6 @@ def initialize_main(envDict, caseroot, debugMsg):
         sys.exit(1)
 
     # TODO - create the list of necessary climatology files for control
-
     return envDict
 
 #======

@@ -45,7 +45,7 @@ class modelVsModel(OceanDiagnostic):
         super(modelVsModel, self).__init__()
 
         self._name = 'MODEL_VS_MODEL'
-        self._title = 'Model vs. MODEL'
+        self._title = 'Model vs. Model'
 
     def check_prerequisites(self, env):
         """ check prerequisites
@@ -133,7 +133,7 @@ class modelVsModel(OceanDiagnostic):
         # define the templatePath for all tasks
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
 
-        # all the plot module XML vars start with MVM_PM_  need to strip that off
+        # all the plot module XML vars start with MVM_PM_  need to strip off MVM_
         for key, value in env.iteritems():
             if (re.search("\AMVM_PM_", key) and value.upper() in ['T','TRUE']):
                 k = key[4:]
@@ -153,25 +153,23 @@ class modelVsModel(OceanDiagnostic):
                 templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
                 templateEnv = jinja2.Environment( loader=templateLoader )
                 
-                TEMPLATE_FILE = 'model_vs_model.tmpl'
-                template = templateEnv.get_template( TEMPLATE_FILE )
+                template_file = 'model_vs_model.tmpl'
+                template = templateEnv.get_template( template_file )
     
                 # test the template variables
                 templateVars = { 'casename' : env['CASE'],
+                                 'control_casename' : env['CNTRLCASE'],
                                  'tagname' : env['CCSM_REPOTAG'],
                                  'start_year' : env['YEAR0'],
-                                 'stop_year' : env['YEAR1']
+                                 'stop_year' : env['YEAR1'],
+                                 'control_start_year' : env['CNTRLYEAR0'],
+                                 'control_stop_year' : env['CNTRLYEAR1']
                                  }
 
                 print('Rendering plot html header')
                 plot_html = template.render( templateVars )
 
         scomm.sync()
-
-#        print('Broadcast requested plots')
-        # broadcast requested plot names to all tasks
-#        requested_plots = scomm.partition(data=requested_plots, func=partition.Duplicate(), involved=True)
-#        scomm.sync()
 
         print('Partition requested plots')
         # partition requested plots to all tasks
@@ -180,7 +178,7 @@ class modelVsModel(OceanDiagnostic):
 
         for requested_plot in local_requested_plots:
             try:
-                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(requested_plot)
+                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('model',requested_plot)
 
                 print('Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)
@@ -261,8 +259,8 @@ class modelVsModel(OceanDiagnostic):
                 print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
                 print('You will need to manually copy the web files to a remote web server.')
 
-            print('*******************************************************************************')
-            print('Successfully completed generating ocean diagnostics model vs. observation plots')
-            print('*******************************************************************************')
+            print('*************************************************************************')
+            print('Successfully completed generating ocean diagnostics model vs. model plots')
+            print('*************************************************************************')
 
 

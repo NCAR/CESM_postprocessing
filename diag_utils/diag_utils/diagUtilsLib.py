@@ -410,7 +410,7 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, control):
     return mavgFileBase, tavgFileBase
 
 #================================================================
-# checkAvgFiles - check that the climotology average files exist
+# TODO checkAvgFiles - check that the climotology average files exist
 #================================================================
 def checkAvgFiles(filelist):
     """ check if the climatology files exist in the list of files passed in

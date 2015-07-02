@@ -105,7 +105,6 @@ class modelVsObs(OceanDiagnostic):
         # all the plot module XML vars start with MVO_PM_  need to strip that off
         for key, value in env.iteritems():
             if (re.search("\AMVO_PM_", key) and value.upper() in ['T','TRUE']):
-                k = key[4:]
                 requested_plots.append(k)
 
         print('before scomm.sync requested_plots = {0}'.format(requested_plots))
@@ -122,8 +121,8 @@ class modelVsObs(OceanDiagnostic):
                 templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
                 templateEnv = jinja2.Environment( loader=templateLoader )
                 
-                TEMPLATE_FILE = 'model_vs_obs.tmpl'
-                template = templateEnv.get_template( TEMPLATE_FILE )
+                template_file = 'model_vs_obs.tmpl'
+                template = templateEnv.get_template( template_file )
     
                 # test the template variables
                 templateVars = { 'casename' : env['CASE'],
@@ -137,11 +136,6 @@ class modelVsObs(OceanDiagnostic):
 
         scomm.sync()
 
-#        print('Broadcast requested plots')
-        # broadcast requested plot names to all tasks
-#        requested_plots = scomm.partition(data=requested_plots, func=partition.Duplicate(), involved=True)
-#        scomm.sync()
-
         print('Partition requested plots')
         # partition requested plots to all tasks
         local_requested_plots = scomm.partition(requested_plots, func=partition.EqualStride(), involved=True)
@@ -149,7 +143,7 @@ class modelVsObs(OceanDiagnostic):
 
         for requested_plot in local_requested_plots:
             try:
-                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory(requested_plot)
+                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('obs', requested_plot)
 
                 print('Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)
