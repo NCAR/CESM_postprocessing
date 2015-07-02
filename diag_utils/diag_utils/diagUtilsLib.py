@@ -344,7 +344,7 @@ def create_plot_dat(workdir, xyrange, depths):
 #================================================================
 # createLinks - create symbolic links between tavgdir and workdir
 #================================================================
-def createLinks(start_year, stop_year, tavgdir, workdir, case):
+def createLinks(start_year, stop_year, tavgdir, workdir, case, control):
     """createLinks - create symbolic links between tavgdir and workdir
 
     Arguments:
@@ -353,6 +353,7 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
     tavgdir (string) - output directory for averages
     workdir (string) - working directory for diagnostics
     case (string) - case name
+    control (boolean) - indicates if this is a control run or not which will change the mavg and tavg filenames
     """
     padding = 4
     avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
@@ -362,12 +363,17 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
     zstart_year = start_year.zfill(padding)
     zstop_year = stop_year.zfill(padding)
 
+    # check if this is a control run or not
+    cntrl = ''
+    if control:
+        cntrl = 'cntrl.'
+
     # link to the mavg file for the za and plotting routines
-    mavgFileBase = 'mavg.{0}.{1}.nc'.format(zstart_year, zstop_year)
+    mavgFileBase = 'mavg.{0}.{1}.{2}nc'.format(zstart_year, zstop_year, cntrl)
     avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
-        mavgFile = '{0}/mavg.{1}.{2}.nc'.format(workdir, zstart_year, zstop_year)
+        mavgFile = '{0}/mavg.{1}.{2}.{3}nc'.format(workdir, zstart_year, zstop_year, cntrl)
         rc1, err_msg1 = cesmEnvLib.checkFile(mavgFile, 'read')
         if not rc1:
             os.symlink(avgFile, mavgFile)
@@ -375,11 +381,11 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case):
         raise OSError(err_msg)
 
     # link to the tavg file
-    tavgFileBase = 'tavg.{0}.{1}.nc'.format(zstart_year, zstop_year)
+    tavgFileBase = 'tavg.{0}.{1}.{2}nc'.format(zstart_year, zstop_year, cntrl)
     avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
-        tavgFile = '{0}/tavg.{1}.{2}.nc'.format(workdir, zstart_year, zstop_year)
+        tavgFile = '{0}/tavg.{1}.{2}.{3}nc'.format(workdir, zstart_year, zstop_year, cntrl)
         rc1, err_msg1 = cesmEnvLib.checkFile(tavgFile, 'read')
         if not rc1:
             os.symlink(avgFile, tavgFile)

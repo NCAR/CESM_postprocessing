@@ -1,6 +1,7 @@
 all : develop
 
 test : FORCE
+	xmllint --schema 
 	python -m unittest discover --start-directory diagnostics/test
 
 develop : FORCE

@@ -55,8 +55,9 @@ class OceanDiagnostic(object):
                 raise OSError(err_msg)
 
         # create symbolic links between the tavgdir and the workdir and get the real names of the mavg and tavg files
+        control = False
         env['WORKDIR'] = workdir
-        env['MAVGFILE'], env['TAVGFILE'] = diagUtilsLib.createLinks(env['YEAR0'], env['YEAR1'], env['TAVGDIR'], env['WORKDIR'], env['CASE'])
+        env['MAVGFILE'], env['TAVGFILE'] = diagUtilsLib.createLinks(env['YEAR0'], env['YEAR1'], env['TAVGDIR'], env['WORKDIR'], env['CASE'], control)
 
         return env
 
@@ -97,8 +98,6 @@ class OceanDiagnostic(object):
         if not rc:
             os.symlink(sourceFile, linkFile)
 
-        return env
-        
     def run_diagnostics(self, env, scomm):
         """ base method for calling diagnostics
         """

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+
+<!-- =========================================================================== -->
+<!-- Ocean Model Working Group Diagnostics Plots XML                             -->
+<!-- =========================================================================== -->
+
+<plot_definition version="1.0">
+
+  <diag_types>
+
+    <!-- model vs. observations -->
+    <diag_type name="MODEL_VS_OBS">
+      <plot_types>
+	<!-- 2D surface flux fields -->
+	<plot_type name="MVO_PM_SFCFLX" order="1">
+	  <class_file>surface_flux_fields.py</class_file>
+	  <html_label>2D Surface Flux Fields</label>
+	  <template_file>surface_flux_fields.tmpl</template_file>
+	  <ncl_scripts>
+	    <ncl_script name="sfcflx.ncl" html_table_label="Surface Fluxes (Lat, Lon)">
+	      <plots>
+		<plot label="SHF_TOTAL">SHF_TOTAL</plot>
+		<plot label="SHF_QSW">SHF_QSW</plot>
+	      </plots>
+	    </ncl_script>
+	    <ncl_script name="sfcflx_za.ncl" html_table_label="Global Zonal Average">
+	      <plots>
+		<plot label="SHF_TOTA_GLO_za">SHF_TOTAL_GLO_za</plot>
+		<plot label="SHF_QSW_GLO_za">SHF_QSW_GLO_za</plot>
+	      </plots>
+	    </ncl_script>
+	  </ncl_scripts>
+	</plot_type>
+
+	<!-- 2D surface fields -->
+	<plot_type name="MVO_PM_FLD2D" order="2">
+	  <class_file>surface_fields.py</class_file>
+	  <html_label>2D Surface Fields</label>
+	  <template_file>surface_fields.tmpl</template_file>
+	  <ncl_scripts>
+	    <ncl_script name="ssh.ncl" html_table_label=""/>
+	    <ncl_script name="field_2d.ncl" html_table_label="2D Fields (Lat, Lon)">
+	      <plots>
+		<plot label="SSH">SSH</plot>
+		<plot label="HBLT">HBLT</plot>
+	      </plots>
+	    </ncl_script>
+	    <ncl_script name="field_2d_za.ncl" html_table_label="Global Zonal Average">
+	      <plots>
+		<plot label="SSH_GLO_za">SSH_GLO_za</plot>
+		<plot label="HBLT_GLO_za">HBLT_GLO_za</plot>
+	      </plots>
+	    </ncl_script>
+	  </ncl_scripts>
+	</plot_type>
+
+      </plot_types>
+    </diag_type>
+
+  </diag_types>
+
+</plot_definition>

@@ -2,7 +2,7 @@
 #BSUB -n 124
 #BSUB -q regular
 #BSUB -N 
-#BSUB -W 2:00
+#BSUB -W 0:10
 ##BSUB -R "span[ptile=8]"
 #BSUB -P P93300606
 #BSUB -o pyAve.%J.out         # output file name in which %J is replaced by the job ID

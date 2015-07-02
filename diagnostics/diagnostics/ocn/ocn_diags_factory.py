@@ -6,7 +6,7 @@
 from ocn_diags_bc import UnknownDiagType
 import model_vs_obs
 #import model_vs_obs_ecosys
-#import model_vs_model
+import model_vs_model
 #import model_vs_model_ecosys
 #import modelts
 #import modelts_ecosys

@@ -22,10 +22,31 @@ import polar_temp_salt
 import basin_averages
 import regional_area
 
-def oceanDiagnosticPlotFactory(plot_type):
+
+plot_map = {'PM_SFC2D': 'surface_flux_fields.SurfaceFluxFields_{0}()',
+           'PM_FLD2D': 'surface_fields.SurfaceFields_{0}()'}
+
+# TODO diag_type must be 'obs' or 'control' or whatever to match the classname in the plot class
+def oceanDiagnosticPlotFactory(diag_type, plot_type):
     """Create and return an object of the requested type.
     """
     plot = None
+
+    try:
+        plot_string = plot_map[plot_type].format(diag_type)
+    except KeyError:
+        # TODO throw a warning that plot type does not 
+        pass
+
+    try:
+        plot = eval(plot_string)
+    except NameError:
+        # TODO throw a warning that plot class does not exist
+        pass
+
+#******
+
+
     if plot_type == "PM_SFC2D":
         plot = surface_flux_fields.SurfaceFluxFields()
 

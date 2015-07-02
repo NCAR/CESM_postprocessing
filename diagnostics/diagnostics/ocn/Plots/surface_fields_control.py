@@ -14,6 +14,7 @@ import traceback
 import os
 import jinja2
 
+
 # import the helper utility module
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
@@ -21,108 +22,50 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-# this becomes the bass class
-class SurfaceFluxFields(OceanDiagnosticPlot):
+class SurfaceFields(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
     """
 
     def __init__(self):
-        super(SurfaceFluxFields, self).__init__()
-        self._expectedPlots = [ 'SHF_TOTAL', 'SHF_QSW', 'MELTH_F', 'SENH_F', 'LWUP_F',
-                                'LWDN_F', 'QFLUX', 'SFWF_TOTAL', 'EVAP_F', 'PREC_F',
-                                'SNOW_F', 'MELT_F', 'SALT_F', 'ROFF_F', 'TAUX',
-                                'TAUY', 'CURL' ]
-        self._expectedPlots_za = [ 'SHF_TOTAL_GLO_za', 'SHF_QSW_GLO_za', 'MELTH_F_GLO_za', 'SENH_F_GLO_za',
-                                   'LWUP_F_GLO_za', 'LWDN_F_GLO_za', 'QFLUX_GLO_za', 'SFWF_TOTAL_GLO_za',
-                                   'EVAP_F_GLO_za', 'PREC_F_GLO_za', 'SNOW_F_GLO_za', 'MELT_F_GLO_za',
-                                   'SALT_F_GLO_za', 'ROFF_F_GLO_za' ]
+        super(SurfaceFields, self).__init__()
+        self._expectedPlots = [ 'SSH', 'HBLT', 'HMXL', 'DIA_DEPTH', 'TLT', 'INT_DEPTH', 'SU', 'SV', 'BSF' ]
+        self._expectedPlots_za = [ 'SSH_GLO_za', 'HBLT_GLO_za', 'HMXL_GLO_za', 'DIA_DEPTH_GLO_za', 'TLT_GLO_za', 'INT_DEPTH_GLO_za' ]
 
-        self._name = '2D Surface Flux Fields'
-        self._shortname = 'SFCFLX'
-        self._template_file = 'surface_flux_fields.tmpl'
-        self._ncl = list()
+        self._name = '2D Surface Fields'
+        self._shortname = 'FLD2D'
+        self._template_file = 'surface_fields.tmpl'
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
+        super(SurfaceFields, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
-        super(SurfaceFluxFields, self).check_prerequisites(env)
 
-        # setup the fluxobsdir and fluxobsfile based on the coupler version
-        fluxobsdir = 'FLUXOBSDIR_CPL{0}'.format(env['CPL'])
-        env['FLUXOBSDIR'] = env[fluxobsdir]
-        fluxobsfile = 'FLUXOBSFILE_CPL{0}'.format(env['CPL'])
-        env['FLUXOBSFILE'] = env[fluxobsfile]
-
-        # TODO create a cesmEnvLib.symLink method for checking and linking files
-#**** start method
-        # check if the flux file exists and is readable
-        sourceFile = '{0}/{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
-        print('DEBUG... surface flux obs file {0}'.format(sourceFile))
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-# these should be raise RuntimeError instead of OSError
-            raise OSError(err_msg)
-
-        # check if the link to the flux file exists and is readable
-        linkFile = '{0}/{1}'.format(env['WORKDIR'],env['FLUXOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            try:
-                os.symlink(sourceFile, linkFile)
-            except Exception as e:
-                print('...error = {0}'.format(e))
-                raise OSError(e)
-#**** end         
-   
-        # check if the zonal average flux file exists and is readable
-        sourceFile = '{0}/za_{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
-        print('DEBUG... surface flux za obs file {0}'.format(sourceFile))
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
+        # check the observation sea surface height file
+        sshFile = '{0}/{1}'.format( env['SSHOBSDIR'], env['SSHOBSFILE'] )
+        rc, err_msg = cesmEnvLib.checkFile(sshFile, 'read')
         if not rc:
             raise OSError(err_msg)
 
-        # check if the link to the zonal average flux file exists and is readable
-        linkFile = '{0}/za_{1}'.format(env['WORKDIR'],env['FLUXOBSFILE'])
+        # check if the link to the observation sea surface height file exists and is readable
+        linkFile = '{0}/{1}'.format(env['WORKDIR'],env['SSHOBSFILE'])
         rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
         if not rc:
-            os.symlink(sourceFile, linkFile)
-
-        # check if the wind file exists and is readable
-        sourceFile = '{0}/{1}'.format(env['WINDOBSDIR'],env['WINDOBSFILE'])
-        print('DEBUG... surface flux wind obs file {0}'.format(sourceFile))
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-            raise OSError(err_msg)
-
-        # check if the link to the zonal average wind file exists and is readable
-        linkFile = '{0}/{1}'.format(env['WORKDIR'],env['WINDOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            os.symlink(sourceFile, linkFile)
-
-        # check if the zonal average wind file exists and is readable
-        # this file does not exist - and not sure it is used in the ncl
-        #sourceFile = '{0}/za_{1}'.format(env['WINDOBSDIR'],env['WINDOBSFILE'])
-        #rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        #if not rc:
-        #    raise OSError(err_msg)
-
-        # check if the link to the zonal average wind file exists and is readable
-        #linkFile = '{0}/za_{1}'.format(env['WORKDIR'],env['WINDOBSFILE'])
-        #rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        #if not rc:
-        #    os.symlink(sourceFile, linkFile)
+            os.symlink(sshFile, linkFile)
 
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-        
-        # TODO check if other classes can inherit this from the base class in which 
-        # case move it there
-        for ncl in self._ncl:
-            diagUtilsLib.generate_ncl_plots(env, ncl)
+
+        # generate_plots with ssh.ncl command
+        diagUtilsLib.generate_ncl_plots(env, 'ssh.ncl')        
+
+        # generate_plots with field_2d.ncl command
+        diagUtilsLib.generate_ncl_plots(env, 'field_2d.ncl')        
+
+        # generate_plots with field_2d_za.ncl command
+        diagUtilsLib.generate_ncl_plots(env, 'field_2d_za.ncl')        
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -134,7 +77,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
-        num_cols = 7
+        num_cols = 6
 
         num_plots = len(self._expectedPlots)
         num_last_row = num_plots % num_cols
@@ -229,18 +172,3 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
-
-class SurfaceFluxFields_obs(SurfaceFluxFields):
-
-    def __init__(self):
-        super(SurfaceFluxFields_obs, self).__init__()
-        self._ncl = ['sfcflx.ncl', 'sfcflx_za.ncl']
-
-
-class SurfaceFluxFields_control(SurfaceFluxFields):
-
-    def __init__(self):
-        super(SurfaceFluxFields_control, self).__init__()
-        self._ncl = ['sfcflx_diff.ncl', 'sfcflx_za_diff.ncl']
-    
-
