@@ -1,4 +1,4 @@
-averager/pyAverager        https://github.com/NCAR-CISL-ASAP/pyAverager/tags/v.0.9.1
+averager/pyAverager        https://subversion.ucar.edu/asap/pyAverager/tags/pyAverager_20150708
 reshaper/pyReshaper        https://github.com/NCAR-CISL-ASAP/PyReshaper/tags/v0.9.3
 mpi_utils/pyTools          https://github.com/NCAR-CISL-ASAP/ASAPPyTools/tags/v0.4.3
 ocn_diag		   https://svn-ccsm-models.cgd.ucar.edu/tools/proc_ocn/pop_diag/branches/popdiag_cesm_postprocessing
