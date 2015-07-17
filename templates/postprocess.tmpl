@@ -27,10 +27,10 @@ echo "******************************************"
 echo "Start {{ processName }} generation $(date)"
 echo "******************************************"
 
-{{ mpirun }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }}
+{{ mpirun }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/{{ processName }}.log 2>&1
 
 {% if controlRun and computeAverages %}
-{{ mpirun }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --control-run
+{{ mpirun }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --control-run >> {{ caseRoot }}/{{ processName }}.controlRun.log 2>&1
 {% endif %}
 
 echo "******************************************"

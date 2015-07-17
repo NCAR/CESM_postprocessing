@@ -66,7 +66,6 @@ class OceanDiagnostic(object):
         that are common to all diagnostics
         """
         print('  Checking generic prerequisites for ocean diagnostics.')
-
         # setup the working directory for each diagnostics class
         env = self.setup_workdir(env)
 

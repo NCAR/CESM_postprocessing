@@ -83,7 +83,7 @@ class modelVsObs(OceanDiagnostic):
             env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
 
         # create the global zonal average file used by most of the plotting classes
-        print('    calling create_za')
+        print('    model vs. obs - calling create_za')
         diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env)
 
         return env
@@ -105,19 +105,20 @@ class modelVsObs(OceanDiagnostic):
         # all the plot module XML vars start with MVO_PM_  need to strip that off
         for key, value in env.iteritems():
             if (re.search("\AMVO_PM_", key) and value.upper() in ['T','TRUE']):
+                k = key[4:]                
                 requested_plots.append(k)
 
-        print('before scomm.sync requested_plots = {0}'.format(requested_plots))
+        print('model vs. obs - before scomm.sync requested_plots = {0}'.format(requested_plots))
         scomm.sync()
 
         if scomm.is_manager():
-            print('User requested plot modules:')
+            print('model vs. obs - User requested plot modules:')
             for plot in requested_plots:
                 print('  {0}'.format(plot))
 
             if env['DOWEB'].upper() in ['T','TRUE']:
                 
-                print('Creating plot html header')
+                print('model vs. obs - Creating plot html header')
                 templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
                 templateEnv = jinja2.Environment( loader=templateLoader )
                 
@@ -131,12 +132,12 @@ class modelVsObs(OceanDiagnostic):
                                  'stop_year' : env['YEAR1']
                                  }
 
-                print('Rendering plot html header')
+                print('model vs. obs Rendering plot html header')
                 plot_html = template.render( templateVars )
 
         scomm.sync()
 
-        print('Partition requested plots')
+        print('model vs. obs - Partition requested plots')
         # partition requested plots to all tasks
         local_requested_plots = scomm.partition(requested_plots, func=partition.EqualStride(), involved=True)
         scomm.sync()
@@ -145,16 +146,16 @@ class modelVsObs(OceanDiagnostic):
             try:
                 plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('obs', requested_plot)
 
-                print('Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. obs - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)
 
-                print('Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. obs - Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.generate_plots(env)
 
-                print('Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs obs - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
 
-                print('Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. obs - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
             
                 local_html_list.append(str(html))
@@ -163,7 +164,7 @@ class modelVsObs(OceanDiagnostic):
             except ocn_diags_plot_bc.RecoverableError as e:
                 # catch all recoverable errors, print a message and continue.
                 print(e)
-                print("Skipped '{0}' and continuing!".format(request_plot))
+                print("model vs. obs - Skipped '{0}' and continuing!".format(request_plot))
             except RuntimeError as e:
                 # unrecoverable error, bail!
                 print(e)
@@ -198,18 +199,18 @@ class modelVsObs(OceanDiagnostic):
                 #print('each_html = {0}'.format(each_html))
                 plot_html += each_html
 
-            print('Adding footer html')
+            print('model vs. obs - Adding footer html')
             with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
                 plot_html += tmpl.read()
 
-            print('Writing plot html')
+            print('model vs. obs - Writing plot html')
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
-            print('Copying stylesheet')
+            print('model vs. obs - Copying stylesheet')
             shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(env['WORKDIR']))
 
-            print('Copying logo files')
+            print('model vs. obs - Copying logo files')
             if not os.path.exists('{0}/logos'.format(env['WORKDIR'])):
                 os.mkdir('{0}/logos'.format(env['WORKDIR']))
 
@@ -218,9 +219,10 @@ class modelVsObs(OceanDiagnostic):
 
             if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env)
+                diagUtilsLib.copy_html_files(env, 'model_vs_obs')
             else:
-                print('Web files successfully created in directory {0}'.format(env['WORKDIR']))
+                print('Model vs. Observations - Web files successfully created in directory:')
+                print('{0}'.format(env['WORKDIR']))
                 print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
                 print('You will need to manually copy the web files to a remote web server.')
 

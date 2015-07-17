@@ -201,9 +201,10 @@ def main(options, main_comm, debugMsg):
     # get list of diagnostics types to be created
     diag_list = list()
     diag_list = setup_diags(envDict)
-    print('User requested diagnostics:')
-    for diag in diag_list:
-        print('  {0}'.format(diag))
+    if main_comm.is_manager():
+        print('User requested diagnostics:')
+        for diag in diag_list:
+            print('  {0}'.format(diag))
 
         # TODO - create a jinja template for the main links to all the diag classes
 
@@ -215,56 +216,59 @@ def main(options, main_comm, debugMsg):
         print('No ocean diagnostics specified. Please check the {0}/env_diags_ocn.xml settings.'.format(envDict['CASEROOT']))
         sys.exit(1)
 
-    # initialize some variables for distributed diagnostics across the communicators
+    # initialize some variables for distributing diagnostics across the communicators
     diags_send = diag_list
     inter_comm = main_comm
-    size = main_comm.get_size()
-    rank = main_comm.get_rank()
-    l_master = main_comm.is_manager()
+    gmaster = main_comm.is_manager()
+    gsize = main_comm.get_size()
+    grank = main_comm.get_rank()
+    lmaster = main_comm.is_manager()
     lsize = main_comm.get_size()
     lrank = main_comm.get_rank()
 
     # split mpi comm world if the size of the communicator > 1 and the num_of_diags > 1
-    if size > 1 and num_of_diags > 1:
-        temp_color = (rank % num_of_diags)
+    if gsize > 1 and num_of_diags > 1:
+        temp_color = (grank % num_of_diags)
         if (temp_color == num_of_diags):
             temp_color = temp_color - 1
         groups = list()
         for g in range(0,num_of_diags):
             groups.append(g)
-        debugMsg('g_rank: {0}, size {1}, temp_color {2}, #of groups {3}, groups{4}'.format(rank, size, temp_color, num_of_diags, groups))
+        debugMsg('global_rank {0}, temp_color {1}, #of groups(diag types) {2}, groups {3}, diag_list {4}'.format(grank, temp_color, num_of_diags, groups, diag_list))
         group = groups[temp_color]
         inter_comm, multi_comm = main_comm.divide(group)
         color = inter_comm.get_color()
         lsize = inter_comm.get_size()
         lrank = inter_comm.get_rank()
-        l_master = inter_comm.is_manager()
+        lmaster = inter_comm.is_manager()
+        debugMsg('color {0}, lsize {1}, lrank {2}, lmaster {3}'.format(color, lsize, lrank, lmaster))
 
         # partition the diag_list between communicators
         local_diag_list = list()
-        if l_master:
+        DIAG_LIST_TAG = 10
+        if lmaster:
             local_diag_list = multi_comm.partition(diag_list,func=partition.EqualStride(),involved=True)
+            print('lrank', lrank, 'local_diag_list', local_diag_list)
+#            debugMsg('lrank {0}, local_diag_list {1}',format(lrank, local_diag_list))
             for b in range(1, lsize):
                 diags_send = inter_comm.ration(data=local_diag_list, tag=DIAG_LIST_TAG) 
+                print('b', b, 'diags_send', diags_send, 'lsize', lsize)
         else:
-            diags_send = inter_comm.ration(tag=DIAG_LIST_TAG)
+            local_diag_list = inter_comm.ration(tag=DIAG_LIST_TAG)
+        debugMsg('local_diag_list {0}',format(local_diag_list))
 
-#    if size > 1 and num_of_diags == 1:
-#        diags_send = main_comm.partition(diag_list,func=partition.EqualStride(),involved=True)
-#        diags_send = diag_list
-
-    debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank))
     inter_comm.sync()
 
-    # loop through the diags_send list
-    for requested_diag in diags_send:
+    # loop through the local_diag_list 
+    for requested_diag in local_diag_list:
         try:
+            debugMsg('requested_diag {0}, lrank {1}, lsize {2}, lmaster {3}'.format(requested_diag, lrank, lsize, lmaster))
             diag = ocn_diags_factory.oceanDiagnosticsFactory(requested_diag)
 
             # check the prerequisites for the diagnostics types
             debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
             
-            if l_master:
+            if lmaster:
                 envDict = diag.check_prerequisites(envDict)
                 debugMsg('MAVGFILE = {0}, TAVGFILE = {1}'.format(envDict['MAVGFILE'], envDict['TAVGFILE']))
 

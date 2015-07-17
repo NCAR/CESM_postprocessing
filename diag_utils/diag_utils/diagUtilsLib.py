@@ -234,22 +234,24 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
 #=======================================================================
 # copy_html_files - scp files from workdir to remote directory 
 #=======================================================================
-def copy_html_files(env):
+def copy_html_files(env, subdir):
     """ copy html files from workdir to remote dir.
         Will prompt user if ssh keys are not set.
 
     Arguments:
     env (dictionary) - environment dictionary
+    subdir (sting) - sub-directory
     """
-    remoteConnect = '{0}@{1}:{2}'.format(env['WEBLOGIN'], env['WEBHOST'], env['WEBDIR'])
+    subdir = '{0}/{1}.{2}_{3}'.format(env['CASE'], subdir, env['YEAR0'], env['YEAR1'])
+    remoteConnect = '{0}@{1}:{2}/{3}'.format(env['WEBLOGIN'], env['WEBHOST'], env['WEBDIR'], subdir)
     print('Secure copying HTML and graphics files from {0} to {1}'.format(env['WORKDIR'], remoteConnect))
 
     # make sure directory exists
     try:
-        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}'".format(env['WEBLOGIN'],env['WEBHOST'],env['WEBDIR'])], env=env, shell=True)
+        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}/{3}'".format(env['WEBLOGIN'],env['WEBHOST'],env['WEBDIR'],subdir)], env=env, shell=True)
         pipe.wait()
     except OSEerror as e:
-        print('WARNING: unable to create remote directory {0}'.format(env['WEBDIR']))
+        print('WARNING: unable to create remote directory {0}/{1}'.format(env['WEBDIR'],subdir))
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
     localFiles = '{0}/*.html'.format(env['WORKDIR'])

@@ -86,7 +86,7 @@ class modelVsModel(OceanDiagnostic):
             env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
 
         # create the global zonal average file used by most of the plotting classes
-        print('    calling create_za')
+        print('   model vs. model - calling create_za')
         diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env)
 
         #******************************************
@@ -114,7 +114,7 @@ class modelVsModel(OceanDiagnostic):
             env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
 
         # create the control global zonal average file used by most of the plotting classes
-        print('    calling create_za for control run')
+        print('    model vs. model - calling create_za for control run')
         diagUtilsLib.create_za( env['WORKDIR'], env['CNTRL_TAVGFILE'], env['GRIDFILECNTRL'], env['TOOLPATH'], env)
 
         return env
@@ -139,17 +139,17 @@ class modelVsModel(OceanDiagnostic):
                 k = key[4:]
                 requested_plots.append(k)
 
-        print('before scomm.sync requested_plots = {0}'.format(requested_plots))
+        print('model vs. model - before scomm.sync requested_plots = {0}'.format(requested_plots))
         scomm.sync()
 
         if scomm.is_manager():
-            print('User requested plot modules:')
+            print('model vs. model - User requested plot modules:')
             for plot in requested_plots:
                 print('  {0}'.format(plot))
 
             if env['DOWEB'].upper() in ['T','TRUE']:
                 
-                print('Creating plot html header')
+                print('model vs. model - Creating plot html header')
                 templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
                 templateEnv = jinja2.Environment( loader=templateLoader )
                 
@@ -166,12 +166,12 @@ class modelVsModel(OceanDiagnostic):
                                  'control_stop_year' : env['CNTRLYEAR1']
                                  }
 
-                print('Rendering plot html header')
+                print('model vs. model - Rendering plot html header')
                 plot_html = template.render( templateVars )
 
         scomm.sync()
 
-        print('Partition requested plots')
+        print('model vs. model - Partition requested plots')
         # partition requested plots to all tasks
         local_requested_plots = scomm.partition(requested_plots, func=partition.EqualStride(), involved=True)
         scomm.sync()
@@ -180,16 +180,16 @@ class modelVsModel(OceanDiagnostic):
             try:
                 plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('model',requested_plot)
 
-                print('Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. model - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)
 
-                print('Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. model - Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.generate_plots(env)
 
-                print('Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. model - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
 
-                print('Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. model - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
             
                 local_html_list.append(str(html))
@@ -233,18 +233,18 @@ class modelVsModel(OceanDiagnostic):
                 #print('each_html = {0}'.format(each_html))
                 plot_html += each_html
 
-            print('Adding footer html')
+            print('model vs. model - Adding footer html')
             with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
                 plot_html += tmpl.read()
 
-            print('Writing plot html')
+            print('model vs. model - Writing plot html')
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
-            print('Copying stylesheet')
+            print('model vs. model - Copying stylesheet')
             shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(env['WORKDIR']))
 
-            print('Copying logo files')
+            print('model vs. model - Copying logo files')
             if not os.path.exists('{0}/logos'.format(env['WORKDIR'])):
                 os.mkdir('{0}/logos'.format(env['WORKDIR']))
 
@@ -253,9 +253,10 @@ class modelVsModel(OceanDiagnostic):
 
             if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env)
+                diagUtilsLib.copy_html_files(env, 'model_vs_model')
             else:
-                print('Web files successfully created in directory {0}'.format(env['WORKDIR']))
+                print('Model vs. Model - Web files successfully created in directory:')
+                print('{0}'.format(env['WORKDIR']))
                 print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
                 print('You will need to manually copy the web files to a remote web server.')
 
