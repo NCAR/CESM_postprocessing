@@ -280,7 +280,7 @@ def main(options, main_comm, debugMsg):
             # set the shell env using the values set in the XML and read into the envDict across all tasks
             cesmEnvLib.setXmlEnv(envDict)
 
-            debugMsg('inter_comm = {0}'.format(inter_comm))
+            # run the diagnostics type on each inter_comm
             diag.run_diagnostics(envDict, inter_comm)
             
         except ocn_diags_bc.RecoverableError as e:

@@ -34,7 +34,7 @@ def oceanDiagnosticPlotFactory(diag_type, plot_type):
     try:
         plot_string = plot_map[plot_type].format(diag_type)
     except KeyError:
-        # TODO throw a warning that plot type does not exist
+        # TODO throw a warning that diag type does not exist
         print('WARNING: diag type does not exist')
         pass
 

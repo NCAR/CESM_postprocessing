@@ -34,6 +34,7 @@ class SurfaceFields(OceanDiagnosticPlot):
         self._name = '2D Surface Fields'
         self._shortname = 'FLD2D'
         self._template_file = 'surface_fields.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -42,30 +43,16 @@ class SurfaceFields(OceanDiagnosticPlot):
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
 
         # check the observation sea surface height file
-        sshFile = '{0}/{1}'.format( env['SSHOBSDIR'], env['SSHOBSFILE'] )
-        rc, err_msg = cesmEnvLib.checkFile(sshFile, 'read')
-        if not rc:
-            raise OSError(err_msg)
-
-        # check if the link to the observation sea surface height file exists and is readable
+        sourceFile = '{0}/{1}'.format( env['SSHOBSDIR'], env['SSHOBSFILE'] )
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['SSHOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            os.symlink(sshFile, linkFile)
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with ssh.ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'ssh.ncl')        
-
-        # generate_plots with field_2d.ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'field_2d.ncl')        
-
-        # generate_plots with field_2d_za.ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'field_2d_za.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -172,3 +159,15 @@ class SurfaceFields(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+class SurfaceFields_obs(SurfaceFields):
+
+    def __init__(self):
+        super(SurfaceFields_obs, self).__init__()
+        self._ncl = ['ssh.ncl', 'field_2d.ncl', 'field_2d_za.ncl']
+
+class SurfaceFields_model(SurfaceFields):
+
+    def __init__(self):
+        super(SurfaceFields_model, self).__init__()
+        self._ncl = ['field_2d_diff.ncl', 'field_2d_za_diff.ncl']

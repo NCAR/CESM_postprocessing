@@ -286,7 +286,6 @@ def copy_html_files(env, subdir):
         print('WARNING: scp command failed with error::')
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
-
 #==============================================================================
 # create_za - generate the ocean global zonal average file used for most of the plots
 #==============================================================================
@@ -410,6 +409,28 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, control):
         year += 1
 
     return mavgFileBase, tavgFileBase
+
+#======================================================================
+# create a single symbolic link to a given file checking the file first
+#======================================================================
+def createSymLink(sourceFile, linkFile):
+    """ create a symbolic link between the sourceFile and the linkFile
+    """
+    # check if the sourceFile exists
+    rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
+    if not rc:
+# these should be raise RuntimeError instead of OSError
+        raise RunTimeError(err_msg)
+
+    # check if the linkFile exists and is readable
+    rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
+    if not rc:
+        try:
+            os.symlink(sourceFile, linkFile)
+        except Exception as e:
+            print('...createSymLink error = {0}'.format(e))
+            raise OSError(e)
+    return
 
 #================================================================
 # TODO checkAvgFiles - check that the climotology average files exist

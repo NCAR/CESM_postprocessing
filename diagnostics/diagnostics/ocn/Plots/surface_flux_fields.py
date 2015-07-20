@@ -54,74 +54,31 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         fluxobsfile = 'FLUXOBSFILE_CPL{0}'.format(env['CPL'])
         env['FLUXOBSFILE'] = env[fluxobsfile]
 
-        # TODO create a cesmEnvLib.symLink method for checking and linking files
-# START HERE....
-#**** start method
-        # check if the flux file exists and is readable
+        # create symbolic link to the flux observation file in the workdir
         sourceFile = '{0}/{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
-        print('DEBUG... surface flux obs file {0}'.format(sourceFile))
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-# these should be raise RuntimeError instead of OSError
-            raise OSError(err_msg)
-
-        # check if the link to the flux file exists and is readable
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['FLUXOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            try:
-                os.symlink(sourceFile, linkFile)
-            except Exception as e:
-                print('...error = {0}'.format(e))
-                raise OSError(e)
-#**** end method
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
    
-        # check if the zonal average flux file exists and is readable
+        # create symbolic link to zonal average flux file in the workdir
         sourceFile = '{0}/za_{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
-        print('DEBUG... surface flux za obs file {0}'.format(sourceFile))
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-            raise OSError(err_msg)
-
-        # check if the link to the zonal average flux file exists and is readable
         linkFile = '{0}/za_{1}'.format(env['WORKDIR'],env['FLUXOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            os.symlink(sourceFile, linkFile)
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
-        # check if the wind file exists and is readable
+        # create symbolic link to wind file in the workdir
         sourceFile = '{0}/{1}'.format(env['WINDOBSDIR'],env['WINDOBSFILE'])
-        print('DEBUG... surface flux wind obs file {0}'.format(sourceFile))
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-            raise OSError(err_msg)
-
-        # check if the link to the zonal average wind file exists and is readable
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['WINDOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            os.symlink(sourceFile, linkFile)
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
         # check if the zonal average wind file exists and is readable
         # this file does not exist - and not sure it is used in the ncl
         #sourceFile = '{0}/za_{1}'.format(env['WINDOBSDIR'],env['WINDOBSFILE'])
-        #rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        #if not rc:
-        #    raise OSError(err_msg)
-
-        # check if the link to the zonal average wind file exists and is readable
         #linkFile = '{0}/za_{1}'.format(env['WORKDIR'],env['WINDOBSFILE'])
-        #rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        #if not rc:
-        #    os.symlink(sourceFile, linkFile)
+        #diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def generate_plots(self, env):
-        """Put commands to generate plot here!
+        """generate list of NCL plotting routines 
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-        
-        # TODO check if other classes can inherit this from the base class in which 
-        # case move it there
         for ncl in self._ncl:
             diagUtilsLib.generate_ncl_plots(env, ncl)
 
@@ -230,7 +187,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
-
+    
 class SurfaceFluxFields_obs(SurfaceFluxFields):
 
     def __init__(self):
@@ -242,5 +199,3 @@ class SurfaceFluxFields_model(SurfaceFluxFields):
     def __init__(self):
         super(SurfaceFluxFields_model, self).__init__()
         self._ncl = ['sfcflx_diff.ncl', 'sfcflx_za_diff.ncl']
-    
-
