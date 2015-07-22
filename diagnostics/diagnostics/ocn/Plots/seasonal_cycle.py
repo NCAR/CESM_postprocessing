@@ -32,6 +32,7 @@ class SeasonalCycle(OceanDiagnosticPlot):
         self._name = 'Seasonal Cycle Plots'
         self._shortname = 'SCP'
         self._template_file = 'seasonal_cycle.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -42,22 +43,14 @@ class SeasonalCycle(OceanDiagnosticPlot):
         # set a link to SSTOBSDIR/SSTOBSFILE
         sourceFile = '{0}/{1}'.format(env['SSTOBSDIR'], env['SSTOBSFILE'])
         linkFile = '{0}/{1}'.format(env['WORKDIR'], env['SSTOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if rc:
-            rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
-            if not rc1:
-                os.symlink(sourceFile, linkFile)
-        else:
-            raise OSError(err_msg)
-
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-            
-        # generate_plots with sst_eq_pac_seasonal.ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'sst_eq_pac_seasonal_cycle.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -99,3 +92,15 @@ class SeasonalCycle(OceanDiagnosticPlot):
         
         return self._html
 
+
+class SeasonalCycle_obs(SeasonalCycle):
+
+    def __init__(self):
+        super(SeasonalCycle_obs, self).__init__()
+        self._ncl = ['sst_eq_pac_seasonal_cycle.ncl']
+
+class SeasonalCycle_model(SeasonalCycle):
+
+    def __init__(self):
+        super(SeasonalCycle_model, self).__init__()
+        self._ncl = ['sst_eq_pac_seasonal_cycle_diff.ncl']

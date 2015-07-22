@@ -108,8 +108,8 @@ class modelVsObs(OceanDiagnostic):
                 k = key[4:]                
                 requested_plots.append(k)
 
-        print('model vs. obs - before scomm.sync requested_plots = {0}'.format(requested_plots))
         scomm.sync()
+        print('model vs. obs - after scomm.sync requested_plots = {0}'.format(requested_plots))
 
         if scomm.is_manager():
             print('model vs. obs - User requested plot modules:')
@@ -132,7 +132,7 @@ class modelVsObs(OceanDiagnostic):
                                  'stop_year' : env['YEAR1']
                                  }
 
-                print('model vs. obs Rendering plot html header')
+                print('model vs. obs - Rendering plot html header')
                 plot_html = template.render( templateVars )
 
         scomm.sync()

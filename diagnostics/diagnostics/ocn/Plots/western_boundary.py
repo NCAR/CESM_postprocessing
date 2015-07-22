@@ -32,6 +32,7 @@ class WesternBoundary(OceanDiagnosticPlot):
         self._name = 'Western Boundary Currents'
         self._shortname = 'DWBC'
         self._template_file = 'western_boundary.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -43,9 +44,8 @@ class WesternBoundary(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with field_3d_za.ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'dwbc.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -87,3 +87,13 @@ class WesternBoundary(OceanDiagnosticPlot):
         
         return self._html
 
+class WesternBoundary_obs(WesternBoundary):
+
+    def __init__(self):
+        super(WesternBoundary_obs, self).__init__()
+        self._ncl = ['dwbc.ncl']
+
+class WesternBoundaryMOCFields_model(WesternBoundary):
+
+    def __init__(self):
+        pass

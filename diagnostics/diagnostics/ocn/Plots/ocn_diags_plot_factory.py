@@ -6,24 +6,39 @@
 from ocn_diags_plot_bc import UnknownPlotType
 import surface_flux_fields
 import surface_fields
-#import zonal_average_3d_fields
-#import moc_fields
-#import western_boundary
-#import seasonal_cycle
-#import mixed_layer_depth
-#import temp_salt_depth
-#import passive_tracers_depth
-#import eulerian_velocity
-#import bolus_velocity
-#import diffusion_depth
-#import equatorial_upperocean
-#import horizontal_vector_fields
-#import polar_temp_salt
-#import basin_averages
-#import regional_area
+import zonal_average_3d_fields
+import moc_fields
+import western_boundary
+import seasonal_cycle
+import mixed_layer_depth
+import temp_salt_depth
+import passive_tracers_depth
+import eulerian_velocity
+import bolus_velocity
+import diffusion_depth
+import equatorial_upperocean
+import horizontal_vector_fields
+import polar_temp_salt
+import basin_averages
+import regional_area
 
 plot_map = {'PM_SFC2D': 'surface_flux_fields.SurfaceFluxFields_{0}()',
-            'PM_FLD2D': 'surface_fields.SurfaceFields_{0}()'}
+            'PM_FLD2D': 'surface_fields.SurfaceFields_{0}()',
+            'PM_FLD3DZA': 'zonal_average_3d_fields.ZonalAverage3dFields_{0}()',
+            'PM_MOC': 'moc_fields.MOCFields_{0}()',
+            'PM_WBC': 'western_boundary.WesternBoundary_{0}()',
+            'PM_SEAS': 'seasonal_cycle.SeasonalCycle_{0}()',
+            'PM_MLD': 'mixed_layer_depth.MixedLayerDepth_{0}()',
+            'PM_TSZ': 'temp_salt_depth.TempSaltDepth_{0}()',
+            'PM_PASSIVEZ': 'passive_tracers_depth.PassiveTracersDepth_{0}()',
+            'PM_VELZ': 'eulerian_velocity.EulerianVelocity_{0}()',
+            'PM_VELISOPZ': 'bolus_velocity.BolusVelocity_{0}()',
+            'PM_KAPPAZ': 'diffusion_depth.DiffusionDepth_{0}()',
+            'PM_UOEQ': 'equatorial_upperocean.EquatorialUpperocean_{0}()',
+            'PM_VECV': 'horizontal_vector_fields.HorizontalVectorFields_{0}()',
+            'PM_POLARTS': 'polar_temp_salt.PolarTempSalt_{0}()',
+            'PM_BASINAVGTS': 'basin_averages.BasinAverages_{0}()',
+            'PM_REGIONALTS': 'regional_area.RegionalArea}_{0}()'}
 
 # TODO diag_type must be 'obs' or 'model' or whatever to match the classname in the plot class
 def oceanDiagnosticPlotFactory(diag_type, plot_type):

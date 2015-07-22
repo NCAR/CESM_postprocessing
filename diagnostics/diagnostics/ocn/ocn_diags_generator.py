@@ -218,13 +218,10 @@ def main(options, main_comm, debugMsg):
 
     # initialize some variables for distributing diagnostics across the communicators
     diags_send = diag_list
-    inter_comm = main_comm
     gmaster = main_comm.is_manager()
     gsize = main_comm.get_size()
     grank = main_comm.get_rank()
-    lmaster = main_comm.is_manager()
-    lsize = main_comm.get_size()
-    lrank = main_comm.get_rank()
+    local_diag_list = list()
 
     # split mpi comm world if the size of the communicator > 1 and the num_of_diags > 1
     if gsize > 1 and num_of_diags > 1:
@@ -244,18 +241,22 @@ def main(options, main_comm, debugMsg):
         debugMsg('color {0}, lsize {1}, lrank {2}, lmaster {3}'.format(color, lsize, lrank, lmaster))
 
         # partition the diag_list between communicators
-        local_diag_list = list()
         DIAG_LIST_TAG = 10
         if lmaster:
             local_diag_list = multi_comm.partition(diag_list,func=partition.EqualStride(),involved=True)
             print('lrank', lrank, 'local_diag_list', local_diag_list)
-#            debugMsg('lrank {0}, local_diag_list {1}',format(lrank, local_diag_list))
             for b in range(1, lsize):
                 diags_send = inter_comm.ration(data=local_diag_list, tag=DIAG_LIST_TAG) 
                 print('b', b, 'diags_send', diags_send, 'lsize', lsize)
         else:
             local_diag_list = inter_comm.ration(tag=DIAG_LIST_TAG)
         debugMsg('local_diag_list {0}',format(local_diag_list))
+    else:
+        inter_comm = main_comm
+        lmaster = main_comm.is_manager()
+        lsize = main_comm.get_size()
+        lrank = main_comm.get_rank()
+        local_diag_list = diag_list
 
     inter_comm.sync()
 

@@ -37,6 +37,7 @@ class TempSaltDepth(OceanDiagnosticPlot):
         self._name = 'Temperature and Salinity at Depth Levels'
         self._shortname = 'TSZ'
         self._template_file = 'temp_salt_depth.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -48,12 +49,8 @@ class TempSaltDepth(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with tempz and saltz ncl commands
-        # put the ncl file names in a list variable for the class 
-        # so can eventually read that list from XML
-        diagUtilsLib.generate_ncl_plots(env, 'tempz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'saltz.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -104,3 +101,15 @@ class TempSaltDepth(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+class TempSaltDepth_obs(TempSaltDepth):
+
+    def __init__(self):
+        super(TempSaltDepth_obs, self).__init__()
+        self._ncl = ['tempz.ncl','saltz.ncl']
+
+class TempSaltDepth_model(TempSaltDepth):
+
+    def __init__(self):
+        super(TempSaltDepth_model, self).__init__()
+        self._ncl = ['tempz_diff.ncl', 'saltz_diff.ncl']

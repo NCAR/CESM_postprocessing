@@ -38,6 +38,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         self._name = '3D Fields, Zonally Averaged'
         self._shortname = 'FLD3DZA'
         self._template_file = 'zonal_average_3d_fields.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -135,11 +136,8 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with field_3d_za.ncl command
-        # put the ncl file names in a list variable for the class 
-        # so can eventually read that list from XML
-        diagUtilsLib.generate_ncl_plots(env, 'field_3d_za.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -190,3 +188,16 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+
+class ZonalAverage3dFields_obs(ZonalAverage3dFields):
+
+    def __init__(self):
+        super(ZonalAverage3dFields_obs, self).__init__()
+        self._ncl = ['field_3d_za.ncl']
+
+class ZonalAverage3dFields_model(ZonalAverage3dFields):
+
+    def __init__(self):
+        super(ZonalAverage3dFields_model, self).__init__()
+        self._ncl = ['field_3d_za_diff.ncl']

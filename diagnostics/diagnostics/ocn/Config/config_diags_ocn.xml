@@ -280,7 +280,7 @@
 	 valid_values=""
 	 value="mavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1.nc"
 	 group="diags_ocn"
-	 desc="Local machine filename for sea monthly average temperature file over entire run"
+	 desc="Local machine filename for seasonal monthly average temperatures over years specified."
 	 ></entry>
 
   <entry id="OCNDIAG_SEASAVGFILE"
@@ -288,7 +288,7 @@
 	 valid_values=""
 	 value="mavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1.nc"
 	 group="diags_ocn"
-	 desc="This environment variable is set to null unless the plot_mod OCNDIAG_PM_SEAS=TRUE (seasonal cycle plots) in which case, it is set to the same value as $OCNDIAG_SEASAVGTEMP"
+	 desc="Local machine filename for model seasonal monthly averages over years specified"
 	 ></entry>
 
   <entry id="OCNDIAG_SEASAVGSALT"
@@ -296,7 +296,7 @@
 	 valid_values=""
 	 value="mavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1.nc"
 	 group="diags_ocn"
-	 desc="Local machine filename for sea monthly average salinity file over entire run"
+	 desc="Local machine filename for seasonal monthly average salinity values over years specified."
 	 ></entry>
 
   <entry id="OCNDIAG_SEASAVGRHO"
@@ -304,7 +304,7 @@
 	 valid_values=""
 	 value="$CASE.pop.h.RHO.mavg_($OCNDIAG_YEAR0)-($OCNDIAG_YEAR1).nc"
 	 group="diags_ocn"
-	 desc="This environment variable is set to null unless the plot_mod OCNDIAG_PM_MLD=TRUE	(mixed layer depth plots) in which case, it is set to the same value as $CASE.pop.h.RHO.mavg_$OCNDIAG_YEAR0-$OCNDIAG_YEAR1.nc"
+	 desc="This environment variable is set to null unless the plot_mod OCNDIAG_MVO_PM_MLD=TRUE (mixed layer depth plots) in which case, it is set to the same value as $CASE.pop.h.RHO.mavg_$OCNDIAG_YEAR0-$OCNDIAG_YEAR1.nc"
 	 ></entry>
 
   <entry id="OCNDIAG_TAVGFILE"
@@ -720,7 +720,15 @@
 	 valid_values=""
 	 value="mavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1.cntrl.nc"
 	 group="diags_ocn"
-	 desc="Local machine filename for control model sea monthly average temperature file over years specified"
+	 desc="Local machine filename for control model seasonal monthly average temperature file over years specified"
+	 ></entry>
+
+  <entry id="OCNDIAG_CNTRLSEASAVGFILE"
+	 type="char"
+	 valid_values=""
+	 value="mavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1.cntrl.nc"
+	 group="diags_ocn"
+	 desc="Local machine filename for control model seasonal monthly average over years specified"
 	 ></entry>
 
   <entry id="OCNDIAG_CNTRLSEASAVGSALT"
@@ -728,8 +736,18 @@
 	 valid_values=""
 	 value="mavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1.cntrl.nc"
 	 group="diags_ocn"
-	 desc="Local machine filename for control model sea monthly average salinity file over years specified"
+	 desc="Local machine filename for control model seasonal monthly average salinity over years specified"
 	 ></entry>
+
+  <entry id="OCNDIAG_SEASAVGRHO"
+	 type="char"
+	 valid_values=""
+	 value="$CNTRLCASE.pop.h.RHO.mavg_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc"
+	 group="diags_ocn"
+	 desc="This environment variable is set to null unless the plot_mod OCNDIAG_MVM_PM_MLD=TRUE (mixed layer depth plots) in which case, it is set to the same value as $CNTRLCASE.pop.h.RHO.mav\
+g_$OCNDIAG_CNTRLYEAR0-$OCNDIAG_CNTRLYEAR1.nc"
+	 ></entry>
+
 
   <!-- =========================================================================== -->
   <!-- define ocean diagnostics model variables for ecosystem diagnostics          -->
@@ -1054,13 +1072,6 @@
 	 value="TRUE"
 	 group="diags_ocn"
 	 desc="Model vs. model (moc_fields_control) Logical to control whether to create MOC and Heat/Freshwater transport plots (TRUE) or not (FALSE)."></entry>
-
-  <entry id="OCNDIAG_MVM_PM_WBC"
-	 type="logical"
-	 valid_values="TRUE,FALSE"
-	 value="TRUE"
-	 group="diags_ocn"
-	 desc="Model vs. model (western_boundary_control) Logical to control whether to create Western Boundary Current and DWBC diagnostics plots (TRUE) or not (FALSE)."></entry>
 
   <entry id="OCNDIAG_MVM_PM_SEAS"
 	 type="logical"

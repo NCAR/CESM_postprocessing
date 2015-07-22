@@ -33,6 +33,7 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         self._name = 'Mixed Layer Depth Plots'
         self._shortname = 'MLD'
         self._template_file = 'mixed_layer_depth.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -43,26 +44,22 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         # set SEASAVGRHO env var to the envDict['SEASAVGRHO'] output file name
         os.environ['SEASAVGRHO'] = env['SEASAVGRHO']
 
+        # set CNTRLSEASAVGRHO env var to the envDict['CNTRLSEASAVGRHO'] output file name
+        os.environ['CNTRLSEASAVGRHO'] = env['CNTRLSEASAVGRHO']
+
         # set a link to RHOOBSDIR/RHOOBSFILE
         sourceFile = '{0}/{1}'.format(env['RHOOBSDIR'], env['RHOOBSFILE'])
         linkFile = '{0}/{1}'.format(env['WORKDIR'], env['RHOOBSFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if rc:
-            rc1, err_msg1 = cesmEnvLib.checkFile(linkFile, 'read')
-            if not rc1:
-                os.symlink(sourceFile, linkFile)
-        else:
-            raise OSError(err_msg)
-
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-            
-        # generate_plots with ncl commands
+        # always compute the RHO value regardless of diagnostic type
         diagUtilsLib.generate_ncl_plots(env, 'compute_rho.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'mld.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -101,3 +98,15 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         
         return self._html
 
+
+class MixedLayerDepth_obs(MixedLayerDepth):
+
+    def __init__(self):
+        super(MixedLayerDepth_obs, self).__init__()
+        self._ncl = ['mld.ncl']
+
+class MixedLayerDepth_model(MixedLayerDepth):
+
+    def __init__(self):
+        super(MixedLayerDepth_model, self).__init__()
+        self._ncl = ['compute_rho_cntl.ncl', 'mld_diff.ncl']

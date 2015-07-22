@@ -36,6 +36,7 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
         self._name = 'Passive Tracers at Depth Levels'
         self._shortname = 'PASSIVEZ'
         self._template_file = 'passive_tracers_depth.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -47,11 +48,8 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with iagez ncl command
-        # put the ncl file names in a list variable for the class 
-        # so can eventually read that list from XML
-        diagUtilsLib.generate_ncl_plots(env, 'iagez.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -102,3 +100,15 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+class PassiveTracersDepth_obs(PassiveTracersDepth):
+
+    def __init__(self):
+        super(PassiveTracersDepth_obs, self).__init__()
+        self._ncl = ['iagez.ncl']
+
+class PassiveTracersDepth_model(PassiveTracersDepth):
+
+    def __init__(self):
+        super(PassiveTracersDepth_model, self).__init__()
+        self._ncl = ['iagez_diff.ncl']

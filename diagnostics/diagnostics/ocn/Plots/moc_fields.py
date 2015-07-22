@@ -32,6 +32,7 @@ class MOCFields(OceanDiagnosticPlot):
         self._name = 'Meridional Overturning Circulation - Meridional Heat & Freshwater Transports'
         self._shortname = 'MOC'
         self._template_file = 'moc_fields.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -43,9 +44,8 @@ class MOCFields(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with moc_netcdf.ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'moc_netcdf.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -87,3 +87,14 @@ class MOCFields(OceanDiagnosticPlot):
         
         return self._html
 
+class MOCFields_obs(MOCFields):
+
+    def __init__(self):
+        super(MOCFields_obs, self).__init__()
+        self._ncl = ['moc_netcdf.ncl']
+
+class MOCFields_model(MOCFields):
+
+    def __init__(self):
+        super(MOCFields_model, self).__init__()
+        self._ncl = ['moc_netcdf_diff.ncl']

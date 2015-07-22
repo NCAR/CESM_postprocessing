@@ -3,8 +3,8 @@
 # import the MPI related module
 import sys
 
-sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_alpha05/postprocessing/averager/pyAverager")
-sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_alpha05/postprocessing/mpi_utils/pyTools/source")
+sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_beta05/postprocessing/averager/pyAverager")
+sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_beta05/postprocessing/mpi_utils/pyTools/source")
 print(sys.path)
 
 from asaptools import partition, simplecomm

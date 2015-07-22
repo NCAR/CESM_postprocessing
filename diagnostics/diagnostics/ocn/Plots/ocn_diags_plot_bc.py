@@ -101,11 +101,8 @@ class OceanDiagnosticPlot(object):
                 else:
                     continue
         else:
-            # TODO - need to create a script template to convert the plots
             print('WARNING: convert_plots unable to find convert command in path.')
             print('     Unable to convert ps formatted plots to {0}'.format(imgFormat))
-            print('Run the following command from a node with convert installed....')
-
         
 # todo move these classes to another file
 class RecoverableError(RuntimeError):
