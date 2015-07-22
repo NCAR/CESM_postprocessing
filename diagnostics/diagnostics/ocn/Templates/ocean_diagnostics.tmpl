@@ -4,16 +4,16 @@
 <head>
 <link rel="SHORTCUT ICON"
       href="http://www.cgd.ucar.edu/Images/atmos/favicon.png">
-<title>CESM Ocean Diagnostics Plots Model vs. Control</title>
+<title>CESM Ocean Diagnostics Plots</title>
 
 <!-- STYLESHEET -->
-<link rel="stylesheet" type="text/css" href="../diag_style.css" />
+<link rel="stylesheet" type="text/css" href="diag_style.css" />
 
 </head>
 
 <div id="wrap">
 
-<h2>CESM Ocean Diagnostics Plots Model vs. Control</h2>
+<h2>CESM Ocean Diagnostics Plots</h2>
 <p>
   <table class = "meta">
     <tr>
@@ -33,6 +33,8 @@
 	  </tr>
 	</table>
       </td>
+
+      {% if control_casename|length > 0 %}
       <td>
 	<table class = "meta">
 	  <tr>
@@ -45,9 +47,32 @@
 	  </tr>
 	</table>
       </td>
+      {% endif %}
     </tr>
   </tr>
 </table>
 </p>
 <hr>
-<!-- dynamically insert plot modules here -->
+<ul>
+  {% for key, value in diag_dict.iteritems() %}
+     {% if value %}
+        <li><a href="./{{ value }}">{{ value }}</a></li>
+     {% else %}
+        <li>{{ key }} - no plots available</li>
+     {% endif %}
+  {% endfor %}
+</ul>
+
+
+<hr>
+<br/>
+<br/>
+
+<div id="logos">
+  <img src="./logos/nsf1sm.gif"/>
+  <img src="./logos/ncar-logo-sm.jpg"/>
+  <img src="./logos/doe_logo.jpg"/>
+  <span class="stretch"></span>
+</div>
+
+</html>

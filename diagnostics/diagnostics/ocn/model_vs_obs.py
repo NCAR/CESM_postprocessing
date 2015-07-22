@@ -207,16 +207,6 @@ class modelVsObs(OceanDiagnostic):
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
-            print('model vs. obs - Copying stylesheet')
-            shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(env['WORKDIR']))
-
-            print('model vs. obs - Copying logo files')
-            if not os.path.exists('{0}/logos'.format(env['WORKDIR'])):
-                os.mkdir('{0}/logos'.format(env['WORKDIR']))
-
-            for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
-                shutil.copy(filename, '{0}/logos'.format(env['WORKDIR']))
-
             if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
                 diagUtilsLib.copy_html_files(env, 'model_vs_obs')

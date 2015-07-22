@@ -29,8 +29,12 @@ if sys.hexversion < 0x02070000:
 
 # import core python modules
 import argparse
+import errno
+import glob
+import itertools
 import os
 import re
+import shutil
 import traceback
 
 # import modules installed by pip into virtualenv
@@ -84,18 +88,25 @@ def commandline_options():
 #================================================
 def setup_diags(envDict):
     """setup_diags - read the XML directives on which diagnostics to create
+       Arguments:
+       envDict (dictionary) - environment dictionary
 
        Return:
        requested_diags (list) - list of diagnostics classes to be generated
+       diag_dict (dictionary) - dictionary with URL link if it exists
     """
-    requested_diags = []
+    requested_diags = list()
+    diag_dict = dict()
     avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_MODEL', 'MODEL_VS_MODEL_ECOSYS', 'TS', 'TS_ECOSYS']
     for diag in avail_diags:
+        diag_dict[diag.lower()] = False
         for key, value in envDict.iteritems():
             if (diag == key and value.upper() in ['T','TRUE']):
                 requested_diags.append(key)
-
-    return requested_diags
+                diag_dict[diag.lower()] = '{0}'.format(diag.lower())
+                if '_vs_' in diag.lower():
+                    diag_dict[diag.lower()] = '{0}.{1}_{2}'.format(diag.lower(), envDict['YEAR0'], envDict['YEAR1'])
+    return requested_diags, diag_dict
 
 
 #============================================
@@ -200,21 +211,79 @@ def main(options, main_comm, debugMsg):
 
     # get list of diagnostics types to be created
     diag_list = list()
-    diag_list = setup_diags(envDict)
+    num_of_diags = 0
+
     if main_comm.is_manager():
+        diag_list, diag_dict = setup_diags(envDict)
+
+        num_of_diags = len(diag_list)
+        if num_of_diags == 0:
+            print('No ocean diagnostics specified. Please check the {0}/env_diags_ocn.xml settings.'.format(envDict['CASEROOT']))
+            sys.exit(1)
+
         print('User requested diagnostics:')
         for diag in diag_list:
             print('  {0}'.format(diag))
 
-        # TODO - create a jinja template for the main links to all the diag classes
+        if envDict['DOWEB'].upper() in ['T','TRUE']:
+            try:
+                os.makedirs(envDict['WORKDIR'])
+            except OSError as exception:
+                if exception.errno != errno.EEXIST:
+                    err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(envDict['WORKDIR'])
+                    raise OSError(err_msg)
+
+            print('Ocean diagnostics - Creating main index.html page')
+
+            # define the templatePath
+            templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
+
+            templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
+            templateEnv = jinja2.Environment( loader=templateLoader )
+            
+            template_file = 'ocean_diagnostics.tmpl'
+            template = templateEnv.get_template( template_file )
+            
+            # set the template variables
+            templateVars = { 'casename' : envDict['CASE'],
+                             'tagname' : envDict['CCSM_REPOTAG'],
+                             'diag_dict' : diag_dict,
+                             'control_casename' : envDict['CNTRLCASE'],
+                             'start_year' : envDict['YEAR0'],
+                             'stop_year' : envDict['YEAR1'],
+                             'control_start_year' : envDict['CNTRLYEAR0'],
+                             'control_stop_year' : envDict['CNTRLYEAR1']
+                             }
+
+            # write the main index.html page to the top working directory
+            main_html = template.render( templateVars )
+            with open( '{0}/index.html'.format(envDict['WORKDIR']), 'w') as index:
+                index.write(main_html)
+
+            print('Ocean diagnostics - Copying stylesheet')
+            shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(envDict['WORKDIR']))
+
+            print('Ocean diagnostics - Copying logo files')
+            if not os.path.exists('{0}/logos'.format(envDict['WORKDIR'])):
+                os.mkdir('{0}/logos'.format(envDict['WORKDIR']))
+
+            for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
+                shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
+
+            if len(envDict['WEBDIR']) > 0 and len(envDict['WEBHOST']) > 0 and len(envDict['WEBLOGIN']) > 0:
+                # copy over the files to a remote web server and webdir 
+                diagUtilsLib.copy_html_files(envDict, '')
+            else:
+                print('Ocean Diagnostics - Web files successfully created in directory:')
+                print('{0}'.format(envDict['WORKDIR']))
+                print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
+                print('You will need to manually copy the web files to a remote web server.')
 
     main_comm.sync()
-
-    # divide the main communicator into sub_communicators to be passed to each diag class
-    num_of_diags = len(diag_list)
-    if num_of_diags == 0:
-        print('No ocean diagnostics specified. Please check the {0}/env_diags_ocn.xml settings.'.format(envDict['CASEROOT']))
-        sys.exit(1)
+    # broadcast the diag_list to all tasks
+    num_of_diags = main_comm.partition(num_of_diags, func=partition.Duplicate(), involved=True)
+    diag_list = main_comm.partition(data=diag_list, func=partition.Duplicate(), involved=True)
+    main_comm.sync()
 
     # initialize some variables for distributing diagnostics across the communicators
     diags_send = diag_list
@@ -223,6 +292,7 @@ def main(options, main_comm, debugMsg):
     grank = main_comm.get_rank()
     local_diag_list = list()
 
+    # divide the main communicator into sub_communicators to be passed to each diag class
     # split mpi comm world if the size of the communicator > 1 and the num_of_diags > 1
     if gsize > 1 and num_of_diags > 1:
         temp_color = (grank % num_of_diags)
@@ -294,7 +364,6 @@ def main(options, main_comm, debugMsg):
             return 1
 
     main_comm.sync()
-
 
 #===================================
 

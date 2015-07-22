@@ -71,31 +71,13 @@ class OceanDiagnostic(object):
 
         # check that temperature observation TOBSFILE exists and is readable
         sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE'])
-        print('     Checking {0}'.format(sourceFile))
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-            raise OSError(err_msg)
-
-        # set a link to TSOBSDIR/TOBSFILE
         linkFile = '{0}/{1}'.format(env['WORKDIR'], env['TOBSFILE'])
-        print('     Linking {0}'.format(linkFile))
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            os.symlink(sourceFile, linkFile)
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
         # check that salinity observation SOBSFILE exists and is readable
         sourceFile = '{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE'])
-        print('     Checking {0}'.format(sourceFile))
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-            raise OSError(err_msg)
-
-        # set a link to TSOBSDIR/SOBSFILE
         linkFile = '{0}/{1}'.format(env['WORKDIR'], env['SOBSFILE'])
-        print('     Linking {0}'.format(linkFile))
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            os.symlink(sourceFile, linkFile)
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def run_diagnostics(self, env, scomm):
         """ base method for calling diagnostics
