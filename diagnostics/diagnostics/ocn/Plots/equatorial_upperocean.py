@@ -49,6 +49,7 @@ class EquatorialUpperocean(OceanDiagnosticPlot):
         self._name = 'Equatorial Upperocean'
         self._shortname = 'UOEQ'
         self._template_file = 'equatorial_upperocean.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -62,59 +63,32 @@ class EquatorialUpperocean(OceanDiagnosticPlot):
         if env['VERTICAL'] == 42:
             phcTemp = env['TOBSFILE_V42']
 
-        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'],phcTemp)
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-            raise OSError(err_msg)
-
         # check if the link to the PHC temp file exists and is readable
+        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'],phcTemp)
         linkFile = '{0}/{1}'.format(env['WORKDIR'],phcTemp)
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            os.symlink(sourceFile, linkFile)
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
         # check salt
         phcSalt = env['SOBSFILE']
         if env['VERTICAL'] == 42:
             phcTemp = env['SOBSFILE_V42']
 
-        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'],phcSalt)
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-            raise OSError(err_msg)
-
         # check if the link to the PHC salt file exists and is readable
+        sourceFile = '{0}/{1}'.format(env['TSOBSDIR'],phcSalt)
         linkFile = '{0}/{1}'.format(env['WORKDIR'],phcSalt)
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            os.symlink(sourceFile, linkFile)
-
-        # check if TOGA-TAO file exists
-        sourceFile = '{0}/{1}'.format(env['TOGATAODIR'],env['TOGATAOFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
-        if not rc:
-            raise OSError(err_msg)
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
         # check if the link to the TOGA-TAO exists and is readable
+        sourceFile = '{0}/{1}'.format(env['TOGATAODIR'],env['TOGATAOFILE'])
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['TOGATAOFILE'])
-        rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
-        if not rc:
-            os.symlink(sourceFile, linkFile)
-
+        diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with ncl commands
-        diagUtilsLib.generate_ncl_plots(env, 'T_eq.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'S_eq.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'U_eq.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'U_eq_meridional.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'S_eq_meridional.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'T_eq_meridional.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'PD_eq_meridional.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -187,3 +161,15 @@ class EquatorialUpperocean(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+class EquatorialUpperocean_obs(EquatorialUpperocean):
+
+    def __init__(self):
+        super(EquatorialUpperocean_obs, self).__init__()
+        self._ncl = ['T_eq.ncl', 'S_eq.ncl', 'U_eq.ncl', 'U_eq_meridional.ncl', 'S_eq_meridional.ncl', 'T_eq_meridional.ncl', 'PD_eq_meridional.ncl']
+
+class EquatorialUpperocean_model(EquatorialUpperocean):
+
+    def __init__(self):
+        super(EquatorialUpperocean_model, self).__init__()
+        self._ncl = ['T_eq_diff.ncl', 'S_eq_diff.ncl', 'U_eq_diff.ncl', 'U_eq_meridional_diff.ncl', 'S_eq_meridional_diff.ncl', 'T_eq_meridional_diff.ncl', 'PD_eq_meridional_diff.ncl']

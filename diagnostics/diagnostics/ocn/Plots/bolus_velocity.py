@@ -37,6 +37,7 @@ class BolusVelocity(OceanDiagnosticPlot):
         self._name = 'Bolus Velocity Components at Depth Levels'
         self._shortname = 'VELISOPZ'
         self._template_file = 'bolus_velocity.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -48,11 +49,8 @@ class BolusVelocity(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with ncl commands
-        diagUtilsLib.generate_ncl_plots(env, 'uisopz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'visopz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'wisopz.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -103,3 +101,15 @@ class BolusVelocity(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+class BolusVelocity_obs(BolusVelocity):
+
+    def __init__(self):
+        super(BolusVelocity_obs, self).__init__()
+        self._ncl = ['uisopz.ncl', 'visopz.ncl', 'wisopz.ncl']
+
+class BolusVelocity_model(BolusVelocity):
+
+    def __init__(self):
+        super(BolusVelocity_model, self).__init__()
+        self._ncl = ['uisopz_diff.ncl', 'visopz_diff.ncl', 'wisopz_diff.ncl']

@@ -39,6 +39,7 @@ class DiffusionDepth(OceanDiagnosticPlot):
         self._name = 'Diffusion Coefficients at Depth Levels'
         self._shortname = 'KAPPAZ'
         self._template_file = 'diffusion_depth.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -50,10 +51,8 @@ class DiffusionDepth(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with ncl commands
-        diagUtilsLib.generate_ncl_plots(env, 'kappa_isopz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'kappa_thicz.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -104,3 +103,15 @@ class DiffusionDepth(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+class DiffusionDepth_obs(DiffusionDepth):
+
+    def __init__(self):
+        super(DiffusionDepth_obs, self).__init__()
+        self._ncl = ['kappa_isopz.ncl', 'kappa_thicz.ncl']
+
+class DiffusionDepth_model(DiffusionDepth):
+
+    def __init__(self):
+        super(DiffusionDepth_model, self).__init__()
+        self._ncl = ['kappa_isopz_diff.ncl', 'kappa_thicz_diff.ncl']

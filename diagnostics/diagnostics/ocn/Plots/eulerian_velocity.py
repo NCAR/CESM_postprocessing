@@ -38,6 +38,7 @@ class EulerianVelocity(OceanDiagnosticPlot):
         self._name = 'Eulerian Velocity Components at Depth Levels'
         self._shortname = 'VELZ'
         self._template_file = 'eulerian_velocity.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -49,11 +50,8 @@ class EulerianVelocity(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with ncl commands
-        diagUtilsLib.generate_ncl_plots(env, 'uvelz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'vvelz.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'wvelz.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -104,3 +102,15 @@ class EulerianVelocity(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+class EulerianVelocity_obs(EulerianVelocity):
+
+    def __init__(self):
+        super(EulerianVelocity_obs, self).__init__()
+        self._ncl = ['uvelz.ncl', 'vvelz.ncl', 'wvelz.ncl']
+
+class EulerianVelocity_model(EulerianVelocity):
+
+    def __init__(self):
+        super(EulerianVelocity_model, self).__init__()
+        self._ncl = ['uvelz_diff.ncl', 'vvelz_diff.ncl', 'wvelz_diff.ncl']

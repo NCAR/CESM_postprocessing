@@ -242,7 +242,9 @@ def copy_html_files(env, subdir):
     env (dictionary) - environment dictionary
     subdir (sting) - sub-directory
     """
+    toplevel = False
     if len(subdir) == 0:
+        toplevel = True
         subdir = '{0}'.format(env['CASE'])
     else:
         subdir = '{0}/{1}.{2}_{3}'.format(env['CASE'], subdir, env['YEAR0'], env['YEAR1'])
@@ -257,6 +259,25 @@ def copy_html_files(env, subdir):
         print('WARNING: unable to create remote directory {0}/{1}'.format(env['WEBDIR'],subdir))
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
+    # copy the logos and style sheet to the top level
+    if toplevel:
+        localFiles = '{0}/logos'.format(env['WORKDIR'])
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
+
+        localFiles = '{0}/*.css'.format(env['WORKDIR'])
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
+
+    # copy the html files
     localFiles = '{0}/*.html'.format(env['WORKDIR'])
     try:
         pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
@@ -265,22 +286,7 @@ def copy_html_files(env, subdir):
         print('WARNING: scp command failed with error::')
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
-    localFiles = '{0}/logos'.format(env['WORKDIR'])
-    try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
-        pipe.wait()
-    except OSError as e:
-        print('WARNING: scp command failed with error::')
-        print('    {0} - {1}'.format(e.errno, e.strerror))
-
-    localFiles = '{0}/*.css'.format(env['WORKDIR'])
-    try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
-        pipe.wait()
-    except OSError as e:
-        print('WARNING: scp command failed with error::')
-        print('    {0} - {1}'.format(e.errno, e.strerror))
-
+    # copy the graphics files
     localFiles = '{0}/*.{1}'.format(env['WORKDIR'], env['IMAGEFORMAT'])
     try:
         pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
