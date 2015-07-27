@@ -65,6 +65,9 @@ class modelTimeseries(OceanDiagnostic):
         # create the plot.dat file in the workdir used by all NCL plotting routines
         diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
+        # set the OBSROOT 
+        env['OBSROOT'] = env['OBSROOTPATH']
+
         # setup the gridfile based on the resolution
         os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
         if env['VERTICAL'] == '42':

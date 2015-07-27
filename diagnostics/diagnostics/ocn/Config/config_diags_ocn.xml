@@ -618,7 +618,7 @@
   <entry id="OCNDIAG_MOC0"
 	 type="real"
 	 valid_values=""
-	 value="1."
+	 value="15."
 	 group="diags_ocn"
 	 desc="y-bounds for MOC timeseries plots"
 	 ></entry>
@@ -626,7 +626,7 @@
   <entry id="OCNDIAG_MOC1"
 	 type="real"
 	 valid_values=""
-	 value="5."
+	 value="35."
 	 group="diags_ocn"
 	 desc="y-bounds for MOC timeseries plots"
 	 ></entry>
