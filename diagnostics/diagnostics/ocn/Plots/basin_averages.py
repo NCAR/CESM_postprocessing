@@ -33,6 +33,7 @@ class BasinAverages(OceanDiagnosticPlot):
         self._name = 'Depth Profiles of Basin-average Temperature and Salinity'
         self._shortname = 'BASINAVGTS'
         self._template_file = 'basin_averages.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -44,10 +45,8 @@ class BasinAverages(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'TS_basinavg_arctic.ncl')        
-
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -86,3 +85,10 @@ class BasinAverages(OceanDiagnosticPlot):
         
         return self._html
 
+class BasinAverages_obs(BasinAverages):
+    def __init__(self):
+        super(BasinAverages_obs, self).__init__()
+        self._ncl = ['TS_basinavg_arctic.ncl']
+
+class BasinAverages_model(BasinAverages):
+    pass

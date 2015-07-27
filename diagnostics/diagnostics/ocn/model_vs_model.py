@@ -11,6 +11,7 @@ if sys.hexversion < 0x02070000:
     sys.exit(1)
 
 # import core python modules
+import datetime
 import errno
 import glob
 import itertools
@@ -149,7 +150,10 @@ class modelVsModel(OceanDiagnostic):
                 
                 template_file = 'model_vs_model.tmpl'
                 template = templateEnv.get_template( template_file )
-    
+
+                # get the current datatime string for the template
+                now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
                 # set the template variables
                 templateVars = { 'casename' : env['CASE'],
                                  'control_casename' : env['CNTRLCASE'],
@@ -157,7 +161,8 @@ class modelVsModel(OceanDiagnostic):
                                  'start_year' : env['YEAR0'],
                                  'stop_year' : env['YEAR1'],
                                  'control_start_year' : env['CNTRLYEAR0'],
-                                 'control_stop_year' : env['CNTRLYEAR1']
+                                 'control_stop_year' : env['CNTRLYEAR1'],
+                                 'today': now
                                  }
 
                 print('model vs. model - Rendering plot html header')
@@ -231,7 +236,7 @@ class modelVsModel(OceanDiagnostic):
             with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
                 plot_html += tmpl.read()
 
-            print('model vs. model - Writing plot html')
+            print('model vs. model - Writing plot index.html')
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 

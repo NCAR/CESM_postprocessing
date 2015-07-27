@@ -23,7 +23,7 @@ from diag_utils import diagUtilsLib
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class RegionalArea(OceanDiagnosticPlot):
-    """Meridional Overturning Circulation plots
+    """Depth profiles of regional mean temperature and salinity anom/stddev
     """
 
     def __init__(self):
@@ -36,6 +36,7 @@ class RegionalArea(OceanDiagnosticPlot):
         self._name = 'Regional Average Temperature and Salinity anomaly vs. depth'
         self._shortname = 'REGIONALTS'
         self._template_file = 'regional_area.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -57,12 +58,8 @@ class RegionalArea(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'regionalTbias500m.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'regionalSbias500m.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'regionalTbias2000m.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'regionalSbias2000m.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -114,3 +111,10 @@ class RegionalArea(OceanDiagnosticPlot):
         
         return self._html
 
+class RegionalArea_obs(RegionalArea):
+    def __init__(self):
+        super(RegionalArea_obs, self).__init__()
+        self._ncl = ['regionalTbias500m.ncl', 'regionalSbias500m.ncl', 'regionalTbias2000m.ncl', 'regionalSbias2000m.ncl']
+
+class RegionalArea_model(RegionalArea):
+    pass

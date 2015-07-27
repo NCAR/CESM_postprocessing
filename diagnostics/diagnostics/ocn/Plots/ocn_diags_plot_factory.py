@@ -38,7 +38,7 @@ plot_map = {'PM_SFC2D': 'surface_flux_fields.SurfaceFluxFields_{0}()',
             'PM_VECV': 'horizontal_vector_fields.HorizontalVectorFields_{0}()',
             'PM_POLARTS': 'polar_temp_salt.PolarTempSalt_{0}()',
             'PM_BASINAVGTS': 'basin_averages.BasinAverages_{0}()',
-            'PM_REGIONALTS': 'regional_area.RegionalArea}_{0}()'}
+            'PM_REGIONALTS': 'regional_area.RegionalArea_{0}()'}
 
 # TODO diag_type must be 'obs' or 'model' or whatever to match the classname in the plot class
 def oceanDiagnosticPlotFactory(diag_type, plot_type):

@@ -44,6 +44,7 @@ class PolarTempSalt(OceanDiagnosticPlot):
         self._name = 'Polar Temperature and Salinity at Depth Levels'
         self._shortname = 'KAPPAZ'
         self._template_file = 'diffusion_depth.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -55,12 +56,8 @@ class PolarTempSalt(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with ncl commands
-        diagUtilsLib.generate_ncl_plots(env, 'tempz_arctic.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'saltz_arctic.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'tempz_antarctic.ncl')        
-        diagUtilsLib.generate_ncl_plots(env, 'saltz_antarctic.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -112,3 +109,11 @@ class PolarTempSalt(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+class PolarTempSalt_obs(PolarTempSalt):
+    def __init__(self):
+        super(PolarTempSalt_obs, self).__init__()
+        self._ncl = ['tempz_arctic.ncl', 'saltz_arctic.ncl', 'tempz_antarctic.ncl', 'saltz_antarctic.ncl']
+
+class PolarTempSalt_model(PolarTempSalt):
+    pass

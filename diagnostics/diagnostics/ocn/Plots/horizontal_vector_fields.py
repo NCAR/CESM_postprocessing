@@ -36,6 +36,7 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
         self._name = 'Horizontal Vector Fields at Depth'
         self._shortname = 'VECV'
         self._template_file = 'horizontal_vector_fields.tmpl'
+        self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
@@ -47,9 +48,8 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # generate_plots with ncl command
-        diagUtilsLib.generate_ncl_plots(env, 'vecvelz.ncl')        
+        for ncl in self._ncl:
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
@@ -100,3 +100,12 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
         self._html = template.render( templateVars )
         
         return self._html
+
+class HorizontalVectorFields_obs(HorizontalVectorFields):
+    def __init__(self):
+        super(HorizontalVectorFields_obs, self).__init__()
+        self._ncl = ['vecvelz.ncl']
+
+class HorizontalVectorFields_model(HorizontalVectorFields):
+    pass
+    

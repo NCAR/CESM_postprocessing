@@ -11,7 +11,6 @@ if sys.hexversion < 0x02070000:
     sys.exit(1)
 
 # import core python modules
-import datetime
 import errno
 import glob
 import itertools
@@ -37,22 +36,22 @@ from ocn_diags_bc import OceanDiagnostic
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
 from diagnostics.ocn.Plots import ocn_diags_plot_factory
 
-class modelVsObs(OceanDiagnostic):
-    """model vs. observations ocean diagnostics setup
+class modelTimeseries(OceanDiagnostic):
+    """model timeserieservations ocean diagnostics setup
     """
     def __init__(self):
         """ initialize
         """
-        super(modelVsObs, self).__init__()
+        super(modelTimeseries, self).__init__()
 
-        self._name = 'MODEL_VS_OBS'
-        self._title = 'Model vs. Observations'
+        self._name = 'MODEL_TIMESERIES'
+        self._title = 'Model Timeseries'
 
     def check_prerequisites(self, env):
         """ check prerequisites
         """
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
-        super(modelVsObs, self).check_prerequisites(env)
+        super(modelTimeseries, self).check_prerequisites(env)
 
         # clean out the old working plot files from the workdir
         if env['CLEANUP_FILES'].upper() in ['T','TRUE']:
@@ -84,7 +83,7 @@ class modelVsObs(OceanDiagnostic):
             env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
 
         # create the global zonal average file used by most of the plotting classes
-        print('    model vs. obs - calling create_za')
+        print('    model timeseries - calling create_za')
         diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env)
 
         return env
@@ -92,7 +91,7 @@ class modelVsObs(OceanDiagnostic):
     def run_diagnostics(self, env, scomm):
         """ call the necessary plotting routines to generate diagnostics plots
         """
-        super(modelVsObs, self).run_diagnostics(env, scomm)
+        super(modelTimeseries, self).run_diagnostics(env, scomm)
         scomm.sync()
 
         # setup some global variables
@@ -105,44 +104,40 @@ class modelVsObs(OceanDiagnostic):
 
         # all the plot module XML vars start with MVO_PM_  need to strip that off
         for key, value in env.iteritems():
-            if (re.search("\AMVO_PM_", key) and value.upper() in ['T','TRUE']):
+            if (re.search("\AMTS_PM_", key) and value.upper() in ['T','TRUE']):
                 k = key[4:]                
                 requested_plots.append(k)
 
         scomm.sync()
-        print('model vs. obs - after scomm.sync requested_plots = {0}'.format(requested_plots))
+        print('model timeseries - after scomm.sync requested_plots = {0}'.format(requested_plots))
 
         if scomm.is_manager():
-            print('model vs. obs - User requested plot modules:')
+            print('model timeseries - User requested plot modules:')
             for plot in requested_plots:
                 print('  {0}'.format(plot))
 
             if env['DOWEB'].upper() in ['T','TRUE']:
                 
-                print('model vs. obs - Creating plot html header')
+                print('model timeseries - Creating plot html header')
                 templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
                 templateEnv = jinja2.Environment( loader=templateLoader )
                 
                 template_file = 'model_vs_obs.tmpl'
                 template = templateEnv.get_template( template_file )
     
-                # get the current datatime string for the template
-                now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
                 # test the template variables
                 templateVars = { 'casename' : env['CASE'],
                                  'tagname' : env['CCSM_REPOTAG'],
                                  'start_year' : env['YEAR0'],
-                                 'stop_year' : env['YEAR1'],
-                                 'today': now
+                                 'stop_year' : env['YEAR1']
                                  }
 
-                print('model vs. obs - Rendering plot html header')
+                print('model timeseries - Rendering plot html header')
                 plot_html = template.render( templateVars )
 
         scomm.sync()
 
-        print('model vs. obs - Partition requested plots')
+        print('model timeseries - Partition requested plots')
         # partition requested plots to all tasks
         local_requested_plots = scomm.partition(requested_plots, func=partition.EqualStride(), involved=True)
         scomm.sync()
@@ -151,16 +146,16 @@ class modelVsObs(OceanDiagnostic):
             try:
                 plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('obs', requested_plot)
 
-                print('model vs. obs - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model timeseries - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)
 
-                print('model vs. obs - Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model timeseries - Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.generate_plots(env)
 
-                print('model vs. obs - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model timeseries - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
 
-                print('model vs. obs - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model timeseries - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
             
                 local_html_list.append(str(html))
@@ -169,7 +164,7 @@ class modelVsObs(OceanDiagnostic):
             except ocn_diags_plot_bc.RecoverableError as e:
                 # catch all recoverable errors, print a message and continue.
                 print(e)
-                print("model vs. obs - Skipped '{0}' and continuing!".format(request_plot))
+                print("model timeseries - Skipped '{0}' and continuing!".format(request_plot))
             except RuntimeError as e:
                 # unrecoverable error, bail!
                 print(e)
@@ -204,11 +199,11 @@ class modelVsObs(OceanDiagnostic):
                 #print('each_html = {0}'.format(each_html))
                 plot_html += each_html
 
-            print('model vs. obs - Adding footer html')
+            print('model timeseries - Adding footer html')
             with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
                 plot_html += tmpl.read()
 
-            print('model vs. obs - Writing plot index.html')
+            print('model timeseries - Writing plot index.html')
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
@@ -216,13 +211,13 @@ class modelVsObs(OceanDiagnostic):
                 # copy over the files to a remote web server and webdir 
                 diagUtilsLib.copy_html_files(env, 'model_vs_obs')
             else:
-                print('Model vs. Observations - Web files successfully created in directory:')
+                print('model timeseries - Web files successfully created in directory:')
                 print('{0}'.format(env['WORKDIR']))
                 print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
                 print('You will need to manually copy the web files to a remote web server.')
 
-            print('*******************************************************************************')
-            print('Successfully completed generating ocean diagnostics model vs. observation plots')
-            print('*******************************************************************************')
+            print('**************************************************************************')
+            print('Successfully completed generating ocean diagnostics model timeseries plots')
+            print('**************************************************************************')
 
 

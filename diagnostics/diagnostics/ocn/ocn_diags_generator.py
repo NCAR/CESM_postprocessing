@@ -29,6 +29,7 @@ if sys.hexversion < 0x02070000:
 
 # import core python modules
 import argparse
+import datetime
 import errno
 import glob
 import itertools
@@ -97,7 +98,7 @@ def setup_diags(envDict):
     """
     requested_diags = list()
     diag_dict = dict()
-    avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_MODEL', 'MODEL_VS_MODEL_ECOSYS', 'TS', 'TS_ECOSYS']
+    avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_MODEL', 'MODEL_VS_MODEL_ECOSYS', 'TIMESERIES', 'TIMESERIES_ECOSYS']
     for diag in avail_diags:
         diag_dict[diag.lower()] = False
         for key, value in envDict.iteritems():
@@ -244,6 +245,9 @@ def main(options, main_comm, debugMsg):
             template_file = 'ocean_diagnostics.tmpl'
             template = templateEnv.get_template( template_file )
             
+            # get the current datatime string for the template
+            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
             # set the template variables
             templateVars = { 'casename' : envDict['CASE'],
                              'tagname' : envDict['CCSM_REPOTAG'],
@@ -252,7 +256,8 @@ def main(options, main_comm, debugMsg):
                              'start_year' : envDict['YEAR0'],
                              'stop_year' : envDict['YEAR1'],
                              'control_start_year' : envDict['CNTRLYEAR0'],
-                             'control_stop_year' : envDict['CNTRLYEAR1']
+                             'control_stop_year' : envDict['CNTRLYEAR1'],
+                             'today': now
                              }
 
             # write the main index.html page to the top working directory
@@ -280,6 +285,7 @@ def main(options, main_comm, debugMsg):
                 print('You will need to manually copy the web files to a remote web server.')
 
     main_comm.sync()
+
     # broadcast the diag_list to all tasks
     num_of_diags = main_comm.partition(num_of_diags, func=partition.Duplicate(), involved=True)
     diag_list = main_comm.partition(data=diag_list, func=partition.Duplicate(), involved=True)
@@ -329,6 +335,7 @@ def main(options, main_comm, debugMsg):
         local_diag_list = diag_list
 
     inter_comm.sync()
+    main_comm.sync()
 
     # loop through the local_diag_list 
     for requested_diag in local_diag_list:
@@ -353,6 +360,8 @@ def main(options, main_comm, debugMsg):
 
             # run the diagnostics type on each inter_comm
             diag.run_diagnostics(envDict, inter_comm)
+
+            inter_comm.sync()
             
         except ocn_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.

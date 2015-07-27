@@ -8,7 +8,7 @@ import model_vs_obs
 #import model_vs_obs_ecosys
 import model_vs_model
 #import model_vs_model_ecosys
-#import modelts
+import model_timeseries
 #import modelts_ecosys
 
 def oceanDiagnosticsFactory(diag_type):
@@ -27,10 +27,10 @@ def oceanDiagnosticsFactory(diag_type):
     elif diag_type == 'MODEL_VS_MODEL_ECOSYS':
         diag = model_vs_model_ecosys.modelVsModelEcosys()
 
-    elif diag_type == 'TS':
-        diag = modelts.modelTS()
+    elif diag_type == 'TIMESERIES':
+        diag = model_timeseries.modelTimeseries()
 
-    elif diag_type == 'TS_ECOSYS':
+    elif diag_type == 'TIMESERIES_ECOSYS':
         diag = modelts_ecosys.modelTSEcosys()
 
     else:
