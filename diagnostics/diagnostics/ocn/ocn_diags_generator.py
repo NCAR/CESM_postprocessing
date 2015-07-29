@@ -98,7 +98,7 @@ def setup_diags(envDict):
     """
     requested_diags = list()
     diag_dict = dict()
-    avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_MODEL', 'MODEL_VS_MODEL_ECOSYS', 'TIMESERIES', 'TIMESERIES_ECOSYS']
+    avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_CONTROL', 'MODEL_VS_CONTROL_ECOSYS', 'TIMESERIES', 'TIMESERIES_ECOSYS']
     for diag in avail_diags:
         diag_dict[diag.lower()] = False
         for key, value in envDict.iteritems():
@@ -179,7 +179,7 @@ def main(options, main_comm, debugMsg):
 
     Calls 6 different diagnostics generation types:
     model vs. observation (optional BGC - ecosystem)
-    model vs. model (optional BGC - ecosystem)
+    model vs. control (optional BGC - ecosystem)
     model time-series (optional BGC - ecosystem)
 
     Arguments:

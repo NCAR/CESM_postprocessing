@@ -6,8 +6,8 @@
 from ocn_diags_bc import UnknownDiagType
 import model_vs_obs
 #import model_vs_obs_ecosys
-import model_vs_model
-#import model_vs_model_ecosys
+import model_vs_control
+#import model_vs_control_ecosys
 import model_timeseries
 #import modelts_ecosys
 
@@ -21,11 +21,11 @@ def oceanDiagnosticsFactory(diag_type):
     elif diag_type == 'MODEL_VS_OBS_ECOSYS':
         diag = model_vs_obs_ecosys.modelVsObsEcosys()
 
-    elif diag_type == 'MODEL_VS_MODEL':
-        diag = model_vs_model.modelVsModel()
+    elif diag_type == 'MODEL_VS_CONTROL':
+        diag = model_vs_control.modelVsControl()
 
-    elif diag_type == 'MODEL_VS_MODEL_ECOSYS':
-        diag = model_vs_model_ecosys.modelVsModelEcosys()
+    elif diag_type == 'MODEL_VS_CONTROL_ECOSYS':
+        diag = model_vs_control_ecosys.modelVsControlEcosys()
 
     elif diag_type == 'TIMESERIES':
         diag = model_timeseries.modelTimeseries()

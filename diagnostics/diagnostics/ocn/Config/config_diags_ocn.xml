@@ -31,20 +31,20 @@
 	 desc="True or false to control if model vs. observatsions ecosystem diagnostics are generated."
 	 ></entry>
 
-  <entry id="OCNDIAG_MODEL_VS_MODEL"
+  <entry id="OCNDIAG_MODEL_VS_CONTROL"
 	 type="logical"
 	 valid_values="TRUE/FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="True or false to control if model vs. model diagnostics are generated. If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly."
+	 desc="True or false to control if model vs. control diagnostics are generated. If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly."
 	 ></entry>
 
-  <entry id="OCNDIAG_MODEL_VS_MODEL_ECOSYS"
+  <entry id="OCNDIAG_MODEL_VS_CONTROL_ECOSYS"
 	 type="logical"
 	 valid_values="TRUE/FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="True or false to control if model vs. model ecosystem diagnostics are generated.	If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly."
+	 desc="True or false to control if model vs. control ecosystem diagnostics are generated.	If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly."
 	 ></entry>
 
   <entry id="OCNDIAG_TIMESERIES"
@@ -132,13 +132,13 @@
 	 valid_values="6,7"
 	 value="7"
 	 group="diags_ocn"
-	 desc="For model vs. observations, model vs. observations ecosystem, model vs. model, and model vs. model ecosystem options corresponds 7 for CCSM4.0 and greater or 6 for CCSM3. This setting determines which flux observation file to use."
+	 desc="For model vs. observations, model vs. observations ecosystem, model vs. control, and model vs. control ecosystem options corresponds 7 for CCSM4.0 and greater or 6 for CCSM3. This setting determines which flux observation file to use."
 	 ></entry>
 
   <entry id="OCNDIAG_TS_CPL"
 	 type="char"
-	 valid_values="6,7"
-	 value="7"
+	 valid_values="6,7,7b"
+	 value="7b"
 	 group="diags_ocn"
 	 desc="For model timeseries and model timeseries ecosystem options correspond to the following CESM versions: 7b for CESM1.1 or higher, 7 for CCSM4 through CESM1.0.4, and 6 for CCSM3. This setting determines which flux observation file to use."
 	 ></entry>
@@ -356,7 +356,7 @@
 	 valid_values=""
 	 value=""
 	 group="diags_ocn"
-	 desc="Specific NCL path for model vs. model and model vs. obs plotting routines"
+	 desc="Specific NCL path for model vs. control and model vs. obs plotting routines"
 	 ></entry>
 
   <entry id="OCNDIAG_CONVERT_CMD"
@@ -402,7 +402,7 @@
   <entry id="OCNDIAG_NCLMAXCOLOR"
 	 type="integer"
 	 valid_values=""
-	 value="254"
+	 value="255"
 	 group="diags_ocn"
 	 desc="General NCL maximum color setting for all plotting routines"
 	 ></entry>
@@ -680,7 +680,7 @@
 	 valid_values=""
 	 value=""
 	 group="diags_ocn"
-	 desc="local directory path to control model output history files for OMWG model vs. model diagnostics"
+	 desc="local directory path to control model output history files for OMWG model vs. control diagnostics"
 	 ></entry>
 
   <entry id="OCNDIAG_CNTRLCASE"
@@ -688,7 +688,7 @@
 	 valid_values=""
 	 value=""
 	 group="diags_ocn"
-	 desc="Control model case name used with OMWG model vs. model diagnostics"
+	 desc="Control model case name used with OMWG model vs. control diagnostics"
 	 ></entry>
 
   <entry id="OCNDIAG_CNTRLRESOLUTION"
@@ -696,7 +696,7 @@
 	 valid_values=""
 	 value=""
 	 group="diags_ocn"
-	 desc="Control model resolution used with OMWG model vs. model diagnostics"
+	 desc="Control model resolution used with OMWG model vs. control diagnostics"
 	 ></entry>
 
   <entry id="OCNDIAG_CNTRLYEAR0"
@@ -723,6 +723,14 @@
 	 desc="Options correspond to the following CESM versions: 7b for CESM1.1 or higher, 7 for CCSM4 through CESM1.0.4, and 6 for CCSM3. This setting determines which flux observation file to use."
 	 ></entry>
 
+  <entry id="OCNDIAG_CNTRLTAVGDIR"
+	 type="char"
+	 valid_values=""
+	 value="mavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1.cntrl.nc"
+	 group="diags_ocn"
+	 desc="Local directory path to control model climatology files for OMWG model vs. model diagnostics"
+	 ></entry>
+
   <entry id="OCNDIAG_CNTRLSEASAVGTEMP"
 	 type="char"
 	 valid_values=""
@@ -747,13 +755,13 @@
 	 desc="Local machine filename for control model seasonal monthly average salinity over years specified"
 	 ></entry>
 
-  <entry id="OCNDIAG_SEASAVGRHO"
+  <entry id="OCNDIAG_CNTRLSEASAVGRHO"
 	 type="char"
 	 valid_values=""
 	 value="$CNTRLCASE.pop.h.RHO.mavg_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc"
 	 group="diags_ocn"
-	 desc="This environment variable is set to null unless the plot_mod OCNDIAG_MVM_PM_MLD=TRUE (mixed layer depth plots) in which case, it is set to the same value as $CNTRLCASE.pop.h.RHO.mav\
-g_$OCNDIAG_CNTRLYEAR0-$OCNDIAG_CNTRLYEAR1.nc"
+	 desc="This environment variable is set to null unless the plot_mod OCNDIAG_MVC_PM_MLD=TRUE (mixed layer depth plots) in which case, it is set to the same value as $CNTRLCASE.pop.h.RHO.mav\
+g_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc"
 	 ></entry>
 
 
@@ -774,8 +782,8 @@ g_$OCNDIAG_CNTRLYEAR0-$OCNDIAG_CNTRLYEAR1.nc"
   <!-- The following id prefixes are used to decipher which plots should be created.                  -->
   <!-- MVO - model vs. observations                                                                   -->
   <!-- MVOECOSYS - model vs. observations ecosystem                                                   -->
-  <!-- MVM - model vs. model                                                                          -->
-  <!-- MVMECOSYS - model vs. model ecosystem                                                          -->
+  <!-- MVM - model vs. control                                                                          -->
+  <!-- MVMECOSYS - model vs. control ecosystem                                                          -->
   <!-- MTS - model timeseries                                                                         -->
   <!-- MTSECOSYS - model timeseries ecosystem                                                         -->
   <!-- ============================================================================================== -->
@@ -932,91 +940,91 @@ g_$OCNDIAG_CNTRLYEAR0-$OCNDIAG_CNTRLYEAR1.nc"
 	 group="diags_ocn"
 	 desc="Logical to control whether to create  plots of oxygen levels at beginning and end of period plots (TRUE) or not (FALSE)."></entry>
 
-  <!-- MVM - model vs. model -->
+  <!-- MVC - model vs. control -->
 
-  <entry id="OCNDIAG_MVM_PM_SFC2D"
+  <entry id="OCNDIAG_MVC_PM_SFC2D"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (surface_flux_fields_control) Logical to control whether to create 2D surface flux plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (surface_flux_fields_control) Logical to control whether to create 2D surface flux plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_FLD2D"
+  <entry id="OCNDIAG_MVC_PM_FLD2D"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (surface_fields_control) Logical to control whether to create other 2D variable (HMXL, SSH, BSF, etc...)	plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (surface_fields_control) Logical to control whether to create other 2D variable (HMXL, SSH, BSF, etc...) plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_FLD3DZA"
+  <entry id="OCNDIAG_MVC_PM_FLD3DZA"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (zonal_average_3d_fields_control) Logical to control whether to create 3D fields zonally averaged plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (zonal_average_3d_fields_control) Logical to control whether to create 3D fields zonally averaged plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_MOC"
+  <entry id="OCNDIAG_MVC_PM_MOC"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (moc_fields_control) Logical to control whether to create MOC and Heat/Freshwater transport plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (moc_fields_control) Logical to control whether to create MOC and Heat/Freshwater transport plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_SEAS"
+  <entry id="OCNDIAG_MVC_PM_SEAS"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (seasonal_cycle_control) Logical to control whether to create seasonal cycle plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (seasonal_cycle_control) Logical to control whether to create seasonal cycle plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_MLD"
+  <entry id="OCNDIAG_MVC_PM_MLD"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (mixed_layer_depth_control) Logical to control whether to create mixed layer depth plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (mixed_layer_depth_control) Logical to control whether to create mixed layer depth plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_TSZ"
+  <entry id="OCNDIAG_MVC_PM_TSZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (temp_salt_depth_control) Logical to control whether to create temperature and salinity on depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (temp_salt_depth_control) Logical to control whether to create temperature and salinity on depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_PASSIVEZ"
+  <entry id="OCNDIAG_MVC_PM_PASSIVEZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (passive_tracers_depth_control) Logical to control whether to create passive traces at depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (passive_tracers_depth_control) Logical to control whether to create passive traces at depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_VELZ"
+  <entry id="OCNDIAG_MVC_PM_VELZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (eulerian_velocity_control) Logical to control whether to create Eulerian velocity (UCEL, VVEL, WVEL) on depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (eulerian_velocity_control) Logical to control whether to create Eulerian velocity (UCEL, VVEL, WVEL) on depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_VELISOPZ"
+  <entry id="OCNDIAG_MVC_PM_VELISOPZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (bolus_velocity_control) Logical to control whether to create Bolus velocity components on depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (bolus_velocity_control) Logical to control whether to create Bolus velocity components on depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_KAPPAZ"
+  <entry id="OCNDIAG_MVC_PM_KAPPAZ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (diffusion_depth_control) Logical to control whether to create diffusion coefficients on depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (diffusion_depth_control) Logical to control whether to create diffusion coefficients on depth surfaces, contours plots (TRUE) or not (FALSE)."></entry>
 
-  <entry id="OCNDIAG_MVM_PM_UOEQ"
+  <entry id="OCNDIAG_MVC_PM_UOEQ"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Model vs. model (equatorial_upperocean_control) Logical to control whether to create upperocean at the equator; compared to PHC2, TOGA-TAO plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. control (equatorial_upperocean_control) Logical to control whether to create upperocean at the equator; compared to PHC2, TOGA-TAO plots (TRUE) or not (FALSE)."></entry>
 
   <!-- MTS - model timeseries -->
 
@@ -1039,7 +1047,7 @@ g_$OCNDIAG_CNTRLYEAR0-$OCNDIAG_CNTRLYEAR1.nc"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Logical to control whether to generate regional mean T,S (z,t) with diff&rms from obs (TRUE) or not (FALSE)."></entry>
+	 desc="Logical to control whether to generate regional mean T,S (z,t) with diff and rms from obs (TRUE) or not (FALSE)."></entry>
 
   <entry id="OCNDIAG_MTS_PM_ENSOWVLT"
 	 type="logical"

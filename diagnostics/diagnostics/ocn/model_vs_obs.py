@@ -80,8 +80,8 @@ class modelVsObs(OceanDiagnostic):
 
         # check the resolution and decide if some plot modules should be turned off
         if env['RESOLUTION'] == 'tx0.1v2' :
-            env['PM_VELISOPZ'] = os.environ['PM_VELISOPZ'] = 'FALSE'
-            env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
+            env['MVO_PM_VELISOPZ'] = os.environ['MVO_PM_VELISOPZ'] = 'FALSE'
+            env['MVO_PM_KAPPAZ'] = os.environ['MVO_PM_KAPPAZ'] = 'FALSE'
 
         # create the global zonal average file used by most of the plotting classes
         print('    model vs. obs - calling create_za')

@@ -37,22 +37,22 @@ from ocn_diags_bc import OceanDiagnostic
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
 from diagnostics.ocn.Plots import ocn_diags_plot_factory
 
-class modelVsModel(OceanDiagnostic):
-    """model vs. model ocean diagnostics setup
+class modelVsControl(OceanDiagnostic):
+    """model vs. control ocean diagnostics setup
     """
     def __init__(self):
         """ initialize
         """
-        super(modelVsModel, self).__init__()
+        super(modelVsControl, self).__init__()
 
-        self._name = 'MODEL_VS_MODEL'
-        self._title = 'Model vs. Model'
+        self._name = 'MODEL_VS_CONTROL'
+        self._title = 'Model vs. Control'
 
     def check_prerequisites(self, env):
         """ check prerequisites
         """
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
-        super(modelVsModel, self).check_prerequisites(env)
+        super(modelVsControl, self).check_prerequisites(env)
 
         # clean out the old working plot files from the workdir
         if env['CLEANUP_FILES'].upper() in ['T','TRUE']:
@@ -80,11 +80,11 @@ class modelVsModel(OceanDiagnostic):
 
         # check the resolution and decide if some plot modules should be turned off
         if env['RESOLUTION'] == 'tx0.1v2' :
-            env['PM_VELISOPZ'] = os.environ['PM_VELISOPZ'] = 'FALSE'
-            env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
+            env['MVC_PM_VELISOPZ'] = os.environ['MVC_PM_VELISOPZ'] = 'FALSE'
+            env['MVC_PM_KAPPAZ'] = os.environ['MVC_PM_KAPPAZ'] = 'FALSE'
 
         # create the global zonal average file used by most of the plotting classes
-        print('   model vs. model - calling create_za')
+        print('   model vs. control - calling create_za')
         diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env)
 
         # setup prerequisites for the model control
@@ -105,11 +105,11 @@ class modelVsModel(OceanDiagnostic):
 
         # check the resolution and decide if some plot modules should be turned off
         if env['CNTRLRESOLUTION'] == 'tx0.1v2' :
-            env['PM_VELISOPZ'] = os.environ['PM_VELISOPZ'] = 'FALSE'
-            env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
+            env['MVC_PM_VELISOPZ'] = os.environ['MVC_PM_VELISOPZ'] = 'FALSE'
+            env['MVC_PM_KAPPAZ'] = os.environ['MVC_PM_KAPPAZ'] = 'FALSE'
 
         # create the control global zonal average file used by most of the plotting classes
-        print('    model vs. model - calling create_za for control run')
+        print('    model vs. control - calling create_za for control run')
         diagUtilsLib.create_za( env['WORKDIR'], env['CNTRL_TAVGFILE'], env['GRIDFILECNTRL'], env['TOOLPATH'], env)
 
         return env
@@ -117,7 +117,7 @@ class modelVsModel(OceanDiagnostic):
     def run_diagnostics(self, env, scomm):
         """ call the necessary plotting routines to generate diagnostics plots
         """
-        super(modelVsModel, self).run_diagnostics(env, scomm)
+        super(modelVsControl, self).run_diagnostics(env, scomm)
         scomm.sync()
 
         # setup some global variables
@@ -128,27 +128,27 @@ class modelVsModel(OceanDiagnostic):
         # define the templatePath for all tasks
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
 
-        # all the plot module XML vars start with MVM_PM_  need to strip off MVM_
+        # all the plot module XML vars start with MVC_PM_  need to strip off MVC_
         for key, value in env.iteritems():
-            if (re.search("\AMVM_PM_", key) and value.upper() in ['T','TRUE']):
+            if (re.search("\AMVC_PM_", key) and value.upper() in ['T','TRUE']):
                 k = key[4:]
                 requested_plots.append(k)
 
         scomm.sync()
-        print('model vs. model - after scomm.sync requested_plots = {0}'.format(requested_plots))
+        print('model vs. control - after scomm.sync requested_plots = {0}'.format(requested_plots))
 
         if scomm.is_manager():
-            print('model vs. model - User requested plot modules:')
+            print('model vs. control - User requested plot modules:')
             for plot in requested_plots:
                 print('  {0}'.format(plot))
 
             if env['DOWEB'].upper() in ['T','TRUE']:
                 
-                print('model vs. model - Creating plot html header')
+                print('model vs. control - Creating plot html header')
                 templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
                 templateEnv = jinja2.Environment( loader=templateLoader )
                 
-                template_file = 'model_vs_model.tmpl'
+                template_file = 'model_vs_control.tmpl'
                 template = templateEnv.get_template( template_file )
 
                 # get the current datatime string for the template
@@ -165,12 +165,12 @@ class modelVsModel(OceanDiagnostic):
                                  'today': now
                                  }
 
-                print('model vs. model - Rendering plot html header')
+                print('model vs. control - Rendering plot html header')
                 plot_html = template.render( templateVars )
 
         scomm.sync()
 
-        print('model vs. model - Partition requested plots')
+        print('model vs. control - Partition requested plots')
         # partition requested plots to all tasks
         local_requested_plots = scomm.partition(requested_plots, func=partition.EqualStride(), involved=True)
         scomm.sync()
@@ -179,16 +179,16 @@ class modelVsModel(OceanDiagnostic):
             try:
                 plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('model',requested_plot)
 
-                print('model vs. model - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. control - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)
 
-                print('model vs. model - Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. control - Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.generate_plots(env)
 
-                print('model vs. model - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. control - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
 
-                print('model vs. model - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                print('model vs. control - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
             
                 local_html_list.append(str(html))
@@ -232,25 +232,25 @@ class modelVsModel(OceanDiagnostic):
                 #print('each_html = {0}'.format(each_html))
                 plot_html += each_html
 
-            print('model vs. model - Adding footer html')
+            print('model vs. control - Adding footer html')
             with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
                 plot_html += tmpl.read()
 
-            print('model vs. model - Writing plot index.html')
+            print('model vs. control - Writing plot index.html')
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
             if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env, 'model_vs_model')
+                diagUtilsLib.copy_html_files(env, 'model_vs_control')
             else:
-                print('Model vs. Model - Web files successfully created in directory:')
+                print('Model vs. control - Web files successfully created in directory:')
                 print('{0}'.format(env['WORKDIR']))
                 print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
                 print('You will need to manually copy the web files to a remote web server.')
 
-            print('*************************************************************************')
-            print('Successfully completed generating ocean diagnostics model vs. model plots')
-            print('*************************************************************************')
+            print('***************************************************************************')
+            print('Successfully completed generating ocean diagnostics model vs. control plots')
+            print('***************************************************************************')
 
 

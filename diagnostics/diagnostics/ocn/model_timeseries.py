@@ -61,6 +61,8 @@ class modelTimeseries(OceanDiagnostic):
             cesmEnvLib.purge(env['WORKDIR'], '.*\.ps')
             cesmEnvLib.purge(env['WORKDIR'], '.*\.png')
             cesmEnvLib.purge(env['WORKDIR'], '.*\.html')
+            cesmEnvLib.purge(env['WORKDIR'], '.*\.log\.*')
+            cesmEnvLib.purge(env['WORKDIR'], '.*\.pop\.d.\.*')
 
         # create the plot.dat file in the workdir used by all NCL plotting routines
         diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
@@ -68,26 +70,14 @@ class modelTimeseries(OceanDiagnostic):
         # set the OBSROOT 
         env['OBSROOT'] = env['OBSROOTPATH']
 
-        # setup the gridfile based on the resolution
-        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
-        if env['VERTICAL'] == '42':
-            os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
-
-        # check if gridfile exists and is readable
-        rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
-        if not rc:
-            raise OSError(err_msg)
-
-        env['GRIDFILE'] = os.environ['gridfile']
-
         # check the resolution and decide if some plot modules should be turned off
         if env['RESOLUTION'] == 'tx0.1v2' :
-            env['PM_VELISOPZ'] = os.environ['PM_VELISOPZ'] = 'FALSE'
-            env['PM_KAPPAZ'] = os.environ['PM_KAPPAZ'] = 'FALSE'
+            env['MTS_PM_MOCANN'] = os.environ['MTS_PM_MOCANN'] = 'FALSE'
+            env['MTS_PM_MOCMON'] = os.environ['MTS_PM_MOCMON'] = 'FALSE'
 
-        # create the global zonal average file used by most of the plotting classes
-        print('    model timeseries - calling create_za')
-        diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env)
+        # copy the necessary ocn d[?] files to the workdir
+
+        # copy the necessary cpl log files to the workdir
 
         return env
 
