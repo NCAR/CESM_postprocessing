@@ -1,3 +1,13 @@
+""" 
+plot module: PM_PASSIVEZ
+plot name:   Passive Tracers at Depth Levels
+
+classes:
+PassiveTracersDepth:          base class
+PassiveTracersDepth_obs:      defines specific NCL list for model vs. observations plots
+PassiveTracersDepth_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -107,8 +117,8 @@ class PassiveTracersDepth_obs(PassiveTracersDepth):
         super(PassiveTracersDepth_obs, self).__init__()
         self._ncl = ['iagez.ncl']
 
-class PassiveTracersDepth_model(PassiveTracersDepth):
+class PassiveTracersDepth_control(PassiveTracersDepth):
 
     def __init__(self):
-        super(PassiveTracersDepth_model, self).__init__()
+        super(PassiveTracersDepth_control, self).__init__()
         self._ncl = ['iagez_diff.ncl']

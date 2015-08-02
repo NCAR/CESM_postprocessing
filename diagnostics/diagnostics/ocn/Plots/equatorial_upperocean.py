@@ -1,3 +1,13 @@
+""" 
+plot module: PM_UOEQ
+plot name:   Equatorial Upperocean
+
+classes:
+EquatorialUpperocean:          base class
+EquatorialUpperocean_obs:      defines specific NCL list for model vs. observations plots
+EquatorialUpperocean_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -168,8 +178,8 @@ class EquatorialUpperocean_obs(EquatorialUpperocean):
         super(EquatorialUpperocean_obs, self).__init__()
         self._ncl = ['T_eq.ncl', 'S_eq.ncl', 'U_eq.ncl', 'U_eq_meridional.ncl', 'S_eq_meridional.ncl', 'T_eq_meridional.ncl', 'PD_eq_meridional.ncl']
 
-class EquatorialUpperocean_model(EquatorialUpperocean):
+class EquatorialUpperocean_control(EquatorialUpperocean):
 
     def __init__(self):
-        super(EquatorialUpperocean_model, self).__init__()
+        super(EquatorialUpperocean_control, self).__init__()
         self._ncl = ['T_eq_diff.ncl', 'S_eq_diff.ncl', 'U_eq_diff.ncl', 'U_eq_meridional_diff.ncl', 'S_eq_meridional_diff.ncl', 'T_eq_meridional_diff.ncl', 'PD_eq_meridional_diff.ncl']

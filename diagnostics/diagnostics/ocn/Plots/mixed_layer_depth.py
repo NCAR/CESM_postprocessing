@@ -1,3 +1,13 @@
+""" 
+plot module: PM_MLD
+plot name:   Mixed Layer Depth Plots
+
+classes:
+MixedLayerDepth:          base class
+MixedLayerDepth_obs:      defines specific NCL list for model vs. observations plots
+MixedLayerDepth_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -105,8 +115,8 @@ class MixedLayerDepth_obs(MixedLayerDepth):
         super(MixedLayerDepth_obs, self).__init__()
         self._ncl = ['mld.ncl']
 
-class MixedLayerDepth_model(MixedLayerDepth):
+class MixedLayerDepth_control(MixedLayerDepth):
 
     def __init__(self):
-        super(MixedLayerDepth_model, self).__init__()
+        super(MixedLayerDepth_control, self).__init__()
         self._ncl = ['compute_rho_cntl.ncl', 'mld_diff.ncl']

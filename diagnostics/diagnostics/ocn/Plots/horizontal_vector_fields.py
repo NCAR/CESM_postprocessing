@@ -1,3 +1,13 @@
+""" 
+plot module: PM_VECV
+plot name:   Horizontal Vector Fields at Depth
+
+classes:
+HorizontalVectorFields:          base class
+HorizontalVectorFields_obs:      defines specific NCL list for model vs. observations plots
+HorizontalVectorFields_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -106,6 +116,6 @@ class HorizontalVectorFields_obs(HorizontalVectorFields):
         super(HorizontalVectorFields_obs, self).__init__()
         self._ncl = ['vecvelz.ncl']
 
-class HorizontalVectorFields_model(HorizontalVectorFields):
+class HorizontalVectorFields_control(HorizontalVectorFields):
     pass
     

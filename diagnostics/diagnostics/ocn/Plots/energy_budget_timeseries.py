@@ -1,11 +1,10 @@
 """ 
-plot module: PM_FLD2D
-plot name:   2D Surface Fields
+plot module: PM_CPLLOG
+plot name:   
 
 classes:
-SurfaceFields:          base class
-SurfaceFields_obs:      defines specific NCL list for model vs. observations plots
-SurfaceFields_control:  defines specific NCL list for model vs. control plots
+EnergyBudgetTS:            base class
+EnergyBudgetTS_timeseries: defines specific NCL list for model timeseries plots
 """
 
 from __future__ import print_function
@@ -20,9 +19,11 @@ if sys.hexversion < 0x02070000:
     print(70 * "*")
     sys.exit(1)
 
-import traceback
-import os
+import glob
 import jinja2
+import os
+import shutil
+import traceback
 
 
 # import the helper utility module
@@ -32,12 +33,12 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-class SurfaceFields(OceanDiagnosticPlot):
+class EnergyBudgetTS(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
     """
 
     def __init__(self):
-        super(SurfaceFields, self).__init__()
+        super(EnergyBudgetTS, self).__init__()
         self._expectedPlots = [ 'SSH', 'HBLT', 'HMXL', 'DIA_DEPTH', 'TLT', 'INT_DEPTH', 'SU', 'SV', 'BSF' ]
         self._expectedPlots_za = [ 'SSH_GLO_za', 'HBLT_GLO_za', 'HMXL_GLO_za', 'DIA_DEPTH_GLO_za', 'TLT_GLO_za', 'INT_DEPTH_GLO_za' ]
 
@@ -49,7 +50,7 @@ class SurfaceFields(OceanDiagnosticPlot):
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(SurfaceFields, self).check_prerequisites(env)
+        super(EnergyBudgetTS, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
 
         # check the observation sea surface height file
@@ -57,11 +58,16 @@ class SurfaceFields(OceanDiagnosticPlot):
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['SSHOBSFILE'])
         diagUtilsLib.createSymLink(sourceFile, linkFile)
 
+        #TODO set the env vars for the tail command
+        # call the awk script to parse cpllog
+        # copy .txt to .asc for NCL
+
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
         for ncl in self._ncl:
+            #TODO eval the ncl first because need to expand env
             diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
@@ -170,14 +176,8 @@ class SurfaceFields(OceanDiagnosticPlot):
         
         return self._html
 
-class SurfaceFields_obs(SurfaceFields):
+class EnergyBudgetTS_timeseries(EnergyBudgetTS):
 
     def __init__(self):
-        super(SurfaceFields_obs, self).__init__()
-        self._ncl = ['ssh.ncl', 'field_2d.ncl', 'field_2d_za.ncl']
-
-class SurfaceFields_control(SurfaceFields):
-
-    def __init__(self):
-        super(SurfaceFields_control, self).__init__()
-        self._ncl = ['field_2d_diff.ncl', 'field_2d_za_diff.ncl']
+        super(EnergyBudgetTS_timeseries, self).__init__()
+        self._ncl = ["env['TS_CPL']_log_timeseries_heat.ncl", "env['TS_CPL']_log_timeseries_fw.ncl"]

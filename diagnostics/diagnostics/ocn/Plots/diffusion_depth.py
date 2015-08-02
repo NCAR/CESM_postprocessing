@@ -1,3 +1,13 @@
+""" 
+plot module: PM_KAPPAZ
+plot name:   Diffusion Coefficients at Depth Levels
+
+classes:
+DiffusionDepth:          base class
+DiffusionDepth_obs:      defines specific NCL list for model vs. observations plots
+DiffusionDepth_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -110,8 +120,8 @@ class DiffusionDepth_obs(DiffusionDepth):
         super(DiffusionDepth_obs, self).__init__()
         self._ncl = ['kappa_isopz.ncl', 'kappa_thicz.ncl']
 
-class DiffusionDepth_model(DiffusionDepth):
+class DiffusionDepth_control(DiffusionDepth):
 
     def __init__(self):
-        super(DiffusionDepth_model, self).__init__()
+        super(DiffusionDepth_control, self).__init__()
         self._ncl = ['kappa_isopz_diff.ncl', 'kappa_thicz_diff.ncl']

@@ -1,3 +1,13 @@
+""" 
+plot module: PM_TSZ
+plot name:   Temperature and Salinity at Depth Levels
+
+classes:
+TempSaltDepth:          base class
+TempSaltDepth_obs:      defines specific NCL list for model vs. observations plots
+TempSaltDepth_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -108,8 +118,8 @@ class TempSaltDepth_obs(TempSaltDepth):
         super(TempSaltDepth_obs, self).__init__()
         self._ncl = ['tempz.ncl','saltz.ncl']
 
-class TempSaltDepth_model(TempSaltDepth):
+class TempSaltDepth_control(TempSaltDepth):
 
     def __init__(self):
-        super(TempSaltDepth_model, self).__init__()
+        super(TempSaltDepth_control, self).__init__()
         self._ncl = ['tempz_diff.ncl', 'saltz_diff.ncl']

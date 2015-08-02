@@ -1,3 +1,13 @@
+""" 
+plot module: PM_MOC
+plot name:   Meridional Overturning Circulation - Meridional Heat & Freshwater Transports
+
+classes:
+MOCFields:          base class
+MOCFields_obs:      defines specific NCL list for model vs. observations plots
+MOCFields_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -93,8 +103,8 @@ class MOCFields_obs(MOCFields):
         super(MOCFields_obs, self).__init__()
         self._ncl = ['moc_netcdf.ncl']
 
-class MOCFields_model(MOCFields):
+class MOCFields_control(MOCFields):
 
     def __init__(self):
-        super(MOCFields_model, self).__init__()
+        super(MOCFields_control, self).__init__()
         self._ncl = ['moc_netcdf_diff.ncl']

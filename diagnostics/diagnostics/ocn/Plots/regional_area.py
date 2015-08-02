@@ -1,3 +1,13 @@
+""" 
+plot module: PM_REGIONALTS
+plot name:   Regional Average Temperature and Salinity anomaly vs. depth
+
+classes:
+RegionalArea:          base class
+RegionalArea_obs:      defines specific NCL list for model vs. observations plots
+RegionalArea_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -116,5 +126,5 @@ class RegionalArea_obs(RegionalArea):
         super(RegionalArea_obs, self).__init__()
         self._ncl = ['regionalTbias500m.ncl', 'regionalSbias500m.ncl', 'regionalTbias2000m.ncl', 'regionalSbias2000m.ncl']
 
-class RegionalArea_model(RegionalArea):
+class RegionalArea_control(RegionalArea):
     pass

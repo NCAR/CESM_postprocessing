@@ -650,7 +650,7 @@
   <entry id="OCNDIAG_CPLLOGFILEPATH"
 	 type="char"
 	 valid_values=""
-	 value="$RUNDIR/ts_files"
+	 value="$DOUT_S_ROOT/cpl/logs"
 	 group="diags_ocn"
 	 desc="Local machine directory for cpl log files"
 	 ></entry>
@@ -658,7 +658,7 @@
   <entry id="OCNDIAG_OCNLOGFILEPATH"
 	 type="char"
 	 valid_values=""
-	 value="$RUNDIR/ts_files"
+	 value="$DOUT_S_ROOT/ocn/logs"
 	 group="diags_ocn"
 	 desc="Local machine directory for ocn log files"
 	 ></entry>
@@ -666,7 +666,7 @@
   <entry id="OCNDIAG_DTFILEPATH"
 	 type="char"
 	 valid_values=""
-	 value="$RUNDIR/ts_files"
+	 value="$DOUT_S_ROOT/ocn/hist"
 	 group="diags_ocn"
 	 desc="Local machine directory for ocn dt files"
 	 ></entry>

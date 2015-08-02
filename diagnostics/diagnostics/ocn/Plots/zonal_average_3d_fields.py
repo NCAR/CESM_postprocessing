@@ -1,3 +1,13 @@
+""" 
+plot module: PM_FLD3DZA
+plot name:   3D Fields, Zonally Averaged
+
+classes:
+ZonalAverage3dFields:          base class
+ZonalAverage3dFields_obs:      defines specific NCL list for model vs. observations plots
+ZonalAverage3dFields_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -196,8 +206,8 @@ class ZonalAverage3dFields_obs(ZonalAverage3dFields):
         super(ZonalAverage3dFields_obs, self).__init__()
         self._ncl = ['field_3d_za.ncl']
 
-class ZonalAverage3dFields_model(ZonalAverage3dFields):
+class ZonalAverage3dFields_control(ZonalAverage3dFields):
 
     def __init__(self):
-        super(ZonalAverage3dFields_model, self).__init__()
+        super(ZonalAverage3dFields_control, self).__init__()
         self._ncl = ['field_3d_za_diff.ncl']

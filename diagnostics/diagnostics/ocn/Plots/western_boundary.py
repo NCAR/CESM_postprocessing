@@ -1,3 +1,13 @@
+""" 
+plot module: PM_WBC
+plot name:   Western Boundary Currents
+
+classes:
+WesternBoundary:          base class
+WesternBoundary_obs:      defines specific NCL list for model vs. observations plots
+WesternBoundary_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -93,7 +103,7 @@ class WesternBoundary_obs(WesternBoundary):
         super(WesternBoundary_obs, self).__init__()
         self._ncl = ['dwbc.ncl']
 
-class WesternBoundaryMOCFields_model(WesternBoundary):
+class WesternBoundary_control(WesternBoundary):
 
     def __init__(self):
         pass

@@ -72,13 +72,35 @@ class modelTimeseries(OceanDiagnostic):
 
         # check the resolution and decide if some plot modules should be turned off
         if env['RESOLUTION'] == 'tx0.1v2' :
-            env['MTS_PM_MOCANN'] = os.environ['MTS_PM_MOCANN'] = 'FALSE'
-            env['MTS_PM_MOCMON'] = os.environ['MTS_PM_MOCMON'] = 'FALSE'
+            env['MTS_PM_MOCANN'] = os.environ['PM_MOCANN'] = 'FALSE'
+            env['MTS_PM_MOCMON'] = os.environ['PM_MOCMON'] = 'FALSE'
 
-        # copy the necessary ocn d[?] files to the workdir
+        # check if cpl log file path is defined
+        if len(env['CPLLOGFILEPATH']) == 0:
+            # print a message that the cpl log path isn't defined and turn off a couple of plot mods
+            print('model timeseries - CPLLOGFILEPATH is undefined. Disabling MTS_PM_CPLLOG module')
+            env['MTS_PM_CPLLOG'] = os.environ['PM_CPLLOG'] = 'FALSE'
 
-        # copy the necessary cpl log files to the workdir
+        else:
+            # check that cpl log files exist
+            cpllogs = list()
+            cpllogs = glob.glob('{0}/cpl.log.*'.format(env['CPLLOGFILEPATH']))
+            if len(cpllogs) > 0:
+                for cpllog in cpllogs:
+                    shutil.copy2('{0}/{1}'.format(env['CPLLOGFILEPATH'], cpllog), '{0}/{1}'.format(env['WORKDIR'], cpllog))
+                    # gunzip the cpllog
+                    if cpllog.lower().find('.gz') != -1:
+                        cpllog_gunzip = cpllog[:-3]
+                        inFile = gzip.open(cpllog, 'rb')
+                        outFile = open('{0}/{1}'.format(env['WORKDIR'],cpllog_gunzip), 'wb')
+                        outFile.write( inFile.read() )
+                        inFile.close()
+                        outFile.close()
+            else:
+                print('model timeseries - Coupler logs do not exist. Disabling MTS_PM_CPLLOG module')
+                env['MTS_PM_CPLLOG'] = os.environ['PM_CPLLOG'] = 'FALSE'
 
+            
         return env
 
     def run_diagnostics(self, env, scomm):
@@ -115,7 +137,7 @@ class modelTimeseries(OceanDiagnostic):
                 templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
                 templateEnv = jinja2.Environment( loader=templateLoader )
                 
-                template_file = 'model_vs_obs.tmpl'
+                template_file = 'model_timeseries.tmpl'
                 template = templateEnv.get_template( template_file )
     
                 # test the template variables
@@ -137,7 +159,7 @@ class modelTimeseries(OceanDiagnostic):
 
         for requested_plot in local_requested_plots:
             try:
-                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('obs', requested_plot)
+                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('timeseries', requested_plot)
 
                 print('model timeseries - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)

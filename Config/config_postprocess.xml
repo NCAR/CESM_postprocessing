@@ -13,9 +13,7 @@
  valid_values=""  
  value="$SRCROOT/postprocessing" 
  group="postprocess"
- sdesc="post processing location relative to the SRCROOT"
- ldesc="
-Path to the post processing CESM source code installation."
+ desc="post processing location relative to the SRCROOT"
 ></entry> 
 
 <entry id="POSTPROCESS_VIRTUALENV" 
@@ -23,9 +21,7 @@ Path to the post processing CESM source code installation."
  valid_values=""  
  value="$POSTPROCESS_PATH/cesm-env2" 
  group="postprocess"
- sdesc="post processing python virtual environment path location relative to the SRCROOT"
- ldesc="
-Path to the post processing python virtual environment created by the create_python_env.sh
+ desc="Path to the post processing python virtual environment created by the create_python_env.sh
 script in the postprocessing directory. The create_python_env.sh script is run once per
 CESM source code installation."
 ></entry> 
@@ -35,9 +31,7 @@ CESM source code installation."
  valid_values="TRUE,FALSE"  
  value="TRUE" 
  group="postprocess"
- sdesc="logical to generate time-series files from the history time-slice files"
- ldesc="
-If TRUE, create the single variable time series files using the history time slice files.
+ desc="If TRUE, create the single variable time series files using the history time slice files.
 All the time invariant metadata is included in each variable time series file header. 
 Rules for how the tseries files are created are specified in the env_archive.xml file."
 ></entry> 
@@ -47,11 +41,7 @@ Rules for how the tseries files are created are specified in the env_archive.xml
  valid_values="TRUE,FALSE"  
  value="FALSE" 
  group="postprocess"
- sdesc="logical to call the AMWG diagnostics plotting packages as part
-of the CESM run script after the successful completion of the short term 
-archiver"
- ldesc="
-If TRUE, this calls the AMWG diagnostics package parallel python wrapper
+ desc="If TRUE, this calls the AMWG diagnostics package parallel python wrapper
 script to generate climatological plots associated with the run job output.
 See the AMWG diagnostics documentation for more details."
 ></entry> 
@@ -61,11 +51,7 @@ See the AMWG diagnostics documentation for more details."
  valid_values="TRUE,FALSE"  
  value="FALSE" 
  group="postprocess"
- sdesc="logical to call the PCWG diagnostics plotting packages as part
-of the CESM run script after the successful completion of the short term 
-archiver"
- ldesc="
-If TRUE, this calls the PCWG diagnostics package parallel python wrapper
+ desc="If TRUE, this calls the PCWG diagnostics package parallel python wrapper
 script to generate climatological plots associated with the run job output.
 See the PCWG diagnostics documentation for more details."
 ></entry> 
@@ -75,11 +61,7 @@ See the PCWG diagnostics documentation for more details."
  valid_values="TRUE,FALSE"  
  value="FALSE" 
  group="postprocess"
- sdesc="logical to call the LMWG diagnostics plotting packages as part
-of the CESM run script after the successful completion of the short term 
-archiver"
- ldesc="
-If TRUE, this calls the LMWG diagnostics package parallel python wrapper
+ ldesc="If TRUE, this calls the LMWG diagnostics package parallel python wrapper
 script to generate climatological plots associated with the run job output.
 See the LMWG diagnostics documentation for more details."
 ></entry> 
@@ -89,11 +71,7 @@ See the LMWG diagnostics documentation for more details."
  valid_values="TRUE,FALSE"  
  value="TRUE" 
  group="postprocess"
- sdesc="logical to call the OMWG diagnostics plotting packages as part
-of the CESM run script after the successful completion of the short term 
-archiver"
- ldesc="
-If TRUE, this calls the OMWG diagnostics package parallel python wrapper
+ desc="If TRUE, this calls the OMWG diagnostics package parallel python wrapper
 script to generate climatological plots associated with the run job output.
 See the OMWG diagnostics documentation for more details."
 ></entry> 

@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link rel="SHORTCUT ICON"
+      href="http://www.cgd.ucar.edu/Images/atmos/favicon.png">
+<title>CESM Ocean Diagnostics Time Series Plots</title>
+
+<!-- STYLESHEET -->
+<link rel="stylesheet" type="text/css" href="../diag_style.css" />
+
+</head>
+
+<div id="wrap">
+
+<h2>CESM Ocean Diagnostics Time Series Plots</h2>
+<p>
+<table class = "meta">
+  <tr>
+    <td>CESM Version:</td> 
+    <td>{{ tagname }}</td>
+  </tr>
+  <tr>
+    <td>Diagnostics Generated on:</td> 
+    <td>{{ today }}</td>
+  </tr>
+  <tr>
+    <td>Case Name:</td>
+    <td>{{ casename }}</td>
+  </tr>
+  <tr>
+    <td>Years:</td> 
+    <td>{{ start_year }} - {{ stop_year }}</td>
+  </tr>
+</table>
+</p>
+<hr>
+<!-- dynamically insert plot modules here -->

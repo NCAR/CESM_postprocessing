@@ -1,3 +1,13 @@
+""" 
+plot module: PM_POLARTS
+plot name:   Polar Temperature and Salinity at Depth Levels
+
+classes:
+PolarTempSalt:          base class
+PolarTempSalt_obs:      defines specific NCL list for model vs. observations plots
+PolarTempSalt_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -115,5 +125,5 @@ class PolarTempSalt_obs(PolarTempSalt):
         super(PolarTempSalt_obs, self).__init__()
         self._ncl = ['tempz_arctic.ncl', 'saltz_arctic.ncl', 'tempz_antarctic.ncl', 'saltz_antarctic.ncl']
 
-class PolarTempSalt_model(PolarTempSalt):
+class PolarTempSalt_control(PolarTempSalt):
     pass

@@ -1,3 +1,13 @@
+""" 
+plot module: PM_VELISOPZ
+plot name:   Bolus Velocity Components at Depth Levels
+
+classes:
+BolusVelocity:          base class
+BolusVelocity_obs:      defines specific NCL list for model vs. observations plots
+BolusVelocity_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -108,8 +118,8 @@ class BolusVelocity_obs(BolusVelocity):
         super(BolusVelocity_obs, self).__init__()
         self._ncl = ['uisopz.ncl', 'visopz.ncl', 'wisopz.ncl']
 
-class BolusVelocity_model(BolusVelocity):
+class BolusVelocity_control(BolusVelocity):
 
     def __init__(self):
-        super(BolusVelocity_model, self).__init__()
+        super(BolusVelocity_control, self).__init__()
         self._ncl = ['uisopz_diff.ncl', 'visopz_diff.ncl', 'wisopz_diff.ncl']

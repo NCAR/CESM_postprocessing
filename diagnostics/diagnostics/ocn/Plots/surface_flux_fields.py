@@ -1,3 +1,13 @@
+""" 
+plot module: PM_SFC2D
+plot name:   
+
+classes:
+SurfaceFluxFields:          base class
+SurfaceFluxFields_obs:      defines specific NCL list for model vs. observations plots
+SurfaceFluxFields_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -194,8 +204,8 @@ class SurfaceFluxFields_obs(SurfaceFluxFields):
         super(SurfaceFluxFields_obs, self).__init__()
         self._ncl = ['sfcflx.ncl', 'sfcflx_za.ncl']
 
-class SurfaceFluxFields_model(SurfaceFluxFields):
+class SurfaceFluxFields_control(SurfaceFluxFields):
 
     def __init__(self):
-        super(SurfaceFluxFields_model, self).__init__()
+        super(SurfaceFluxFields_control, self).__init__()
         self._ncl = ['sfcflx_diff.ncl', 'sfcflx_za_diff.ncl']

@@ -1,3 +1,13 @@
+""" 
+plot module: PM_BASINAVGTS 
+plot name:   Depth Profiles of Basin-average Temperature and Salinity
+
+classes:
+BasinAverages:          base class
+BasinAverages_obs:      defines specific NCL list for model vs. observations plots
+BasinAverages_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -90,5 +100,5 @@ class BasinAverages_obs(BasinAverages):
         super(BasinAverages_obs, self).__init__()
         self._ncl = ['TS_basinavg_arctic.ncl']
 
-class BasinAverages_model(BasinAverages):
+class BasinAverages_control(BasinAverages):
     pass

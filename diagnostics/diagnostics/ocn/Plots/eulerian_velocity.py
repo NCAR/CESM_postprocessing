@@ -1,3 +1,13 @@
+""" 
+plot module: PM_VELZ
+plot name:   Eulerian Velocity Components at Depth Levels'
+
+classes:
+EulerianVelocity:          base class
+EulerianVelocity_obs:      defines specific NCL list for model vs. observations plots
+EulerianVelocity_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -109,8 +119,8 @@ class EulerianVelocity_obs(EulerianVelocity):
         super(EulerianVelocity_obs, self).__init__()
         self._ncl = ['uvelz.ncl', 'vvelz.ncl', 'wvelz.ncl']
 
-class EulerianVelocity_model(EulerianVelocity):
+class EulerianVelocity_control(EulerianVelocity):
 
     def __init__(self):
-        super(EulerianVelocity_model, self).__init__()
+        super(EulerianVelocity_control, self).__init__()
         self._ncl = ['uvelz_diff.ncl', 'vvelz_diff.ncl', 'wvelz_diff.ncl']

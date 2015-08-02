@@ -1,3 +1,13 @@
+""" 
+plot module: PM_SEAS
+plot name:   Seasonal Cycle Plots
+
+classes:
+SeasonalCycle:          base class
+SeasonalCycle_obs:      defines specific NCL list for model vs. observations plots
+SeasonalCycle_control:  defines specific NCL list for model vs. control plots
+"""
+
 from __future__ import print_function
 
 import sys
@@ -99,8 +109,8 @@ class SeasonalCycle_obs(SeasonalCycle):
         super(SeasonalCycle_obs, self).__init__()
         self._ncl = ['sst_eq_pac_seasonal_cycle.ncl']
 
-class SeasonalCycle_model(SeasonalCycle):
+class SeasonalCycle_control(SeasonalCycle):
 
     def __init__(self):
-        super(SeasonalCycle_model, self).__init__()
+        super(SeasonalCycle_control, self).__init__()
         self._ncl = ['sst_eq_pac_seasonal_cycle_diff.ncl']
