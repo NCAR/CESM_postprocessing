@@ -107,6 +107,8 @@ def setup_diags(envDict):
                 diag_dict[diag.lower()] = '{0}'.format(diag.lower())
                 if '_vs_' in diag.lower():
                     diag_dict[diag.lower()] = '{0}.{1}_{2}'.format(diag.lower(), envDict['YEAR0'], envDict['YEAR1'])
+                elif 'timeseries' in diag.lower():
+                    diag_dict[diag.lower()] = 'model_{0}.{1}_{2}'.format(diag.lower(), envDict['YEAR0'], envDict['YEAR1'])
     return requested_diags, diag_dict
 
 

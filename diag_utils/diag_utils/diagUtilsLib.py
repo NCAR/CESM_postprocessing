@@ -54,9 +54,6 @@ def generate_ncl_plots(env, nclPlotFile):
     env (dictionary) - diagnostics system environment 
     nclPlotFile (string) - ncl plotting file name
     """
-#    cwd = os.getcwd()
-#    os.chdir(env['WORKDIR'])
-
     # check if the nclPlotFile exists - 
     # don't exit if it does not exists just print a warning.
     nclFile = '{0}/{1}'.format(env['NCLPATH'],nclPlotFile)
@@ -64,9 +61,7 @@ def generate_ncl_plots(env, nclPlotFile):
     if rc:
         try:
             print('      calling NCL plot routine {0}'.format(nclPlotFile))
-#            pipe = subprocess.Popen( ['ncl',nclFile], cwd=env['WORKDIR'], env=env)
             pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True)
-#            pipe.wait()
             while pipe.poll() is None:
                 time.sleep(0.5)
         except OSError as e:
@@ -74,7 +69,6 @@ def generate_ncl_plots(env, nclPlotFile):
             print('    {0} - {1}'.format(e.errno, e.strerror))
     else:
         print('{0}... continuing with additional plots.'.format(err_msg))
-#    os.chdir(cwd)
 
     return 0
 

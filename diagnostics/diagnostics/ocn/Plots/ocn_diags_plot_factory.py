@@ -6,8 +6,8 @@
 from ocn_diags_plot_bc import UnknownPlotType
 import basin_averages
 import bolus_velocity
+import cpllog_timeseries
 import diffusion_depth
-import energy_budget_timeseries
 import equatorial_upperocean
 import eulerian_velocity
 import horizontal_vector_fields
@@ -25,8 +25,8 @@ import zonal_average_3d_fields
 
 plot_map = {'PM_BASINAVGTS': 'basin_averages.BasinAverages_{0}()',
             'PM_VELISOPZ': 'bolus_velocity.BolusVelocity_{0}()',
+            'PM_CPLLOG': 'cpllog_timeseries.CplLog_{0}()',
             'PM_KAPPAZ': 'diffusion_depth.DiffusionDepth_{0}()',
-            'PM_CPLLOG': 'energy_budget_timeseries.EnergyBudgetTS_{0}()',
             'PM_UOEQ': 'equatorial_upperocean.EquatorialUpperocean_{0}()',
             'PM_VELZ': 'eulerian_velocity.EulerianVelocity_{0}()',
             'PM_VECV': 'horizontal_vector_fields.HorizontalVectorFields_{0}()',

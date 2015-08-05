@@ -1,0 +1,19 @@
+<h3>{{ title }}</h3>
+
+<table class="plot">
+{% for i in range(num_rows) %}
+    <tr>
+    {% for order, label, plot in plot_table[i] %}
+       {% if order == 0 %}
+          <td><b>{{ plot }}</b></td>	
+       {% elif 'Error' in plot %}
+          <td>{{ plot }}</td>	
+       {% else %}
+       	  <td><a href="{{ plot }}">{{ label }}</a></td>
+       {% endif %}
+    {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+
+<hr>

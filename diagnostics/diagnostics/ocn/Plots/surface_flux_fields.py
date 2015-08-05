@@ -1,6 +1,6 @@
 """ 
 plot module: PM_SFC2D
-plot name:   
+plot name:   2D Surface Flux Fields
 
 classes:
 SurfaceFluxFields:          base class

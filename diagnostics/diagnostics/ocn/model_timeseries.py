@@ -11,8 +11,10 @@ if sys.hexversion < 0x02070000:
     sys.exit(1)
 
 # import core python modules
+import datetime
 import errno
 import glob
+import gzip
 import itertools
 import os
 import re
@@ -83,23 +85,28 @@ class modelTimeseries(OceanDiagnostic):
 
         else:
             # check that cpl log files exist
-            cpllogs = list()
-            cpllogs = glob.glob('{0}/cpl.log.*'.format(env['CPLLOGFILEPATH']))
-            if len(cpllogs) > 0:
-                for cpllog in cpllogs:
-                    shutil.copy2('{0}/{1}'.format(env['CPLLOGFILEPATH'], cpllog), '{0}/{1}'.format(env['WORKDIR'], cpllog))
-                    # gunzip the cpllog
-                    if cpllog.lower().find('.gz') != -1:
-                        cpllog_gunzip = cpllog[:-3]
-                        inFile = gzip.open(cpllog, 'rb')
-                        outFile = open('{0}/{1}'.format(env['WORKDIR'],cpllog_gunzip), 'wb')
+            cplLogs = list()
+            cplLogs = glob.glob('{0}/cpl.log.*'.format(env['CPLLOGFILEPATH']))
+            if len(cplLogs) > 0:
+                for cplLog in cplLogs:
+                    logFileList = cplLog.split('/')
+                    cplLogFile = logFileList[-1]
+                    shutil.copy2(cplLog, '{0}/{1}'.format(env['WORKDIR'],cplLogFile))
+
+                    # gunzip the cplLog in the workdir
+                    if cplLogFile.lower().find('.gz') != -1:
+                        cplLog_gunzip = cplLogFile[:-3]
+                        inFile = gzip.open('{0}/{1}'.format(env['WORKDIR'],cplLogFile), 'rb')
+                        outFile = open('{0}/{1}'.format(env['WORKDIR'],cplLog_gunzip), 'wb')
                         outFile.write( inFile.read() )
                         inFile.close()
                         outFile.close()
+
+                        # remove the original .gz file in the workdir
+                        os.remove('{0}/{1}'.format(env['WORKDIR'],cplLogFile))
             else:
                 print('model timeseries - Coupler logs do not exist. Disabling MTS_PM_CPLLOG module')
                 env['MTS_PM_CPLLOG'] = os.environ['PM_CPLLOG'] = 'FALSE'
-
             
         return env
 
@@ -140,11 +147,15 @@ class modelTimeseries(OceanDiagnostic):
                 template_file = 'model_timeseries.tmpl'
                 template = templateEnv.get_template( template_file )
     
+                # get the current datatime string for the template
+                now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
                 # test the template variables
                 templateVars = { 'casename' : env['CASE'],
                                  'tagname' : env['CCSM_REPOTAG'],
                                  'start_year' : env['YEAR0'],
-                                 'stop_year' : env['YEAR1']
+                                 'stop_year' : env['YEAR1'],
+                                 'today': now
                                  }
 
                 print('model timeseries - Rendering plot html header')
@@ -224,7 +235,7 @@ class modelTimeseries(OceanDiagnostic):
 
             if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env, 'model_vs_obs')
+                diagUtilsLib.copy_html_files(env, 'model_timeseries')
             else:
                 print('model timeseries - Web files successfully created in directory:')
                 print('{0}'.format(env['WORKDIR']))
