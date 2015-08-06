@@ -163,22 +163,23 @@ class CplLog(OceanDiagnosticPlot):
             plot_list = self._expectedPlots
 
             for j in range(num_cols - 1):
-                img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
-                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
-                if not rc:
-                    plot_tuple = (j+1, self._linkNames[j],'{0} - Error'.format(img_file))
-                else:
-                    plot_tuple = (j+1, self._linkNames[j], img_file)
-                plot_tuple_list.append(plot_tuple)
+                if 'timeseries' in self._linkNames[j]:
+                    img_file = '{0}.{1}'.format(plot_list[j], imgFormat)
+                    rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
+                    if not rc:
+                        plot_tuple = (j+1, self._linkNames[j],'{0} - Error'.format(img_file))
+                    else:
+                        plot_tuple = (j+1, self._linkNames[j], img_file)
+                    plot_tuple_list.append(plot_tuple)
 
-                asc_file = '{0}.{1}'.format(plot_list[j], 'asc')
-                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, asc_file), 'read' )
-                if not rc:
-                    plot_tuple = (j+1, self._linkNames[j],'{0} - Error'.format(asc_file))
-                else:
-                    plot_tuple = (j+1, self._linkNames[j], asc_file)
-                plot_tuple_list.append(plot_tuple)
-
+                elif 'table' in self._linkNames[j]:
+                    asc_file = '{0}.{1}'.format(plot_list[j], 'asc')
+                    rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, asc_file), 'read' )
+                    if not rc:
+                        plot_tuple = (j+1, self._linkNames[j],'{0} - Error'.format(asc_file))
+                    else:
+                        plot_tuple = (j+1, self._linkNames[j], asc_file)
+                    plot_tuple_list.append(plot_tuple)
 
             print('DEBUG... plot_tuple_list[{0}] = {1}'.format(i, plot_tuple_list))
             plot_table.append(plot_tuple_list)

@@ -57,11 +57,15 @@ def generate_ncl_plots(env, nclPlotFile):
     # check if the nclPlotFile exists - 
     # don't exit if it does not exists just print a warning.
     nclFile = '{0}/{1}'.format(env['NCLPATH'],nclPlotFile)
+    print('      calling NCL plot routine {0}'.format(nclPlotFile))
     rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
     if rc:
         try:
-            print('      calling NCL plot routine {0}'.format(nclPlotFile))
-            pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True)
+#            pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True)
+            pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
+            output = pipe.communicate()[0]
+            print('NCL plot routine {0} \n {1}'.format(nclPlotFile,output))            
+
             while pipe.poll() is None:
                 time.sleep(0.5)
         except OSError as e:
@@ -282,6 +286,15 @@ def copy_html_files(env, subdir):
 
     # copy the graphics files
     localFiles = '{0}/*.{1}'.format(env['WORKDIR'], env['IMAGEFORMAT'])
+    try:
+        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+        pipe.wait()
+    except OSError as e:
+        print('WARNING: scp command failed with error::')
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+
+    # copy the asc files
+    localFiles = '{0}/*.asc'.format(env['WORKDIR'])
     try:
         pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
         pipe.wait()
