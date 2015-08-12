@@ -1,8 +1,8 @@
 """ 
-plot module: PM_CPLLOG
-plot name:   CPL Surface Heat and Freshwater Flux Budget
+plot module: PM_POPLOG
+plot name:   POP log & dt file time series plots
 
-classes:           CplLog_timeseries
+classes:           PopLog_timeseries
 CplLog:            base class
 CplLog_timeseries: defines specific NCL list for model timeseries plots
 """
@@ -34,23 +34,46 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-class CplLog(OceanDiagnosticPlot):
+class PopLog(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
     """
 
     def __init__(self):
-        super(CplLog, self).__init__()
-        self._expectedPlots = ['cplheatbudget','cplfwbudget' ]
-        self._labels = ['Heat', 'Freshwater']
-        self._name = 'CPL Surface Heat and Freshwater Flux Budget'
-        self._shortname = 'CPLLOG'
-        self._template_file = 'cpllog_timeseries.tmpl'
+        super(PopLog, self).__init__()
+
+        self._expectedPlots_globalAvg = ['diagts_TEMP', 'diagts_SALT', 'diagts_RHO', 'diagts_IAGE', 'diagts_HBLT', 'diagts_HMXL', 'diagts_SSH',
+                                         'diagts_SHF_TOTAL', 'diagts_SWNET', 'diagts_LWNET', 'diagts_LWUP_F', 'diagts_LWDN_F', 'diagts_LATENT',
+                                         'diagts_SENH_F', 'diagts_MELTH_F', 'diagts_QFLUX', 'diagts_SFWF_TOTAL', 'diagts_PREC_F', 'diagts_EVAP_F',
+                                         'diagts_SNOW_F', 'diagts_MELT_F', 'diagts_ROFF_F', 'diagts_SALT_F', 'diagts_SFWF_QFLUX',
+                                         'diagts_CFC11', 'diagts_STF_CFC11', 'diagts_CFC12', 'diagts_STF_CFC12', 'diagts_precf']
+        self._expectedPlots_globalAvgLabels = ['TEMP', 'SALT', 'RHO', 'IAGE', 'HBLT', 'HMXL', 'SSH',
+                                               'SHF_TOTAL', 'SWNET', 'LWNET', 'LWUP_F', 'LWDN_F', 'LATENT',
+                                               'SENH_F', 'MELTH_F', 'QFLUX', 'SFWF_TOTAL', 'PREC_F', 'EVAP_F',
+                                               'SNOW_F', 'MELT_F', 'ROFF_F', 'SALT_F', 'SFWF_QFLUX',
+                                               'CFC11', 'STF_CFC11', 'CFC12', 'STF_CFC12', 'Precip_factor']
+
+        self._expectedPlots_Nino = ['NINO']
+        self._expectedPlots_NinoLabels = ['diagts_NINO']
+
+        self._expectedPlots_transportDiags = ['diagts_transport.drake', 'diagts_transport.mozam', 'diagts_transport.bering', 'diagts_transport.nwpassage'
+                                              'diagts_transport.itf1', 'diagts_transport.itf2', 'diagts_transport.windward1', 'diagts_transport.windward2',
+                                              'diagts_transport.florida', 'diagts_transport.gibraltar', 'diagts_transport.nares']
+
+        self._expectedPlots_transportDiagsLabels = ['Drake_Passage', 'Mozambique_Channel', 'Bering_Strait', 'Northwest_Passage'
+                                                    'Indonesian_Throughflow_1', 'Indonesian_Throughflow_2', 'Windward_Passage_1', 'Windward2_Passage_2',
+                                                    'Florida_Strait', 'Gibraltar', 'Nares_Straigt']
+        
+        self._expectedPlotsHeaders = ['Global Average Fields', 'Nino Indices', 'Transport Diagnostics']
+
+        self._name = 'POP log and dt file time series plots'
+        self._shortname = 'POPLOG'
+        self._template_file = 'poplog_timeseries.tmpl'
         self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(CplLog, self).check_prerequisites(env)
+        super(PopLog, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
 
         # chdir into the  working directory
@@ -195,8 +218,11 @@ class CplLog(OceanDiagnosticPlot):
         
         return self._html
 
-class CplLog_timeseries(CplLog):
+class PopLog_timeseries(PopLog):
 
     def __init__(self):
-        super(CplLog_timeseries, self).__init__()
-        self._ncl = ['log_timeseries_heat.ncl', 'log_timeseries_fw.ncl']
+        super(PopLog_timeseries, self).__init__()
+        self._ncl = ['pop_log_diagts_3d.monthly.ncl', 'pop_log_diagts_hflux.monthly.ncl', 
+                     'pop_log_diagts_fwflux.monthly.ncl', 'pop_log_diagts_cfc.monthly.ncl', 
+                     'pop_log_diagts_nino.monthly.ncl', 'pop_log_diagts_transports.monthly.ncl', 
+                     'pop_log_diagts_precf.ncl']

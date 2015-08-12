@@ -15,6 +15,7 @@ import mixed_layer_depth
 import moc_fields
 import passive_tracers_depth
 import polar_temp_salt
+import poplog_timeseries
 import regional_area
 import seasonal_cycle
 import surface_fields
@@ -33,6 +34,7 @@ plot_map = {'PM_BASINAVGTS': 'basin_averages.BasinAverages_{0}()',
             'PM_MLD': 'mixed_layer_depth.MixedLayerDepth_{0}()',
             'PM_MOC': 'moc_fields.MOCFields_{0}()',
             'PM_PASSIVEZ': 'passive_tracers_depth.PassiveTracersDepth_{0}()',
+            'PM_POPLOG': 'poplog_timeseries.PopLog_{0}()',
             'PM_POLARTS': 'polar_temp_salt.PolarTempSalt_{0}()',
             'PM_REGIONALTS': 'regional_area.RegionalArea_{0}()',
             'PM_SEAS': 'seasonal_cycle.SeasonalCycle_{0}()',
