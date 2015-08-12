@@ -12,6 +12,7 @@ import re
 import glob
 import subprocess
 import time
+import shutil
 from cesm_utils import cesmEnvLib
 
 #=======================================================================
@@ -61,11 +62,21 @@ def generate_ncl_plots(env, nclPlotFile):
     rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
     if rc:
         try:
+<<<<<<< .working
+#            print('      calling NCL plot routine {0}'.format(nclPlotFile))
+#            pipe = subprocess.Popen( ['ncl',nclFile], cwd=env['WORKDIR'], env=env)
+            pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
+            output = pipe.communicate()[0]
+            print('NCL plot routine {0} \n {1}'.format(nclPlotFile,output))            
+
+#            pipe.wait()
+=======
 #            pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True)
             pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
             output = pipe.communicate()[0]
             print('NCL plot routine {0} \n {1}'.format(nclPlotFile,output))            
 
+>>>>>>> .merge-right.r72243
             while pipe.poll() is None:
                 time.sleep(0.5)
         except OSError as e:
@@ -188,7 +199,7 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     # get the file paths and formats - TO DO may need to get this from namelist var or env_archive
     files = '{0}.{1}'.format(case, suffix)
     fformat = '{0}/{1}'.format(in_dir, files)
-
+ 
     if htype == 'slice':
         # get the first and last years from the first and last monthly history files
         allHfiles = sorted(glob.glob(fformat))
@@ -196,7 +207,6 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
         hfiles = filter_pick(allHfiles, pattern)
 
         # TO-DO open a history time-slice file and make sure it's monthly data
-
         # the first element of the hfiles list has the start year
         tlist = hfiles[0].split('.')
         slist = tlist[-2].split('-')
@@ -226,7 +236,7 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     # defined by the actual history files
     start_year, stop_year = checkXMLyears(hfstart_year, hfstop_year, rstart_year, rstop_year)
 
-    return (start_year, stop_year, in_dir, htype)
+    return (start_year, stop_year, in_dir, htype, hfiles[0])
 
 
 #=======================================================================
@@ -456,3 +466,28 @@ def checkAvgFiles(filelist):
     """
     rc = True
     return rc
+
+#======================================================================
+# Function to regrid the atm climatology files
+#======================================================================
+def atm_regrid(climo_file, regrid_script, in_grid, out_grid, env):
+    """ Regrid the climatology file that was passed in
+    """
+    se_file = climo_file[:-3] + '_r_' + in_grid + climo_file[-3:] # Create a new name for the existing se climo file
+    env['INGRID'] = in_grid
+    env['OUTGRID'] = out_grid
+
+    # Move the existing file to a new name
+    shutil.move(climo_file, se_file)    
+ 
+    env['TEST_INPUT'] = se_file
+    env['TEST_PLOTVARS'] = climo_file
+
+    # Stringify the env dictionary
+    env_copy = env.copy()
+    for name,value in env_copy.iteritems():
+        env_copy[name] = str(value)
+
+    # Call ncl to regrid the climo file
+    generate_ncl_plots(env_copy,regrid_script)
+
