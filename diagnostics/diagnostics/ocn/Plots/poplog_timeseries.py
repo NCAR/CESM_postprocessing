@@ -52,8 +52,8 @@ class PopLog(OceanDiagnosticPlot):
                                                'SNOW_F', 'MELT_F', 'ROFF_F', 'SALT_F', 'SFWF_QFLUX',
                                                'CFC11', 'STF_CFC11', 'CFC12', 'STF_CFC12', 'Precip_factor']
 
-        self._expectedPlots_Nino = ['NINO']
-        self._expectedPlots_NinoLabels = ['diagts_NINO']
+        self._expectedPlots_Nino = ['diagts_NINO']
+        self._expectedPlots_NinoLabels = ['NINO']
 
         self._expectedPlots_transportDiags = ['diagts_transport.drake', 'diagts_transport.mozam', 'diagts_transport.bering', 'diagts_transport.nwpassage'
                                               'diagts_transport.itf1', 'diagts_transport.itf2', 'diagts_transport.windward1', 'diagts_transport.windward2',
@@ -61,7 +61,7 @@ class PopLog(OceanDiagnosticPlot):
 
         self._expectedPlots_transportDiagsLabels = ['Drake_Passage', 'Mozambique_Channel', 'Bering_Strait', 'Northwest_Passage'
                                                     'Indonesian_Throughflow_1', 'Indonesian_Throughflow_2', 'Windward_Passage_1', 'Windward2_Passage_2',
-                                                    'Florida_Strait', 'Gibraltar', 'Nares_Straigt']
+                                                    'Florida_Strait', 'Gibraltar', 'Nares_Straight']
         
         self._expectedPlotsHeaders = ['Global Average Fields', 'Nino Indices', 'Transport Diagnostics']
 
@@ -79,60 +79,34 @@ class PopLog(OceanDiagnosticPlot):
         # chdir into the  working directory
         os.chdir(env['WORKDIR'])
 
-        # parse the cpllog depending on the coupler version - default to 7b
-        heatFile = 'cplheatbudget'
-        freshWaterFile = 'cplfwbudget'
-        cplVersion = 'cpl7b'
-        env['ntailht'] = os.environ['ntailht'] = '22'
-        env['ntailfw'] = os.environ['ntailfw'] = '16'
+        # expand the ocn.log* into a list
+        ocnLogs = list()
+        ocnLogs = glob.glob('{0}/ocn.log.*'.format(env['WORKDIR']))
+        ocnLogsString = ' '.join(ocnLogs)
 
-        if '7' == env['TS_CPL'] or '6' == env['TS_CPL']:
-            cplVersion = 'cpl{0}'.format(env['TS_CPL'])
-            env['ntailht'] = os.environ['ntailht'] = '21'
-            env['ntailfw'] = os.environ['ntailfw'] = '16'
+        # define the awk script to parse the ocn log files
+        globalDiagAwkPath = '{0}/process_pop2_logfiles.globaldiag.awk'.format(env['TOOLPATH'])
+        globalDiagAwkCmd = '{0} {1}'.format(globalDiagAwkPath, ocnLogsString).split(' ')
 
-        # expand the cpl.log* into a list
-        cplLogs = list()
-        cplLogs = glob.glob('{0}/cpl.log.*'.format(env['WORKDIR']))
-        
-        cplLogsString = ' '.join(cplLogs)
+        # expand the *.dt.* into a list
+        dtFiles = list()
+        dtFiles = glob.glob('{0}/{1}.pop.dt.*'.format(env['WORKDIR'], env['CASE']))
+        dtFilesString = ' '.join(dtFiles)
 
-        # defing the awk command to parse the cpllog file
-        heatPath = '{0}/process_{1}_logfiles_heat.awk'.format(env['TOOLPATH'], cplVersion)
-        heatPath = os.path.abspath(heatPath)
+        # define the awk script to parse the ocn log files
+        dtFilesAwkPath = '{0}/process_pop2_logfiles.dtfiles.awk'.format(env['TOOLPATH'])
+        dtFilesAwkCmd = '{0} {1}'.format(dtFilesAwkPath, dtFilesString).split(' ')
 
-        fwPath = '{0}/process_{1}_logfiles_fw.awk'.format(env['TOOLPATH'], cplVersion)
-        fwPath = os.path.abspath(fwPath)
-        
-        heatCmd = '{0} y0={1} y1={2} {3}'.format(heatPath, env['YEAR0'], env['YEAR1'], cplLogsString).split(' ')
-        freshWaterCmd = '{0} y0={1} y1={2} {3}'.format(fwPath, env['YEAR0'], env['YEAR1'], cplLogsString).split(' ')
-
-        # run the awk scripts to generate the .txt files from the cpllogs
-        print('cwd = {0}'.format(os.getcwd()))
-        cmdList = [ (heatCmd, heatFile, env['ntailht']), (freshWaterCmd, freshWaterFile, env['ntailfw']) ]
+        # run the awk scripts to generate the .txt files from the ocn logs and dt files
+        cmdList = [ globalDiagAwkCmd, dtFilesAwkCmd ]
         for cmd in cmdList:
-            outFile = '{0}.txt'.format(cmd[1])
-            with open (outFile, 'w') as results:
-                try:
-                    subprocess.check_call(cmd[0], stdout=results, env=env)
-                    rc, err_msg = cesmEnvLib.checkFile(outFile, 'read')
-                    if rc:
-                        # get the tail of the .txt file and redirect to a .asc file for the web
-                        ascFile = '{0}.asc'.format(cmd[1])
-                        with open (ascFile, 'w') as results:
-                            try:
-                                #TODO - read the .txt in and write just the lines needed to avoid subprocess call
-                                tailCmd = 'tail -{0} {1}.txt'.format(cmd[2], cmd[1]).split(' ')
-                                subprocess.check_call(tailCmd, stdout=results, env=env)
-                            except subprocess.CalledProcessError as e:
-                                print('WARNING: {0} time series error executing command:'.format(self._shortname))
-                                print('    {0}'.format(e.cmd))
-                                print('    rc = {0}'.format(e.returncode))
+            try:
+                subprocess.check_call(cmd, stdout=results, env=env)
+            except subprocess.CalledProcessError as e:
+                print('WARNING: {0} time series error executing command:'.format(self._shortname))
+                print('    {0}'.format(e.cmd))
+                print('    rc = {0}'.format(e.returncode))
 
-                except subprocess.CalledProcessError as e:
-                    print('WARNING: {0} time series error executing command:'.format(self._shortname))
-                    print('    {0}'.format(e.cmd))
-                    print('    rc = {0}'.format(e.returncode))
 
     def generate_plots(self, env):
         """Put commands to generate plot here!

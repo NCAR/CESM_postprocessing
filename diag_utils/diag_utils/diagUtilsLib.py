@@ -62,21 +62,9 @@ def generate_ncl_plots(env, nclPlotFile):
     rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
     if rc:
         try:
-<<<<<<< .working
-#            print('      calling NCL plot routine {0}'.format(nclPlotFile))
-#            pipe = subprocess.Popen( ['ncl',nclFile], cwd=env['WORKDIR'], env=env)
             pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
             output = pipe.communicate()[0]
             print('NCL plot routine {0} \n {1}'.format(nclPlotFile,output))            
-
-#            pipe.wait()
-=======
-#            pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True)
-            pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-            output = pipe.communicate()[0]
-            print('NCL plot routine {0} \n {1}'.format(nclPlotFile,output))            
-
->>>>>>> .merge-right.r72243
             while pipe.poll() is None:
                 time.sleep(0.5)
         except OSError as e:
@@ -335,7 +323,7 @@ def create_za(workdir, tavgfile, gridfile, toolpath, env):
         print('zonal average command = {0}'.format(testCmd))
         try:
             subprocess.check_call(['{0}'.format(zaCommand), '-O', '-time_const', '-grid_file', '{0}'.format(gridfile), '{0}'.format(tavgfile)])
-        except CalledProcessError as e:
+        except subprocess.CalledProcessError as e:
             print('ERROR: {0} subprocess call to {1} failed with error:'.format(self.name(), e.cmd))
             print('    {0} - {1}'.format(e.returncode, e.output))
             sys.exit(1)

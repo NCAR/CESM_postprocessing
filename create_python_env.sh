@@ -236,7 +236,7 @@ ${pp_dir}/cesm-env2.
 
 All interaction with the virtual environment including activating and deactivating is done via
 the post processing tools that reside in the experiment caseroot directory and are created 
-using the create_postprocessing --caseroot [caseroot] script. These include:
+using the create_postprocess --caseroot [caseroot] script. These include:
     env_postprocess.xml
     env_diags_[component].xml
     [CASENAME].timeseries

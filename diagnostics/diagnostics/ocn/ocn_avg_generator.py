@@ -294,7 +294,7 @@ def initialize_envDict(envDict, caseroot, debugMsg):
     in_dir = '{0}/ocn/hist'.format(envDict['DOUT_S_ROOT'])
 
     # get model history file information from the DOUT_S_ROOT archive location
-    debugMsg('calling checkHistoryFiles for control run', header=True)
+    debugMsg('calling checkHistoryFiles for model cases', header=True)
     time_series = envDict['GENERATE_TIMESERIES']
     archive_dir = envDict['DOUT_S_ROOT']
     case_name = envDict['CASE']
@@ -303,16 +303,16 @@ def initialize_envDict(envDict, caseroot, debugMsg):
 
     if options.control_run:
         # get model history file information from the CNTRLCASE dir
-        debugMsg('calling checkHistoryFiles for control run', header=True)
+        debugMsg('calling checkHistoryFiles for control case', header=True)
         time_series = envDict['CNTRLCASE_TIMESERIES']
         archive_dir = envDict['CNTRLCASEDIR']
         case_name = envDict['CNTRLCASE']
         year0 = envDict['CNTRLYEAR0']
         year1 = envDict['CNTRLYEAR1']
 
-    start_year, stop_year, in_dir, htype = diagUtilsLib.checkHistoryFiles(
-        time_series, archive_dir, case_name, year0, year1, 
-        'ocn', 'pop.h.*.nc', '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc')
+    suffix = 'pop.h.*.nc'
+    file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
+    start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(time_series, archive_dir, case_name, year0, year1, 'ocn', suffix, file_pattern)
 
     envDict['YEAR0'] = start_year
     envDict['YEAR1'] = stop_year

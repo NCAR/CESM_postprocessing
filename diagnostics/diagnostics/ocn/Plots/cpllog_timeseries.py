@@ -74,7 +74,7 @@ class CplLog(OceanDiagnosticPlot):
         
         cplLogsString = ' '.join(cplLogs)
 
-        # defing the awk command to parse the cpllog file
+        # define the awk scripts to parse the cpllog file
         heatPath = '{0}/process_{1}_logfiles_heat.awk'.format(env['TOOLPATH'], cplVersion)
         heatPath = os.path.abspath(heatPath)
 
