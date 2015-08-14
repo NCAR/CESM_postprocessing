@@ -41,30 +41,21 @@ class PopLog(OceanDiagnosticPlot):
     def __init__(self):
         super(PopLog, self).__init__()
 
-        self._expectedPlots_globalAvg = ['diagts_TEMP', 'diagts_SALT', 'diagts_RHO', 'diagts_IAGE', 'diagts_HBLT', 'diagts_HMXL', 'diagts_SSH',
-                                         'diagts_SHF_TOTAL', 'diagts_SWNET', 'diagts_LWNET', 'diagts_LWUP_F', 'diagts_LWDN_F', 'diagts_LATENT',
-                                         'diagts_SENH_F', 'diagts_MELTH_F', 'diagts_QFLUX', 'diagts_SFWF_TOTAL', 'diagts_PREC_F', 'diagts_EVAP_F',
-                                         'diagts_SNOW_F', 'diagts_MELT_F', 'diagts_ROFF_F', 'diagts_SALT_F', 'diagts_SFWF_QFLUX',
-                                         'diagts_CFC11', 'diagts_STF_CFC11', 'diagts_CFC12', 'diagts_STF_CFC12', 'diagts_precf']
-        self._expectedPlots_globalAvgLabels = ['TEMP', 'SALT', 'RHO', 'IAGE', 'HBLT', 'HMXL', 'SSH',
-                                               'SHF_TOTAL', 'SWNET', 'LWNET', 'LWUP_F', 'LWDN_F', 'LATENT',
-                                               'SENH_F', 'MELTH_F', 'QFLUX', 'SFWF_TOTAL', 'PREC_F', 'EVAP_F',
-                                               'SNOW_F', 'MELT_F', 'ROFF_F', 'SALT_F', 'SFWF_QFLUX',
-                                               'CFC11', 'STF_CFC11', 'CFC12', 'STF_CFC12', 'Precip_factor']
+        self._expectedPlots_globalAvg = [('TEMP','diagts_TEMP'), ('SALT','diagts_SALT'), ('RHO','diagts_RHO'), ('IAGE','diagts_IAGE'), ('HBLT','diagts_HBLT'), ('HMXL','diagts_HMXL'), ('SSH','diagts_SSH'),
+                                         ('SHF_TOTAL','diagts_SHF_TOTAL'), ('SWNET','diagts_SWNET'), ('LWNET','diagts_LWNET'), ('LWUP_F','diagts_LWUP_F'), ('LWDN_F','diagts_LWDN_F'), ('LATENT','diagts_LATENT'),
+                                         ('SENH_F','diagts_SENH_F'), ('MELTH_F','diagts_MELTH_F'), ('QFLUX','diagts_QFLUX'), ('SFWF_TOTAL','diagts_SFWF_TOTAL'), ('PREC_F','diagts_PREC_F'), ('EVAP_F','diagts_EVAP_F'),
+                                         ('SNOW_F','diagts_SNOW_F'), ('MELT_F','diagts_MELT_F'), ('ROFF_F','diagts_ROFF_F'), ('SALT_F','diagts_SALT_F'), ('SFWF_QFLUX','diagts_SFWF_QFLUX'),
+                                         ('CFC11','diagts_CFC11'), ('STF_CFC11','diagts_STF_CFC11'), ('CFC12','diagts_CFC12'), ('STF_CFC12','diagts_STF_CFC12'), ('Precip_factor','diagts_precf')]
 
-        self._expectedPlots_Nino = ['diagts_NINO']
-        self._expectedPlots_NinoLabels = ['NINO']
+        self._expectedPlots_Nino = [('NINO','diagts_NINO')]
 
-        self._expectedPlots_transportDiags = ['diagts_transport.drake', 'diagts_transport.mozam', 'diagts_transport.bering', 'diagts_transport.nwpassage'
-                                              'diagts_transport.itf1', 'diagts_transport.itf2', 'diagts_transport.windward1', 'diagts_transport.windward2',
-                                              'diagts_transport.florida', 'diagts_transport.gibraltar', 'diagts_transport.nares']
-
-        self._expectedPlots_transportDiagsLabels = ['Drake_Passage', 'Mozambique_Channel', 'Bering_Strait', 'Northwest_Passage'
-                                                    'Indonesian_Throughflow_1', 'Indonesian_Throughflow_2', 'Windward_Passage_1', 'Windward2_Passage_2',
-                                                    'Florida_Strait', 'Gibraltar', 'Nares_Straight']
+        self._expectedPlots_transportDiags = [('Drake_Passage','diagts_transport.drake'), ('Mozambique_Channel','diagts_transport.mozam'), ('Bering_Strait','diagts_transport.bering'), 
+                                              ('Northwest_Passage','diagts_transport.nwpassage'), ('Indonesian_Throughflow_1','diagts_transport.itf1'), ('Indonesian_Throughflow_2','diagts_transport.itf2'), 
+                                              ('Windward_Passage_1','diagts_transport.windward1'), ('Windward2_Passage_2','diagts_transport.windward2'), ('Florida_Strait','diagts_transport.florida'), 
+                                              ('Gibraltar','diagts_transport.gibraltar'), ('Nares_Straight','diagts_transport.nares')]
         
         self._expectedPlotsHeaders = ['Global Average Fields', 'Nino Indices', 'Transport Diagnostics']
-
+        self._columns = [ 8, 1, 4 ]
         self._name = 'POP log and dt file time series plots'
         self._shortname = 'POPLOG'
         self._template_file = 'poplog_timeseries.tmpl'
@@ -112,68 +103,67 @@ class PopLog(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-
-        # chdir into the  working directory
-        os.chdir(env['WORKDIR'])
-
         for ncl in self._ncl:
-            # prepend the TS_CPL log value to the ncl plot name
-            nclPlotFile = 'cpl{0}_{1}'.format(env['TS_CPL'], ncl)
-            
-            # copy the NCL command to the workdir
-            shutil.copy2('{0}/{1}'.format(env['NCLPATH'],nclPlotFile), '{0}/{1}'.format(env['WORKDIR'], nclPlotFile))
-
-            nclFile = '{0}/{1}'.format(env['WORKDIR'],nclPlotFile)
-            rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
-            if rc:
-                try:
-                    print('      calling NCL plot routine {0}'.format(nclPlotFile))
-                    subprocess.check_call(['ncl', '{0}'.format(nclFile)], env=env)
-                except subprocess.CalledProcessError as e:
-                    print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclfile))
-                    print('    {0}'.format(e.cmd))
-                    print('    rc = {0}'.format(e.returncode))
-            else:
-                print('{0}... continuing with additional plots.'.format(err_msg))
-
+            diagUtilsLib.generate_ncl_plots(env, ncl)
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
         """
-        self._convert_plots(workdir, imgFormat, self._expectedPlots)
+        #START HERE
+        #TODO the expectedPlots are in tuples - need to loop through and just get the second tuple member
+        self._convert_plots(workdir, imgFormat, self._expectedPlots_globalAvg)
+        self._convert_plots(workdir, imgFormat, self._expectedPlots_Nino)
+        self._convert_plots(workdir, imgFormat, self._expectedPlots_transportDiags)
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
+        plot_tables = []
         plot_table = []
-        num_cols = 3
 
-        for i in range(len(self._labels)):  
-            plot_tuple_list = []
-            plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
-            plot_tuple_list.append(plot_tuple)
-            plot_list = self._expectedPlots
+        suffix = ['globaAvg', 'Nino', 'transportDiags']
 
-            # create the image link
-            img_file = '{0}.{1}'.format(self._expectedPlots[i], imgFormat)
-            rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
-            if not rc:
-                plot_tuple = (i+1, 'timeseries', '{0} - Error'.format(img_file))
-            else:
-                plot_tuple = (i+1, 'timeseries', img_file)
-            plot_tuple_list.append(plot_tuple)
+        #START HERE
+        # build up the plot_tables array
+        for k in range(len(suffix)):
+            plot_list = eval('{0}_{1}'.format(self._expectedPlots, suffix[k]))
+            num_plots = len(plot_list)
+            num_last_row = num_plots % self._columns[k]
+            num_rows = num_plots//self._columns[k]
+            index = 0
 
-            # create the ascii file link
-            asc_file = '{0}.{1}'.format(self._expectedPlots[i], 'asc')
-            rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, asc_file), 'read' )
-            if not rc:
-                plot_tuple = (i+1, 'table', '{0} - Error'.format(asc_file))
-            else:
-                plot_tuple = (i+1, 'table', asc_file)
-            plot_tuple_list.append(plot_tuple)
+            for i in range(num_rows):
+                ptuple = []
+                for j in range(self._columns[k]):
+                    plot_file = plot_list[index]
+                    img_file = '{0}.{1}'.format(plot_file, imgFormat)
+                    rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
+                    if not rc:
+                        ptuple.append('{0} - Error'.format(plot_file))
+                    else:
+                        ptuple.append(plot_file)
+                    index += 1                    
+                plot_table.append(ptuple)
 
-            print('DEBUG... plot_tuple_list[{0}] = {1}'.format(i, plot_tuple_list))
-            plot_table.append(plot_tuple_list)
+            # pad out the last row
+            if num_last_row > 0:
+                plist = []
+                for i in range(num_last_row):
+                    plot_file = plot_list[index]
+                    img_file = '{0}.{1}'.format(plot_file, imgFormat)
+                    rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
+                    if not rc:
+                        plist.append('{0} - Error'.format(plot_file))
+                    else:
+                        plist.append(plot_file)
+                    index += 1                    
+
+                for i in range(num_cols - num_last_row):
+                    plist.append('')
+
+                plot_table.append(plist)
+            
+            plot_tables.append(plot_table)
 
         # create a jinja2 template object
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
@@ -183,8 +173,8 @@ class PopLog(OceanDiagnosticPlot):
 
         # add the template variables
         templateVars = { 'title' : self._name,
-                         'plot_table' : plot_table,
-                         'num_rows' : len(self._labels),
+                         'plot_tables' : plot_tables, 
+                         'plot_headers' : self._expectedPlotsHeaders
                          }
 
         # render the html template using the plot tables

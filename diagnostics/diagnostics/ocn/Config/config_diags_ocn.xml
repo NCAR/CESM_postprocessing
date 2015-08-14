@@ -764,6 +764,14 @@
 g_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc"
 	 ></entry>
 
+  <entry id="OCNDIAG_CNTRLCASE_TIMESERIES"
+	 type="logical"
+	 valid_values="TRUE/FALSE"
+	 value="FALSE"
+	 group="diags_ocn"
+	 desc="True or false to indicate if the control case history files are in variable time series format (TRUE) or history time slice format (FALSE)"
+	 ></entry>
+
 
   <!-- =========================================================================== -->
   <!-- define ocean diagnostics model variables for ecosystem diagnostics          -->

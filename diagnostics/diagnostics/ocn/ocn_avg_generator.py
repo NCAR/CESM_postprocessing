@@ -154,6 +154,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
        averageList (list) - list of averages to be created
        varList (list) - list of variables. Note: an empty list implies all variables.
     """
+    #TODO ask Sheri if these are still necessary fro the ocean
     mean_diff_rms_obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
     region_nc_var = 'REGION_MASK'
     regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
@@ -287,38 +288,6 @@ def initialize_envDict(envDict, caseroot, debugMsg):
     # enviroment to allow for compatibility with all the diag routine calls
     envDict = diagUtilsLib.strip_prefix(envDict, 'OCNDIAG_')
 
-    # initialize some variables needed for the pyaverager specifier class
-    start_year = 0
-    stop_year = 1
-    htype = 'series'
-    in_dir = '{0}/ocn/hist'.format(envDict['DOUT_S_ROOT'])
-
-    # get model history file information from the DOUT_S_ROOT archive location
-    debugMsg('calling checkHistoryFiles for model cases', header=True)
-    time_series = envDict['GENERATE_TIMESERIES']
-    archive_dir = envDict['DOUT_S_ROOT']
-    case_name = envDict['CASE']
-    year0 = envDict['YEAR0']
-    year1 = envDict['YEAR1']
-
-    if options.control_run:
-        # get model history file information from the CNTRLCASE dir
-        debugMsg('calling checkHistoryFiles for control case', header=True)
-        time_series = envDict['CNTRLCASE_TIMESERIES']
-        archive_dir = envDict['CNTRLCASEDIR']
-        case_name = envDict['CNTRLCASE']
-        year0 = envDict['CNTRLYEAR0']
-        year1 = envDict['CNTRLYEAR1']
-
-    suffix = 'pop.h.*.nc'
-    file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
-    start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(time_series, archive_dir, case_name, year0, year1, 'ocn', suffix, file_pattern)
-
-    envDict['YEAR0'] = start_year
-    envDict['YEAR1'] = stop_year
-    envDict['in_dir'] = in_dir
-    envDict['htype'] = htype
-
     return envDict
 
 #======
@@ -354,18 +323,52 @@ def main(options, debugMsg):
     tavg_dir = envDict['TAVGDIR'] 
     case_name = envDict['CASE']
 
-    if options.control_run:
-        debugMsg('calling createClimFiles for control run', header=True)
-        tavg_dir = envDict['CNTRLTAVGDIR']
-        case_name = envDict['CNTRLCASE']
+    # initialize some variables needed for the pyaverager specifier class
+#    start_year = 0
+#    stop_year = 1
+#    htype = 'series'
+#    in_dir = '{0}/ocn/hist'.format(envDict['DOUT_S_ROOT'])
+
+    # get model history file information from the DOUT_S_ROOT archive location
+    debugMsg('calling checkHistoryFiles for model case', header=True)
+    suffix = 'pop.h.*.nc'
+    file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
+    start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
+        envDict['GENERATE_TIMESERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
+        envDict['YEAR0'], envDict['YEAR1'], 'ocn', suffix, file_pattern)
+    envDict['YEAR0'] = start_year
+    envDict['YEAR1'] = stop_year
+    envDict['in_dir'] = in_dir
+    envDict['htype'] = htype
 
     try:
         createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
-                        envDict['htype'], tavg_dir, case_name, varList, debugMsg)
+                        envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], varList, debugMsg)
     except Exception as error:
         print(str(error))
         traceback.print_exc()
         sys.exit(1)
+
+    # check that the necessary control climotology files exist
+    if envDict['MODEL_VS_CONTROL'].upper() == 'TRUE':
+        debugMsg('calling checkHistoryFiles for control case', header=True)
+        suffix = 'pop.h.*.nc'
+        file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
+        start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
+            envDict['CNTRLCASE_TIMESERIES'], envDict['CNTRLCASEDIR'], envDict['CNTRLCASE'], 
+            envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], 'ocn', suffix, file_pattern)
+        envDict['CNTRLYEAR0'] = start_year
+        envDict['CNTRLYEAR1'] = stop_year
+        envDict['cntrl_in_dir'] = in_dir
+        envDict['cntrl_htype'] = htype
+
+        try:
+            createClimFiles(envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], envDict['cntrl_in_dir'],
+                            envDict['cntrl_htype'], envDict['CNTRLTAVGDIR'], envDict['CNTRLCASE'], varList, debugMsg)
+        except Exception as error:
+            print(str(error))
+            traceback.print_exc()
+            sys.exit(1)
 
 
 #===================================

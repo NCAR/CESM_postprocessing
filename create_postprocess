@@ -113,9 +113,6 @@ def commandline_options():
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
 
-    parser.add_argument('--control-run', action='store_true', default=False,
-                        help='Controls whether or not to process climatology files for a control run using the settings in the caseroot env_diags_[component].xml files.')
-
     options = parser.parse_args()
 
     # check to make sure CASEROOT is a valid, readable directory
@@ -277,13 +274,6 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     if options.backtrace:
         backtrace = '--backtrace'
 
-    # check if the control run averages should be computed
-    computeAverages = False
-    controlRun = options.control_run
-    if controlRun:
-        if 'avg' in postProcessCmd:
-            computeAverages = True
-
     # all files look good so start parsing the template file starting with the batchTmpl
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}/templates'.format(ppDir) )
     templateEnv = jinja2.Environment( loader=templateLoader )
@@ -305,9 +295,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
                      'caseRoot' : caseRoot,
                      'virtualEnvDir' : virtualEnvDir,
                      'debug' : debug,
-                     'backtrace' : backtrace,
-                     'controlRun' : controlRun,
-                     'computeAverages' : computeAverages }
+                     'backtrace' : backtrace }
 
     # render this template into the runScript string
     runScript = template.render( templateVars )

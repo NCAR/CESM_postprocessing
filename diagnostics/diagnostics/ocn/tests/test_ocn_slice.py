@@ -3,8 +3,8 @@
 # import the MPI related module
 import sys
 
-sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_alpha05/postprocessing/averager/pyAverager")
-sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_alpha05/postprocessing/mpi_utils/pyTools")
+sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_beta06/postprocessing/averager/pyAverager")
+sys.path.append("/glade/u/home/aliceb/sandboxes/cesm1_4_beta06/postprocessing/mpi_utils/pyTools")
 print(sys.path)
 
 from asaptools import partition, simplecomm
@@ -15,11 +15,11 @@ scomm = simplecomm.create_comm(serial=False)
 
 #### User modify ####
 
-in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007/ocn/hist/monthly'
-out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007/ocn/proc/tavg/annual'
-pref= 'b.e13.B1850C5CN.f09_g16_beta17_cam5.4_alpha03.007.pop.h'
+in_dir='/glade/scratch/aliceb/archive/b.e11.B1850C5CN.f09_g16.005/ocn/hist'
+out_dir= '/glade/scratch/aliceb/archive/b.e11.B1850C5CN.f09_g16.005/ocn/proc/tavg/annual'
+pref= 'b.e11.B1850C5CN.f09_g16.005.pop.h'
 htype= 'slice'
-average = ['mavg:0070:0075', 'tavg:0070:0075']
+average = ['mavg:0420:0424', 'tavg:0420:0424']
 wght= False
 ncfrmt = 'netcdf'
 serial=False
