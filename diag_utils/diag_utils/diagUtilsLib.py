@@ -58,18 +58,20 @@ def generate_ncl_plots(env, nclPlotFile):
     # check if the nclPlotFile exists - 
     # don't exit if it does not exists just print a warning.
     nclFile = '{0}/{1}'.format(env['NCLPATH'],nclPlotFile)
-    print('      calling NCL plot routine {0}'.format(nclPlotFile))
+    print('      calling NCL plot routine {0}'.format(nclFile))
     rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
     if rc:
         try:
             pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
             output = pipe.communicate()[0]
-            print('NCL plot routine {0} \n {1}'.format(nclPlotFile,output))            
+            print('NCL plot routine {0} \n {1}'.format(nclFile,output))            
             while pipe.poll() is None:
                 time.sleep(0.5)
         except OSError as e:
-            print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclfile))
-            print('    {0} - {1}'.format(e.errno, e.strerror))
+            print('WARNING',e.errno,e.strerror)
+            # The below warnings are giving runtime tuple errors.  Commented them out for now.
+            #print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclFile))
+            #print('    {0} - {1}'.format(e.errno, e.strerror))
     else:
         print('{0}... continuing with additional plots.'.format(err_msg))
 
@@ -107,6 +109,27 @@ def filter_pick(files,regex):
     return [m.group(0) for f in files for m in [regex.search(f)] if m]
 
 
+#======================================
+# check_series_years - checks to see if the number of time slices in the file
+#                      match the date string
+#======================================
+def check_series_years(hfstart_year, hfstart_month, hfstop_year, hfstop_month, hfile):
+
+    """ check_series_years - checks to see if the number of time slices in the file match the date string
+    """
+
+    import Nio
+
+    # Get the count for how many slices the filename says there should be
+    fname_slice_count = ((12 - int(hfstart_month))+1)+((int(hfstop_year) - int(hfstart_year)) * 12) - (12 - int(hfstop_month))
+
+    # Get the actually count within the file
+    f = Nio.open_file(hfile)
+    file_slice_count = f.dimensions['time']
+    f.close()
+
+    # Return True if they counts match, False if they do not match
+    return  file_slice_count == fname_slice_count
 
 #======================================
 # checkXMLyears - check run year bounds
@@ -219,6 +242,10 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
         hfstart_month = slist[0][4:6]
         hfstop_year = slist[1][:4]
         hfstop_month = slist[1][4:6]
+
+        if not check_series_years(hfstart_year, hfstart_month, hfstop_year, hfstop_month, hfiles[0]):
+            err_msg = 'ERROR: diagUtilsLib.checkHistoryFiles Time series filename does not match file time slice count.'
+            raise OSError(err_msg)
 
     # check if the XML YEAR0 and YEAR1 are within the actual start_year and stop_year bounds 
     # defined by the actual history files
@@ -461,6 +488,15 @@ def checkAvgFiles(filelist):
 def atm_regrid(climo_file, regrid_script, in_grid, out_grid, env):
     """ Regrid the climatology file that was passed in
     """
+    if '30' in in_grid:
+       in_grid = '30'
+    elif '120' in in_grid:
+       in_grid = '120'
+    elif '240' in in_grid:
+       in_grid = '240'
+    else:
+        raise RunTimeError('The in grid resolution is not a valid option: ',in_grid)
+
     se_file = climo_file[:-3] + '_r_' + in_grid + climo_file[-3:] # Create a new name for the existing se climo file
     env['INGRID'] = in_grid
     env['OUTGRID'] = out_grid

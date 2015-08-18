@@ -94,6 +94,48 @@ def setup_diags(envDict):
     return requested_diags
 
 
+#================================================
+# regrid 
+#================================================
+def regrid_climos(env,main_comm):
+    """ regrid_climos - regrid the climos into a lat/lon grid
+    """
+
+    import glob  
+    env['DIAG_CODE'] = env['NCLPATH']
+    env['WKDIR'] = env['test_path_diag']
+    env['WORKDIR'] = env['test_path_diag'] 
+    if main_comm.is_manager():
+        if not os.path.exists(env['WKDIR']):
+            os.makedirs(env['WKDIR'])
+    main_comm.sync()
+
+    # If SE grid, convert to lat/lon grid
+    regrid_script = 'regridclimo.ncl'
+    # Convert Test Case
+    if (env['test_regrid'] == 'True'):
+        # get list of climo files to regrid
+        # create the working directory first before calling the base class prerequisites
+        endYr = (int(env['test_first_yr']) + int(env['test_nyrs'])) - 1
+        subdir = '{0}.{1}-{2}'.format(env['test_casename'], env['test_first_yr'], endYr)
+        workdir = '{0}/{1}'.format(env['test_path_climo'], subdir)
+        climo_files = glob.glob( workdir+'/*.nc')
+        # partition the climo files between the ranks so each rank will get a portion of the list to regrid
+        local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
+        for climo_file in local_climo_files:
+            diagUtilsLib.atm_regrid(climo_file, regrid_script, env['test_res_in'], env['test_res_out'], env)
+    # Convert CNTL Case
+    if (env['MODEL_VS_MODEL'] == 'True' and env['cntl_regrid'] == 'True'):
+        # get list of climo files to regrid
+        endYr = (int(env['cntl_first_yr']) + int(env['cntl_nyrs'])) - 1
+        subdir = '{0}.{1}-{2}'.format(env['cntl_casename'], env['cntl_first_yr'], endYr)
+        workdir = '{0}/{1}'.format(env['cntl_path_climo'], subdir)
+        climo_files = glob.glob( env['cntl_path_climo']+'/*.nc')
+        # partition the climo files between the ranks so each rank will get a portion of the list to regrid
+        local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
+        for climo_file in local_climo_files:
+            diagUtilsLib.atm_regrid(climo_file, regrid_script, env['cntl_res_in'], env['cntl_res_out'], env)
+
 #============================================
 # initialize_main - initialization from main
 #============================================
@@ -184,6 +226,11 @@ def main(options, main_comm, debugMsg):
     sys.path.append(envDict['PATH'])
     main_comm.sync()
 
+    # check to see if the climos need to be regridded into a lat/lon grid
+    if (envDict['test_regrid'] == 'True' or envDict['cntl_regrid'] == 'True'):
+        regrid_climos(envDict, main_comm)
+    main_comm.sync()
+
     # get list of diagnostics types to be created
     diag_list = list()
     diag_list = setup_diags(envDict)
@@ -194,22 +241,20 @@ def main(options, main_comm, debugMsg):
 
     main_comm.sync()
 
-    # divide the main communicator into sub_communicators to be passed to each diag class
+    # broadcast the diag_list to all tasks
     num_of_diags = len(diag_list)
-    if num_of_diags == 0:
-        print('No atmosphere diagnostics specified. Please check the {0}/env_diags_ocn.xml settings.'.format(envDict['CASEROOT']))
-        sys.exit(1)
+    num_of_diags = main_comm.partition(num_of_diags, func=partition.Duplicate(), involved=True)
+    diag_list = main_comm.partition(data=diag_list, func=partition.Duplicate(), involved=True)
+    main_comm.sync()
 
     # initialize some variables for distributing diagnostics across the communicators
     diags_send = diag_list
-    inter_comm = main_comm
     gmaster = main_comm.is_manager()
     gsize = main_comm.get_size()
     grank = main_comm.get_rank()
-    lmaster = main_comm.is_manager()
-    lsize = main_comm.get_size()
-    lrank = main_comm.get_rank()
+    local_diag_list = list()
 
+    # divide the main communicator into sub_communicators to be passed to each diag class
     # split mpi comm world if the size of the communicator > 1 and the num_of_diags > 1
     if gsize > 1 and num_of_diags > 1:
         temp_color = (grank % num_of_diags)
@@ -228,26 +273,29 @@ def main(options, main_comm, debugMsg):
         debugMsg('color {0}, lsize {1}, lrank {2}, lmaster {3}'.format(color, lsize, lrank, lmaster))
 
         # partition the diag_list between communicators
-        local_diag_list = list()
         DIAG_LIST_TAG = 10
         if lmaster:
             local_diag_list = multi_comm.partition(diag_list,func=partition.EqualStride(),involved=True)
-            print('lrank', lrank, 'local_diag_list', local_diag_list)
-#            debugMsg('lrank {0}, local_diag_list {1}',format(lrank, local_diag_list))
             for b in range(1, lsize):
                 diags_send = inter_comm.ration(data=local_diag_list, tag=DIAG_LIST_TAG)
-                print('b', b, 'diags_send', diags_send, 'lsize', lsize)
         else:
             local_diag_list = inter_comm.ration(tag=DIAG_LIST_TAG)
         debugMsg('local_diag_list {0}',format(local_diag_list))
+    else:
+        inter_comm = main_comm
+        lmaster = main_comm.is_manager()
+        lsize = main_comm.get_size()
+        lrank = main_comm.get_rank()
+        local_diag_list = diag_list
 
     inter_comm.sync()
-
+    main_comm.sync()    
+    
     debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank))
     inter_comm.sync()
 
-    # loop through the diags_send list
-    for requested_diag in diags_send:
+    # loop through the local_diag_list list
+    for requested_diag in local_diag_list:
         try:
             diag = atm_diags_factory.atmosphereDiagnosticsFactory(requested_diag,envDict)
 

@@ -67,14 +67,6 @@
          desc="Identifying test model stream"
          ></entry>
 
-  <entry id="ATMDIAG_test_filetype"
-         type="char"
-         valid_values="time_slice,time_series"
-         value="time_slice"
-         group="diags_atm"
-         desc="Test file type"
-         ></entry>
-
   <entry id="ATMDIAG_test_path_history"
          type="char"
          valid_values=""
@@ -117,14 +109,6 @@
          value="cam.h0"
          group="diags_atm"
          desc="Identifying control model stream"
-         ></entry>
-
-  <entry id="ATMDIAG_cntl_filetype"
-         type="char"
-         valid_values="time_slice,time_series"
-         value=""
-         group="diags_atm"
-         desc="Cntl file type"
          ></entry>
 
   <entry id="ATMDIAG_cntl_path_history"

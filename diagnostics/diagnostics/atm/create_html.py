@@ -54,7 +54,7 @@ def create_plotset_html(html_file_prefix,web_path,set_name, env):
                             line = line.replace('plot','----') 
                         else:
                             line = line.replace('xxx',img_t)
-         
+             
             new_html.write(line)
         if n == 1:
             if 'sets' in set_name:

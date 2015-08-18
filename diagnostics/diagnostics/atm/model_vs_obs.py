@@ -66,6 +66,7 @@ class modelVsObs(AtmosphereDiagnostic):
 
         # Set some new env variables
         env['DIAG_CODE'] = env['NCLPATH']
+        env['test_path_diag'] = '{0}/{1}-{2}/'.format(env['test_path_diag'], env['test_casename'], 'obs') 
         env['WKDIR'] = env['test_path_diag']
         env['WORKDIR'] = env['test_path_diag']
         if scomm.is_manager():
@@ -90,8 +91,6 @@ class modelVsObs(AtmosphereDiagnostic):
         env['test_out'] = env['test_path_climo'] + env['test_casename']
         env['cntl_in'] = env['OBS_DATA']
 
-        #env[''] = os.environ['']
-  
         env['seas'] = []
         if env['plot_ANN_climo'] == 'True':
             env['seas'].append('ANN')
@@ -121,17 +120,6 @@ class modelVsObs(AtmosphereDiagnostic):
         elif 'blue_yellow_red' in env['color_bar']:
             env['RGB_FILE'] = env['DIAG_HOME']+'/rgb/blueyellowred.rgb'
 
-        # If SE grid, convert to lat/lon grid
-        scomm.sync()
-        regrid_script = 'regridclimo.ncl'
-        if (env['CAM_DYCORE'] == 'se' or env['test_regrid'] == 'True'):
-            # get list of climo files to regrid
-            climo_files = glob.glob( env['test_path_climo']+'/*.nc')
-            # partition the climo files between the ranks so each rank will get a portion of the list to regrid
-            local_climo_files = scomm.partition(climo_files, func=partition.EqualStride(), involved=True) 
-            for climo_file in local_climo_files:
-                print ('Regridding ',climo_file)
-                diagUtilsLib.atm_regrid(climo_file, regrid_script, env['test_res_in'], env['test_res_out'], env)
 
         # Set Paleo variables and create paleo coastline files
         env['PALEO'] = env['paleo']
@@ -229,9 +217,10 @@ class modelVsObs(AtmosphereDiagnostic):
         if scomm.is_manager():
             env['HTML_HOME'] = env['DIAG_HOME']+'/html/model-obs/'
             # Get web dir name and create it if it does not exist
-            web_dir = '{0}/{1}-{2}'.format(env['test_path_diag'], env['test_casename'], 'obs')
-            if not os.path.exists(web_dir):
-                os.makedirs(web_dir)
+            #web_dir = '{0}/{1}-{2}'.format(env['test_path_diag'], env['test_casename'], 'obs')
+            web_dir = env['test_path_diag']
+            #if not os.path.exists(web_dir):
+            #    os.makedirs(web_dir)
             # Copy over some files needed by web pages
             if not os.path.exists(web_dir+'/images'):
                 os.mkdir(web_dir+'/images')
@@ -259,7 +248,7 @@ class modelVsObs(AtmosphereDiagnostic):
                      if not os.path.exists(set_dir):
                          os.makedirs(set_dir)
                      # Copy plots into the correct web dir
-                     glob_string = env['test_path_diag']+'/'+glob_set+'*'
+                     glob_string = env['test_path_diag']+'/'+glob_set+'*.*'
                      imgs = glob.glob(glob_string)
                      if imgs > 0:
                          for img in imgs:
@@ -275,6 +264,7 @@ class modelVsObs(AtmosphereDiagnostic):
             # Remove any plotvar netcdf files that exists in the diag directory
             if env['save_ncdfs'] == 'False':
                 cesmEnvLib.purge(env['test_path_diag'], '.*\.nc')
+                cesmEnvLib.purge(env['test_path_diag'], '/station_ids')
 
             if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
