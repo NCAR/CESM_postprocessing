@@ -1,58 +1,23 @@
 <h3>{{ title }}</h3>
 
-{% for plot_table in plot_tables %} 
+{% for table_header, plot_table_list, cols in plot_tables %} 
    <table class="plot">
-   <th colspan="{{ cols }}"></th>
-   {% for t in plot_table %}
-       <tr>  
-           {% for i in t %}
-       	    {% if 'Error' in i %}
-            <td>{{ i }}</td>
-	            {% elif i == '' %}
-           <td></td>
-        {% else %}
-           <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</td>
-        {% endif %}
-    {% endfor %}
-    </tr>
+   <th colspan="{{ cols }}">{{ table_header }}</th>
+   {% for plot_table in plot_table_list %}
+      <tr>	     
+      {% for label, t in plot_table %}
+	  {% if 'Error' in t %}
+              <td>{{ label }} - Error</td>
+          {% elif t == '' %}
+	      <td></td>
+          {% else %}
+              <td><a href="{{ t }}.{{ imgFormat }}">{{ label }}</td>
+          {% endif %}
+      {% endfor %}	
+      </tr>
+   {% endfor %}	
+   </table>
+   <br/>
 {% endfor %}
-</table>
-{% endfor %}
-
-<p/>
-<table class="plot">
-<th colspan="{{ cols }}">Nino Indices</th>
-{% for t in plot_za_table %}
-    <tr>
-    {% for i in t %}
-        {% if 'Error' in i %}
-           <td>{{ i }}</td>
-        {% elif i == '' %}
-           <td></td>
-        {% else %}
-           <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</td>
-        {% endif %}
-    {% endfor %}
-    </tr>
-{% endfor %}
-</table>
-
-<p/>
-<table class="plot">
-<th colspan="{{ cols }}">Transport Diagnostics</th>
-{% for t in plot_za_table %}
-    <tr>
-    {% for i in t %}
-        {% if 'Error' in i %}
-           <td>{{ i }}</td>
-        {% elif i == '' %}
-           <td></td>
-        {% else %}
-           <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</td>
-        {% endif %}
-    {% endfor %}
-    </tr>
-{% endfor %}
-</table>
 
 <hr>

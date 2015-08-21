@@ -106,9 +106,9 @@ def setup_diags(envDict):
                 requested_diags.append(key)
                 diag_dict[diag.lower()] = '{0}'.format(diag.lower())
                 if '_vs_' in diag.lower():
-                    diag_dict[diag.lower()] = '{0}.{1}_{2}'.format(diag.lower(), envDict['YEAR0'], envDict['YEAR1'])
+                    diag_dict[diag.lower()] = '{0}'.format(diag.lower())
                 elif 'timeseries' in diag.lower():
-                    diag_dict[diag.lower()] = 'model_{0}.{1}_{2}'.format(diag.lower(), envDict['YEAR0'], envDict['YEAR1'])
+                    diag_dict[diag.lower()] = 'model_{0}'.format(diag.lower())
     return requested_diags, diag_dict
 
 
@@ -153,13 +153,13 @@ def initialize_main(envDict, caseroot, debugMsg):
     if envDict['VERTICAL'] == '42':
         envDict['TOBSFILE'] = envDict['TOBSFILE_V42']
         envDict['SOBSFILE'] = envDict['SOBSFILE_V42']
-    debugMsg('TOBSFILE = {0}, SOBSFILE= {1}'.format(envDict['TOBSFILE'], envDict['SOBSFILE']))
+    debugMsg('TOBSFILE = {0}, SOBSFILE= {1}'.format(envDict['TOBSFILE'], envDict['SOBSFILE']), header=True, verbosity=2)
 
     # TODO - create the list of necessary climatology files for model
     filelist = list()
 
     # check average files
-    debugMsg('calling checkAvgFiles', header=True)
+    debugMsg('calling checkAvgFiles', header=True, verbosity=2)
     rc = diagUtilsLib.checkAvgFiles(filelist)
     if not rc:
         print('---------------------------------------------------------------------------')
@@ -169,7 +169,6 @@ def initialize_main(envDict, caseroot, debugMsg):
         print('---------------------------------------------------------------------------')
         sys.exit(1)
 
-    # TODO - create the list of necessary climatology files for control
     return envDict
 
 #======
@@ -199,12 +198,12 @@ def main(options, main_comm, debugMsg):
     # CASEROOT is given on the command line as required option --caseroot
     if main_comm.is_manager():
         caseroot = options.caseroot[0]
-        debugMsg('caseroot = {0}'.format(caseroot), header=True)
+        debugMsg('caseroot = {0}'.format(caseroot), header=True, verbosity=2)
 
-        debugMsg('calling initialize_main', header=True)
+        debugMsg('calling initialize_main', header=True, verbosity=2)
         envDict = initialize_main(envDict, caseroot, debugMsg)
 
-        debugMsg('calling check_ncl_nco', header=True)
+        debugMsg('calling check_ncl_nco', header=True, verbosity=2)
         diagUtilsLib.check_ncl_nco(envDict)
 
     # broadcast envDict to all tasks
@@ -236,7 +235,7 @@ def main(options, main_comm, debugMsg):
                     err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(envDict['WORKDIR'])
                     raise OSError(err_msg)
 
-            print('Ocean diagnostics - Creating main index.html page')
+            debugMsg('Ocean diagnostics - Creating main index.html page', header=True, verbosity=2)
 
             # define the templatePath
             templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
@@ -267,10 +266,10 @@ def main(options, main_comm, debugMsg):
             with open( '{0}/index.html'.format(envDict['WORKDIR']), 'w') as index:
                 index.write(main_html)
 
-            print('Ocean diagnostics - Copying stylesheet')
+            debugMsg('Ocean diagnostics - Copying stylesheet', header=True, verbosity=2)
             shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(envDict['WORKDIR']))
 
-            print('Ocean diagnostics - Copying logo files')
+            debugMsg('Ocean diagnostics - Copying logo files', header=True, verbosity=2)
             if not os.path.exists('{0}/logos'.format(envDict['WORKDIR'])):
                 os.mkdir('{0}/logos'.format(envDict['WORKDIR']))
 
@@ -281,10 +280,12 @@ def main(options, main_comm, debugMsg):
                 # copy over the files to a remote web server and webdir 
                 diagUtilsLib.copy_html_files(envDict, '')
             else:
+                print('--------------------------------------------------------------------------')
                 print('Ocean Diagnostics - Web files successfully created in directory:')
                 print('{0}'.format(envDict['WORKDIR']))
                 print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
                 print('You will need to manually copy the web files to a remote web server.')
+                print('--------------------------------------------------------------------------')
 
     main_comm.sync()
 
@@ -309,26 +310,26 @@ def main(options, main_comm, debugMsg):
         groups = list()
         for g in range(0,num_of_diags):
             groups.append(g)
-        debugMsg('global_rank {0}, temp_color {1}, #of groups(diag types) {2}, groups {3}, diag_list {4}'.format(grank, temp_color, num_of_diags, groups, diag_list))
+        debugMsg('global_rank {0}, temp_color {1}, #of groups(diag types) {2}, groups {3}, diag_list {4}'.format(grank, temp_color, num_of_diags, groups, diag_list), header=True, verbosity=2)
         group = groups[temp_color]
         inter_comm, multi_comm = main_comm.divide(group)
         color = inter_comm.get_color()
         lsize = inter_comm.get_size()
         lrank = inter_comm.get_rank()
         lmaster = inter_comm.is_manager()
-        debugMsg('color {0}, lsize {1}, lrank {2}, lmaster {3}'.format(color, lsize, lrank, lmaster))
+        debugMsg('color {0}, lsize {1}, lrank {2}, lmaster {3}'.format(color, lsize, lrank, lmaster), header=True, verbosity=2)
 
         # partition the diag_list between communicators
         DIAG_LIST_TAG = 10
         if lmaster:
             local_diag_list = multi_comm.partition(diag_list,func=partition.EqualStride(),involved=True)
-            print('lrank', lrank, 'local_diag_list', local_diag_list)
+            debugMsg('lrank = {0} local_diag_list = {1}'.format(lrank, local_diag_list), header=True, verbosity=2)
             for b in range(1, lsize):
                 diags_send = inter_comm.ration(data=local_diag_list, tag=DIAG_LIST_TAG) 
-                print('b', b, 'diags_send', diags_send, 'lsize', lsize)
+                debugMsg('b = {0} diags_send = {1} lsize = {2}'.format(b, diags_send, lsize), header=True, verbosity=2)
         else:
             local_diag_list = inter_comm.ration(tag=DIAG_LIST_TAG)
-        debugMsg('local_diag_list {0}',format(local_diag_list))
+        debugMsg('local_diag_list {0}',format(local_diag_list), header=True, verbosity=2)
     else:
         inter_comm = main_comm
         lmaster = main_comm.is_manager()
@@ -342,15 +343,15 @@ def main(options, main_comm, debugMsg):
     # loop through the local_diag_list 
     for requested_diag in local_diag_list:
         try:
-            debugMsg('requested_diag {0}, lrank {1}, lsize {2}, lmaster {3}'.format(requested_diag, lrank, lsize, lmaster))
+            debugMsg('requested_diag {0}, lrank {1}, lsize {2}, lmaster {3}'.format(requested_diag, lrank, lsize, lmaster), header=True, verbosity=2)
             diag = ocn_diags_factory.oceanDiagnosticsFactory(requested_diag)
 
             # check the prerequisites for the diagnostics types
-            debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
+            debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True, verbosity=2)
             
             if lmaster:
                 envDict = diag.check_prerequisites(envDict)
-                debugMsg('MAVGFILE = {0}, TAVGFILE = {1}'.format(envDict['MAVGFILE'], envDict['TAVGFILE']))
+                debugMsg('MAVGFILE = {0}, TAVGFILE = {1}'.format(envDict['MAVGFILE'], envDict['TAVGFILE']), header=True, verbosity=2)
 
             inter_comm.sync()
 

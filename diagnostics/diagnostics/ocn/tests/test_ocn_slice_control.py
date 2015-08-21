@@ -19,17 +19,17 @@ in_dir='/glade/scratch/aliceb/archive/b.e11.B1850C5CN.f09_g16.005/ocn/hist/'
 out_dir= '/glade/scratch/aliceb/archive/b.e11.B1850C5CN.f09_g16.005/ocn/proc/tavg/annual'
 pref= 'b.e11.B1850C5CN.f09_g16.005.pop.h'
 htype= 'slice'
-average = ['mavg:0420:0424','tavg:0420:0424']
+average = ['mavg:0420:0424','tavg:0420:0424','moc:1850:1854', 'mocm:1850:1854', 'hor.meanConcat:1850:1854']
 wght= False
 ncfrmt = 'netcdf4'
 serial=False
 
 var_list = []
-mean_diff_rms_obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
+mean_diff_rms_obs_dir = '~/sandboxes/cesm1_4_beta06/postprocessing/ocn_diag/timeseries_obs'
 region_nc_var = 'REGION_MASK'
 regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
 region_wgt_var = 'TAREA'
-obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
+obs_dir = '~/sandboxes/cesm1_4_beta06/postprocessing/ocn_diag/timeseries_obs'
 obs_file = 'obs.nc'
 reg_obs_file_suffix = '_hor_mean_obs.nc'
 

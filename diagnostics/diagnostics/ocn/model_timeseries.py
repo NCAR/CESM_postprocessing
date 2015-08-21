@@ -111,8 +111,8 @@ class modelTimeseries(OceanDiagnostic):
         # check if ocn log files exist
         if len(env['OCNLOGFILEPATH']) == 0:
             # print a message that the ocn log path isn't defined and turn off POPLOG plot module
-            print('model timeseries - OCNLOGFILEPATH is undefined. Disabling MTS_PM_POPLOG module')
-            env['MTS_PM_POPLOG'] = os.environ['PM_POPLOG'] = 'FALSE'
+            print('model timeseries - OCNLOGFILEPATH is undefined. Disabling MTS_PM_YPOPLOG module')
+            env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
         
         else:
             # check that ocn log files exist and gunzip them if necessary
@@ -136,40 +136,28 @@ class modelTimeseries(OceanDiagnostic):
                         # remove the original .gz file in the workdir
                         os.remove('{0}/{1}'.format(env['WORKDIR'],ocnLogFile))
             else:
-                print('model timeseries - Ocean logs do not exist. Disabling MTS_PM_POPLOG module')
-                env['MTS_PM_POPLOG'] = os.environ['PM_POPLOG'] = 'FALSE'
+                print('model timeseries - Ocean logs do not exist. Disabling MTS_PM_YPOPLOG module')
+                env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
 
         # check if dt files exist
         if len(env['DTFILEPATH']) == 0:
             # print a message that the dt file path isn't defined and turn off POPLOG plot module
-            print('model timeseries - OCNLOGFILEPATH is undefined. Disabling MTS_PM_POPLOG module')
-            env['MTS_PM_POPLOG'] = os.environ['PM_POPLOG'] = 'FALSE'
+            print('model timeseries - DTFILEPATH is undefined. Disabling MTS_PM_YPOPLOG module')
+            env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
         
         else:
             # check that dt files exist
             dtFiles = list()
-            dtFiles = glob.glob('{0}/{1}.dt.*'.format(env['CASE'], env['OCNLOGFILEPATH']))
+            dtFiles = glob.glob('{0}/{1}.pop.dt.*'.format(env['DTFILEPATH'], env['CASE']))
+            print('dtFiles = {0}'.format(dtFiles))
             if len(dtFiles) > 0:
                 for dtFile in dtFiles:
                     logFileList = dtFile.split('/')
                     dtLogFile = logFileList[-1]
-                    shutil.copy2(ocnLog, '{0}/{1}'.format(env['WORKDIR'],dtLogFile))
-
-                    # gunzip the dt filein the workdir
-                    if dtLogFile.lower().find('.gz') != -1:
-                        dtLog_gunzip = dtLogFile[:-3]
-                        inFile = gzip.open('{0}/{1}'.format(env['WORKDIR'],dtLogFile), 'rb')
-                        outFile = open('{0}/{1}'.format(env['WORKDIR'],dtLog_gunzip), 'wb')
-                        outFile.write( inFile.read() )
-                        inFile.close()
-                        outFile.close()
-
-                        # remove the original .gz file in the workdir
-                        os.remove('{0}/{1}'.format(env['WORKDIR'],dtLogFile))
-
+                    shutil.copy2(dtFile, '{0}/{1}'.format(env['WORKDIR'],dtLogFile))
             else:
-                print('model timeseries - ocean dt files do not exist. Disabling MTS_PM_POPLOG module')
-                env['MTS_PM_POPLOG'] = os.environ['PM_POPLOG'] = 'FALSE'
+                print('model timeseries - ocean dt files do not exist. Disabling MTS_PM_YPOPLOG module')
+                env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
             
         return env
 

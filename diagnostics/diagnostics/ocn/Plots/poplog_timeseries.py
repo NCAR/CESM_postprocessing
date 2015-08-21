@@ -1,10 +1,10 @@
 """ 
-plot module: PM_POPLOG
+plot module: PM_YPOPLOG
 plot name:   POP log & dt file time series plots
 
-classes:           PopLog_timeseries
-CplLog:            base class
-CplLog_timeseries: defines specific NCL list for model timeseries plots
+classes:           
+PopLog:            base class
+PopLog_timeseries: defines specific NCL list for model timeseries plots
 """
 
 from __future__ import print_function
@@ -54,7 +54,7 @@ class PopLog(OceanDiagnosticPlot):
                                               ('Windward_Passage_1','diagts_transport.windward1'), ('Windward2_Passage_2','diagts_transport.windward2'), ('Florida_Strait','diagts_transport.florida'), 
                                               ('Gibraltar','diagts_transport.gibraltar'), ('Nares_Straight','diagts_transport.nares')]
         
-        self._expectedPlotsHeaders = ['Global Average Fields', 'Nino Indices', 'Transport Diagnostics']
+        self._expectedPlotHeaders = ['Global Average Fields', 'Nino Indices', 'Transport Diagnostics']
         self._columns = [ 8, 1, 4 ]
         self._name = 'POP log and dt file time series plots'
         self._shortname = 'POPLOG'
@@ -78,6 +78,7 @@ class PopLog(OceanDiagnosticPlot):
         # define the awk script to parse the ocn log files
         globalDiagAwkPath = '{0}/process_pop2_logfiles.globaldiag.awk'.format(env['TOOLPATH'])
         globalDiagAwkCmd = '{0} {1}'.format(globalDiagAwkPath, ocnLogsString).split(' ')
+        #print('poplog_timeseries: globalDiagAwkCmd = {0}'.format(globalDiagAwkCmd))
 
         # expand the *.dt.* into a list
         dtFiles = list()
@@ -85,14 +86,15 @@ class PopLog(OceanDiagnosticPlot):
         dtFilesString = ' '.join(dtFiles)
 
         # define the awk script to parse the ocn log files
-        dtFilesAwkPath = '{0}/process_pop2_logfiles.dtfiles.awk'.format(env['TOOLPATH'])
+        dtFilesAwkPath = '{0}/process_pop2_dtfiles.awk'.format(env['TOOLPATH'])
         dtFilesAwkCmd = '{0} {1}'.format(dtFilesAwkPath, dtFilesString).split(' ')
+        #print('poplog_timeseries: dtFilesAwkCmd = {0}'.format(dtFilesAwkCmd))
 
         # run the awk scripts to generate the .txt files from the ocn logs and dt files
         cmdList = [ globalDiagAwkCmd, dtFilesAwkCmd ]
         for cmd in cmdList:
             try:
-                subprocess.check_call(cmd, stdout=results, env=env)
+                subprocess.check_call(cmd)
             except subprocess.CalledProcessError as e:
                 print('WARNING: {0} time series error executing command:'.format(self._shortname))
                 print('    {0}'.format(e.cmd))
@@ -103,31 +105,52 @@ class PopLog(OceanDiagnosticPlot):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-        for ncl in self._ncl:
-            diagUtilsLib.generate_ncl_plots(env, ncl)
+
+        # chdir into the  working directory
+        os.chdir(env['WORKDIR'])
+
+        for nclPlotFile in self._ncl:
+            # copy the NCL command to the workdir
+            shutil.copy2('{0}/{1}'.format(env['NCLPATH'],nclPlotFile), '{0}/{1}'.format(env['WORKDIR'], nclPlotFile))
+
+            nclFile = '{0}/{1}'.format(env['WORKDIR'],nclPlotFile)
+            rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
+            if rc:
+                try:
+                    print('      calling NCL plot routine {0}'.format(nclPlotFile))
+                    subprocess.check_call(['ncl', '{0}'.format(nclFile)], env=env)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclfile))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
+            else:
+                print('{0}... continuing with additional plots.'.format(err_msg))
+
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
         """
-        #START HERE
-        #TODO the expectedPlots are in tuples - need to loop through and just get the second tuple member
-        self._convert_plots(workdir, imgFormat, self._expectedPlots_globalAvg)
-        self._convert_plots(workdir, imgFormat, self._expectedPlots_Nino)
-        self._convert_plots(workdir, imgFormat, self._expectedPlots_transportDiags)
+        plotList = list()
+        for (label, plot) in self._expectedPlots_globalAvg:
+            plotList.append(plot)
+        for (label, plot) in self._expectedPlots_Nino:
+            plotList.append(plot)
+        for (label, plot) in self._expectedPlots_transportDiags:
+            plotList.append(plot)
+
+        self._convert_plots(workdir, imgFormat, plotList )
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_tables = []
-        plot_table = []
+        plot_set = [ self._expectedPlots_globalAvg, self._expectedPlots_Nino, self._expectedPlots_transportDiags ]
 
-        suffix = ['globaAvg', 'Nino', 'transportDiags']
-
-        #START HERE
         # build up the plot_tables array
-        for k in range(len(suffix)):
-            plot_list = eval('{0}_{1}'.format(self._expectedPlots, suffix[k]))
-            num_plots = len(plot_list)
+        for k in range(len(plot_set)):
+            plot_table = []
+            plot_tuple_list = plot_set[k]
+            num_plots = len(plot_tuple_list)
             num_last_row = num_plots % self._columns[k]
             num_rows = num_plots//self._columns[k]
             index = 0
@@ -135,35 +158,34 @@ class PopLog(OceanDiagnosticPlot):
             for i in range(num_rows):
                 ptuple = []
                 for j in range(self._columns[k]):
-                    plot_file = plot_list[index]
+                    label, plot_file = plot_tuple_list[index]
                     img_file = '{0}.{1}'.format(plot_file, imgFormat)
                     rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                     if not rc:
-                        ptuple.append('{0} - Error'.format(plot_file))
+                        ptuple.append(('{0}'.format(label), '{0} - Error'.format(plot_file)))
                     else:
-                        ptuple.append(plot_file)
+                        ptuple.append(('{0}'.format(label), plot_file))
                     index += 1                    
                 plot_table.append(ptuple)
 
             # pad out the last row
             if num_last_row > 0:
-                plist = []
+                ptuple = []
                 for i in range(num_last_row):
-                    plot_file = plot_list[index]
+                    label, plot_file = plot_tuple_list[index]
                     img_file = '{0}.{1}'.format(plot_file, imgFormat)
                     rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                     if not rc:
-                        plist.append('{0} - Error'.format(plot_file))
+                        ptuple.append(('{0}'.format(label), '{0} - Error'.format(plot_file)))
                     else:
-                        plist.append(plot_file)
+                        ptuple.append(('{0}'.format(label), plot_file))
                     index += 1                    
 
-                for i in range(num_cols - num_last_row):
-                    plist.append('')
+                for i in range(self._columns[k] - num_last_row):
+                    ptuple.append(('',''))
 
-                plot_table.append(plist)
-            
-            plot_tables.append(plot_table)
+                plot_table.append(ptuple)
+            plot_tables.append(('{0}'.format(self._expectedPlotHeaders[k]),plot_table, self._columns[k]))
 
         # create a jinja2 template object
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
@@ -173,8 +195,8 @@ class PopLog(OceanDiagnosticPlot):
 
         # add the template variables
         templateVars = { 'title' : self._name,
-                         'plot_tables' : plot_tables, 
-                         'plot_headers' : self._expectedPlotsHeaders
+                         'plot_tables' : plot_tables,
+                         'imgFormat' : imgFormat
                          }
 
         # render the html template using the plot tables
@@ -188,5 +210,5 @@ class PopLog_timeseries(PopLog):
         super(PopLog_timeseries, self).__init__()
         self._ncl = ['pop_log_diagts_3d.monthly.ncl', 'pop_log_diagts_hflux.monthly.ncl', 
                      'pop_log_diagts_fwflux.monthly.ncl', 'pop_log_diagts_cfc.monthly.ncl', 
-                     'pop_log_diagts_nino.monthly.ncl', 'pop_log_diagts_transports.monthly.ncl', 
+                     'pop_log_diagts_nino.monthly.ncl', 'pop_log_diagts_transports.ncl', 
                      'pop_log_diagts_precf.ncl']

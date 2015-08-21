@@ -177,7 +177,7 @@ class modelVsControl(OceanDiagnostic):
 
         for requested_plot in local_requested_plots:
             try:
-                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('model',requested_plot)
+                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('obs',requested_plot)
 
                 print('model vs. control - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)

@@ -266,11 +266,12 @@ def copy_html_files(env, subdir):
     subdir (sting) - sub-directory
     """
     toplevel = False
+    
     if len(subdir) == 0:
         toplevel = True
-        subdir = '{0}'.format(env['CASE'])
+        subdir = '{0}.{1}-{2}'.format(env['CASE'], env['YEAR0'], env['YEAR1'])
     else:
-        subdir = '{0}/{1}.{2}_{3}'.format(env['CASE'], subdir, env['YEAR0'], env['YEAR1'])
+        subdir = '{0}.{1}-{2}/{3}'.format(env['CASE'], env['YEAR0'], env['YEAR1'], subdir)
     remoteConnect = '{0}@{1}:{2}/{3}'.format(env['WEBLOGIN'], env['WEBHOST'], env['WEBDIR'], subdir)
     print('Secure copying HTML and graphics files from {0} to {1}'.format(env['WORKDIR'], remoteConnect))
 

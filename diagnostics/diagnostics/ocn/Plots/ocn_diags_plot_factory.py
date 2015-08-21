@@ -34,7 +34,6 @@ plot_map = {'PM_BASINAVGTS': 'basin_averages.BasinAverages_{0}()',
             'PM_MLD': 'mixed_layer_depth.MixedLayerDepth_{0}()',
             'PM_MOC': 'moc_fields.MOCFields_{0}()',
             'PM_PASSIVEZ': 'passive_tracers_depth.PassiveTracersDepth_{0}()',
-            'PM_POPLOG': 'poplog_timeseries.PopLog_{0}()',
             'PM_POLARTS': 'polar_temp_salt.PolarTempSalt_{0}()',
             'PM_REGIONALTS': 'regional_area.RegionalArea_{0}()',
             'PM_SEAS': 'seasonal_cycle.SeasonalCycle_{0}()',
@@ -42,7 +41,8 @@ plot_map = {'PM_BASINAVGTS': 'basin_averages.BasinAverages_{0}()',
             'PM_SFC2D': 'surface_flux_fields.SurfaceFluxFields_{0}()',
             'PM_TSZ': 'temp_salt_depth.TempSaltDepth_{0}()',
             'PM_FLD3DZA': 'zonal_average_3d_fields.ZonalAverage3dFields_{0}()',
-            'PM_WBC': 'western_boundary.WesternBoundary_{0}()'}
+            'PM_WBC': 'western_boundary.WesternBoundary_{0}()',
+            'PM_YPOPLOG': 'poplog_timeseries.PopLog_{0}()',}
 
 # TODO diag_type must be 'obs' or 'model' or whatever to match the classname in the plot class
 def oceanDiagnosticPlotFactory(diag_type, plot_type):
