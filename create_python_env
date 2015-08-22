@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 #
 # script to setup the python virtual environment for postprocessing
 #
@@ -131,7 +131,7 @@ fi
 #----------------------------------------------------------------------
 # Determine whether [machine_dir]/[machine]_modules.sh file exists
 #----------------------------------------------------------------------
-module_script="${machine_dir}/${machine}_modules.sh"
+module_script="${machine_dir}/${machine}_modules"
 if [ ! -x $module_script ]; then
     status="ERROR"
     info="$progname - ${module_script} does not exist. Please check input options."
