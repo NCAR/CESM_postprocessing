@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 #
 # script to setup the python virtual environment for postprocessing
 #

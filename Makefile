@@ -24,8 +24,8 @@ SUBDIRS = \
 	reshaper \
 	averager \
 	timeseries \
-	diagnostics 
-#	ocn_diag
+	diagnostics \
+	ocn_diag
 
 # MAKECMDGOALS is the make option: make 'clobber' or 'all'
 TARGET = $(MAKECMDGOALS)
