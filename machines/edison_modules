@@ -2,6 +2,7 @@
 
 echo "Python boot-strap modules for machine edison"
 . /opt/modules/default/init/sh
+
 module load python/2.7.9
 module load virtualenv/12.1.1
 module load numpy/1.9.2
@@ -13,6 +14,7 @@ module load nco/4.3.9
 module load ncl/6.1.1
 module load intel/15.0.1.133
 module load cray-netcdf/4.3.2
+module load cray-hd5f/1.8.13
 
 # may need basemap for ocn ecosys
 

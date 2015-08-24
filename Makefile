@@ -74,6 +74,17 @@ cesm-env2 :
 cesm-env3 :
 	virtualenv -p python3 $@
 
+#env-conda : anaconda python version installation of virtaul env
+env-conda : 
+	conda create --name $(ENVNAME) python=2.7 anaconda
+
+cesm-env2-conda :
+#	virtualenv -p python2 $@
+
+cesm-env3-conda :
+#	virtualenv -p python3 $@
+
+
 develop : $(SUBDIRS)
 
 install : $(SUBDIRS)
