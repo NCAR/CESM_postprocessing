@@ -68,15 +68,34 @@ class RegionalMeanTS(OceanDiagnosticPlot):
         # create links to the regional horizontal mean average files
         for region in self._regions:
             sourceFile = '{0}/{1}_hor_mean_hor.meanConcat.{2}.pop.h_{3}-{4}.nc'.format(env['TAVGDIR'], region, env['CASE'], env['YEAR0'], env['YEAR1'])
-            linkFile = '{0}/{1}_hor_mean_hor.{2}.pop.h_{3}-{4}.nc'.format(env['WORKDIR'], region, env['CASE'], env['YEAR0'], env['YEAR1'])
+            linkFile = '{0}/{1}_hor_mean_{2}.pop.h_{3}-{4}.nc'.format(env['WORKDIR'], region, env['CASE'], env['YEAR0'], env['YEAR1'])
             diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
-        for ncl in self._ncl:
-            diagUtilsLib.generate_ncl_plots(env, ncl)
+
+        # chdir into the  working directory
+        os.chdir(env['WORKDIR'])
+
+        for nclPlotFile in self._ncl:
+            # copy the NCL command to the workdir
+            shutil.copy2('{0}/{1}'.format(env['NCLPATH'],nclPlotFile), '{0}/{1}'.format(env['WORKDIR'], nclPlotFile))
+
+            nclFile = '{0}/{1}'.format(env['WORKDIR'],nclPlotFile)
+            rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
+            if rc:
+                try:
+                    print('      calling NCL plot routine {0}'.format(nclPlotFile))
+                    subprocess.check_call(['ncl', '{0}'.format(nclFile)], env=env)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclfile))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
+            else:
+                print('{0}... continuing with additional plots.'.format(err_msg))
+
 
     def convert_plots(self, workdir, imgFormat):
         """Converts plots for this class
