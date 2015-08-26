@@ -6,14 +6,14 @@ Arguments:
 caseroot (mandatory) - full path to a valid CESM case
 
 Creates files: 
-$CASEROOT/postprocess/env_postprocess.xml
-$CASEROOT/postprocess/env_diags_atm.xml
-$CASEROOT/postprocess/env_diags_ice.xml
-$CASEROOT/postprocess/env_diags_lnd.xml
-$CASEROOT/postprocess/env_diags_ocn.xml
-$CASEROOT/postprocess/$CASENAME.timeseries
-$CASEROOT/postprocess/$CASENAME.$COMP_averages
-$CASEROOT/postprocess/$CASENAME.$COMP_diagnostics
+$CASEROOT/env_postprocess.xml
+$CASEROOT/env_diags_atm.xml
+$CASEROOT/env_diags_ice.xml
+$CASEROOT/env_diags_lnd.xml
+$CASEROOT/env_diags_ocn.xml
+$CASEROOT/$CASENAME.timeseries
+$CASEROOT/$CASENAME.$COMP_averages
+$CASEROOT/$CASENAME.$COMP_diagnostics
 __________________________
 Created on April, 2015
 
@@ -209,6 +209,8 @@ def read_machine_xml(machineName, xmlFile):
 
                 # get the pythonpath command
                 xmlDict['pythonpath'] = xmlmachine.find('pythonpath').text
+                if xmlDict['pythonpath'] is None:
+                    xmlDict['pythonpath'] = ''
 
                 # get the project
                 xmlDict['project'] = xmlmachine.find('project').text
