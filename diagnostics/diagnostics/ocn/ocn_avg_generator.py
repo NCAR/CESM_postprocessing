@@ -267,7 +267,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         # call the pyAverager with the inVarList
         callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, ppDir, debugMsg)
 
-    # check if timeseries is specified
+    # check if timeseries diagnostics is specified
     if tseries:
         # create the list of averages to be computed by the pyAverager
         averageList = buildOcnTseriesAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg)

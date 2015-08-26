@@ -33,26 +33,43 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ocn_diags_plot_bc import OceanDiagnosticPlot
 
-class TempSaltDepth(OceanDiagnosticPlot):
+class RegionalMeanTS(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
     """
 
     def __init__(self):
-        super(TempSaltDepth, self).__init__()
-        self._expectedPlots_TEMP = [ 'TEMP0', 'TEMP50', 'TEMP100', 'TEMP200', 'TEMP300', 'TEMP500', 'TEMP1000', 'TEMP1500', 'TEMP2000', 'TEMP2500', 'TEMP3000', 'TEMP3500', 'TEMP4000' ]
-        self._expectedPlots_SALT = [ 'SALT0', 'SALT50', 'SALT100', 'SALT200', 'SALT300', 'SALT500', 'SALT1000', 'SALT1500', 'SALT2000', 'SALT2500', 'SALT3000', 'SALT3500', 'SALT4000' ]
-        self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
-        self._labels = ['TEMP','SALT']
-        self._name = 'Temperature and Salinity at Depth Levels'
-        self._shortname = 'TSZ'
-        self._template_file = 'temp_salt_depth.tmpl'
+        super(RegionalMeanTS, self).__init__()
+        self._expectedPlots_TEMP_diff = [ 'Glo_hor_mean_Tdiff_timeseries', 'Arc_hor_mean_Tdiff_timeseries', 'Atl_hor_mean_Tdiff_timeseries', 'Gin_hor_mean_Tdiff_timeseries',
+                                          'Hud_hor_mean_Tdiff_timeseries', 'Ind_hor_mean_Tdiff_timeseries', 'Lab_hor_mean_Tdiff_timeseries', 'Pac_hor_mean_Tdiff_timeseries',
+                                          'Sou_hor_mean_Tdiff_timeseries' ]
+        self._expectedPlots_TEMP_rms =  [ 'Glo_hor_mean_Trms_timeseries', 'Arc_hor_mean_Trms_timeseries', 'Atl_hor_mean_Trms_timeseries', 'Gin_hor_mean_Trms_timeseries',
+                                          'Hud_hor_mean_Trms_timeseries', 'Ind_hor_mean_Trms_timeseries', 'Lab_hor_mean_Trms_timeseries', 'Pac_hor_mean_Trms_timeseries',
+                                          'Sou_hor_mean_Trms_timeseries' ]
+        self._expectedPlots_SALT_diff = [ 'Glo_hor_mean_Sdiff_timeseries', 'Arc_hor_mean_Sdiff_timeseries', 'Atl_hor_mean_Sdiff_timeseries', 'Gin_hor_mean_Sdiff_timeseries',
+                                          'Hud_hor_mean_Sdiff_timeseries', 'Ind_hor_mean_Sdiff_timeseries', 'Lab_hor_mean_Sdiff_timeseries', 'Pac_hor_mean_Sdiff_timeseries',
+                                          'Sou_hor_mean_Sdiff_timeseries' ]
+        self._expectedPlots_SALT_rms = [ 'Glo_hor_mean_Srms_timeseries', 'Arc_hor_mean_Srms_timeseries', 'Atl_hor_mean_Srms_timeseries', 'Gin_hor_mean_Srms_timeseries',
+                                         'Hud_hor_mean_Srms_timeseries', 'Ind_hor_mean_Srms_timeseries', 'Lab_hor_mean_Srms_timeseries', 'Pac_hor_mean_Srms_timeseries',
+                                         'Sou_hor_mean_Srms_timeseries' ]
+        self._linkNames = [ 'Global', 'Arctic', 'Atlantic', 'Gin', 'Hudson', 'Indian', 'Labrador', 'Pacific', 'Southern' ]
+        self._labels = ['TEMP_diff', 'TEMP_rms', 'SALT_diff', 'SALT_rms']
+        self._regions = ['Glo','Arc','Atl','Gin','Hud','Ind','Lab','Pac','Sou']
+        self._name = 'Horizontal Mean & Diff/RMS compared to obs'
+        self._shortname = 'HORZMN'
+        self._template_file = 'regional_mean_timeseries.tmpl'
         self._ncl = list()
 
     def check_prerequisites(self, env):
         """list and check specific prequisites for this plot.
         """
-        super(TempSaltDepth, self).check_prerequisites(env)
+        super(RegionalMeanTS, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
+
+        # create links to the regional horizontal mean average files
+        for region in self._regions:
+            sourceFile = '{0}/{1}_hor_mean_hor.meanConcat.{2}.pop.h_{3}-{4}.nc'.format(env['TAVGDIR'], region, env['CASE'], env['YEAR0'], env['YEAR1'])
+            linkFile = '{0}/{1}_hor_mean_hor.{2}.pop.h_{3}-{4}.nc'.format(env['WORKDIR'], region, env['CASE'], env['YEAR0'], env['YEAR1'])
+            diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def generate_plots(self, env):
         """Put commands to generate plot here!
@@ -73,7 +90,7 @@ class TempSaltDepth(OceanDiagnosticPlot):
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        num_cols = 14
+        num_cols = 10
         plot_table = []
 
         for i in range(len(self._labels)):
@@ -111,14 +128,8 @@ class TempSaltDepth(OceanDiagnosticPlot):
         
         return self._html
 
-class TempSaltDepth_obs(TempSaltDepth):
+class RegionalMeanTS_timeseries(RegionalMeanTS):
 
     def __init__(self):
-        super(TempSaltDepth_obs, self).__init__()
-        self._ncl = ['tempz.ncl','saltz.ncl']
-
-class TempSaltDepth_control(TempSaltDepth):
-
-    def __init__(self):
-        super(TempSaltDepth_control, self).__init__()
-        self._ncl = ['tempz_diff.ncl', 'saltz_diff.ncl']
+        super(RegionalMeanTS_timeseries, self).__init__()
+        self._ncl = ['TS_profiles_diff_plot.ncl']
