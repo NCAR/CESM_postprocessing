@@ -11,6 +11,8 @@
 
 	      <xs:element name="timeseries_pes" type="xs:string"/>
 	      <xs:element name="mpi_command" type="xs:string"/>
+	      <xs:element name="pythonpath" type="xs:string"/>
+	      <xs:element name="project" type="xs:string"/>
 
 	      <xs:element name="modules">
 		<xs:complexType>

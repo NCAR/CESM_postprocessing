@@ -6,14 +6,14 @@ Arguments:
 caseroot (mandatory) - full path to a valid CESM case
 
 Creates files: 
-$CASEROOT/env_postprocess.xml
-$CASEROOT/env_diags_atm.xml
-$CASEROOT/env_diags_ice.xml
-$CASEROOT/env_diags_lnd.xml
-$CASEROOT/env_diags_ocn.xml
-$CASEROOT/$CASENAME.timeseries
-$CASEROOT/$CASENAME.$COMP_averages
-$CASEROOT/$CASENAME.$COMP_diagnostics
+$CASEROOT/postprocess/env_postprocess.xml
+$CASEROOT/postprocess/env_diags_atm.xml
+$CASEROOT/postprocess/env_diags_ice.xml
+$CASEROOT/postprocess/env_diags_lnd.xml
+$CASEROOT/postprocess/env_diags_ocn.xml
+$CASEROOT/postprocess/$CASENAME.timeseries
+$CASEROOT/postprocess/$CASENAME.$COMP_averages
+$CASEROOT/postprocess/$CASENAME.$COMP_diagnostics
 __________________________
 Created on April, 2015
 
@@ -145,7 +145,7 @@ def create_env_file(ppDir, configFile, tmplFile, envFile, group, obs_root):
     if rc:
 
         xml_tree = etree.ElementTree()
-        print ('creating configFile = {0}'.format(configFile))
+        #print ('creating configFile = {0}'.format(configFile))
         xml_tree.parse(configFile)
         for entry_tag in xml_tree.findall('entry'):
             if entry_tag.get('group').lower() == group:
@@ -207,6 +207,12 @@ def read_machine_xml(machineName, xmlFile):
                 # get the mpi run command
                 xmlDict['mpi_command'] = xmlmachine.find('mpi_command').text
 
+                # get the pythonpath command
+                xmlDict['pythonpath'] = xmlmachine.find('pythonpath').text
+
+                # get the project
+                xmlDict['project'] = xmlmachine.find('project').text
+
                 # loop through the module list
                 for mod in xmlmachine.findall("modules/module"):
                     xmlDict['modules'].append(mod.text)
@@ -230,7 +236,7 @@ def read_machine_xml(machineName, xmlFile):
 # -------------------------------------------------------------------------------
 # create_batch - create the batch files for post processing submission
 # -------------------------------------------------------------------------------
-def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName, project, caseRoot, modules, options):
+def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName, project, pythonpath, caseRoot, modules, options):
     """create the batch submission files for post processing
 
     Arguments:
@@ -290,6 +296,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     templateVars = { 'batchdirectives' : batchdirectives,
                      'modules' : modules,
                      'mpirun' : mpiCmd,
+                     'pythonpath': pythonpath,
                      'processName' : processName,
                      'postProcessCmd' : postProcessCmd,
                      'caseRoot' : caseRoot,
@@ -330,7 +337,7 @@ def initialize_main(envDict, options):
     caseroot = options.caseroot[0]
 
     # check if CIMEROOT is defined - if not, try to get it from the xmlquery in CASEROOT
-    cesmEnvLib.checkEnv('CIMEROOT', caseroot)
+##    cesmEnvLib.checkEnv('CIMEROOT', caseroot)
 
     # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
@@ -388,7 +395,8 @@ def main(options):
     postProcessCmd = 'cesm_tseries_generator.py'
     outFile = '{0}/{1}.timeseries'.format(envDict['CASEROOT'], envDict['CASE'])
     create_batch(envDict['POSTPROCESS_DIR'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
-                 machine['mpi_command'], outFile, 'timeseries', envDict['PROJECT'], envDict['CASEROOT'], machine['modules'], options)
+                 machine['mpi_command'], outFile, 'timeseries', machine['project'], machine['pythonpath'], 
+                 envDict['CASEROOT'], machine['modules'], options)
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
@@ -396,15 +404,15 @@ def main(options):
         postProcessCmd = '{0}_avg_generator.py'.format(comp)
         outFile = '{0}/{1}.{2}_averages'.format(envDict['CASEROOT'], envDict['CASE'], comp)
         create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
-                     machine['mpi_command'], outFile,'{0}_averages'.format(comp), envDict['PROJECT'], envDict['CASEROOT'],
-                     machine['modules'], options)
+                     machine['mpi_command'], outFile,'{0}_averages'.format(comp), machine['project'], machine['pythonpath'], 
+                     envDict['CASEROOT'], machine['modules'], options)
 
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
         outFile = '{0}/{1}.{2}_diagnostics'.format(envDict['CASEROOT'], envDict['CASE'], comp)
         create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
-                     machine['mpi_command'], outFile,'{0}_diagnostics'.format(comp), envDict['PROJECT'], envDict['CASEROOT'],
-                     machine['modules'], options)
+                     machine['mpi_command'], outFile,'{0}_diagnostics'.format(comp), machine['project'], machine['pythonpath'], 
+                     envDict['CASEROOT'], machine['modules'], options)
 
     print('*****************************************************************************************')
     print('')

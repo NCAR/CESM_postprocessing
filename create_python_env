@@ -217,7 +217,7 @@ make clean
 
 # generate the necessary Macros file
 echo "calling... $cimeroot/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot"
-$cimeroot/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot
+$cimeroot/machines/configure -compiler gnu -mach $machine -mpi mpi-serial -cimeroot $cimeroot
 
 # run the make command
 make

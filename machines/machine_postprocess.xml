@@ -5,6 +5,8 @@
   <machine name="yellowstone">
     <timeseries_pes>64</timeseries_pes>
     <mpi_command>mpirun.lsf</mpi_command>
+    <pythonpath></pythonpath>
+    <project>P93300606</project>
     <modules>
       <module>module load python/2.7.7</module>
       <module>module load numpy/1.8.1</module>
@@ -13,7 +15,7 @@
       <module>module load pynio/1.4.1</module>
       <module>module load matplotlib/1.4.3</module>
       <module>module load intel/15.0.3</module>
-      <module>module load netcdf</module>
+      <module>module load netcdf/4.3.0</module>
       <module>module load ncl/6.3.0</module>
       <module>module load nco/4.4.4</module>
     </modules>
@@ -44,18 +46,18 @@
   <machine name="edison">
     <timeseries_pes>64</timeseries_pes>
     <mpi_command>aprun</mpi_command>
+    <pythonpath>/global/project/projectdirs/ccsm1/pythonlib/lib/python2.7/site-packages/PyNIO</pythonpath>
+    <project></project>
     <modules>
       <module>module load python/2.7.9</module>
       <module>module load virtualenv/12.1.1</module>
       <module>module load numpy/1.9.2</module>
       <module>module load scipy/0.15.1</module>
       <module>module load mpi4py/1.3.1</module>
-      <module>module load pynio/1.4.1</module>
       <module>module load matplotlib/1.4.3</module>
       <module>module load nco/4.3.9</module>
       <module>module load ncl/6.1.1</module>
-      <module>module load intel/15.0.1.133</module>
-      <module>module load netcdf</module>
+      <module>module load netcdf/4.3.0</module>
     </modules>
     <components>
       <component name="atm">

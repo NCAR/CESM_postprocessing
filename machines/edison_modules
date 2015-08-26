@@ -3,6 +3,7 @@
 echo "Python boot-strap modules for machine edison"
 . /opt/modules/default/init/sh
 
+module unload intel
 module load python/2.7.9
 module load virtualenv/12.1.1
 module load numpy/1.9.2

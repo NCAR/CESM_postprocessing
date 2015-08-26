@@ -23,6 +23,9 @@ pwd
 {{ module }}
 {% endfor %}
 
+PYTHONPATH={{ pythonpath }}:$PYTHONPATH
+export PYTHONPATH
+
 echo "******************************************"
 echo "Start {{ processName }} generation $(date)"
 echo "******************************************"
