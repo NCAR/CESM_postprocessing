@@ -110,4 +110,4 @@ class EnsoWavelet_timeseries(EnsoWavelet):
 
     def __init__(self):
         super(EnsoWavelet_timeseries, self).__init__()
-        self._ncl = ['enso_wavelet_asc.ncl']
+        self._ncl = ['pop_log_diagts_nino.monthly.ncl','enso_wavelet_asc.ncl']

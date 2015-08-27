@@ -19,6 +19,7 @@ import itertools
 import os
 import re
 import shutil
+import subprocess
 import traceback
 
 # import modules installed by pip into virtualenv
@@ -54,6 +55,9 @@ class modelTimeseries(OceanDiagnostic):
         """
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
         super(modelTimeseries, self).check_prerequisites(env)
+        
+        # chdir into the  working directory
+        os.chdir(env['WORKDIR'])
 
         # clean out the old working plot files from the workdir
         if env['CLEANUP_FILES'].upper() in ['T','TRUE']:
@@ -85,10 +89,10 @@ class modelTimeseries(OceanDiagnostic):
 
         else:
             # check that cpl log files exist and gunzip them if necessary
-            cplLogs = list()
-            cplLogs = glob.glob('{0}/cpl.log.*'.format(env['CPLLOGFILEPATH']))
-            if len(cplLogs) > 0:
-                for cplLog in cplLogs:
+            initcplLogs = cplLogs = list()
+            initCplLogs = glob.glob('{0}/cpl.log.*'.format(env['CPLLOGFILEPATH']))
+            if len(initCplLogs) > 0:
+                for cplLog in initCplLogs:
                     logFileList = cplLog.split('/')
                     cplLogFile = logFileList[-1]
                     shutil.copy2(cplLog, '{0}/{1}'.format(env['WORKDIR'],cplLogFile))
@@ -102,11 +106,68 @@ class modelTimeseries(OceanDiagnostic):
                         inFile.close()
                         outFile.close()
 
+                        # append the gunzipped cpl log file to the cplLogs list
+                        cplLogs.append('{0}/{1}'.format(env['WORKDIR'],cplLog_gunzip))
+
                         # remove the original .gz file in the workdir
                         os.remove('{0}/{1}'.format(env['WORKDIR'],cplLogFile))
+
+                # parse the cpllog depending on the coupler version - default to 7b
+                print('model_timeseries: setting up heat and freshwater awk calls with cplLogs = {0}'.format(cplLogs))
+                heatFile = 'cplheatbudget'
+                freshWaterFile = 'cplfwbudget'
+                cplVersion = 'cpl7b'
+                env['ntailht'] = os.environ['ntailht'] = '22'
+                env['ntailfw'] = os.environ['ntailfw'] = '16'
+
+                if '7' == env['TS_CPL'] or '6' == env['TS_CPL']:
+                    cplVersion = 'cpl{0}'.format(env['TS_CPL'])
+                    env['ntailht'] = os.environ['ntailht'] = '21'
+                    env['ntailfw'] = os.environ['ntailfw'] = '16'
+
+                # expand the cpl.log* into a list
+                cplLogsString = ' '.join(cplLogs)
+
+                # define the awk scripts to parse the cpllog file
+                heatPath = '{0}/process_{1}_logfiles_heat.awk'.format(env['TOOLPATH'], cplVersion)
+                heatPath = os.path.abspath(heatPath)
+
+                fwPath = '{0}/process_{1}_logfiles_fw.awk'.format(env['TOOLPATH'], cplVersion)
+                fwPath = os.path.abspath(fwPath)
+        
+                heatCmd = '{0} y0={1} y1={2} {3}'.format(heatPath, env['YEAR0'], env['YEAR1'], cplLogsString).split(' ')
+                freshWaterCmd = '{0} y0={1} y1={2} {3}'.format(fwPath, env['YEAR0'], env['YEAR1'], cplLogsString).split(' ')
+
+                # run the awk scripts to generate the .txt files from the cpllogs
+                cmdList = [ (heatCmd, heatFile, env['ntailht']), (freshWaterCmd, freshWaterFile, env['ntailfw']) ]
+                for cmd in cmdList:
+                    outFile = '{0}.txt'.format(cmd[1])
+                    with open (outFile, 'w') as results:
+                        try:
+                            subprocess.check_call(cmd[0], stdout=results, env=env)
+                            rc, err_msg = cesmEnvLib.checkFile(outFile, 'read')
+                            if rc:
+                                # get the tail of the .txt file and redirect to a .asc file for the web
+                                ascFile = '{0}.asc'.format(cmd[1])
+                            with open (ascFile, 'w') as results:
+                                try:
+                                    # TODO - read the .txt in and write just the lines needed to avoid subprocess call
+                                    tailCmd = 'tail -{0} {1}.txt'.format(cmd[2], cmd[1]).split(' ')
+                                    subprocess.check_call(tailCmd, stdout=results, env=env)
+                                except subprocess.CalledProcessError as e:
+                                    print('WARNING: {0} time series error executing command:'.format(self._name))
+                                    print('    {0}'.format(e.cmd))
+                                    print('    rc = {0}'.format(e.returncode))
+
+                        except subprocess.CalledProcessError as e:
+                            print('WARNING: {0} time series error executing command:'.format(self._name))
+                            print('    {0}'.format(e.cmd))
+                            print('    rc = {0}'.format(e.returncode))
+
             else:
                 print('model timeseries - Coupler logs do not exist. Disabling MTS_PM_CPLLOG module')
                 env['MTS_PM_CPLLOG'] = os.environ['PM_CPLLOG'] = 'FALSE'
+
 
         # check if ocn log files exist
         if len(env['OCNLOGFILEPATH']) == 0:
@@ -116,10 +177,10 @@ class modelTimeseries(OceanDiagnostic):
         
         else:
             # check that ocn log files exist and gunzip them if necessary
-            ocnLogs = list()
-            ocnLogs = glob.glob('{0}/ocn.log.*'.format(env['OCNLOGFILEPATH']))
-            if len(ocnLogs) > 0:
-                for ocnLog in ocnLogs:
+            initOcnLogs = ocnLogs = list()
+            initOcnLogs = glob.glob('{0}/ocn.log.*'.format(env['OCNLOGFILEPATH']))
+            if len(initOcnLogs) > 0:
+                for ocnLog in initOcnLogs:
                     logFileList = ocnLog.split('/')
                     ocnLogFile = logFileList[-1]
                     shutil.copy2(ocnLog, '{0}/{1}'.format(env['WORKDIR'],ocnLogFile))
@@ -133,8 +194,27 @@ class modelTimeseries(OceanDiagnostic):
                         inFile.close()
                         outFile.close()
 
+                        # append the gunzipped ocn log file to the ocnLogs list
+                        ocnLogs.append('{0}/{1}'.format(env['WORKDIR'],ocnLog_gunzip))
+
                         # remove the original .gz file in the workdir
                         os.remove('{0}/{1}'.format(env['WORKDIR'],ocnLogFile))
+
+                # expand the ocn.log* into a list
+                ocnLogsString = ' '.join(ocnLogs)
+
+                # define the awk script to parse the ocn log files
+                globalDiagAwkPath = '{0}/process_pop2_logfiles.globaldiag.awk'.format(env['TOOLPATH'])
+                globalDiagAwkCmd = '{0} {1}'.format(globalDiagAwkPath, ocnLogsString).split(' ')
+                print('model_timeseries: globalDiagAwkCmd = {0}'.format(globalDiagAwkCmd))
+
+                # run the awk scripts to generate the .txt files from the ocn logs
+                try:
+                    subprocess.check_call(globalDiagAwkCmd)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} time series error executing command:'.format(self._name))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
             else:
                 print('model timeseries - Ocean logs do not exist. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLTmodules')
                 env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
@@ -157,11 +237,27 @@ class modelTimeseries(OceanDiagnostic):
                     logFileList = dtFile.split('/')
                     dtLogFile = logFileList[-1]
                     shutil.copy2(dtFile, '{0}/{1}'.format(env['WORKDIR'],dtLogFile))
+
+                # expand the *.dt.* into a list
+                dtFilesString = ' '.join(dtFiles)
+
+                # define the awk script to parse the dt log files
+                dtFilesAwkPath = '{0}/process_pop2_dtfiles.awk'.format(env['TOOLPATH'])
+                dtFilesAwkCmd = '{0} {1}'.format(dtFilesAwkPath, dtFilesString).split(' ')
+                print('model_timeseries: dtFilesAwkCmd = {0}'.format(dtFilesAwkCmd))
+
+                # run the awk scripts to generate the .txt files from the dt log files
+                try:
+                    subprocess.check_call(dtFilesAwkCmd)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} time series error executing command:'.format(self._name))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
             else:
-                print('model timeseries - ocean dt files do not exist. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLTmodules')
+                print('model_timeseries - ocean dt files do not exist. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLTmodules')
                 env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
                 env['MTS_PM_ENSOWVLT'] = os.environ['PM_ENSOWVLT'] = 'FALSE'
-            
+
         return env
 
     def run_diagnostics(self, env, scomm):

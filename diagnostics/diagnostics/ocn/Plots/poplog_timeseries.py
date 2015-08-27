@@ -67,40 +67,6 @@ class PopLog(OceanDiagnosticPlot):
         super(PopLog, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
 
-        # chdir into the  working directory
-        os.chdir(env['WORKDIR'])
-
-        # expand the ocn.log* into a list
-        ocnLogs = list()
-        ocnLogs = glob.glob('{0}/ocn.log.*'.format(env['WORKDIR']))
-        ocnLogsString = ' '.join(ocnLogs)
-
-        # define the awk script to parse the ocn log files
-        globalDiagAwkPath = '{0}/process_pop2_logfiles.globaldiag.awk'.format(env['TOOLPATH'])
-        globalDiagAwkCmd = '{0} {1}'.format(globalDiagAwkPath, ocnLogsString).split(' ')
-        #print('poplog_timeseries: globalDiagAwkCmd = {0}'.format(globalDiagAwkCmd))
-
-        # expand the *.dt.* into a list
-        dtFiles = list()
-        dtFiles = glob.glob('{0}/{1}.pop.dt.*'.format(env['WORKDIR'], env['CASE']))
-        dtFilesString = ' '.join(dtFiles)
-
-        # define the awk script to parse the ocn log files
-        dtFilesAwkPath = '{0}/process_pop2_dtfiles.awk'.format(env['TOOLPATH'])
-        dtFilesAwkCmd = '{0} {1}'.format(dtFilesAwkPath, dtFilesString).split(' ')
-        #print('poplog_timeseries: dtFilesAwkCmd = {0}'.format(dtFilesAwkCmd))
-
-        # run the awk scripts to generate the .txt files from the ocn logs and dt files
-        cmdList = [ globalDiagAwkCmd, dtFilesAwkCmd ]
-        for cmd in cmdList:
-            try:
-                subprocess.check_call(cmd)
-            except subprocess.CalledProcessError as e:
-                print('WARNING: {0} time series error executing command:'.format(self._shortname))
-                print('    {0}'.format(e.cmd))
-                print('    rc = {0}'.format(e.returncode))
-
-
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
@@ -210,5 +176,4 @@ class PopLog_timeseries(PopLog):
         super(PopLog_timeseries, self).__init__()
         self._ncl = ['pop_log_diagts_3d.monthly.ncl', 'pop_log_diagts_hflux.monthly.ncl', 
                      'pop_log_diagts_fwflux.monthly.ncl', 'pop_log_diagts_cfc.monthly.ncl', 
-                     'pop_log_diagts_nino.monthly.ncl', 'pop_log_diagts_transports.ncl', 
-                     'pop_log_diagts_precf.ncl']
+                     'pop_log_diagts_transports.ncl', 'pop_log_diagts_precf.ncl']

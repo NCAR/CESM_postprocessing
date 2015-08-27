@@ -56,61 +56,6 @@ class CplLog(OceanDiagnosticPlot):
         # chdir into the  working directory
         os.chdir(env['WORKDIR'])
 
-        # parse the cpllog depending on the coupler version - default to 7b
-        heatFile = 'cplheatbudget'
-        freshWaterFile = 'cplfwbudget'
-        cplVersion = 'cpl7b'
-        env['ntailht'] = os.environ['ntailht'] = '22'
-        env['ntailfw'] = os.environ['ntailfw'] = '16'
-
-        if '7' == env['TS_CPL'] or '6' == env['TS_CPL']:
-            cplVersion = 'cpl{0}'.format(env['TS_CPL'])
-            env['ntailht'] = os.environ['ntailht'] = '21'
-            env['ntailfw'] = os.environ['ntailfw'] = '16'
-
-        # expand the cpl.log* into a list
-        cplLogs = list()
-        cplLogs = glob.glob('{0}/cpl.log.*'.format(env['WORKDIR']))
-        
-        cplLogsString = ' '.join(cplLogs)
-
-        # define the awk scripts to parse the cpllog file
-        heatPath = '{0}/process_{1}_logfiles_heat.awk'.format(env['TOOLPATH'], cplVersion)
-        heatPath = os.path.abspath(heatPath)
-
-        fwPath = '{0}/process_{1}_logfiles_fw.awk'.format(env['TOOLPATH'], cplVersion)
-        fwPath = os.path.abspath(fwPath)
-        
-        heatCmd = '{0} y0={1} y1={2} {3}'.format(heatPath, env['YEAR0'], env['YEAR1'], cplLogsString).split(' ')
-        freshWaterCmd = '{0} y0={1} y1={2} {3}'.format(fwPath, env['YEAR0'], env['YEAR1'], cplLogsString).split(' ')
-
-        # run the awk scripts to generate the .txt files from the cpllogs
-        print('cwd = {0}'.format(os.getcwd()))
-        cmdList = [ (heatCmd, heatFile, env['ntailht']), (freshWaterCmd, freshWaterFile, env['ntailfw']) ]
-        for cmd in cmdList:
-            outFile = '{0}.txt'.format(cmd[1])
-            with open (outFile, 'w') as results:
-                try:
-                    subprocess.check_call(cmd[0], stdout=results, env=env)
-                    rc, err_msg = cesmEnvLib.checkFile(outFile, 'read')
-                    if rc:
-                        # get the tail of the .txt file and redirect to a .asc file for the web
-                        ascFile = '{0}.asc'.format(cmd[1])
-                        with open (ascFile, 'w') as results:
-                            try:
-                                #TODO - read the .txt in and write just the lines needed to avoid subprocess call
-                                tailCmd = 'tail -{0} {1}.txt'.format(cmd[2], cmd[1]).split(' ')
-                                subprocess.check_call(tailCmd, stdout=results, env=env)
-                            except subprocess.CalledProcessError as e:
-                                print('WARNING: {0} time series error executing command:'.format(self._shortname))
-                                print('    {0}'.format(e.cmd))
-                                print('    rc = {0}'.format(e.returncode))
-
-                except subprocess.CalledProcessError as e:
-                    print('WARNING: {0} time series error executing command:'.format(self._shortname))
-                    print('    {0}'.format(e.cmd))
-                    print('    rc = {0}'.format(e.returncode))
-
     def generate_plots(self, env):
         """Put commands to generate plot here!
         """
