@@ -136,14 +136,16 @@ class modelTimeseries(OceanDiagnostic):
                         # remove the original .gz file in the workdir
                         os.remove('{0}/{1}'.format(env['WORKDIR'],ocnLogFile))
             else:
-                print('model timeseries - Ocean logs do not exist. Disabling MTS_PM_YPOPLOG module')
+                print('model timeseries - Ocean logs do not exist. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLTmodules')
                 env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
+                env['MTS_PM_ENSOWVLT'] = os.environ['PM_ENSOWVLT'] = 'FALSE'
 
         # check if dt files exist
         if len(env['DTFILEPATH']) == 0:
             # print a message that the dt file path isn't defined and turn off POPLOG plot module
-            print('model timeseries - DTFILEPATH is undefined. Disabling MTS_PM_YPOPLOG module')
+            print('model timeseries - DTFILEPATH is undefined. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLTmodules')
             env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
+            env['MTS_PM_ENSOWVLT'] = os.environ['PM_ENSOWVLT'] = 'FALSE'
         
         else:
             # check that dt files exist
@@ -156,8 +158,9 @@ class modelTimeseries(OceanDiagnostic):
                     dtLogFile = logFileList[-1]
                     shutil.copy2(dtFile, '{0}/{1}'.format(env['WORKDIR'],dtLogFile))
             else:
-                print('model timeseries - ocean dt files do not exist. Disabling MTS_PM_YPOPLOG module')
+                print('model timeseries - ocean dt files do not exist. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLTmodules')
                 env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
+                env['MTS_PM_ENSOWVLT'] = os.environ['PM_ENSOWVLT'] = 'FALSE'
             
         return env
 
