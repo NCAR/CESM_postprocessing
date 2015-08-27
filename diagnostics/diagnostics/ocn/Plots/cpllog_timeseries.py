@@ -52,9 +52,11 @@ class CplLog(OceanDiagnosticPlot):
         """
         super(CplLog, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
-
-        # chdir into the  working directory
-        os.chdir(env['WORKDIR'])
+        
+        for prefix in self._expectedPlots:
+            rc, err_msg = cesmEnvLib.checkFile('{0}/{1}.txt'.format(env['WORKDIR'],prefix), 'read')
+            if not rc:
+                print('{0}... continuing with additional plots.'.format(err_msg))
 
     def generate_plots(self, env):
         """Put commands to generate plot here!

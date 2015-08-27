@@ -55,6 +55,10 @@ class PopLog(OceanDiagnosticPlot):
                                               ('Gibraltar','diagts_transport.gibraltar'), ('Nares_Straight','diagts_transport.nares')]
         
         self._expectedPlotHeaders = ['Global Average Fields', 'Nino Indices', 'Transport Diagnostics']
+        self._expectedInFiles = ['diagts_3d.asc', 'diagts_cfc.asc', 'diagts_ecosys.asc', 'diagts_fwflux.asc', 'diagts_hflux.asc', 'diagts_info.asc',
+                                 'diagts_nino.asc', 'transports.bering.asc', 'transports.drake.asc', 'transports.florida.asc', 'transports.gibraltar.asc',
+                                 'transports.itf1.asc', 'transports.itf2.asc', 'transports.mozambique.asc', 'transports.nares.asc', 'transports.nwpassage.asc',
+                                 'transports.windward1.asc', 'transports.windward2.asc']
         self._columns = [ 8, 1, 4 ]
         self._name = 'POP log and dt file time series plots'
         self._shortname = 'POPLOG'
@@ -66,6 +70,12 @@ class PopLog(OceanDiagnosticPlot):
         """
         super(PopLog, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
+        
+        for inFile in self._expectedInFiles:
+            rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['WORKDIR'],inFile), 'read')
+            if not rc:
+                print('{0}... continuing with additional plots.'.format(err_msg))
+
 
     def generate_plots(self, env):
         """Put commands to generate plot here!
