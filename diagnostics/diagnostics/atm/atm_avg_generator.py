@@ -423,21 +423,22 @@ def main(options, debugMsg):
         time_series, envDict['test_path_history'], envDict['test_casename'], envDict['test_first_yr'], test_end_year,
         'atm',suffix,filep)
 
-    try:
-        if time_series == 'TRUE':
-            h_path = envDict['test_path_history']+'/atm/proc/tseries/monthly/'
-        else:
-            h_path = envDict['test_path_history']+'/atm/hist/'
+    if envDict['test_compute_climo'] == 'True':
+        try:
+            if time_series == 'TRUE':
+                h_path = envDict['test_path_history']+'/atm/proc/tseries/monthly/'
+            else:
+                h_path = envDict['test_path_history']+'/atm/hist/'
 
-        createClimFiles(envDict['test_first_yr'], test_end_year, h_path,
-                        envDict['test_htype'], envDict['test_key_infile'], envDict['test_path_climo'], envDict['test_casename'], 
-                        envDict['test_modelstream'], varList, envDict, debugMsg)
-    except Exception as error:
-        print(str(error))
-        traceback.print_exc()
-        sys.exit(1)
+            createClimFiles(envDict['test_first_yr'], test_end_year, h_path,
+                            envDict['test_htype'], envDict['test_key_infile'], envDict['test_path_climo'], envDict['test_casename'], 
+                            envDict['test_modelstream'], varList, envDict, debugMsg)
+        except Exception as error:
+            print(str(error))
+            traceback.print_exc()
+            sys.exit(1)
 
-    if (envDict['MODEL_VS_MODEL'] == 'True'):
+    if (envDict['MODEL_VS_MODEL'] == 'True' and envDict['cntl_compute_climo'] == 'True'):
         try:
             cntl_end_year = (int(envDict['cntl_first_yr']) + int(envDict['cntl_nyrs'])) - 1
             suffix = envDict['cntl_modelstream']+'.*.nc'

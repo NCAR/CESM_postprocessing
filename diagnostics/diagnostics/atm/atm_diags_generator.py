@@ -54,7 +54,7 @@ def commandline_options():
     """Process the command line arguments.
     """
     parser = argparse.ArgumentParser(
-        description='atm_diags_generator: CESM wrapper python program for Ocean Diagnostics packages.')
+        description='atm_diags_generator: CESM wrapper python program for Atmosphere Diagnostics packages.')
 
     parser.add_argument('--backtrace', action='store_true',
                         help='show exception backtraces as extra debugging '
