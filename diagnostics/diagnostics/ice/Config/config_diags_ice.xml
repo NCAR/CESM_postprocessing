@@ -1,0 +1,448 @@
+<?xml version="1.0"?>
+
+<!-- =========================================================================== -->
+<!-- ICE Model Diagnostics XML                             -->
+<!-- =========================================================================== -->
+
+<config_definition version="1.0">
+
+  <!-- =========================================================================== -->
+  <!-- ice_settings - general settings to be applied to all diagnostics routines   -->
+  <!-- NOTE: case specific environment variables from env_*.xml will be            -->
+  <!-- gathered at runtime by the ice_diags_generator.py python script.            -->
+  <!-- They do not need to be specified in this XML file.                          -->
+  <!-- The full $PATH variable will be set in the ice_diags_generator.py file      -->
+  <!-- using all the path settings defined here.                                   -->
+  <!-- =========================================================================== -->
+
+  <entry id="ICEDIAG_DIAG_VERSION"
+         type="integer"
+         valid_values=""
+         value="150626"
+         group="diags_ice"
+         desc="Diagnostic package version"
+         ></entry>
+
+  <entry id="ICEDIAG_MODEL_VS_OBS"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_ice"
+         desc="Controls whether to generate model vs. observations diagnostics"
+         ></entry>
+
+  <entry id="ICEDIAG_MODEL_VS_MODEL"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Controls whether to generate model vs. model diagnostics"
+         ></entry>
+
+  <entry id="ICEDIAG_CLEANUP_FILES"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Remove any existing diagnostic files."
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- Set CONT datset                                                                                -->
+<!-- ============================================================================================== -->
+
+  <entry id="ICEDIAG_COMPUTE_CLIMO_CONT"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_ice"
+         desc="Compute climatologies for the test case."
+         ></entry>
+
+  <entry id="ICEDIAG_CASE_TO_CONT"
+         type="char"
+         valid_values=""
+         value="$CASE"
+         group="diags_ice"
+         desc="For plotting a single case"
+         ></entry>
+
+  <entry id="ICEDIAG_GRID_CONT"
+         type="char"
+         valid_values=""
+         value="$ICE_GRID"
+         group="diags_ice"
+         desc="Grid type"
+         ></entry>
+
+  <entry id="ICEDIAG_PATH_CONT"
+         type="char"
+         valid_values=""
+         value="$DOUT_S_ROOT"
+         group="diags_ice"
+         desc="Path to cont case"
+         ></entry>
+
+  <entry id="ICEDIAG_PATH_CLIMO_CONT"
+         type="char"
+         valid_values=""
+         value="$DOUT_S_ROOT/ice/proc/climo/$ICEDIAG_CASE_TO_CONT/"
+         group="diags_ice"
+         desc="Path to generated cont climos"
+         ></entry>
+
+  <entry id="ICEDIAG_DIAG_ROOT"
+         type="char"
+         valid_values=""
+         value="$DOUT_S_ROOT/ice/proc/diag/$ICEDIAG_CASE_TO_CONT/"
+         group="diags_ice"
+         desc="Path to generated diags."
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_ROOT"
+         type="char"
+         valid_values=""
+         value="$DOUT_S_ROOT/ice/proc/diag/$ICEDIAG_CASE_TO_CONT/web_plots/"
+         group="diags_ice"
+         desc="Path to generated diag web plots (local)."
+         ></entry>
+
+  <entry id="ICEDIAG_FILE_VAR_TYPE_CONT"
+         type="char"
+         valid_values="OLD/NEW"
+         value="NEW"
+         group="diags_ice"
+         desc="OLD for $CASE csim netCDF filenames. NEW for $CASE cice netCDF filenames."
+         ></entry>
+
+  <entry id="ICEDIAG_VAR_NAME_TYPE_CONT"
+           type="char"
+           valid_values="OLD/NEW"
+           value="NEW"
+           group="diags_ice"
+           desc="OLD for u, v var names. NEW for uvel, vvel var names."
+           ></entry>
+
+<!-- ============================================================================================== -->
+<!-- Set DIFF datset                                                                                -->
+<!-- ============================================================================================== -->
+
+  <entry id="ICEDIAG_COMPUTE_CLIMO_DIFF"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Compute climatologies for the cntl case."
+         ></entry>
+
+  <entry id="ICEDIAG_CASE_TO_DIFF"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="Difference plots will be of the form: CASE_TO_CONT - CASE_TO_DIFF"
+         ></entry>
+
+  <entry id="ICEDIAG_GRID_DIFF"
+         type="char"
+         valid_values=""
+         value="$ICE_GRID"
+         group="diags_ice"
+         desc="Grid type"
+         ></entry>
+
+  <entry id="ICEDIAG_PATH_DIFF"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="Path to cntl case"
+         ></entry>
+
+  <entry id="ICEDIAG_FILE_VAR_TYPE_DIFF"
+         type="char"
+         valid_values="OLD/NEW"
+         value="NEW"
+         group="diags_ice"
+         desc="OLD for $CASE csim netCDF filenames. NEW for $CASE cice netCDF filenames."
+         ></entry>
+
+  <entry id="ICEDIAG_VAR_NAME_TYPE_DIFF"
+         type="char"
+         valid_values="OLD/NEW"
+         value="NEW"
+         group="diags_ice"
+         desc="OLD for u, v var names. NEW for uvel, vvel var names."
+         ></entry>
+
+  <entry id="ICEDIAG_cntl_PATH_CLIMO_DIFF"
+         type="char"
+         valid_values=""
+         value="$DOUT_S_ROOT/ice/proc/climo/$ICEDIAG_CASE_TO_DIFF/"
+         group="diags_ice"
+         desc="Path to generated test climos"
+         ></entry>
+
+  <entry id="ICEDIAG_HIRES"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Boolean for high resolution."
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- Set date ranges                                                                                -->
+<!-- ============================================================================================== -->
+
+  <entry id="ICEDIAG_BEGYR_CONT"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="Start year for CONT case for diagnostics (for line plots)."
+         ></entry>
+
+  <entry id="ICEDIAG_ENDYR_CONT"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="End year for CONT case for diagnostics (for line plots)."
+         ></entry>
+
+  <entry id="ICEDIAG_BEGYR_DIFF"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="Start year for DIFF case for diagnostics (for line plots)."
+         ></entry>
+
+  <entry id="ICEDIAG_ENDYR_DIFF"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="End year for DIFF case for diagnostics (for line plots)."
+         ></entry>
+
+  <entry id="ICEDIAG_YRS_TO_AVG"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="Number of years to avg (for contour plots)."
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- Input data paths                                                                               -->
+<!-- ============================================================================================== -->
+
+  <entry id="ICEDIAG_GRIDFILECONT"
+         type="char"
+         valid_values=""
+         value="/glade/p/cesm/omwg/grids/$GRID_CONT_grid.nc"
+         group="diags_ice"
+         desc="Grid file for control case."
+         ></entry>
+
+  <entry id="ICEDIAG_GRIDFILEDIFF"
+         type="char"
+         valid_values=""
+         value="/glade/p/cesm/omwg/grids/$GRID_CONT_grid.nc"
+         group="diags_ice"
+         desc="Grid file for diff case."
+         ></entry>
+
+  <entry id="ICEDIAG_SSMI_PATH"
+         type="char"
+         valid_values=""
+         value="$DIAGOBSROOT/ice/data/SSMI.ifrac.1979-2000monthlymean.gx1v5.nc"
+         group="diags_ice"
+         desc="1981-2005 SSMI data."
+         ></entry>
+
+  <entry id="ICEDIAG_ASPeCt_PATH"
+         type="char"
+         valid_values=""
+         value="$DIAGOBSROOT/ice/data/ASPeCt_monthly_1x1.nc"
+         group="diags_ice"
+         desc="1981-2005 SSMI data."
+         ></entry>
+
+  <entry id="ICEDIAG_REGION_MASK_FILE"
+         type="char"
+         valid_values=""
+         value="$DIAGOBSROOT/ice/data/REGION_MASK.nc"
+         group="diags_ice"
+         desc="Mask file that contains ice regions."
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- Select Plot Sets                                                                               -->
+<!-- ============================================================================================== -->
+
+  <entry id="ICEDIAG_PLOT_CONT"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Make contour plots cont case."
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_VECT"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Make vector plots cont case."
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_LINE"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Make line plots cont case."
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_CONT_DIFF"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Make contour plots cont-diff case."
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_VECT_DIFF"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Make vector plots cont-diff case."
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_LINE_DIFF"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Make line plots cont-diff case."
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_REGIONS"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Make regional line plots."
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- Select Plot Options									    --> 
+<!-- ============================================================================================== -->
+
+  <entry id="ICEDIAG_X1_OFF"
+         type="integer"
+         valid_values=""
+         value="0"
+         group="diags_ice"
+         desc="Offset"
+         ></entry>
+
+  <entry id="ICEDIAG_X2_OFF"
+         type="integer"
+         valid_values=""
+         value="0"
+         group="diags_ice"
+         desc="Offset"
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_FORMAT"
+         type="char"
+         valid_values="ps/png"
+         value="png"
+         group="diags_ice"
+         desc="File type for plots"
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_RES"
+         type="integer"
+         valid_values=""
+         value="2500"
+         group="diags_ice"
+         desc="Plot resolution"
+         ></entry>
+
+
+<!-- ============================================================================================== -->
+<!-- Path settings                                                                                  -->
+<!-- ============================================================================================== -->
+
+  <entry id="ICEDIAG_DIAG_HOME"
+         type="char"
+         valid_values=""
+         value="$POSTPROCESS_PATH/ice_diag/"
+         group="diags_ice"
+         desc="Diagnostic package location"
+         ></entry>
+
+  <entry id="ICEDIAG_NCLPATH"
+         type="char"
+         valid_values=""
+         value="$ICEDIAG_DIAG_HOME/code/"
+         group="diags_ice"
+         desc="Local machine path to AMWG diagnostics package NCL library directory."
+         ></entry>
+
+  <entry id="ICEDIAG_DOWEB"
+         type="logical"
+         valid_values="True,False"
+         value="True"
+         group="diags_ice"
+         desc="Controls whether to create web files or not"
+         ></entry>
+
+  <entry id="ICEDIAG_WEBHOST"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="Remote web host machine."
+         ></entry>
+
+  <entry id="ICEDIAG_WEBLOGIN"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="Remote web host login name."
+         ></entry>
+
+  <entry id="ICEDIAG_WEBDIR"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="Remote machine path to AMWG diagnostics HTML directory."
+         ></entry>
+
+  <entry id="ICEDIAG_email"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Send email at package completion"
+         ></entry>
+
+  <entry id="ICEDIAG_email_address"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_ice"
+         desc="Email address to send completion message to"
+         ></entry>
+
+</config_definition>
+
