@@ -16,16 +16,18 @@ scomm = simplecomm.create_comm(serial=False)
 
 #### User modify ####
 
-in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.001/ocn/proc/tseries/monthly'
-out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.001/ocn/proc/tavg/annual-standalone'
-pref= 'b.e13.B1850C5CN.f19_g16.001.pop.h'
+in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.01/ocn/proc/tseries/monthly'
+out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.01/ocn/proc/tavg/annual-standalone'
+pref= 'b.e13.B1850C5CN.f19_g16.01.pop.h'
 htype= 'series'
-average = ['mavg:0420:0424','tavg:0420:0424','moc:1850:1854', 'mocm:1850:1854', 'hor.meanConcat:1850:1854']
+#average = ['mavg:1850:1854','tavg:1850:1854','moc:1850:1854', 'mocm:1850:1854']
+average = ['hor.meanConcat:1850:1854']
 wght= False
 ncfrmt = 'netcdf4'
 serial=False
 
-var_list = []
+#var_list = []
+var_list = ['TEMP', 'SALT']
 mean_diff_rms_obs_dir = '~/sandboxes/cesm1_4_beta06/postprocessing/ocn_diag/timeseries_obs'
 region_nc_var = 'REGION_MASK'
 regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}

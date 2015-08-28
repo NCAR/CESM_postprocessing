@@ -13,7 +13,9 @@ import equatorial_upperocean
 import eulerian_velocity
 import horizontal_vector_fields
 import mixed_layer_depth
+import moc_annual_timeseries
 import moc_fields
+import moc_monthly_timeseries
 import passive_tracers_depth
 import polar_temp_salt
 import poplog_timeseries
@@ -36,6 +38,8 @@ plot_map = {'PM_BASINAVGTS': 'basin_averages.BasinAverages_{0}()',
             'PM_VECV': 'horizontal_vector_fields.HorizontalVectorFields_{0}()',
             'PM_MLD': 'mixed_layer_depth.MixedLayerDepth_{0}()',
             'PM_MOC': 'moc_fields.MOCFields_{0}()',
+            'PM_MOCANN': 'moc_annual_timeseries.MOCAnnual_{0}()',
+            'PM_MOCMON': 'moc_monthly_timeseries.MOCMonthly_{0}()',
             'PM_PASSIVEZ': 'passive_tracers_depth.PassiveTracersDepth_{0}()',
             'PM_POLARTS': 'polar_temp_salt.PolarTempSalt_{0}()',
             'PM_REGIONALTS': 'regional_area.RegionalArea_{0}()',

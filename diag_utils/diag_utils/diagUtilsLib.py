@@ -342,7 +342,9 @@ def create_za(workdir, tavgfile, gridfile, toolpath, env):
         zaCommand = '{0}/za'.format(toolpath)
         rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
         if not rc:
-            raise OSError(err_msg)
+            print('ERROR: create_za failed to verify executable za command = {0}'.format(zaCommand))
+            print('    {0}'.format(err_msg))
+            sys.exit(1)
         
         # call the za fortran code from within the workdir
         cwd = os.getcwd()
@@ -352,7 +354,7 @@ def create_za(workdir, tavgfile, gridfile, toolpath, env):
         try:
             subprocess.check_call(['{0}'.format(zaCommand), '-O', '-time_const', '-grid_file', '{0}'.format(gridfile), '{0}'.format(tavgfile)])
         except subprocess.CalledProcessError as e:
-            print('ERROR: {0} subprocess call to {1} failed with error:'.format(self.name(), e.cmd))
+            print('ERROR: create_za subprocess call to {1} failed with error:'.format(e.cmd))
             print('    {0} - {1}'.format(e.returncode, e.output))
             sys.exit(1)
 

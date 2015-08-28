@@ -15,13 +15,13 @@ scomm = simplecomm.create_comm(serial=False)
 
 #### User modify ####
 
-in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.001/ocn/hist/'
-out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.001/ocn/proc/tavg/annual'
-pref= 'b.e13.B1850C5CN.f19_g16.001.pop.h'
+in_dir='/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.01/ocn/hist/'
+out_dir= '/glade/scratch/aliceb/archive/b.e13.B1850C5CN.f19_g16.01/ocn/proc/tavg/annual'
+pref= 'b.e13.B1850C5CN.f19_g16.01.pop.h'
 htype= 'slice'
-average = ['mavg:0420:0424','tavg:0420:0424','moc:1850:1854', 'mocm:1850:1854', 'hor.meanConcat:1850:1854']
+average = ['mavg:1850:1854','tavg:1850:1854','moc:1850:1854', 'mocm:1850:1854', 'hor.meanConcat:1850:1854']
 wght= False
-ncfrmt = 'netcdf4'
+ncfrmt = 'netcdf'
 serial=False
 
 var_list = []

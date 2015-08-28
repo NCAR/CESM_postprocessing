@@ -91,3 +91,6 @@ class RecoverableError(RuntimeError):
 class UnknownDiagType(RecoverableError):
     pass
 
+class PrerequisitesError(RecoverableError):
+    pass
+

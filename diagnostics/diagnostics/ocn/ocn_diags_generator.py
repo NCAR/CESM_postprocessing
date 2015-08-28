@@ -349,27 +349,39 @@ def main(options, main_comm, debugMsg):
             # check the prerequisites for the diagnostics types
             debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True, verbosity=2)
             
+            skip_key = '{0}_SKIP'.format(requested_diag)
             if lmaster:
-                envDict = diag.check_prerequisites(envDict)
-                debugMsg('MAVGFILE = {0}, TAVGFILE = {1}'.format(envDict['MAVGFILE'], envDict['TAVGFILE']), header=True, verbosity=2)
+                try:
+                    envDict = diag.check_prerequisites(envDict)
+                except ocn_diags_bc.PrerequisitesError:
+                    print("Problem with check_prerequisites for '{0}' skipping!".format(requested_diag))
+                    envDict[skip_key] = True
+                except RuntimeError as e:
+                    # unrecoverable error, bail!
+                    print(e)
+                    envDict['unrecoverableErrorOnMaster'] = True
 
             inter_comm.sync()
 
             # broadcast the envDict
             envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
 
-            # set the shell env using the values set in the XML and read into the envDict across all tasks
-            cesmEnvLib.setXmlEnv(envDict)
+            if envDict.has_key('unrecoverableErrorOnMaster'):
+                raise RuntimeError
 
             # run the diagnostics type on each inter_comm
-            diag.run_diagnostics(envDict, inter_comm)
+            if not envDict.has_key(skip_key):
+                # set the shell env using the values set in the XML and read into the envDict across all tasks
+                cesmEnvLib.setXmlEnv(envDict)
+                # run the diagnostics
+                diag.run_diagnostics(envDict, inter_comm)
 
             inter_comm.sync()
             
         except ocn_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
             print(e)
-            print("Skipped '{0}' and continuing!".format(request_diag))
+            print("Skipped '{0}' and continuing!".format(requested_diag))
         except RuntimeError as e:
             # unrecoverable error, bail!
             print(e)

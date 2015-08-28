@@ -77,40 +77,23 @@ def commandline_options():
 #============================================================
 # buildOcnAvgList - build the list of averages to be computed
 #============================================================
-def buildOcnTseriesAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg):
+def buildOcnTseriesAvgList(start_year, stop_year, debugMsg):
     """buildOcnTseriesAvgList - build the list of averages to be computed
     by the pyAverager for timeseries. Checks if the file exists or not already.
 
     Arguments:
     start_year (string) - starting year
     stop_year (string) - ending year
-    avgFileBaseName (string) - avgFileBaseName (tavgdir/case.[stream].)
-    tseries (boolean) - TRUE if TIMESERIES plots are specified
 
     Return:
     avgList (list) - list of averages to be passed to the pyaverager
     """
-
     avgList = []
-
-    # the following averages are for necessary for model timeseries diagnostics
-    # append the MOC and monthly MOC files
-    avgFile = '{0}.{1}-{2}.moc.nc'.format(avgFileBaseName, start_year, stop_year)
-    debugMsg('mocFile = {0}'.format(avgFile))
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgList.append('moc:{0}:{1}'.format(start_year, stop_year))
-        
-    avgFile = '{0}.{1}-{2}.mocm.nc'.format(avgFileBaseName, start_year, stop_year)
-    debugMsg('mocmFile = {0}'.format(avgFile))
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgList.append('mocm:{0}:{1}'.format(start_year, stop_year))
     
     # append the horizontal mean concatenation
     avgList.append('hor.meanConcat:{0}:{1}'.format(start_year, stop_year))
 
-    debugMsg('exit buildOcnAvgList avgList = {0}'.format(avgList))
+    debugMsg('exit buildOcnAvgTseriesList avgList = {0}'.format(avgList))
     return avgList
 
 #============================================================
@@ -124,7 +107,7 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg):
     start_year (string) - starting year
     stop_year (string) - ending year
     avgFileBaseName (string) - avgFileBaseName (tavgdir/case.[stream].)
-    tseries (boolean) - TRUE if TIMESERIES plots are specified
+    tavgdir (string) - averages directory
 
     Return:
     avgList (list) - list of averages to be passed to the pyaverager
@@ -144,6 +127,20 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg):
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if not rc:
         avgList.append('tavg:{0}:{1}'.format(start_year, stop_year))
+
+    # the following averages are for necessary for model timeseries diagnostics
+    # append the MOC and monthly MOC files
+    avgFile = '{0}.{1}-{2}.moc.nc'.format(avgFileBaseName, start_year, stop_year)
+    debugMsg('mocFile = {0}'.format(avgFile))
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+    if not rc:
+        avgList.append('moc:{0}:{1}'.format(start_year, stop_year))
+        
+    avgFile = '{0}.{1}-{2}.mocm.nc'.format(avgFileBaseName, start_year, stop_year)
+    debugMsg('mocmFile = {0}'.format(avgFile))
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+    if not rc:
+        avgList.append('mocm:{0}:{1}'.format(start_year, stop_year))
 
     debugMsg('exit buildOcnAvgList avgList = {0}'.format(avgList))
     return avgList
@@ -270,7 +267,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
     # check if timeseries diagnostics is specified
     if tseries:
         # create the list of averages to be computed by the pyAverager
-        averageList = buildOcnTseriesAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg)
+        averageList = buildOcnTseriesAvgList(start_year, stop_year, debugMsg)
 
         # if the averageList is empty, then all the climatology files exist with all variables
         if len(averageList) > 0:

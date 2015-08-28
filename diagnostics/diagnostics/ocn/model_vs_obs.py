@@ -74,7 +74,8 @@ class modelVsObs(OceanDiagnostic):
         # check if gridfile exists and is readable
         rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
         if not rc:
-            raise OSError(err_msg)
+            print('model_vs_obs:  check_prerequisites could not find gridfile = {0}'.format(os.environ['gridfile']))
+            raise ocn_diags_bc.PrerequisitesError
 
         env['GRIDFILE'] = os.environ['gridfile']
 
@@ -166,7 +167,7 @@ class modelVsObs(OceanDiagnostic):
                 local_html_list.append(str(html))
                 #print('local_html_list = {0}'.format(local_html_list))
 
-            except ocn_diags_plot_bc.RecoverableError as e:
+            except ocn_diags_bc.RecoverableError as e:
                 # catch all recoverable errors, print a message and continue.
                 print(e)
                 print("model vs. obs - Skipped '{0}' and continuing!".format(request_plot))

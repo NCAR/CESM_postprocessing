@@ -16,7 +16,7 @@
       <module>module load matplotlib/1.4.3</module>
       <module>module load intel/15.0.3</module>
       <module>module load netcdf/4.3.0</module>
-      <module>module load ncl/6.3.0</module>
+      <module>module load ncl/6.2.0</module>
       <module>module load nco/4.4.4</module>
     </modules>
     <components>
