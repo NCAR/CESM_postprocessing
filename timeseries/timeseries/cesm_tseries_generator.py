@@ -60,6 +60,9 @@ def commandline_options():
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
 
+    parser.add_argument('--standalone', nargs=0, required=False, 
+                        help='switch to indicate stand-alone post processing caseroot')
+
     options = parser.parse_args()
 
     # check to make sure CASEROOT is a valid, readable directory
@@ -238,8 +241,13 @@ def main(options, scomm, rank, size):
     # set the debug level 
     debug = options.debug[0]
 
+    # get the standalone flag
+    standalone = options.standalone
+
     # cesmEnv["id"] = "value" parsed from the CASEROOT/env_*.xml files
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
+    if standalone:
+        env_file_list = ['env_postprocess.xml']
     cesmEnv = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # initialize the specifiers list to contain the list of specifier classes

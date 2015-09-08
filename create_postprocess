@@ -7,6 +7,7 @@ caseroot (mandatory) - full path to a valid CESM case
 
 Creates files: 
 $CASEROOT/env_postprocess.xml
+$CASEROOT/env_timeseries.xml
 $CASEROOT/env_diags_atm.xml
 $CASEROOT/env_diags_ice.xml
 $CASEROOT/env_diags_lnd.xml
@@ -38,12 +39,14 @@ if sys.hexversion < 0x02070000:
 #
 import argparse
 import collections
-import re
 import os
 import platform
 import pprint
-import traceback
+import re
+import shutil
 import subprocess
+import traceback
+
 
 #
 # installed dependencies
@@ -101,7 +104,7 @@ def commandline_options():
 
     """
     parser = argparse.ArgumentParser(
-        description='Read the necessary xml files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks. The options specified are passed to the post processing submission scripts.')
+        description='Read the necessary xml files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks. Runtime options can be set in the env_*.xml files in the caseroot.')
 
     parser.add_argument('--backtrace', action='store_true',
                         help='show exception backtraces as extra debugging '
@@ -113,20 +116,33 @@ def commandline_options():
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
 
+    parser.add_argument('--machine', nargs=1, required=False, default=None,
+                        help='supported machine name is required when creating a caseroot that does not already exist')
+
     options = parser.parse_args()
 
     # check to make sure CASEROOT is a valid, readable directory
+    standalone = False
     if not os.path.isdir(options.caseroot[0]):
-        err_msg = 'create_postprocess ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
-        raise OSError(err_msg)
-
-    return options
+        create_caseroot = raw_input('create_postprocess WARNING: caseroot {0} does not exist. Would like to create it for post processing purposes (Y/N)? '.format(options.caseroot[0]))
+        if 'y' in create_caseroot.lower():
+            if options.machine is None:
+                print('create_postprocess ERROR: cannot create a new caseroot without also specifying a supported machine. Exiting...')
+                sys.exit(1)
+            try:
+                os.mkdir(options.caseroot[0])
+                standalone = True
+            except:
+                raise OSError('create_postprocess ERROR: cannot create a new caseroot. Exiting...')
+    else:
+        raise OSError('create_postprocess ERROR: cannot open existing caseroot {0}. Exiting...'.format(options.caseroot[0]))
+    return options, standalone
 
 
 # -------------------------------------------------------------------------------
 # create_env_file - generate the env_[file].xml 
 # -------------------------------------------------------------------------------
-def create_env_file(ppDir, configFile, tmplFile, envFile, group, obs_root):
+def create_env_file(ppDir, configFile, tmplFile, envFile, group, obs_root, standalone):
     """create the env_[file].xml file in the CASEROOT
     
     Arguments:
@@ -140,7 +156,7 @@ def create_env_file(ppDir, configFile, tmplFile, envFile, group, obs_root):
     """
     xml_list = []
     rc, err_msg = cesmEnvLib.checkFile(configFile, 'read')
-    rc1, err_msg1 = cesmEnvLib.checkFile('{0}/templates/{1}'.format(ppDir, tmplFile), 'read')
+    rc1, err_msg1 = cesmEnvLib.checkFile('{0}/Templates/{1}'.format(ppDir, tmplFile), 'read')
 
     if rc:
 
@@ -152,16 +168,18 @@ def create_env_file(ppDir, configFile, tmplFile, envFile, group, obs_root):
                 xml_list.append(XmlEntry(entry_tag.get('id'), entry_tag.get('value'), entry_tag.get('desc')))
 
         # add an additional entry for machine dependent input observation files root path
-        if len(obs_root) > 0:
-            xml_obs = XmlEntry('DIAGOBSROOT', obs_root, 'Diagnostics observation files root path')
-            xml_list.append(xml_obs)
+        if obs_root:
+            if len(obs_root) > 0:
+                xml_obs = XmlEntry('DIAGOBSROOT', obs_root, 'Diagnostics observation files root path')
+                xml_list.append(xml_obs)
 
         # the xml_list now contains a list of XmlEntry classes that can be written to the template
-        templateLoader = jinja2.FileSystemLoader( searchpath='{0}/templates'.format(ppDir) )
+        templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(ppDir) )
         templateEnv = jinja2.Environment( loader=templateLoader )
         if rc1:
             template = templateEnv.get_template( tmplFile )
-            templateVars = { 'xml_list' : xml_list }
+            templateVars = { 'xml_list' : xml_list,
+                             'standalone' : standalone }
         
             # render the template
             env_tmpl = template.render( templateVars )
@@ -238,7 +256,7 @@ def read_machine_xml(machineName, xmlFile):
 # -------------------------------------------------------------------------------
 # create_batch - create the batch files for post processing submission
 # -------------------------------------------------------------------------------
-def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName, project, pythonpath, caseRoot, modules, options):
+def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName, project, pythonpath, caseRoot, modules, options, standalone):
     """create the batch submission files for post processing
 
     Arguments:
@@ -253,6 +271,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     project (string) - project account number
     caseRoot (string) - case root directory path
     options (object) - commandline options
+    standalone (boolean) - indicate if this is postprocessing for a standalone root
     """
     # first check if outFile already exists, if so delete and recreate
     rc, err_msg = cesmEnvLib.checkFile(outFile, 'read')
@@ -260,11 +279,11 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
         os.unlink(outFile)
 
     # check if template files exist and are readable
-    rc, err_msg = cesmEnvLib.checkFile('{0}/templates/{1}'.format(ppDir, batchTmpl), 'read')
+    rc, err_msg = cesmEnvLib.checkFile('{0}/Templates/{1}'.format(ppDir, batchTmpl), 'read')
     if not rc:
         raise OSError(err_msg)
 
-    rc, err_msg = cesmEnvLib.checkFile('{0}/templates/{1}'.format(ppDir, runTmpl), 'read')
+    rc, err_msg = cesmEnvLib.checkFile('{0}/Templates/{1}'.format(ppDir, runTmpl), 'read')
     if not rc:
         raise OSError(err_msg)
 
@@ -283,7 +302,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
         backtrace = '--backtrace'
 
     # all files look good so start parsing the template file starting with the batchTmpl
-    templateLoader = jinja2.FileSystemLoader( searchpath='{0}/templates'.format(ppDir) )
+    templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(ppDir) )
     templateEnv = jinja2.Environment( loader=templateLoader )
     template = templateEnv.get_template( batchTmpl )
     templateVars = { 'pes' : pes,
@@ -304,7 +323,8 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
                      'caseRoot' : caseRoot,
                      'virtualEnvDir' : virtualEnvDir,
                      'debug' : debug,
-                     'backtrace' : backtrace }
+                     'backtrace' : backtrace,
+                     'standalone' : standalone }
 
     # render this template into the runScript string
     runScript = template.render( templateVars )
@@ -325,12 +345,13 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
 # -------------------------------------------------------------------------------
 # initialize_main - initialization from main
 # -------------------------------------------------------------------------------
-def initialize_main(envDict, options):
+def initialize_main(envDict, options, standalone):
     """initialize_main - initialize main settings
     
     Arguments:
     options (list) - input options from command line
     envDict (dictionary) - environment dictionary
+    standalone (boolean) - indicate if this is postprocessing for a standalone root
 
     Return:
     envDict (dictionary) - environment dictionary
@@ -338,12 +359,14 @@ def initialize_main(envDict, options):
     # CASEROOT is given on the command line as required option --caseroot
     caseroot = options.caseroot[0]
 
-    # check if CIMEROOT is defined - if not, try to get it from the xmlquery in CASEROOT
-##    cesmEnvLib.checkEnv('CIMEROOT', caseroot)
-
-    # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
-    envDict = cesmEnvLib.readXML(caseroot, env_file_list)
+    if not standalone:
+        # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
+        env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
+        envDict = cesmEnvLib.readXML(caseroot, env_file_list)
+    else:
+        caseList = caseroot.split('/')
+        envDict['CASE'] = caseList[-1]
+        envDict['MACH'] = options.machine[0]
 
     # refer to the caseroot that was specified on the command line instead of what
     # is read in the environment as the caseroot may have changed from what is listed
@@ -355,12 +378,16 @@ def initialize_main(envDict, options):
 # -------------------------------------------------------------------------------
 # main
 # -------------------------------------------------------------------------------
-def main(options):
-    """
+def main(options, standalone):
+    """ main
+
+    Arguments:
+    options (list) - input options from command line
+    standalone (boolean) - indicate if this is postprocessing for a standalone root
     """
     # initialize the environment dictionary
     envDict = dict()
-    envDict = initialize_main(envDict, options)
+    envDict = initialize_main(envDict, options, standalone)
 
     # set the postprocessing dir in the envDict
     envDict['POSTPROCESS_DIR'] = os.getcwd()
@@ -374,20 +401,25 @@ def main(options):
 
     # get the machine dependent variables, modules and mpi run command in a dictionary
     machine = dict()
-    machine = read_machine_xml(envDict['MACH'], '{0}/machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_DIR']))
+    machine = read_machine_xml(envDict['MACH'], '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_DIR']))
 
     # generate the env_postprocess.xml file
     config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_DIR'])
     tmpl_file = 'env_postprocess.tmpl'
     env_file = '{0}/env_postprocess.xml'.format(envDict['CASEROOT'])
-    create_env_file(envDict['POSTPROCESS_DIR'], config_file, tmpl_file, env_file, 'postprocess', '')
+    create_env_file(envDict['POSTPROCESS_DIR'], config_file, tmpl_file, env_file, 'postprocess', '', standalone)
+
+    # generate the env_timeseries.xml file
+    config_file = '{0}/Config/config_timeseries.xml'.format(envDict['POSTPROCESS_DIR'])
+    env_file = '{0}/env_timeseries.xml'.format(envDict['CASEROOT'])
+    shutil.copy2(config_file, env_file)
 
     # generate the env_diags_[component].xml files
     for comp in compList:
         config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_DIR'], comp)
         tmpl_file = 'env_diags.tmpl'
         env_file = '{0}/env_diags_{1}.xml'.format(envDict['CASEROOT'], comp)
-        create_env_file(envDict['POSTPROCESS_DIR'], config_file, tmpl_file, env_file, 'diags_{0}'.format(comp), machine['{0}_obs_root'.format(comp)])
+        create_env_file(envDict['POSTPROCESS_DIR'], config_file, tmpl_file, env_file, 'diags_{0}'.format(comp), machine['{0}_obs_root'.format(comp)], standalone)
 
     # define the template files for the batch scripts
     batch_tmpl = 'batch_{0}.tmpl'.format(envDict['MACH'])
@@ -398,7 +430,7 @@ def main(options):
     outFile = '{0}/{1}.timeseries'.format(envDict['CASEROOT'], envDict['CASE'])
     create_batch(envDict['POSTPROCESS_DIR'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
                  machine['mpi_command'], outFile, 'timeseries', machine['project'], machine['pythonpath'], 
-                 envDict['CASEROOT'], machine['modules'], options)
+                 envDict['CASEROOT'], machine['modules'], options, standalone)
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
@@ -407,14 +439,14 @@ def main(options):
         outFile = '{0}/{1}.{2}_averages'.format(envDict['CASEROOT'], envDict['CASE'], comp)
         create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile,'{0}_averages'.format(comp), machine['project'], machine['pythonpath'], 
-                     envDict['CASEROOT'], machine['modules'], options)
+                     envDict['CASEROOT'], machine['modules'], options, standalone)
 
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
         outFile = '{0}/{1}.{2}_diagnostics'.format(envDict['CASEROOT'], envDict['CASE'], comp)
         create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile,'{0}_diagnostics'.format(comp), machine['project'], machine['pythonpath'], 
-                     envDict['CASEROOT'], machine['modules'], options)
+                     envDict['CASEROOT'], machine['modules'], options, standalone)
 
     print('*****************************************************************************************')
     print('')
@@ -423,6 +455,8 @@ def main(options):
     print(' XML configuration files. Please review the on-line documentation at')
     print(' http://www2.cesm.ucar.edu for a complete description of how')
     print(' to configure and use the CESM post-processing tools.')
+    if standalone:
+        print(' NOTICE: The postprocessing xml files in the new CASEROOT will need to be adjusted.')
     print('')
     print('*****************************************************************************************')
     
@@ -430,9 +464,9 @@ def main(options):
 #===================================
 
 if __name__ == "__main__":
-    options = commandline_options()
+    options, standalone = commandline_options()
     try:
-        status = main(options)
+        status = main(options, standalone)
         sys.exit(status)
     except Exception as error:
         print(str(error))

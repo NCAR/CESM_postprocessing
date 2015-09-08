@@ -214,7 +214,7 @@
   <entry id="OCNDIAG_DIAGROOTPATH"
 	 type="char"
 	 valid_values=""
-	 value="$POSTPROCESS_PATH/ocn_diag"
+	 value="$POSTPROCESS_PATH/ocn_diag/ocn_diag"
 	 group="diags_ocn"
 	 desc="This value points to the local machine's fully qualified directory path location of the OMWG diagnostics package. The ocn_diags_generator.py script will error out if this directory is not available."
 	 ></entry>

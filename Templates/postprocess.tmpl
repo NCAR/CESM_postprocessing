@@ -32,7 +32,11 @@ echo "******************************************"
 echo "Start {{ processName }} generation $(date)"
 echo "******************************************"
 
+{% if standalone %}
+{{ mpirun }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --standalone >> {{ caseRoot }}/{{ processName }}.log 2>&1
+{% else %}
 {{ mpirun }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/{{ processName }}.log 2>&1
+{% endif %}
 
 echo "******************************************"
 echo "End {{ processName }} generation $(date)"

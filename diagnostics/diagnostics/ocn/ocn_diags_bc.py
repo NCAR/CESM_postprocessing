@@ -54,7 +54,7 @@ class OceanDiagnostic(object):
                 err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(self.__class__.__name__, workdir)
                 raise OSError(err_msg)
 
-        # create symbolic links between the tavgdir and the workdir and get the real names of the mavg and tavg files
+        # create symbolic links between the tavgdir and the workdir and set the names of the mavg and tavg files for the diagnostics
         control = False
         env['WORKDIR'] = workdir
         env['MAVGFILE'], env['TAVGFILE'] = diagUtilsLib.createLinks(env['YEAR0'], env['YEAR1'], env['TAVGDIR'], env['WORKDIR'], env['CASE'], control)

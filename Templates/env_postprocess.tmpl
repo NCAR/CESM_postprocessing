@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<config_definition>
+
+<!-- ======================================================================= -->
+<!-- env_postprocess.xml                                                     -->
+<!-- boolean (True / False) controls for enabling post processing tasks      -->
+<!-- ======================================================================= -->
+
+{% if standalone %}
+<!-- ============================================================================== -->
+<!-- User must define the following entry id / value pairs for standalone caseroot
+<!-- ============================================================================== -->
+
+<!-- location of history files on local disk to be postprocessed -->
+<entry id="DOUT_S_ROOT" value="" />
+
+<!-- location of postprocessing created caseroot directory on local disk -->
+<entry id="CASEROOT" value="" />
+
+<!-- case name -->
+<entry id="CASE" value="" />
+
+<!-- location of CESM release code on local disk where postprocessing directory resides -->
+<entry id="SRCROOT" value="" />
+
+<!-- ======================================================================= -->
+<!-- End of mandatory user defined entry id / value pairs for new caseroot
+<!-- ======================================================================= -->
+{% endif %}
+
+{% for xml in xml_list %}
+<!--"{{ xml._desc }}" -->
+<entry id="{{ xml._id }}" value="{{ xml._value }}" />
+{% endfor %}
+
+<!-- ====================================== -->
+</config_definition>

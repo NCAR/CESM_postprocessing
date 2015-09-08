@@ -5,7 +5,7 @@
 # import the Plot modules
 from ocn_diags_bc import UnknownDiagType
 import model_vs_obs
-#import model_vs_obs_ecosys
+import model_vs_obs_ecosys
 import model_vs_control
 #import model_vs_control_ecosys
 import model_timeseries
