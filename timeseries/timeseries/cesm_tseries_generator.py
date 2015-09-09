@@ -51,8 +51,7 @@ def commandline_options():
         description='cesm_tseries_generator: CESM wrapper python program to create variable time series files from history time slice files.')
 
     parser.add_argument('--backtrace', action='store_true',
-                        help='show exception backtraces as extra debugging '
-                        'output')
+                        help='show exception backtraces as extra debugging output')
 
     parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
                         help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
@@ -60,7 +59,7 @@ def commandline_options():
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
 
-    parser.add_argument('--standalone', nargs=0, required=False, 
+    parser.add_argument('--standalone', action='store_true',
                         help='switch to indicate stand-alone post processing caseroot')
 
     options = parser.parse_args()
@@ -72,11 +71,11 @@ def commandline_options():
 
     return options
 
-#==========================================================================================
-# readArchiveXML - read the $CASEROOT/env_archive.xml file and build the pyReshaper classes
-#==========================================================================================
+#==============================================================================================
+# readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
+#==============================================================================================
 def readArchiveXML(caseroot, dout_s_root, casename, debug):
-    """ reads the $CASEROOT/env_archive.xml file and builds a fully defined list of 
+    """ reads the $CASEROOT/env_timeseries.xml file and builds a fully defined list of 
          reshaper specifications to be passed to the pyReshaper tool.
 
     Arguments:
@@ -86,13 +85,13 @@ def readArchiveXML(caseroot, dout_s_root, casename, debug):
     """
     specifiers = list()
     xml_tree = ET.ElementTree()
-    # check if the env_archive.xml file exists
-    if ( not os.path.isfile('{0}/env_archive.xml'.format(caseroot)) ):
-        err_msg = "cesm_tseries_generator.py ERROR: {0}/env_archive.xml does not exist.".format(caseroot)
+    # check if the env_timeseries.xml file exists
+    if ( not os.path.isfile('{0}/env_timeseries.xml'.format(caseroot)) ):
+        err_msg = "cesm_tseries_generator.py ERROR: {0}/env_timeseries.xml does not exist.".format(caseroot)
         raise OSError(err_msg)
     else:
         # parse the xml
-        xml_tree.parse('{0}/env_archive.xml'.format(caseroot))
+        xml_tree.parse('{0}/env_timeseries.xml'.format(caseroot))
 
         # loop through all the comp_archive_spec elements to find the tseries related elements
         for comp_archive_spec in xml_tree.findall("components/comp_archive_spec"):
@@ -241,19 +240,18 @@ def main(options, scomm, rank, size):
     # set the debug level 
     debug = options.debug[0]
 
-    # get the standalone flag
-    standalone = options.standalone
-
     # cesmEnv["id"] = "value" parsed from the CASEROOT/env_*.xml files
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
-    if standalone:
+
+    # check if the standalone option is set
+    if options.standalone:
         env_file_list = ['env_postprocess.xml']
     cesmEnv = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # initialize the specifiers list to contain the list of specifier classes
     specifiers = list()
 
-    # loading the specifiers from the env_archive.xml  only needs to run on the master task (rank=0) 
+    # loading the specifiers from the env_timeseries.xml  only needs to run on the master task (rank=0) 
     if rank == 0:
         specifiers = readArchiveXML(caseroot, cesmEnv['DOUT_S_ROOT'], cesmEnv['CASE'], debug)
     scomm.sync()

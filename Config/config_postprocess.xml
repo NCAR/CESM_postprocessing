@@ -61,7 +61,7 @@ See the PCWG diagnostics documentation for more details."
  valid_values="TRUE,FALSE"  
  value="FALSE" 
  group="postprocess"
- ldesc="If TRUE, this calls the LMWG diagnostics package parallel python wrapper
+ desc="If TRUE, this calls the LMWG diagnostics package parallel python wrapper
 script to generate climatological plots associated with the run job output.
 See the LMWG diagnostics documentation for more details."
 ></entry> 
