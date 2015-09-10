@@ -278,7 +278,7 @@
   <entry id="OCNDIAG_TAVGDIR"
 	 type="char"
 	 valid_values=""
-	 value="$DOUT_S_ROOT/ocn/proc/tavg/annual"
+	 value="$DOUT_S_ROOT/ocn/proc/tavg"
 	 group="diags_ocn"
 	 desc="Local machine directory for tavg files."
 	 ></entry>

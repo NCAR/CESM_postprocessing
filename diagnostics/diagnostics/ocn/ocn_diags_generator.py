@@ -74,6 +74,9 @@ def commandline_options():
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
 
+    parser.add_argument('--standalone', action='store_true',
+                        help='switch to indicate stand-alone post processing caseroot')
+
     options = parser.parse_args()
 
     # check to make sure CASEROOT is a valid, readable directory
@@ -115,19 +118,22 @@ def setup_diags(envDict):
 #============================================
 # initialize_main - initialization from main
 #============================================
-def initialize_main(envDict, caseroot, debugMsg):
+def initialize_main(envDict, caseroot, debugMsg, standalone):
     """initialize_main - initialize settings on rank 0 
     
     Arguments:
     envDict (dictionary) - environment dictionary
     caseroot (string) - case root
     debugMsg (object) - vprinter object for printing debugging messages
+    standalong (boolean) - indicate stand-alone post processing caseroot
 
     Return:
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_postprocess.xml', 'env_diags_ocn.xml']
+    if standalone:
+        env_file_list =  ['env_postprocess.xml', 'env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
@@ -201,7 +207,7 @@ def main(options, main_comm, debugMsg):
         debugMsg('caseroot = {0}'.format(caseroot), header=True, verbosity=2)
 
         debugMsg('calling initialize_main', header=True, verbosity=2)
-        envDict = initialize_main(envDict, caseroot, debugMsg)
+        envDict = initialize_main(envDict, caseroot, debugMsg, options.standalone)
 
         debugMsg('calling check_ncl_nco', header=True, verbosity=2)
         diagUtilsLib.check_ncl_nco(envDict)

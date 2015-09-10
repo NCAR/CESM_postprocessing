@@ -64,6 +64,9 @@ def commandline_options():
     parser.add_argument('--control-run', action='store_true', default=False,
                         help='Controls whether or not to process climatology files for a control run using the settings in the caseroot env_diags_[component].xml files.')
 
+    parser.add_argument('--standalone', action='store_true',
+                        help='switch to indicate stand-alone post processing caseroot')
+
     options = parser.parse_args()
 
     # check to make sure CASEROOT is a valid, readable directory
@@ -164,11 +167,11 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
        tseries (boolean) - TRUE if TIMESERIES plots are specified
     """
     # the following are used for timeseries averages and ignored otherwise
-    mean_diff_rms_obs_dir = '{0}/ocn_diag/timeseries_obs'.format(ppDir)
+    mean_diff_rms_obs_dir = '{0}/ocn_diag/ocn_diag/timeseries_obs'.format(ppDir)
     region_nc_var = 'REGION_MASK'
     regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
     region_wgt_var = 'TAREA'
-    obs_dir = '{0}/ocn_diag/timeseries_obs'.format(ppDir)
+    obs_dir = '{0}/ocn_diag/ocn_diag/timeseries_obs'.format(ppDir)
     obs_file = 'obs.nc'
     reg_obs_file_suffix = '_hor_mean_obs.nc'
 
@@ -279,19 +282,22 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
 #============================================
 # initialize_envDict - initialization envDict
 #============================================
-def initialize_envDict(envDict, caseroot, debugMsg):
+def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     """initialize_main - initialize settings on rank 0 
     
     Arguments:
     envDict (dictionary) - environment dictionary
     caseroot (string) - case root
     debugMsg (object) - vprinter object for printing debugging messages
+    standalong (boolean) - indicate stand-alone post processing caseroot
 
     Return:
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_postprocess.xml', 'env_diags_ocn.xml']
+    if standalone:
+        env_file_list =  ['env_postprocess.xml', 'env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
@@ -334,7 +340,7 @@ def main(options, debugMsg):
     debugMsg('caseroot = {0}'.format(caseroot), header=True)
 
     debugMsg('calling initialize_envDict', header=True)
-    envDict = initialize_envDict(envDict, caseroot, debugMsg)
+    envDict = initialize_envDict(envDict, caseroot, debugMsg, options.standalone)
 
     # specify variables to include in the averages, empty list implies get them all
     varList = []
