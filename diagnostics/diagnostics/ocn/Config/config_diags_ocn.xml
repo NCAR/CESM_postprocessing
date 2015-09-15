@@ -925,14 +925,14 @@ g_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Logical to control whether to create 2D maps of ecosystem fields	plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. observations ecosystem (ecosystem_maps) Logical to control whether to create 2D maps of ecosystem fields	plots (TRUE) or not (FALSE)."></entry>
 
   <entry id="OCNDIAG_MVOECOSYS_PM_E_VERT"
 	 type="logical"
 	 valid_values="TRUE,FALSE"
 	 value="TRUE"
 	 group="diags_ocn"
-	 desc="Logical to control whether to create vertical cross-sections (155W and 23W) and basin zonal averages plots (TRUE) or not (FALSE)."></entry>
+	 desc="Model vs. observations ecosystem Logical to control whether to create vertical cross-sections (155W and 23W) and basin zonal averages plots (TRUE) or not (FALSE)."></entry>
 
   <entry id="OCNDIAG_MVOECOSYS_PM_E_SEAS"
 	 type="logical"

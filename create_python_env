@@ -201,6 +201,19 @@ echo "$progname - Testing post processing installation by listing the installed 
 module_check.py
 
 #----------------------------------------------------------------------
+# compile and install ocn_diag remap shared object (remap.so) program
+#----------------------------------------------------------------------
+echo "---------------------------------------------------------"
+echo "$progname - Compiling ocn diagnostics remap tool."
+cd $pp_dir/ocn_diag/eco_lib
+
+# run the make clean command
+make clean
+
+# run the make command
+make all
+
+#----------------------------------------------------------------------
 # cleanup and deactivate the virtualenv. 
 #----------------------------------------------------------------------
 deactivate
@@ -210,7 +223,7 @@ deactivate
 #----------------------------------------------------------------------
 echo "---------------------------------------------------------"
 echo "$progname - Compiling ocn diagnostics zonal average tool."
-cd $pp_dir/ocn_diag/ocn_diag/tool_lib/zon_avg
+cd $pp_dir/ocn_diag/tool_lib/zon_avg
 
 # run the make clean command
 make clean
@@ -223,7 +236,7 @@ $cimeroot/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot
 make
 
 # link the za compiled code to one level up for the NCL
-ln -sf $pp_dir/ocn_diag/ocn_diag/tool_lib/zon_avg/za $pp_dir/ocn_diag/ocn_diag/tool_lib/za
+ln -sf $pp_dir/ocn_diag/tool_lib/zon_avg/za $pp_dir/ocn_diag/tool_lib/za
 
 echo "---------------------------------------------------------"
 

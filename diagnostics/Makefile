@@ -22,7 +22,7 @@ clean :
 # clobber - Really clean up the directory.
 #
 clobber : clean
-	-rm -f .Makedepend *.o *.mod *.il *.pyc
+	-rm -rf .Makedepend *.o *.mod *.il *.pyc
 	-rm -rf *.egg-info build
 
 #

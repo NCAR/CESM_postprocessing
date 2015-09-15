@@ -25,7 +25,6 @@ SUBDIRS = \
 	averager \
 	timeseries \
 	diagnostics \
-	ocn_diag
 
 # MAKECMDGOALS is the make option: make 'clobber' or 'all'
 TARGET = $(MAKECMDGOALS)
@@ -110,7 +109,7 @@ clean : $(SUBDIRS)
 # clobber - Really clean up the directory.
 #
 clobber : clean $(SUBDIRS)
-	-rm -f .Makedepend *.o *.mod *.il *.pyc
+	-rm -f .Makedepend *.o *.mod *.il *.pyc *.so
 	-rm -rf *.egg-info build
 
 

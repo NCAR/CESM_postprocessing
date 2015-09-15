@@ -2,10 +2,11 @@
 
 <table class="plot">
 <th colspan="{{ cols }}">{{ plot_title_s1 }}</th>
+{% set i = 0 %}
 {% for r in rowList %}
     <tr>
     {% for c in colList  %}
-        {% set label, image = plot_table_s1_t1[r:c] %}
+        {% set label, image = plot_table_s1_t1[i] %}
         {% if 'Error' in label %}
            <td>{{ label }}</td>
         {% elif label == '' %}
@@ -13,6 +14,7 @@
         {% else %}
            <td><a href="{{ image }}">{{ label }}</td>
         {% endif %}
+        {% set i = i+1 %}
     {% endfor %}
     </tr>
 {% endfor %}

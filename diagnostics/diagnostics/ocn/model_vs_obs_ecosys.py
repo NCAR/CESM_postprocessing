@@ -31,7 +31,7 @@ from diag_utils import diagUtilsLib
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from ocn_diags_bc import OceanDiagnostic
+from ocn_diags_bc import OceanDiagnostic, RecoverableError
 
 # import the plot classes
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
@@ -66,8 +66,34 @@ class modelVsObsEcosys(OceanDiagnostic):
         # create the plot.dat file in the workdir used by all NCL plotting routines
         diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
-        # TODO read in the ecosys_vars.txt file and create the corresponding link files to the climatology files
+        # read in the ecosys_vars.txt file and create the corresponding link files to the climatology files
+        try:
+            ecosys_vars_file = env['ECOSYSVARSFILE']
+            f = open(ecosys_vars_file)
+            ecosys_vars = f.read().split()
+            f.close()
+        except IOError as e:
+            print ('ERROR: unable to open {0} error {1} : {2}'.format(ecosys_vars_file, e.errno, e.strerror))
+        except ValueError:
+            print ('ERROR: unable to split {0} into separate variable names'.format(ecosys_vars_file))
+        except:
+            print ('ERROR: unexpected error in {0}'.format(self._name))
+            raise
+        
+        # loop over the ecosys_vars list and create the links to the mavg file
+        sourceFile = os.path.join(env['WORKDIR'],'mavg.{0:04d}.{1:04d}.nc'.format(int(env['YEAR0']),int(env['YEAR1'])))
+        for var in ecosys_vars:
+            linkFile = os.path.join(env['WORKDIR'],'{0}.{1}.clim.{2:04d}-{3:04d}.nc'.format(env['CASE'],var,int(env['YEAR0']),int(env['YEAR1'])))
+            try:
+                os.symlink(sourceFile, linkFile)
+            except OSError as e:
+                print ('ERROR: unable to create symbolic link {0} to {1} error {2} : {3}'.format(linkFile, sourceFile, e.errno, e.strerror))
 
+        # create the POPDIAG and PME environment variables
+        env['POPDIAGPY'] = env['POPDIAGPY2'] = env['POPDIAG'] = os.environ['POPDIAG'] = 'TRUE'
+        env['PME'] = os.environ['PME'] = '1'
+        env['mappdir'] = env['ECODATADIR']+'/mapping'
+        
         return env
 
     def run_diagnostics(self, env, scomm):
@@ -87,7 +113,7 @@ class modelVsObsEcosys(OceanDiagnostic):
         # all the plot module XML vars start with MVOECOSYS_PM_  need to strip that off
         for key, value in env.iteritems():
             if (re.search("\AMVOECOSYS_PM_", key) and value.upper() in ['T','TRUE']):
-                k = key[9:]                
+                k = key[10:]                
                 requested_plots.append(k)
 
         scomm.sync()
@@ -136,7 +162,7 @@ class modelVsObsEcosys(OceanDiagnostic):
                 plot.check_prerequisites(env)
 
                 print('model vs. obs ecosys - Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
-                plot.generate_plots(env)
+#                plot.generate_plots(env)
 
                 print('model vs. obs ecosys - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
@@ -147,7 +173,7 @@ class modelVsObsEcosys(OceanDiagnostic):
                 local_html_list.append(str(html))
                 #print('local_html_list = {0}'.format(local_html_list))
 
-            except ocn_diags_bc.RecoverableError as e:
+            except RecoverableError as e:
                 # catch all recoverable errors, print a message and continue.
                 print(e)
                 print("model vs. obs ecosys - Skipped '{0}' and continuing!".format(request_plot))
@@ -195,7 +221,7 @@ class modelVsObsEcosys(OceanDiagnostic):
 
             if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env, 'model_vs_obs')
+                diagUtilsLib.copy_html_files(env, 'model_vs_obs_ecosys')
             else:
                 print('Model vs. Observations Ecosystme - Web files successfully created in directory:')
                 print('{0}'.format(env['WORKDIR']))
