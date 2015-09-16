@@ -1,8 +1,6 @@
-###PBS -A
 #PBS -N {{ processName }}
 #PBS -q regular
 #PBS -l mppwidth={{ pes }}
-##PBS -l mppnppn=48
 #PBS -l walltime=02:00
 #PBS -o {{ processName }}.stdout
 #PBS -e {{ processName }}.stderr

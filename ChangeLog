@@ -4,7 +4,22 @@ SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
 ================================================================================
 This file describes what tags were created and why
 ================================================================================
+	
+Originator: aliceb
+Date: 16 September 2015
+Model: postprocessing
+Version: postprocessing_20150910
+One-line: updates for edison and change to cime/cime_config/cesm/machines in 
+za makefile call in create_python_env
 
+	
+M       Machines/edison_modules
+M       Machines/machine_postprocess.xml
+M       Templates/batch_edison.tmpl
+M       create_python_env
+	
+================================================================================
+	
 Originator: aliceb
 Date: 10 September 2015
 Model: postprocessing

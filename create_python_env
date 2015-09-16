@@ -229,8 +229,8 @@ cd $pp_dir/ocn_diag/tool_lib/zon_avg
 make clean
 
 # generate the necessary Macros file
-echo "calling... $cimeroot/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot"
-$cimeroot/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot
+echo "calling... $cimeroot/cime_config/cesm/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot"
+$cimeroot/cime_config/cesm/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot
 
 # run the make command
 make
