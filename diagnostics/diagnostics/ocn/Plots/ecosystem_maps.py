@@ -209,20 +209,20 @@ class EcosystemMaps_obs(EcosystemMaps):
                         'nutlim_maps', 'model_obs_maps_surface', 'model_obs_maps_at_depths']
 
         self._expectedPlots_s1_t1 = [(0,'NH4','map_NH4'), (0,'NO3_excess','map_NO3_excess'),
-                                    (1,'spCh1','map_spCh1',), (1,'diatCh1','map_diatCh1'), (1,'diazCh1','diazCh1'),
-                                    (2,'spC','map_spC',), (2,'diatC','map_diatC'), (2,'diazC','diazC'),
-                                    (3,'photoC_sp','map_photoC_sp'), (3,'photoC_diat','map_photoC_diat'), 
+                                     (1,'spChl','map_spChl',), (1,'diatChl','map_diatChl'), (1,'diazChl','map_diazChl'),
+                                     (2,'spC','map_spC',), (2,'diatC','map_diatC'), (2,'diazC','map_diazC'),
+                                     (3,'photoC_sp','map_photoC_sp'), (3,'photoC_diat','map_photoC_diat'), 
                                      (3,'photoC_diaz','map_photoC_diaz'),
-                                    (4,'diaz_Nfix','map_diaz_Nfix'), (4,'DENITRIF','map_DENITRIF'), 
+                                     (4,'diaz_Nfix','map_diaz_Nfix'), (4,'DENITRIF','map_DENITRIF'), 
                                      (4,'NITRIF','map_NITRIF'), (4,'CaCO3_form','map_CaCO3_form'), (4,'bSi_form','map_bSi_form'),
-                                    (5,'IRON_FLUX','map_IRON_FLUX'), (5,'POC_FLUX_IN','map_POC_FLUX_IN'), 
+                                     (5,'IRON_FLUX','map_IRON_FLUX'), (5,'POC_FLUX_IN','map_POC_FLUX_IN'), 
                                      (5,'CaCO3_FLUX_IN','map_CaCO3_FLUX_IN'), (5,'SiO2_FLUX_IN','map_SiO2_FLUX_IN'),
-                                    (6,'STF_O2','map_STF_O2'), (6,'FvPER_DIC','map_FvPER_DIC'), (6,'FvICE_DIC','map_FvPER_DIC')]
+                                     (6,'STF_O2','map_STF_O2'), (6,'FvPER_DIC','map_FvPER_DIC'), (6,'FvICE_DIC','map_FvICE_DIC')]
 
         self._expectedPlots_s1_t2 = [(0,'sp_nutlim','map_nutlim_sp'), (0,'diat_nutlim','map_nutlim_diat'), (0,'diaz_nutlim','map_nutlim_diaz')]
 
-        self._expectedPlots_s1_t3 = [(0,'pCO2SURF','mod_obs_map_pCO2SURF_0m'), (0,'FG_CO2','mod_obs_map_FG_CO2_0m'), (0,'totCh1','mod_obs_map_totCh1_0m'), 
-                                    (0,'photoC_tot','mod_obs_map_photoC_tot_0m'), (0,'phytoC','mod_obs_map_phytoC_0m'), (0,'phyto_mu','mod_obs_map_phyto_mu_0m')]
+        self._expectedPlots_s1_t3 = [(0,'pCO2SURF','mod_obs_map_pCO2SURF_0m'), (0,'FG_CO2','mod_obs_map_FG_CO2_0m'), (0,'totChl','mod_obs_map_totChl_0m'), 
+                                     (0,'photoC_tot','mod_obs_map_photoC_tot_0m'), (0,'phytoC','mod_obs_map_phytoC_0m'), (0,'phyto_mu','mod_obs_map_phyto_mu_0m')]
 
         self._plotTitles = ['Lat, Lon', 'Ecosystem: Maps at Depth (with obs where applicable)']
 
