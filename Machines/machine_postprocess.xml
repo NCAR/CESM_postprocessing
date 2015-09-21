@@ -44,7 +44,7 @@
   </machine>
 
   <machine name="edison">
-    <timeseries_pes>48</timeseries_pes>
+    <timeseries_pes>96</timeseries_pes>
     <mpi_command>aprun -n </mpi_command>
     <pythonpath>/global/project/projectdirs/ccsm1/pythonlib/lib/python2.7/site-packages/PyNIO</pythonpath>
     <project></project>
@@ -57,27 +57,28 @@
       <module>module load matplotlib/1.4.3</module>
       <module>module load nco/4.3.9</module>
       <module>module load ncl/6.1.1</module>
-      <module>module load netcdf/4.3.0</module>
+      <module>module load cray-netcdf/4.3.2</module>
+      <module>module load cray-hdf5/1.8.13</module>
     </modules>
     <components>
       <component name="atm">
-	<averages_pes>124</averages_pes>
-	<diagnostics_pes>16</diagnostics_pes>
+	<averages_pes>120</averages_pes>
+	<diagnostics_pes>24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
       <component name="ice">
-	<averages_pes>124</averages_pes>
-	<diagnostics_pes>16</diagnostics_pes>
+	<averages_pes>120</averages_pes>
+	<diagnostics_pes>24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
       <component name="lnd">
-	<averages_pes>124</averages_pes>
-	<diagnostics_pes>16</diagnostics_pes>
+	<averages_pes>120</averages_pes>
+	<diagnostics_pes>24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
       <component name="ocn">
-	<averages_pes>124</averages_pes>
-	<diagnostics_pes>16</diagnostics_pes>
+	<averages_pes>120</averages_pes>
+	<diagnostics_pes>24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
     </components>
