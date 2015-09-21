@@ -25,7 +25,7 @@ import jinja2
 # import the helper utility module
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
-import create_html
+import create_atm_html
 
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
@@ -259,7 +259,7 @@ class modelVsObs(AtmosphereDiagnostic):
                      orig_html = env['HTML_HOME']+'/'+plot_set
                  else:
                      orig_html = env['HTML_HOME']+'/'+plot_set+'/'+plot_set
-                 create_html.create_plotset_html(orig_html,set_dir,plot_set,env)
+                 create_atm_html.create_plotset_html(orig_html,set_dir,plot_set,env)
 
             # Remove any plotvar netcdf files that exists in the diag directory
             if env['save_ncdfs'] == 'False':
