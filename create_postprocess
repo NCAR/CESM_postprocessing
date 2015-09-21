@@ -405,7 +405,7 @@ def main(options, standalone):
 
     # set the list of components
 ##    complist = ['atm','ice','lnd','ocn']
-    compList = ['ocn','atm', 'ice']
+    compList = ['ocn','atm','ice']
 
     # get the machine dependent variables, modules and mpi run command in a dictionary
     machine = dict()

@@ -4,6 +4,16 @@ SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
 ================================================================================
 This file describes what tags were created and why
 ================================================================================
+
+Originator: mickelso
+Date: 21 September 2015
+Model: postprocessing
+Version: postprocessing_20150921
+One-line: Debugged the ice model-model comparison and added html functionality
+for the ice diags. 
+
+================================================================================
+
 	
 Originator: aliceb
 Date: 17 September 2015
