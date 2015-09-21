@@ -175,7 +175,7 @@
          desc="OLD for u, v var names. NEW for uvel, vvel var names."
          ></entry>
 
-  <entry id="ICEDIAG_cntl_PATH_CLIMO_DIFF"
+  <entry id="ICEDIAG_PATH_CLIMO_DIFF"
          type="char"
          valid_values=""
          value="$DOUT_S_ROOT/ice/proc/climo/$ICEDIAG_CASE_TO_DIFF/"

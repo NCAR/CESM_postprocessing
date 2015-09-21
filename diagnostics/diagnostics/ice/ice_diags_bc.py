@@ -44,7 +44,7 @@ class IceDiagnostic(object):
         """This method sets up the unique working directory for a given diagnostic type
         """
         # create the working directory first before calling the base class prerequisites
-        avg_BEGYR = (int(env['ENDYR_CONT']) - int(env['YRS_TO_AVG'])) + 1
+        avg_BEGYR = (int(env['ENDYR_'+t]) - int(env['YRS_TO_AVG'])) + 1
         subdir = '{0}.{1}-{2}/{3}.{4}_{5}'.format(env['CASE_TO_'+t], avg_BEGYR, env['ENDYR_'+t],self._name.lower(), str(avg_BEGYR), env['ENDYR_'+t])
         workdir = '{0}/{1}'.format(env['PATH_CLIMO_'+t], subdir)
         env['CLIMO_'+t] = workdir

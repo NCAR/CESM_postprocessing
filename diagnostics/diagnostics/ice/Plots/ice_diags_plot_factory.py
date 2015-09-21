@@ -30,12 +30,12 @@ def iceDiagnosticPlotFactory(plot_type,env):
     elif plot_type == "PLOT_CONT_DIFF":
         for seas in ('jfm', 'amj', 'jas', 'ond', 'ann'):
             plot_set['contour_diff'+seas] = contourDiff.ContourDiff(seas,env)
-        plot_set['IceSat_iceThicknessDiff'] = iceSat.IceSat_iceThicknessDiff(env)
+        plot_set['IceSat_iceThicknessDiff'] = iceSatDiff.IceSat_iceThicknessDiff(env)
 
     elif plot_type == "PLOT_VECT_DIFF":
         plot_set['vector_diff'] = vectorDiff.VectorDiff(env)
 
-    elif plot_type == "PLOT_LINE":
+    elif plot_type == "PLOT_LINE" or plot_type == "PLOT_LINE_DIFF":
         plot_set['web_hem_avg'] = web_hem_avg.Web_Hem_Avg(env)
         plot_set['web_hem_clim'] = web_hem_clim.Web_Hem_Clim(env)
     elif plot_type == "PLOT_REGIONS":

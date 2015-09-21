@@ -149,10 +149,11 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
     else:
         date_pattern = 'yyyy-mm'
     suffix = 'nc'
-    split_fn= 'nh,sh'
-
+    if split:
+        split_fn= 'nh,sh'
+    else:
+        split_fn = ''
     ice_obs_file = grid_file #GRIDFILE
-    print ('ICE_OBS_FILE: ',ice_obs_file)
     reg_file = envDict['REGION_MASK_FILE']
     ncl_location = envDict['NCLPATH']
 
@@ -294,7 +295,7 @@ def checkIceSplit(lat_lev, key_infile):
     f = Nio.open_file(key_infile,'r')
     if ('nj' in f.dimensions.keys()):
         dimSize = f.dimensions['nj']
-        if (dimSize != lat_lev):
+        if (int(dimSize) != int(lat_lev)):
           split = True
 
     return split
@@ -377,7 +378,7 @@ def main(options, debugMsg):
             if time_series == 'TRUE':
                 h_path = envDict['PATH_DIFF']+'/ice/proc/tseries/monthly/'
                 # Check to see if tseries is split into hemispheres
-                split = checkIceSplit(envDict['ICE_NY'], envDict['cont_key_infile'])
+                split = checkIceSplit(envDict['ICE_NY'], envDict['diff_key_infile'])
                 if split:
                     split_size = 'nj='+envDict['ICE_NY']+',ni='+envDict['ICE_NX']
             else:
@@ -386,7 +387,7 @@ def main(options, debugMsg):
 
             avg_BEGYR_DIFF = (int(envDict['ENDYR_DIFF']) - int(envDict['YRS_TO_AVG'])) + 1 
             createClimFiles(avg_BEGYR_DIFF, envDict['ENDYR_DIFF'], h_path, split, split_size,
-                            envDict['diff_htype'], envDict['diff_key_infile'], envDict['PATH_DIFF'], envDict['CASE_TO_DIFF'], 
+                            envDict['diff_htype'], envDict['diff_key_infile'], envDict['PATH_CLIMO_DIFF'], envDict['CASE_TO_DIFF'], 
                             'cice.h', varList, envDict, envDict['GRIDFILEDIFF'], envDict['BEGYR_DIFF'], envDict['ENDYR_DIFF'], debugMsg)
         except Exception as error:
             print(str(error))

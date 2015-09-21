@@ -22,7 +22,6 @@ import traceback
 # import the helper utility module
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
-import create_html
 
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
@@ -33,6 +32,7 @@ from ice_diags_bc import IceDiagnostic
 # import the plot classes
 from diagnostics.ice.Plots import ice_diags_plot_bc
 from diagnostics.ice.Plots import ice_diags_plot_factory
+import create_ice_html
 
 class modelVsModel(IceDiagnostic):
     """model vs. model ice diagnostics setup
@@ -80,13 +80,39 @@ class modelVsModel(IceDiagnostic):
         env['PREV_YR_AVG_LAST'] = env['ENDYR_DIFF']
         env['NEW_YR_AVG_FRST'] = (int(env['ENDYR_CONT']) - int(env['YRS_TO_AVG'])) + 1
         env['NEW_YR_AVG_LAST'] = env['ENDYR_CONT']
-        env['YR1'] = env['BEGYRS_CONT']
-        env['YR2'] = env['ENDYRS_CONT'] 
-        env['YR1_DIFF'] = env['BEGYRS_DIFF']
-        env['YR2_DIFF'] = env['ENDYRS_DIFF']
+        env['YR1'] = env['BEGYR_CONT']
+        env['YR2'] = env['ENDYR_CONT'] 
+        env['YR1_DIFF'] = env['BEGYR_DIFF']
+        env['YR2_DIFF'] = env['ENDYR_DIFF']
         env['PRE_PROC_ROOT_CONT'] = env['PATH_CLIMO_CONT']
         env['PRE_PROC_ROOT_DIFF'] = env['PATH_CLIMO_DIFF']
+        env['PATH_PLOT']= env['PATH_CLIMO_CONT']
 
+
+        # Link obs files into the climo directory
+        if (scomm.is_manager()):
+            # SSMI
+            # CONT CASE
+            new_ssmi_fn = env['PATH_CLIMO_CONT'] + '/' + os.path.basename(env['SSMI_PATH'])
+            rc1, err_msg1 = cesmEnvLib.checkFile(new_ssmi_fn, 'read')
+            if not rc1:
+                os.symlink(env['SSMI_PATH'],new_ssmi_fn)
+            # DIFF CASE
+            new_ssmi_fn = env['PATH_CLIMO_DIFF'] + '/' + os.path.basename(env['SSMI_PATH'])
+            rc1, err_msg1 = cesmEnvLib.checkFile(new_ssmi_fn, 'read')
+            if not rc1:
+                os.symlink(env['SSMI_PATH'],new_ssmi_fn)
+            # ASPeCt
+            #CONT CASE
+            new_ssmi_fn = env['PATH_CLIMO_CONT'] + '/' + os.path.basename(env['ASPeCt_PATH'])
+            rc1, err_msg1 = cesmEnvLib.checkFile(new_ssmi_fn, 'read')
+            if not rc1:
+                os.symlink(env['ASPeCt_PATH'],new_ssmi_fn)
+            #DIFF CASE
+            new_ssmi_fn = env['PATH_CLIMO_DIFF'] + '/' + os.path.basename(env['ASPeCt_PATH'])
+            rc1, err_msg1 = cesmEnvLib.checkFile(new_ssmi_fn, 'read')
+            if not rc1:
+                os.symlink(env['ASPeCt_PATH'],new_ssmi_fn)
         scomm.sync()
 
         return env
@@ -105,7 +131,7 @@ class modelVsModel(IceDiagnostic):
         # all the plot module XML vars start with 'set_'  need to strip that off
         for key, value in env.iteritems():
             if   ("PLOT_"in key and value == 'True'):
-                if ("DIFF" in key):
+                if ("DIFF" in key or 'PLOT_REGIONS' in key):
                     requested_plot_sets.append(key)        
         scomm.sync()
 
@@ -116,7 +142,7 @@ class modelVsModel(IceDiagnostic):
         for plot_set in requested_plot_sets:
             requested_plots.update(ice_diags_plot_factory.iceDiagnosticPlotFactory(plot_set,env))
         # partition based on the number of plots each set will create
-        local_plot_list = scomm.partition(requested_plot_sets, func=partition.EqualStride(), involved=True)  
+        local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)  
 
         timer = timekeeper.TimeKeeper()
         # loop over local plot lists - set env and then run plotting script         
@@ -140,6 +166,44 @@ class modelVsModel(IceDiagnostic):
 
         # set html files
         if scomm.is_manager():
+            # Setup (local) web directories
+            env['HTML_HOME'] = env['POSTPROCESS_PATH']+'/ice_diag/web/'
+            web_dir = env['WKDIR']+'/yrs'+env['BEGYR_CONT']+'-'+env['ENDYR_CONT']
+            if not os.path.exists(web_dir):
+                os.mkdir(web_dir)
+            if not os.path.exists(web_dir+'/contour'):
+                os.mkdir(web_dir+'/contour')
+            if not os.path.exists(web_dir+'/vector'):
+                os.mkdir(web_dir+'/vector')
+            if not os.path.exists(web_dir+'/line'):
+                os.mkdir(web_dir+'/line')
+            if not os.path.exists(web_dir+'/obs'):
+                os.mkdir(web_dir+'/obs')
+
+            # Move images tot the oppropriate directories
+            plot_dir_map = {'icesat':'obs', 'ASPeCt':'obs', 'diff_con_':'contour', 'diff_vec_':'vector', 'line':'line', 'clim':'line'}
+            for key,dir in plot_dir_map.iteritems():
+                glob_string = env['WKDIR']+'/*'+key+'*.png'
+                imgs = glob.glob(glob_string)
+                if imgs > 0:
+                    for img in imgs:
+                        new_fn = web_dir + '/' + dir + '/' + os.path.basename(img)
+                        os.rename(img,new_fn)
+
+            # Create/format the html files and copy txt and map files
+            shutil.copy(env['HTML_HOME']+'/ICESat.txt', web_dir+'/obs/ICESat.txt')
+            shutil.copy(env['HTML_HOME']+'/ASPeCt.txt', web_dir+'/obs/ASPeCt.txt')
+            glob_string = env['HTML_HOME']+'/maps/*'
+            maps = glob.glob(glob_string)
+            for map in maps:
+                mn = os.path.basename(map)
+                shutil.copy(map,web_dir+'/'+mn)
+
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/index_diff_temp.html',web_dir+'/index.html',env)
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/contour_diff.html',web_dir+'/contour.html',env)
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/timeseries_diff.html',web_dir+'/timeseries.html',env)
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/regional_diff.html',web_dir+'/regional.html',env)
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/vector_diff.html',web_dir+'/vector.html',env)
 
             if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 

@@ -22,7 +22,7 @@ import traceback
 # import the helper utility module
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
-import create_html
+import create_ice_html
 
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
@@ -145,6 +145,44 @@ class modelVsObs(IceDiagnostic):
 
         # set html files
         if scomm.is_manager():
+            # Setup (local) web directories
+            env['HTML_HOME'] = env['POSTPROCESS_PATH']+'/ice_diag/web/'    
+            web_dir = env['WKDIR']+'/yrs'+env['BEGYR_CONT']+'-'+env['ENDYR_CONT']
+            if not os.path.exists(web_dir):
+                os.mkdir(web_dir)
+            if not os.path.exists(web_dir+'/contour'):
+                os.mkdir(web_dir+'/contour')
+            if not os.path.exists(web_dir+'/vector'):
+                os.mkdir(web_dir+'/vector')
+            if not os.path.exists(web_dir+'/line'):
+                os.mkdir(web_dir+'/line')
+            if not os.path.exists(web_dir+'/obs'):
+                os.mkdir(web_dir+'/obs')                    
+
+            # Move images tot the oppropriate directories
+            plot_dir_map = {'icesat':'obs', 'ASPeCt':'obs', 'con_':'contour', 'vec_':'vector', 'line':'line', 'clim':'line'}
+            for key,dir in plot_dir_map.iteritems():
+                glob_string = env['WKDIR']+'/*'+key+'*.png'
+                imgs = glob.glob(glob_string)
+                if imgs > 0:
+                    for img in imgs:
+                        new_fn = web_dir + '/' + dir + '/' + os.path.basename(img)
+                        os.rename(img,new_fn)
+                       
+            # Create/format the html files and copy txt and map files
+            shutil.copy(env['HTML_HOME']+'/ICESat.txt', web_dir+'/obs/ICESat.txt')
+            shutil.copy(env['HTML_HOME']+'/ASPeCt.txt', web_dir+'/obs/ASPeCt.txt')
+            glob_string = env['HTML_HOME']+'/maps/*'
+            maps = glob.glob(glob_string)
+            for map in maps:
+                mn = os.path.basename(map)
+                shutil.copy(map,web_dir+'/'+mn)
+
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/index_temp.html',web_dir+'/index.html',env)
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/contour.html',web_dir+'/contour.html',env)
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/timeseries.html',web_dir+'/timeseries.html',env)
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/regional.html',web_dir+'/regional.html',env)
+            create_ice_html.create_plotset_html(env['HTML_HOME']+'/vector.html',web_dir+'/vector.html',env)
 
             if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
