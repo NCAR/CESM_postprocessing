@@ -66,7 +66,7 @@ else:
 #
 if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
     err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
-               'Please run $SRCROOT/postprocessing/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
+               'Please run $POSTPROCESSING_DIR/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
     raise OSError(err_msg)
 
 execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
@@ -95,6 +95,35 @@ class XmlEntry(object):
     def desc(self):
         return self._desc
 
+
+# -------------------------------------------------------------------------------
+# check_standalone - read the env_postprocess.xml, if it exists, and check for
+# the STANDALONE xml entry
+# -------------------------------------------------------------------------------
+def check_standalone(caseroot):
+    """read the env_postprocess.xml, if it exists, and check for
+    the STANDALONE xml entry
+    
+    Arguments:
+    caseroot (string) - caseroot directory path
+    
+    Returns:
+    standalone (boolean) - indicate if caseroot is standalone or not
+    """
+
+    configFile = '{0}/env_postprocess.xml'.format(caseroot)
+    rc, err_msg = cesmEnvLib.checkFile(configFile, 'read')
+    standalone = False
+
+    if rc:
+        xml_tree = etree.ElementTree()
+        xml_tree.parse(configFile)
+        for entry_tag in xml_tree.findall('entry'):
+            if (entry_tag.get('id') == 'STANDALONE' and entry_tag.get('value').lower() == 'true'):
+                standalone = True
+
+    return standalone
+
 # -------------------------------------------------------------------------------
 # commandline_options - parse any command line options
 # -------------------------------------------------------------------------------
@@ -121,6 +150,8 @@ def commandline_options():
 
     options = parser.parse_args()
 
+# TODO check the machine...
+
     # check to make sure CASEROOT is a valid, readable directory
     standalone = False
     if not os.path.isdir(options.caseroot[0]):
@@ -134,8 +165,15 @@ def commandline_options():
                 standalone = True
             except:
                 raise OSError('create_postprocess ERROR: cannot create a new caseroot. Exiting...')
+    # check if this is a standalone case that has already been created
     else:
-        raise OSError('create_postprocess ERROR: cannot open existing caseroot {0}. Exiting...'.format(options.caseroot[0]))
+        # read the env_postprocess.xml, if it exists, and check for STANDALONE flag
+        standalone = check_standalone(options.caseroot[0])
+        if (standalone):
+            if options.machine is None:
+                print('create_postprocess ERROR: cannot create a new caseroot without also specifying a supported machine. Exiting...')
+                sys.exit(1)
+        
     return options, standalone
 
 
@@ -176,7 +214,7 @@ def create_env_file(envDict, configFile, tmplFile, envFile, group, obs_root, sta
                 xml_list.append(xml_obs)
         
         # get the srcroot one level up from the postprocessing dir
-        srcroot = os.path.dirname(envDict['POSTPROCESS_DIR'])
+##        srcroot = os.path.dirname(envDict['POSTPROCESS_DIR'])
                                          
         # the xml_list now contains a list of XmlEntry classes that can be written to the template
         templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(envDict['POSTPROCESS_DIR']) )
@@ -185,7 +223,7 @@ def create_env_file(envDict, configFile, tmplFile, envFile, group, obs_root, sta
             template = templateEnv.get_template( tmplFile )
             templateVars = { 'caseroot' : envDict['CASEROOT'],
                              'case' : envDict['CASE'],
-                             'srcroot' : srcroot,
+                             'postprocess_dir' : envDict['POSTPROCESS_DIR'],
                              'xml_list' : xml_list,
                              'standalone' : standalone }
         

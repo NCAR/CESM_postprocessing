@@ -8,18 +8,10 @@
 <!-- env_postprocess.xml                                                     -->
 <!-- ======================================================================= -->
 
-<entry id="POSTPROCESS_PATH" 
- type="string"
- valid_values=""  
- value="$SRCROOT/postprocessing" 
- group="postprocess"
- desc="post processing location relative to the SRCROOT"
-></entry> 
-
 <entry id="POSTPROCESS_VIRTUALENV" 
  type="string"
  valid_values=""  
- value="$POSTPROCESS_PATH/cesm-env2" 
+ value="$POSTPROCESS_DIR/cesm-env2" 
  group="postprocess"
  desc="Path to the post processing python virtual environment created by the create_python_env.sh
 script in the postprocessing directory. The create_python_env.sh script is run once per

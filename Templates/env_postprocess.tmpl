@@ -4,9 +4,7 @@
 
 <!-- ======================================================================= -->
 <!-- env_postprocess.xml                                                     -->
-<!-- boolean (True / False) controls for enabling post processing tasks      -->
 <!-- ======================================================================= -->
-
 {% if standalone %}
 <!-- ============================================================================== -->
 <!-- User must define the following entry id / value pairs for standalone caseroot  -->
@@ -37,10 +35,14 @@
 <!-- case name -->
 <entry id="CASE" value="{{ case }}" />
 
-<!-- root location of local disk where postprocessing directory resides -->
-<entry id="SRCROOT" value="{{ srcroot }}" />
+<!-- standalone postprocessing directory (True or False) -->
+<entry id="STANDALONE" value="TRUE" />
+{% else %}
+<!-- standalone postprocessing directory (True or False) -->
+<entry id="STANDALONE" value="FALSE" />
 {% endif %}
-
+<!-- post processing directory location on local machine -->
+<entry id="POSTPROCESS_DIR" value="{{ postprocess_dir }}" />
 {% for xml in xml_list %}
 <!--"{{ xml._desc }}" -->
 <entry id="{{ xml._id }}" value="{{ xml._value }}" />

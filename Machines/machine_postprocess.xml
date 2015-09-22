@@ -45,7 +45,7 @@
 
   <machine name="edison">
     <timeseries_pes>96</timeseries_pes>
-    <mpi_command>aprun -n </mpi_command>
+    <mpi_command>aprun -n {{ pes }}</mpi_command>
     <pythonpath>/global/project/projectdirs/ccsm1/pythonlib/lib/python2.7/site-packages/PyNIO</pythonpath>
     <project></project>
     <modules>
