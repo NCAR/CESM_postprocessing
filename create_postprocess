@@ -213,9 +213,6 @@ def create_env_file(envDict, configFile, tmplFile, envFile, group, obs_root, sta
                 xml_obs = XmlEntry('DIAGOBSROOT', obs_root, 'Diagnostics observation files root path')
                 xml_list.append(xml_obs)
         
-        # get the srcroot one level up from the postprocessing dir
-##        srcroot = os.path.dirname(envDict['POSTPROCESS_DIR'])
-                                         
         # the xml_list now contains a list of XmlEntry classes that can be written to the template
         templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(envDict['POSTPROCESS_DIR']) )
         templateEnv = jinja2.Environment( loader=templateLoader )
@@ -362,6 +359,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     template = templateEnv.get_template( runTmpl )
     templateVars = { 'batchdirectives' : batchdirectives,
                      'modules' : modules,
+                     'pes' : pes,
                      'mpirun' : mpiCmd,
                      'pythonpath': pythonpath,
                      'processName' : processName,
@@ -474,8 +472,9 @@ def main(options, standalone):
     # generate the timeseries batch submit script from template files
     postProcessCmd = 'cesm_tseries_generator.py'
     outFile = '{0}/{1}.timeseries'.format(envDict['CASEROOT'], envDict['CASE'])
+    processName = '{0}.timeseries'.format(envDict['CASE'])
     create_batch(envDict['POSTPROCESS_DIR'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
-                 machine['mpi_command'], outFile, 'timeseries', machine['project'], machine['pythonpath'], 
+                 machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
                  envDict['CASEROOT'], machine['modules'], options, standalone)
 
     # generate the diagnostics batch submit scripts from template files
@@ -483,15 +482,17 @@ def main(options, standalone):
         # generate the averages batch submit script
         postProcessCmd = '{0}_avg_generator.py'.format(comp)
         outFile = '{0}/{1}.{2}_averages'.format(envDict['CASEROOT'], envDict['CASE'], comp)
+        processName = '{0}.{1}_averages'.format(envDict['CASE'], comp)
         create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
-                     machine['mpi_command'], outFile,'{0}_averages'.format(comp), machine['project'], machine['pythonpath'], 
+                     machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
                      envDict['CASEROOT'], machine['modules'], options, standalone)
 
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
         outFile = '{0}/{1}.{2}_diagnostics'.format(envDict['CASEROOT'], envDict['CASE'], comp)
+        processName = '{0}.{1}_diagnostics'.format(envDict['CASE'], comp)
         create_batch(envDict['POSTPROCESS_DIR'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
-                     machine['mpi_command'], outFile,'{0}_diagnostics'.format(comp), machine['project'], machine['pythonpath'], 
+                     machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
                      envDict['CASEROOT'], machine['modules'], options, standalone)
 
     print('*****************************************************************************************')

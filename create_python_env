@@ -204,14 +204,10 @@ module_check.py
 # compile and install ocn_diag remap shared object (remap.so) program
 #----------------------------------------------------------------------
 echo "---------------------------------------------------------"
-echo "$progname - Compiling ocn diagnostics remap tool."
-cd $pp_dir/ocn_diag/eco_lib
+echo "$progname - Compiling ocn diagnostics create_f2py_remap."
 
-# run the make clean command
-make clean
-
-# run the make command
-make all
+# reads XML and call subprocess f2py
+./create_f2py_remap
 
 #----------------------------------------------------------------------
 # cleanup and deactivate the virtualenv. 
@@ -229,8 +225,8 @@ cd $pp_dir/ocn_diag/tool_lib/zon_avg
 make clean
 
 # generate the necessary Macros file
-echo "calling... $cimeroot/cime_config/cesm/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot"
-$cimeroot/cime_config/cesm/machines/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot
+echo "calling... $cimeroot/tools/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot"
+$cimeroot/tools/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot
 
 # run the make command
 make
