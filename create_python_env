@@ -207,7 +207,7 @@ echo "---------------------------------------------------------"
 echo "$progname - Compiling ocn diagnostics create_f2py_remap."
 
 # reads XML and call subprocess f2py
-./create_f2py_remap
+./create_f2py_remap --machine $machine
 
 #----------------------------------------------------------------------
 # cleanup and deactivate the virtualenv. 

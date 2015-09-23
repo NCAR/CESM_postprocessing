@@ -15,12 +15,6 @@ module load ncl/6.1.1
 module load cray-netcdf/4.3.2
 module load cray-hdf5/1.8.13
 
-# make sure the intel environment is loaded
-module swap PrgEnv-gnu PrgEnv-intel 
-
-# create the ocn_diag/eco_lib/remap.so shared library
-f2py -c --fcompiler=intelem --f77exec=/opt/intel/composer_xe_2015.1.133/bin/intel64/ifort -m ../ocn_diag/eco_lib/remap ../ocn_diag/eco_lib/remap.f
-
 # may need basemap for ocn ecosys
 
 module list
