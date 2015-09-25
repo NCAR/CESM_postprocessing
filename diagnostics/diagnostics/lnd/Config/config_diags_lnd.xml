@@ -1,0 +1,985 @@
+<?xml version="1.0"?>
+
+<!-- =========================================================================== -->
+<!-- Land Model Diagnostics XML                             -->
+<!-- =========================================================================== -->
+
+<config_definition version="1.0">
+
+  <!-- =========================================================================== -->
+  <!-- lnd_settings - general settings to be applied to all diagnostics routines   -->
+  <!-- NOTE: case specific environment variables from env_*.xml will be            -->
+  <!-- gathered at runtime by the lnd_diags_generator.py python script.            -->
+  <!-- They do not need to be specified in this XML file.                          -->
+  <!-- The full $PATH variable will be set in the lnd_diags_generator.py file      -->
+  <!-- using all the path settings defined here.                                   -->
+  <!-- =========================================================================== -->
+
+  <entry id="LNDDIAG_DIAG_VERSION"
+         type="char"
+         valid_values=""
+         value="land_diag_2015"
+         group="diags_lnd"
+         desc="Package Version"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 1: Path to data                                                                                -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_PTMPDIR"
+         type="char"
+         valid_values=""
+         value="$DOUT_S_ROOT/lnd/proc/"
+         group="diags_lnd"
+         desc="Pre-process history file location"
+         ></entry>
+
+  <entry id="LNDDIAG_SOURCE_1"
+         type="char"
+         valid_values=""
+         value="$DOUT_S_ROOT"
+         group="diags_lnd"
+         desc="Location of history files for CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_SOURCE_2"
+         type="char"
+         valid_values=""
+         value="$DOUT_S_ROOT"
+         group="diags_lnd"
+         desc="Location of history files for CASE2"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 2a,2b: Diagnostic paths                                                                        -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_DIAG_HOME"
+         type="char"
+         valid_values=""
+         value="$POSTPROCESS_PATH/lnd_diag/"
+         group="diags_lnd"
+         desc="Diagnostic package location"
+         ></entry>
+
+  <entry id="LNDDIAG_OBS_HOME"
+         type="char"
+         valid_values=""
+         value="$DIAGOBSROOT/lnd/obs_data/"
+         group="diags_lnd"
+         desc="Location of observational datasets"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 2c: Compare to Observations in set 2                                                           -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_plotObs"
+         type="integer"
+         valid_values="1/0"
+         value="1"
+         group="diags_lnd"
+         desc="Compare to observations in set 2 (1 = compare to PD observations; 0 = OFF)"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 3: Location of the variable lists                                                              -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_INPUT_HOME"
+         type="char"
+         valid_values=""
+         value="$DIAG_HOME/code/"
+         group="diags_lnd"
+         desc="Path to variable list file"
+         ></entry>
+
+  <entry id="LNDDIAG_var_master_cn"
+         type="char"
+         valid_values=""
+         value="variable_master4.3.ncl"
+         group="diags_lnd"
+         desc="Master CN variable list"
+         ></entry>
+
+  <entry id="LNDDIAG_var_master_casa"
+         type="char"
+         valid_values=""
+         value="variable_master_CASA.ncl"
+         group="diags_lnd"
+         desc="Master CASA variable list"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 4: Runtypes (Users can select both model vs obs and model vs model)                            -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_MODEL_VS_OBS"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Controls whether to generate model vs. observations diagnostics"
+         ></entry>
+
+  <entry id="LNDDIAG_MODEL_VS_MODEL"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Controls whether to generate model vs. model diagnostics"
+         ></entry>
+
+  <entry id="LNDDIAG_CLEANUP_FILES"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Remove any existing diagnostic files."
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 5a: CASE1 settings                                                                             -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_COMPUTE_CLIMO_CASE1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Compute climatologies for CASE1."
+         ></entry>
+
+  <entry id="LNDDIAG_prefix_1"
+         type="char"
+         valid_values=""
+         value="$CASE"
+         group="diags_lnd"
+         desc="Output file names for CASE1 climos"
+         ></entry>
+
+  <entry id="LNDDIAG_caseid_1"
+         type="char"
+         valid_values=""
+         value="$CASE"
+         group="diags_lnd"
+         desc="History file case name for CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_lnd_modelstream_1"
+         type="char"
+         valid_values=""
+         value="clm2.h0"
+         group="diags_lnd"
+         desc="Identifying lnd model stream for CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_atm_modelstream_1"
+         type="char"
+         valid_values="cam.h0,cam2.h0"
+         value="cam.h0"
+         group="diags_lnd"
+         desc="Identifying atm model stream for CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_rtm_modelstream_1"
+         type="char"
+         valid_values=""
+         value="rtm.h0"
+         group="diags_lnd"
+         desc="Identifying rtm model stream for CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_commonName_1"
+         type="char"
+         valid_values=""
+         value="test"
+         group="diags_lnd"
+         desc="Common name for ID'ing CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_UseCommonName_1"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Use common name for CASE1 in plots"
+         ></entry>
+
+  <entry id="LNDDIAG_CASE1_TIMESERIES"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Use tseries files to compute CASE1 climos."
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 5b: CASE2 settings                                                                             -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_COMPUTE_CLIMO_CASE2"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Compute climatologies for CASE2."
+         ></entry>
+
+  <entry id="LNDDIAG_prefix_2"
+         type="char"
+         valid_values=""
+         value="$CASE"
+         group="diags_lnd"
+         desc="Output file names for CASE2 climos"
+         ></entry>
+
+  <entry id="LNDDIAG_caseid_2"
+         type="char"
+         valid_values=""
+         value="$CASE"
+         group="diags_lnd"
+         desc="History file case name for CASE2"
+         ></entry>
+
+  <entry id="LNDDIAG_lnd_modelstream_2"
+         type="char"
+         valid_values=""
+         value="clm2.h0"
+         group="diags_lnd"
+         desc="Identifying model stream for CASE2"
+         ></entry>
+
+  <entry id="LNDDIAG_atm_modelstream_2"
+         type="char"
+         valid_values="cam.h0,cam2.h0"
+         value="cam.h0"
+         group="diags_lnd"
+         desc="Identifying atm model stream for CASE2"
+         ></entry>
+
+  <entry id="LNDDIAG_rtm_modelstream_2"
+         type="char"
+         valid_values=""
+         value="rtm.h0"
+         group="diags_lnd"
+         desc="Identifying rtm model stream for CASE2"
+         ></entry>
+
+  <entry id="LNDDIAG_commonName_2"
+         type="char"
+         valid_values=""
+         value="test"
+         group="diags_lnd"
+         desc="Common name for ID'ing CASE2"
+         ></entry>
+
+  <entry id="LNDDIAG_UseCommonName_2"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Use common name for CASE2 in plots"
+         ></entry>
+
+  <entry id="LNDDIAG_CASE2_TIMESERIES"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Use tseries files to compute CASE2 climos."
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 6: Set which climatological files need to be created                                           -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_overWriteTrend"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Overwrite existing trend files"
+         ></entry>
+
+  <entry id="LNDDIAG_overWriteClimo"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Overwrite existing climo files"
+         ></entry>
+
+  <entry id="LNDDIAG_weightAnnAvg"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Create annual average as a weighted average"
+         ></entry>
+
+  <entry id="LNDDIAG_meansFlag"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Create seasonal means. Required for Model vs Model, optional for Model vs Obs"
+         ></entry>
+
+<!-- CASE1 -->
+
+  <entry id="LNDDIAG_trends_lnd_1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Create trends for CASE1. (set1 & set6) Make trends for case1 simulation"
+         ></entry>
+
+  <entry id="LNDDIAG_climo_lnd_1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Create climos for CASE1. (set2 & set3 & set5 & set7) Make climo for case1 simulation"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_atm_1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Create trends for atm CASE1. (set4)  Make atm trends for case1"
+         ></entry>
+
+  <entry id="LNDDIAG_climo_atm_1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Create climos for atm CASE1. (set4)  Make atm climo for case1"
+         ></entry>
+
+  <entry id="LNDDIAG_rtm_1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="(set7) Set to True for case1 if RTM variables are on separate history files"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_rtm_1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Create trends for rtm CASE1. (set7) Set to True for case1 if RTM variables are on separate history files"
+         ></entry>
+
+  <entry id="LNDDIAG_climo_rtm_1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Create climos for rtm CASE1 (set7)"
+         ></entry>
+
+<!-- CASE2 -->
+
+  <entry id="LNDDIAG_trends_lnd_2"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Create trends for CASE2. (set1 & set6) Make trends for case2 simulation"
+         ></entry>
+
+  <entry id="LNDDIAG_climo_lnd_2"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Create climos for CASE2. (set2 & set3 & set5 & set7) Make climo for case2 simulation"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_atm_2"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Create trends for atm CASE2.  (set4)  Make atm trends for case2"
+         ></entry>
+
+  <entry id="LNDDIAG_climo_atm_2"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Create climos for atm CASE2.  (set4)  Make atm climo for case2"
+         ></entry>
+
+  <entry id="LNDDIAG_rtm_2"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="(set7) Set to True for case2 if RTM variables are on separate history files"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_rtm_2"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Create trends for rtm CASE2. (set7) Set to True for case2 if RTM variables are on separate history files"
+         ></entry>
+
+  <entry id="LNDDIAG_climo_rtm_2"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Create climos for rtm CASE2 (set7)"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 7,8: Set date ranges                                                                                -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_clim_first_yr_1"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Start year for CASE1 (CLIMO)"
+         ></entry>
+
+  <entry id="LNDDIAG_clim_num_yrs_1"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Number of years for CASE1 (CLIMO)"
+         ></entry>
+
+  <entry id="LNDDIAG_clim_first_yr_2"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Start year for CASE2 (CLIMO)"
+         ></entry>
+
+  <entry id="LNDDIAG_clim_num_yrs_2"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Number of years for CASE2 (CLIMO)"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_first_yr_1"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Start year for CASE1 (TRENDS)"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_num_yrs_1"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Number of years for CASE1 (TRENDS)"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_first_yr_2"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Start year for CASE2 (TRENDS)"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_num_yrs_2"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Number of years for CASE2 (TRENDS)"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 9: SPECIAL CASE DESCRIPTION                                                                    -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_trends_match_Flag"
+         type="logical"
+         valid_values="True/False"
+         value=""
+         group="diags_lnd"
+         desc="Compare different years for trends"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_match_yr_1"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="First year of overlap case1 (TRENDS)"
+         ></entry>
+
+  <entry id="LNDDIAG_trends_match_yr_2"
+         type="integer"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="First year of overlap case2 (TRENDS)"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 10: Active variables?                                                                          -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_CN"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Logical: Is CN active?"
+         ></entry>
+
+  <entry id="LNDDIAG_C13"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Logical: Is C13 active?"
+         ></entry>
+
+  <entry id="LNDDIAG_CLAMP"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="True: CLAMP terminology/False: CLM-CN terminology"
+         ></entry>
+
+  <entry id="LNDDIAG_CASA"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="True: CASA terminology/False: CLM-CN terminology"
+         ></entry>
+
+  <entry id="LNDDIAG_HYDRO"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Logical: HYDRO vars active?"
+         ></entry>
+
+
+<!-- ============================================================================================== -->
+<!-- 11: Select Plot Sets                                                                           -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_set_0"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Plot Set 0: PRE-SCREEN for NaNs"
+         ></entry>
+
+  <entry id="LNDDIAG_set_1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Plot Set 1: ANNUAL TRENDS"
+         ></entry>
+
+  <entry id="LNDDIAG_set_2"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Plot Set 2: CE CONTOUR PLOTS"
+         ></entry>
+
+  <entry id="LNDDIAG_set_3"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Plot Set 3: REGIONAL MONTHLY 2M-TEMP,PRECIP,RUNOFF,RADIATIVE AND TURBULENT FLUXES"
+         ></entry>
+
+  <entry id="LNDDIAG_set_4"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Plot Set 4: VERTICAL PROFILES"
+         ></entry>
+
+  <entry id="LNDDIAG_set_5"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Plot Set 5: ANNUAL MEANS OF REGIONAL HYDROLOGIC CYCLE AND GLOBAL QUANTITIES"
+         ></entry>
+
+  <entry id="LNDDIAG_set_6"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Plot Set 6: ANNUAL TRENDS FOR REGIONS"
+         ></entry>
+
+  <entry id="LNDDIAG_set_7"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Plot Set 7: RIVER FLOW AND DISCHARGE"
+         ></entry>
+
+  <entry id="LNDDIAG_set_8"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Plot Set 8: OCN-ATMOS TRACERS"
+         ></entry>
+
+  <entry id="LNDDIAG_set_8_lnd"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Plot Set 8_lnd: LND-ATMOS TRACERS"
+         ></entry>
+
+  <entry id="LNDDIAG_set_9"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Plot Set 9: VALIDATION DIAGNOSTICS (ONLY FOR MODEL-MODEL)"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 12: Select Plot Options									    --> 
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_projection"
+         type="integer"
+         valid_values="0/1"
+         value="0"
+         group="diags_lnd"
+         desc="1=Cylindrical Equidistant, 0=Robinson"
+         ></entry>
+
+  <entry id="LNDDIAG_colormap"
+         type="integer"
+         valid_values="0/1"
+         value="1"
+         group="diags_lnd"
+         desc="1=use Blue-Yellow-Red Colormap, 0=use original colormaps"
+         ></entry>
+
+  <entry id="LNDDIAG_density"
+         type="integer"
+         valid_values=""
+         value="144"
+         group="diags_lnd"
+         desc="Controls density of output images"
+         ></entry>
+
+  <entry id="LNDDIAG_raster"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="Raster mode for set2 contour plots"
+         ></entry>
+
+  <entry id="LNDDIAG_time_stamp"
+         type="logical"
+         valid_values="True,False"
+         value="False"
+         group="diags_lnd"
+         desc="turn on time stamp on bottom of plots"
+         ></entry>
+
+  <entry id="LNDDIAG_p_type"
+         type="char"
+         valid_values="ps/png"
+         value="png"
+         group="diags_lnd"
+         desc="Plot output type"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 13: Web Options                                                                                -->
+<!-- ============================================================================================== -->
+
+  <entry id="LNDDIAG_DOWEB"
+         type="logical"
+         valid_values="True,False"
+         value="True"
+         group="diags_lnd"
+         desc="Controls whether to create web files or not"
+         ></entry>
+
+  <entry id="LNDDIAG_WEBHOST"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Remote web host machine."
+         ></entry>
+
+  <entry id="LNDDIAG_WEBLOGIN"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Remote web host login name."
+         ></entry>
+
+  <entry id="LNDDIAG_WEBDIR"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Remote machine path to AMWG diagnostics HTML directory."
+         ></entry>
+
+  <entry id="LNDDIAG_email"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="Send email at package completion"
+         ></entry>
+
+  <entry id="LNDDIAG_email_address"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Email address to send completion message to"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 14: Regridding Options                                                                         -->
+<!-- ============================================================================================== -->
+
+<!-- CASE 1 -->
+
+  <entry id="LNDDIAG_regrid_1"
+         type="logical"
+         valid_values="True,False"
+         value="False"
+         group="diags_lnd"
+         desc="Regrid CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_method_1"
+         type="char"
+         valid_values=""
+         value="conserve"
+         group="diags_lnd"
+         desc="Regridding method used for CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_old_res_1"
+         type="char"
+         valid_values=""
+         value="SE_NE30"
+         group="diags_lnd"
+         desc="Resolution to regrid from for CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_new_res_1"
+         type="char"
+         valid_values=""
+         value="FV_192x288"
+         group="diags_lnd"
+         desc="Resolution to regrid to for CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_wgt_dir_1"
+         type="char"
+         valid_values=""
+         value="$DIAGOBSROOT/lnd/regriddingFiles/ne30/"
+         group="diags_lnd"
+         desc="Exact path to weighted file directory"
+         ></entry>
+
+  <entry id="LNDDIAG_area_dir_1"
+         type="char"
+         valid_values=""
+         value="$DIAGOBSROOT/lnd/regriddingFiles/"
+         group="diags_lnd"
+         desc="Exact path to area file directory"
+         ></entry>
+
+<!-- CASE 2 -->
+
+  <entry id="LNDDIAG_regrid_2"
+         type="logical"
+         valid_values="True,False"
+         value="False"
+         group="diags_lnd"
+         desc="Regrid CASE2"
+         ></entry>
+
+  <entry id="LNDDIAG_method_2"
+         type="char"
+         valid_values=""
+         value="conserve"
+         group="diags_lnd"
+         desc="Regridding method used for CASE2"
+         ></entry>
+
+  <entry id="LNDDIAG_old_res_2"
+         type="char"
+         valid_values=""
+         value="SE_NE30"
+         group="diags_lnd"
+         desc="Resolution to regrid from for CASE2"
+         ></entry>
+
+  <entry id="LNDDIAG_new_res_2"
+         type="char"
+         valid_values=""
+         value="FV_192x288"
+         group="diags_lnd"
+         desc="Resolution to regrid to for CASE2"
+         ></entry>
+
+  <entry id="LNDDIAG_wgt_dir_2"
+         type="char"
+         valid_values=""
+         value="$DIAGOBSROOT/lnd/regriddingFiles/ne30/"
+         group="diags_lnd"
+         desc="Exact path to weighted file directory"
+         ></entry>
+
+  <entry id="LNDDIAG_area_dir_2"
+         type="char"
+         valid_values=""
+         value="$DIAGOBSROOT/lnd/regriddingFiles/"
+         group="diags_lnd"
+         desc="Exact path to area file directory"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 15: Plot set 2 options                                                                         -->
+<!-- ============================================================================================== -->
+
+   <entry id="LNDDIAG_sig_lvl"
+         type="integer"
+         valid_values=""
+         value="0.10"
+         group="diags_lnd"
+         desc="level of significance (set 2)"
+         ></entry>
+
+   <entry id="LNDDIAG_reg_contour"
+         type="integer"
+         valid_values=""
+         value="1"
+         group="diags_lnd"
+         desc="0 = SUBREGION, 1 = GLOBAL (set 2)"
+         ></entry>
+
+   <entry id="LNDDIAG_min_lat"
+         type="integer"
+         valid_values=""
+         value="30."
+         group="diags_lnd"
+         desc="southern boundary in degrees north (set 2)"
+         ></entry>
+
+   <entry id="LNDDIAG_max_lat"
+         type="integer"
+         valid_values=""
+         value="80."
+         group="diags_lnd"
+         desc="northern boundary in degrees north (set 2)"
+         ></entry>
+
+   <entry id="LNDDIAG_min_lon"
+         type="integer"
+         valid_values=""
+         value="-130."
+         group="diags_lnd"
+         desc="western boundary in degrees east (set 2)"
+         ></entry>
+
+   <entry id="LNDDIAG_max_lon"
+         type="integer"
+         valid_values=""
+         value="-50."
+         group="diags_lnd"
+         desc="eastern boundary in degrees east (set 2)"
+         ></entry>
+
+   <entry id="LNDDIAG_OBS_RES"
+         type="char"
+         valid_values=""
+         value="T42"
+         group="diags_lnd"
+         desc="observation resolution (set 2)"
+         ></entry>
+
+<!-- ============================================================================================== -->
+<!-- 16: Paleo Options                                                                              -->
+<!-- ============================================================================================== -->
+
+   <entry id="LNDDIAG_paleo"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="True: use or create coastlines"
+         ></entry>
+
+   <entry id="LNDDIAG_land_mask1"
+         type="integer"
+         valid_values=""
+         value="0"
+         group="diags_lnd"
+         desc="minimum land in test case (fraction 0-1)  (default=0)"
+         ></entry>
+
+   <entry id="LNDDIAG_land_mask2"
+         type="integer"
+         valid_values=""
+         value="0"
+         group="diags_lnd"
+         desc="minimum land in std case (fraction 0-1)  (default=0)"
+         ></entry>
+
+   <entry id="LNDDIAG_paleo_diff_plots"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_lnd"
+         desc="True: make difference plots for different continental outlines"
+         ></entry>
+
+
+</config_definition>
+
