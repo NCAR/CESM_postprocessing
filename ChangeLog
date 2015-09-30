@@ -8,6 +8,17 @@ This file describes what tags were created and why
 Originator: aliceb
 Date: 30 September 2015
 Model: postprocessing
+Version: postprocessing_20150930a
+One-line: redefined POSTPROCESS_PATH instead of POSTPROCESS_DIR
+	
+M       Templates/env_postprocess.tmpl
+M       create_postprocess
+
+================================================================================
+	
+Originator: aliceb
+Date: 30 September 2015
+Model: postprocessing
 Version: postprocessing_20150930
 One-line: update for edison and redefined POSTPROCESS_PATH instead of 
 POSTPROCESS_DIR

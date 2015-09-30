@@ -66,7 +66,7 @@ else:
 #
 if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
     err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
-               'Please run $POSTPROCESSING_DIR/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
+               'Please run $POSTPROCESSING_PATH/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
     raise OSError(err_msg)
 
 execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
@@ -220,7 +220,7 @@ def create_env_file(envDict, configFile, tmplFile, envFile, group, obs_root, sta
             template = templateEnv.get_template( tmplFile )
             templateVars = { 'caseroot' : envDict['CASEROOT'],
                              'case' : envDict['CASE'],
-                             'postprocess_dir' : envDict['POSTPROCESS_PATH'],
+                             'postprocess_path' : envDict['POSTPROCESS_PATH'],
                              'xml_list' : xml_list,
                              'standalone' : standalone }
         
