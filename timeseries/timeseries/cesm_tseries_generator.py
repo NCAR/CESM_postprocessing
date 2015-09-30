@@ -138,7 +138,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, debug):
                         # check if tseries_tper is specified and is valid 
                         if file_spec.find("tseries_tper") is not None:
                             tseries_tper = file_spec.find("tseries_tper").text
-                            if tseries_tper not in ["yearly","monthly","weekly","daily","hourly6","hourly3","hourly1","min30"]:
+                            if tseries_tper not in ["annual","yearly","monthly","weekly","daily","hourly6","hourly3","hourly1","min30"]:
                                 err_msg = "cesm_tseries_generator.py error: tseries_tper invalid for data stream {0}.*.{1}".format(comp,file_extension)
                                 raise TypeError(err_msg)
                         else:

@@ -11,7 +11,7 @@
 <entry id="POSTPROCESS_VIRTUALENV" 
  type="string"
  valid_values=""  
- value="$POSTPROCESS_DIR/cesm-env2" 
+ value="$POSTPROCESS_PATH/cesm-env2" 
  group="postprocess"
  desc="Path to the post processing python virtual environment created by the create_python_env.sh
 script in the postprocessing directory. The create_python_env.sh script is run once per

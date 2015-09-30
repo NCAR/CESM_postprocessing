@@ -23,7 +23,7 @@
       </file_extension>
       <file_extension suffix=".h1\.+">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_output_subdir>proc/tseries/daily</tseries_output_subdir>
 	<tseries_tper>daily</tseries_tper>
@@ -119,7 +119,7 @@
       </file_extension>
       <file_extension suffix=".h1\.+">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_output_subdir>proc/tseries/daily</tseries_output_subdir>
 	<tseries_tper>daily</tseries_tper>
@@ -185,7 +185,7 @@
       </file_extension>
       <file_extension suffix=".h1\.+">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_output_subdir>proc/tseries/daily</tseries_output_subdir>
 	<tseries_tper>daily</tseries_tper>
@@ -254,7 +254,7 @@
       </file_extension>
       <file_extension suffix=".h.nday1\.+">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_output_subdir>proc/tseries/daily</tseries_output_subdir>
 	<tseries_tper>daily</tseries_tper>
@@ -274,6 +274,22 @@
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_output_subdir>undefined</tseries_output_subdir>
 	<tseries_tper>undefined</tseries_tper>
+	<tseries_filecat_years>1</tseries_filecat_years>
+      </file_extension>
+      <file_extension suffix=".h.ecosys.nyear1\.+">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_output_subdir>proc/tseries/annual</tseries_output_subdir>
+	<tseries_tper>annual</tseries_tper>
+	<tseries_filecat_years>10</tseries_filecat_years>
+      </file_extension>
+      <file_extension suffix=".h.ecosys.nday1\.+">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_output_subdir>proc/tseries/daily</tseries_output_subdir>
+	<tseries_tper>daily</tseries_tper>
 	<tseries_filecat_years>1</tseries_filecat_years>
       </file_extension>
     </files>
