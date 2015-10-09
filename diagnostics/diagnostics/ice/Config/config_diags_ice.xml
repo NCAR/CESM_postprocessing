@@ -67,6 +67,14 @@
          desc="For plotting a single case"
          ></entry>
 
+  <entry id="ICEDIAG_CONT_TIMESERIES"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Use tseries files to compute cont climos."
+         ></entry>
+
   <entry id="ICEDIAG_GRID_CONT"
          type="char"
          valid_values=""
@@ -141,6 +149,14 @@
          value=""
          group="diags_ice"
          desc="Difference plots will be of the form: CASE_TO_CONT - CASE_TO_DIFF"
+         ></entry>
+
+  <entry id="ICEDIAG_DIFF_TIMESERIES"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_ice"
+         desc="Use tseries files to compute diff climos."
          ></entry>
 
   <entry id="ICEDIAG_GRID_DIFF"

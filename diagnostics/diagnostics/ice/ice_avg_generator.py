@@ -335,19 +335,19 @@ def main(options, debugMsg):
 
     # get model history file information from the DOUT_S_ROOT archive location
     debugMsg('calling checkHistoryFiles for control run', header=True)
-    time_series = envDict['GENERATE_TIMESERIES']
+    cont_time_series = envDict['CONT_TIMESERIES']
 
     suffix = 'cice.h.*.nc'
     filep = '.*\.cice.h.\d{4,4}-\d{2,2}\.nc'
     start_year, stop_year, in_dir, envDict['cont_htype'],  envDict['cont_key_infile'] = diagUtilsLib.checkHistoryFiles(
-        time_series, envDict['PATH_CONT'], envDict['CASE_TO_CONT'], envDict['BEGYR_CONT'], envDict['ENDYR_CONT'],
+        cont_time_series, envDict['PATH_CONT'], envDict['CASE_TO_CONT'], envDict['BEGYR_CONT'], envDict['ENDYR_CONT'],
         'ice',suffix,filep)
     
 
     if envDict['COMPUTE_CLIMO_CONT'] == 'True':
         try:
             split_size = None
-            if time_series == 'TRUE':
+            if cont_time_series == 'True':
                 h_path = envDict['PATH_CONT']+'/ice/proc/tseries/monthly/'
                 # Check to see if tseries is split into hemispheres
                 split = checkIceSplit(envDict['ICE_NY'], envDict['cont_key_infile'])
@@ -368,14 +368,15 @@ def main(options, debugMsg):
 
     if (envDict['MODEL_VS_MODEL'] == 'True' and envDict['COMPUTE_CLIMO_DIFF'] == 'True'):
         try:
+            diff_time_series = envDict['DIFF_TIMESERIES']
             split_size = None
             suffix = 'cice.h.*.nc'
             filep = '.*\.cice.h.\d{4,4}-\d{2,2}\.nc'
             start_year, stop_year, in_dir, envDict['diff_htype'],  envDict['diff_key_infile'] = diagUtilsLib.checkHistoryFiles(
-            time_series, envDict['PATH_DIFF'], envDict['CASE_TO_DIFF'], envDict['BEGYR_DIFF'], envDict['ENDYR_DIFF'],
+            diff_time_series, envDict['PATH_DIFF'], envDict['CASE_TO_DIFF'], envDict['BEGYR_DIFF'], envDict['ENDYR_DIFF'],
             'ice',suffix,filep)
 
-            if time_series == 'TRUE':
+            if diff_time_series == 'True':
                 h_path = envDict['PATH_DIFF']+'/ice/proc/tseries/monthly/'
                 # Check to see if tseries is split into hemispheres
                 split = checkIceSplit(envDict['ICE_NY'], envDict['diff_key_infile'])
