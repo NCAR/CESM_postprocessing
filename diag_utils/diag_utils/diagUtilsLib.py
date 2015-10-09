@@ -58,13 +58,13 @@ def generate_ncl_plots(env, nclPlotFile):
     # check if the nclPlotFile exists - 
     # don't exit if it does not exists just print a warning.
     nclFile = '{0}/{1}'.format(env['NCLPATH'],nclPlotFile)
-    print('      calling NCL plot routine {0}'.format(nclFile))
+    print('      calling NCL routine {0}'.format(nclFile))
     rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
     if rc:
         try:
             pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
             output = pipe.communicate()[0]
-            print('NCL plot routine {0} \n {1}'.format(nclFile,output))            
+            print('NCL routine {0} \n {1}'.format(nclFile,output))            
             while pipe.poll() is None:
                 time.sleep(0.5)
         except OSError as e:
@@ -73,7 +73,7 @@ def generate_ncl_plots(env, nclPlotFile):
             #print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclFile))
             #print('    {0} - {1}'.format(e.errno, e.strerror))
     else:
-        print('{0}... continuing with additional plots.'.format(err_msg))
+        print('{0}... continuing with additional NCL calls.'.format(err_msg))
 
     return 0
 
@@ -209,8 +209,8 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
 
     # get the file paths and formats - TO DO may need to get this from namelist var or env_archive
     files = '{0}.{1}'.format(case, suffix)
-    fformat = '{0}/{1}'.format(in_dir, files)
- 
+    fformat = '{0}/{1}*'.format(in_dir, files)
+   
     if htype == 'slice':
         # get the first and last years from the first and last monthly history files
         allHfiles = sorted(glob.glob(fformat))
@@ -517,4 +517,34 @@ def atm_regrid(climo_file, regrid_script, in_grid, out_grid, env):
 
     # Call ncl to regrid the climo file
     generate_ncl_plots(env_copy,regrid_script)
+
+
+#======================================================================
+# Function to regrid the lnd climatology files
+#======================================================================
+def lnd_regrid(climo_file, regrid_script, t, outdir, env):
+    """ Regrid the climatology file that was passed in
+    """
+    env['method']   = env['method_'+t]
+    env['wgt_dir']  = env['wgt_dir_'+t]
+    env['wgt_file'] = env['old_res_'+t]+'_to_'+env['new_res_'+t]+'.'+env['method_'+t]+'.nc'
+    env['area_dir'] = env['area_dir_'+t]
+    env['area_file']= env['new_res_'+t]+'_area.nc' 
+    env['procDir']  = outdir
+    env['oldres']   = env['old_res_'+t]
+    env['InFile']   = climo_file
+    env['OutFile']  = env['new_res_'+t]+'_'+os.path.basename(climo_file)
+    env['newfn']    = env['old_res_'+t]+'_'+os.path.basename(climo_file)
+     
+    # Stringify the env dictionary
+    env_copy = env.copy()
+    for name,value in env_copy.iteritems():
+        env_copy[name] = str(value)
+
+    # Call ncl to regrid the climo file
+    generate_ncl_plots(env_copy,regrid_script)
+    in_f = os.path.basename(climo_file)
+    os.rename(outdir+'/'+in_f, outdir+'/'+env['oldres']+in_f)
+    os.rename(outdir+'/'+env['OutFile'], outdir+'/'+in_f)
+
 
