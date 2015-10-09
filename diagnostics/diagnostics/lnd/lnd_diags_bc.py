@@ -46,32 +46,44 @@ class LandDiagnostic(object):
         # create the working directory first before calling the base class prerequisites
         endYr = (int(env['clim_first_yr_'+t]) + int(env['clim_num_yrs_'+t])) - 1  
         subdir = '{0}.{1}-{2}/{3}.{4}_{5}'.format(env['caseid_'+t], env['clim_first_yr_'+t], endYr,self._name.lower(), env['clim_first_yr_'+t], endYr)
-        workdir = '{0}/{1}/{2}'.format(env['PTMPDIR'], env['caseid_'+t], subdir)
+        workdir = '{0}/climo/{1}/{2}'.format(env['PTMPDIR'], env['caseid_'+t], subdir)
 
         if (scomm.is_manager()):
             try:
                 os.makedirs(workdir)
+                os.makedirs(workdir+'/atm')
+                os.makedirs(workdir+'/rof')
             except OSError as exception:
                 if exception.errno != errno.EEXIST:
                     err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(self.__class__.__name__, workdir)
                     raise OSError(err_msg)
 
-        # create symbolic links between the old and new workdir and get the real names of the files
-        old_workdir = env['PTMPDIR']+'/'+env['caseid_'+t]+'/'+env['caseid_'+t]+'.'+str(env['clim_first_yr_'+t])+'-'+str(endYr)
-        env['case'+t+'_path_climo'] = workdir
-        # Add links to the new wkrdir that use the expected file names (existing climos have dates, the NCL do not like dates)
-        if (scomm.is_manager()):
-            climo_files = glob.glob(old_workdir+'/*.nc') 
-            for climo_file in climo_files:
-                name_split = climo_file.split('.') # Split on '.'
-                if ('-' in name_split[-3]):
-                    fn = str.join('.',name_split[:len(name_split)-3] + name_split[-2:]) #Piece together w/o the date, but still has old path 
-                    path_split = fn.split('/') # Remove the path
-                    new_fn = workdir + '/' +path_split[-1] # Take file name and add it to new path
-                    rc1, err_msg1 = cesmEnvLib.checkFile(new_fn, 'read')
-                    if not rc1:
-                        os.symlink(climo_file,new_fn)
-
+            for model in ('lnd', 'atm', 'rtm'):
+                if ('rtm' in model):
+                    m_dir = 'rof'
+                else:
+                    m_dir = model
+                # create symbolic links between the old and new workdir and get the real names of the files
+                old_workdir = env['PTMPDIR']+'/climo/'+env['caseid_'+t]+'/'+env['caseid_'+t]+'.'+str(env['clim_first_yr_'+t])+'-'+str(endYr)+'/'+m_dir
+                env['case'+t+'_path_climo'] = workdir
+                if 'lnd' in model:
+                   workdir_mod = workdir
+                else:
+                    workdir_mod = workdir + '/' + m_dir
+                # Add links to the new wkrdir that use the expected file names (existing climos have dates, the NCL do not like dates)
+                if (scomm.is_manager()):
+                    climo_files = glob.glob(old_workdir+'/*.nc') 
+                    for climo_file in climo_files:
+                        name_split = climo_file.split('.') # Split on '.'
+                        if ('-' in name_split[-3]):
+                            fn = str.join('.',name_split[:len(name_split)-3] + name_split[-2:]) #Piece together w/o the date, but still has old path 
+                            path_split = fn.split('/') # Remove the path
+                            new_fn = workdir_mod + '/' +path_split[-1] # Take file name and add it to new path
+                            rc1, err_msg1 = cesmEnvLib.checkFile(new_fn, 'read')
+                            if not rc1:
+                                os.symlink(climo_file,new_fn)
+        env['DIAG_BASE'] = env['PTMPDIR'] 
+        env['PTMPDIR'] = workdir
         return env
 
     def check_prerequisites(self, env, scomm):

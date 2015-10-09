@@ -106,34 +106,43 @@ def regrid_climos(env,main_comm):
         if not os.path.exists(env['WKDIR']):
             os.makedirs(env['WKDIR'])
     main_comm.sync()
-   
-    env['NCLPATH'] = env['DIAG_HOME']+'/shared/'   
+ 
+    env['NCLPATH'] = env['POSTPROCESS_PATH']+'/lnd_diag/shared/'   
 
     # If SE grid, convert to lat/lon grid
     regrid_script = 'se2fv_esmf.regrid2file.ncl'
     # Convert Case1
-    if (env['regrid_1'] == 'True'):
-        # get list of climo files to regrid
-        # create the working directory first before calling the base class prerequisites
-        endYr = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1
-        subdir = '{0}.{1}-{2}'.format(env['caseid_1'], env['clim_first_yr_1'], endYr)
-        workdir = '{0}/{1}/{2}'.format(env['PTMPDIR'], env['caseid_1'], subdir)
-        climo_files = glob.glob( workdir+'/*.nc')
-        # partition the climo files between the ranks so each rank will get a portion of the list to regrid
-        local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
-        for climo_file in local_climo_files:
-            diagUtilsLib.lnd_regrid(climo_file, regrid_script, '1', workdir, env)
-    # Convert Case2
-    if (env['MODEL_VS_MODEL'] == 'True' and env['regrid_2'] == 'True'):
-        # get list of climo files to regrid
-        endYr = (int(env['clim_first_yr_2']) + int(env['clim_num_yrs_2'])) - 1
-        subdir = '{0}.{1}-{2}'.format(env['caseid_2'], env['clim_first_yr_2'], endYr)
-        workdir = '{0}/{1}/{2}'.format(env['PTMPDIR'], env['caseid_2'], subdir)
-        climo_files = glob.glob(workdir+'/*.nc')
-        # partition the climo files between the ranks so each rank will get a portion of the list to regrid
-        local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
-        for climo_file in local_climo_files:
-            diagUtilsLib.lnd_regrid(climo_file, regrid_script, '2', workdir, env)
+    for model in ('lnd', 'atm', 'rtm'):
+        if ('rtm' in models):
+            m_dir = 'rof'
+        else:
+            m_dir = model
+        if (env['regrid_1'] == 'True'):
+            # get list of climo files to regrid
+            # create the working directory first before calling the base class prerequisites
+            endYr = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1
+            subdir = '{0}.{1}-{2}'.format(env['caseid_1'], env['clim_first_yr_1'], endYr)
+            workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR'], env['caseid_1'], subdir, m_dir)
+            print('LOOKING TO REGRID IN: '+workdir)
+            climo_files = glob.glob( workdir+'/*.nc')
+            # partition the climo files between the ranks so each rank will get a portion of the list to regrid
+            local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
+            env['WORKDIR'] = workdir
+            for climo_file in local_climo_files:
+                diagUtilsLib.lnd_regrid(climo_file, regrid_script, '1', workdir, env)
+        # Convert Case2
+        if (env['MODEL_VS_MODEL'] == 'True' and env['regrid_2'] == 'True'):
+            # get list of climo files to regrid
+            endYr = (int(env['clim_first_yr_2']) + int(env['clim_num_yrs_2'])) - 1
+            subdir = '{0}.{1}-{2}'.format(env['caseid_2'], env['clim_first_yr_2'], endYr)
+            workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR'], env['caseid_2'], subdir, m_dir)
+            climo_files = glob.glob(workdir+'/*.nc')
+            # partition the climo files between the ranks so each rank will get a portion of the list to regrid
+            local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
+            env['WORKDIR'] = workdir
+            for climo_file in local_climo_files:
+                diagUtilsLib.lnd_regrid(climo_file, regrid_script, '2', workdir, env)
+    env['WORKDIR'] = env['WKDIR']
 
 #============================================
 # initialize_main - initialization from main
@@ -222,8 +231,17 @@ def main(options, main_comm, debugMsg):
     # broadcast envDict to all tasks
     envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
     sys.path.append(envDict['PATH'])
+    if (envDict['MODEL_VS_MODEL'] == 'True'):
+        envDict['WKDIR'] =  envDict['PTMPDIR']+'/diag/'+envDict['caseid_1']+'-'+envDict['caseid_2']+'/'
+    else:
+        envDict['WKDIR'] =  envDict['PTMPDIR']+'/diag/'+envDict['caseid_1']+'-obs/'
+    if envDict['CASA'] == '1':
+        envDict['VAR_MASTER'] = envDict['var_master_casa']
+    else:
+        envDict['VAR_MASTER'] = envDict['var_master_cn']
     main_comm.sync()
 
+    print('WORKDIR: '+envDict['WKDIR'])
     # check to see if the climos need to be regridded into a lat/lon grid
     if (envDict['regrid_1'] == 'True' or envDict['regrid_2'] == 'True'):
         regrid_climos(envDict, main_comm)

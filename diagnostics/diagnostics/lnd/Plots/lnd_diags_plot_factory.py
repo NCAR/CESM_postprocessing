@@ -16,7 +16,7 @@ import set_7_lnd
 import set_8_ann_cycle_lnd
 import set_8_ann_cycle
 import set_8_contour
-import set_8_DJF-JJA_contour
+import set_8_DJF_JJA_contour
 import set_8_trends
 import set_8_zonal_lnd
 import set_8_zonal
@@ -30,30 +30,30 @@ def LandDiagnosticPlotFactory(plot_type,env):
         plot_set['set_1'] = set_1_lnd.set_1(env)
         if (env['MODEL_VS_MODEL'] == 'True'):
             plot_set['set_1DiffPlot_lnd'] = set_1DiffPlot_lnd.set_1DiffPlot(env)
-    if plot_type == "set_2":
+    elif plot_type == "set_2":
         plot_set['set_2'] = set_2_lnd.set_2(env)
         if (env['MODEL_VS_MODEL'] == 'True'):
             plot_set['set_2_seas_lnd'] = set_2_seas_lnd.set_2_seas(env)
-    if plot_type == "set_3":
+    elif plot_type == "set_3":
         plot_set['set_3'] = set_3_lnd.set_3(env)
-    if plot_type == "set_4":
+    elif plot_type == "set_4":
         plot_set['set_4'] = set_4_lnd.set_4(env)
-    if plot_type == "set_5":
+    elif plot_type == "set_5":
         plot_set['set_5'] = set_5_lnd.set_5(env)
-    if plot_type == "set_6":
+    elif plot_type == "set_6":
         plot_set['set_6'] = set_6_lnd.set_6(env)
-    if plot_type == "set_7":
+    elif plot_type == "set_7":
         plot_set['set_7'] = set_7_lnd.set_7(env)
-    if plot_type == "set_8":
+    elif plot_type == "set_8":
         plot_set['set_8_zonal'] = set_8_zonal.set_8_zonal(env)
         plot_set['set_8_trends'] = set_8_trends.set_8_trends(env)
         plot_set['set_8_contour'] = set_8_contour.set_8_contour(env)
         plot_set['set_8_ann_cycle'] = set_8_ann_cycle.set_8_ann_cycle(env)
-        plot_set['set_8_DJF-JJA_contour'] = set_8_DJF-JJA_contour.set_8_DJF-JJA_contour(env)
-    if plot_type == "set_8_lnd":
+        plot_set['set_8_DJF_JJA_contour'] = set_8_DJF_JJA_contour.set_8_DJF_JJA_contour(env)
+    elif plot_type == "set_8_lnd":
         plot_set['set_8_ann_cycle_lnd'] = set_8_ann_cycle_lnd.set_8_ann_cycle_lnd(env)
         plot_set['set_8_zonal_lnd'] = set_8_zonal_lnd.set_8_zonal_lnd(env)
-    if plot_type == "set_9":
+    elif plot_type == "set_9":
         plot_set['set_9'] = set_9_lnd.set_9(env)
 
     else:

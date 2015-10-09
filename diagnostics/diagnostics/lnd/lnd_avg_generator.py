@@ -94,38 +94,42 @@ def buildLndAvgList(climo, avg_start_year, avg_stop_year, trends, trends_start_y
 
     if (climo == 'True'):
         # Seasonal Files
-        if envDict['significance'] == 'True':
-            for seas in envDict['seas']:
-                avgFile = '{0}.{1}-{2}.{3}_climo.nc'.format(avgFileBaseName, start_year, stop_year,seas)
-                rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-                if not rc:
-                    avgList.append('{0}_sig:{1}:{2}'.format(seas.lower(), start_year, stop_year))
+        for seas in envDict['seas']:
+            avgFile = '{0}.{1}-{2}.{3}_climo.nc'.format(avgFileBaseName, avg_start_year, avg_stop_year,seas)
+            rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+            if not rc:
+                if seas == 'ann':
+                    avgList.append('ann_sig:{0}:{1}'.format(avg_start_year, avg_stop_year))
+                else:
+                    avgList.append('dep_{0}:{1}:{2}'.format(seas.lower(), avg_start_year, avg_stop_year))
+            # seasonal means
+            avgFile = '{0}.{1}-{2}.{3}_means.nc'.format(avgFileBaseName, avg_start_year, avg_stop_year,seas)
+            rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+            if not rc:
+                avgList.append('{0}_mean:{1}:{2}'.format(seas.lower(), avg_start_year, avg_stop_year))
 
-                meanAvgFile = '{0}.{1}-{2}.{3}_mean.nc'.format(avgFileBaseName, start_year, stop_year,seas)
-                rc, err_msg = cesmEnvLib.checkFile(meanAvgFile, 'read')
-                if not rc:
-                    avgList.append('{0}_mean:{1}:{2}'.format(seas.lower(), start_year, stop_year))
-        else:
-            for seas in envDict['seas']:
-                avgFile = '{0}.{1}-{2}.{3}_climo.nc'.format(avgFileBaseName, start_year, stop_year,seas)
-                rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-                if not rc:
-                    avgList.append('dep_{0}:{1}:{2}'.format(seas.lower(), start_year, stop_year))
 
         # Monthly Files
         m_names = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec']
         for m in range(1,13):
             month = str(m).zfill(2)
-            avgFile = '{0}.{1}-{2}.{3}_climo.nc'.format(avgFileBaseName, start_year, stop_year,month)
+            avgFile = '{0}.{1}-{2}.{3}_climo.nc'.format(avgFileBaseName, avg_start_year, avg_stop_year,month)
             rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
             if not rc:
-                avgList.append('{0}:{1}:{2}'.format(m_names[m-1], start_year, stop_year))    
+                avgList.append('{0}:{1}:{2}'.format(m_names[m-1], avg_start_year, avg_stop_year))    
 
-    if (trends == 'True'):
-        avgFile = '{0}.{1}-{2}.ANN_ALL.nc'.format(avgFileBaseName, start_year, stop_year)
+        # Mons File
+        avgFile = '{0}.{1}-{2}.MONS_climo.nc'.format(avgFileBaseName, avg_start_year, avg_stop_year)
         rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
         if not rc:
-            avgList.append('annall:{1}:{2}'.format(start_year, stop_year))
+            avgList.append('mons:{0}:{1}'.format(avg_start_year, avg_stop_year))
+
+    # Trends
+    if (trends == 'True'):
+        avgFile = '{0}.{1}-{2}.ANN_ALL.nc'.format(avgFileBaseName, trends_start_year, trends_stop_year)
+        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+        if not rc:
+            avgList.append('annall:{0}:{1}'.format(trends_start_year, trends_stop_year))
         
     debugMsg('exit buildLndAvgList avgList = {0}'.format(avgList))
     return avgList
@@ -154,7 +158,7 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
 # callPyAverager - create the climatology files by calling the pyAverager
 #========================================================================
 def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out_dir, case_prefix, averageList, varList, 
-                   envDict, stream, grid_file, trend_year0, trend_year1, debugMsg):
+                   envDict, stream, trend_year0, trend_year1, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -168,12 +172,13 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
        averageList (list) - list of averages to be created
        varList (list) - list of variables. Note: an empty list implies all variables.
     """
-    wght = envDict['weight_months']
+    wght = envDict['weightAvg']
     if wght == 'True':
        wght = True
     else:
        wght = False
-    ncfrmt = 'netcdf'
+    #ncfrmt = 'netcdf'
+    ncfrmt = 'netcdfLarge'
     serial = False
     clobber = True
     if htype == 'series':
@@ -195,8 +200,6 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
     debugMsg('... varlist = {0}'.format(varList), header=True)
     debugMsg('... serial = {0}'.format(serial), header=True)
     debugMsg('... clobber = {0}'.format(clobber), header=True)
-    debugMsg('... lnd_obs_file = {0}'.format(lnd_obs_file), header=True)
-    debugMsg('... ncl_location = {0}'.format(ncl_location), header=True)
 
     try: 
         pyAveSpecifier = specification.create_specifier(
@@ -229,7 +232,7 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
 # createClimFiles - create the climatology files by calling the pyAverager
 #=========================================================================
 def createClimFiles(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out_dir, case, stream, inVarList, envDict, 
-                    trend_year0, trend_year1, climo, trends, debugMsg):
+                    trend_year0, trend_year1, climo, trends, model, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -243,7 +246,11 @@ def createClimFiles(avg_start_year, avg_stop_year, in_dir, htype, key_infile, ou
        inVarList (list) - if empty, then create climatology files for all vars
     """
     # create the list of averages to be computed
-    out_dir = out_dir+'/'+case+'.'+str(avg_start_year)+'-'+str(avg_stop_year)
+    if 'rtm' in model:
+        m_dir = 'rof'
+    else:
+        m_dir = model
+    out_dir = out_dir+case+'.'+str(avg_start_year)+'-'+str(avg_stop_year)+'/'+m_dir+'/'
     avgFileBaseName = '{0}/{1}.{2}'.format(out_dir,case,stream)
     case_prefix = '{0}.{1}'.format(case,stream)
     averageList = []
@@ -290,7 +297,7 @@ def initialize_envDict(envDict, caseroot, debugMsg):
 
     # strip the ATMDIAG_ prefix from the envDict entries before setting the 
     # enviroment to allow for compatibility with all the diag routine calls
-    envDict = diagUtilsLib.strip_prefix(envDict, 'LANDDIAG_')
+    envDict = diagUtilsLib.strip_prefix(envDict, 'LNDDIAG_')
 
     envDict['seas'] = ['djf','mam','jja','son','ann']
 
@@ -336,22 +343,29 @@ def main(options, debugMsg):
     for model in ('lnd', 'atm', 'rtm'):
         if envDict['climo_'+model+'_1'] == 'True' or envDict['trends_'+model+'_1'] == 'True':
             m_dir = model
-            if rtm in model:
+            if 'rtm' in model:
                 m_dir = 'rof'
+            
+            try:
 
-            suffix = envDict[model+'_modelstream_1']
-            filep = '.*\.'+suffix+'.\d{4,4}-\d{2,2}\.nc'
-            envDict['clim_last_yr_1'] = (int(envDict['clim_first_yr_1']) + int(envDict['clim_num_yrs_1'])) -1  
-            envDict['trends_last_yr_1'] = (int(envDict['trends_first_yr_1']) + int(envDict['trends_num_yrs_1'])) -1
+                suffix = envDict[model+'_modelstream_1']
+                filep = '.*\.'+suffix+'.\d{4,4}-\d{2,2}\.nc'
+                envDict['clim_last_yr_1'] = (int(envDict['clim_first_yr_1']) + int(envDict['clim_num_yrs_1'])) -1  
+                envDict['trends_last_yr_1'] = (int(envDict['trends_first_yr_1']) + int(envDict['trends_num_yrs_1'])) -1
 
-            # Check the history files for climos date range
-            start_year, stop_year, in_dir, envDict['case1_htype'],  envDict['case1_key_infile'] = diagUtilsLib.checkHistoryFiles(
-                case1_time_series, envDict['SOURCE_1'], envDict['caseid_1'], envDict['clim_first_yr_1'], envDict['clim_last_yr_1'],
-                m_dir,suffix,filep)
-            # Check the history files for trends date range
-            start_year, stop_year, in_dir, envDict['case1_htype'],  envDict['case1_key_infile'] = diagUtilsLib.checkHistoryFiles(
-                case1_time_series, envDict['SOURCE_1'], envDict['caseid_1'], envDict['trends_first_yr_1'], envDict['trends_last_yr_1'],
-                m_dir,suffix,filep)
+                # Check the history files for climos date range
+                start_year, stop_year, in_dir, envDict['case1_htype'],  envDict['case1_key_infile'] = diagUtilsLib.checkHistoryFiles(
+                    case1_time_series, envDict['SOURCE_1'], envDict['caseid_1'], envDict['clim_first_yr_1'], envDict['clim_last_yr_1'],
+                    m_dir,suffix,filep)
+                # Check the history files for trends date range
+                start_year, stop_year, in_dir, envDict['case1_htype'],  envDict['case1_key_infile'] = diagUtilsLib.checkHistoryFiles(
+                    case1_time_series, envDict['SOURCE_1'], envDict['caseid_1'], envDict['trends_first_yr_1'], envDict['trends_last_yr_1'],
+                    m_dir,suffix,filep)
+
+            except Exception as error:
+                print(str(error))
+                traceback.print_exc()
+                sys.exit(1)
     
 
             try:
@@ -359,26 +373,26 @@ def main(options, debugMsg):
                     h_path = envDict['SOURCE_1']+'/'+m_dir+'/proc/tseries/monthly/'
                 else:
                     h_path = envDict['SOURCE_1']+'/'+m_dir+'/hist/'
-                case1_climo_dir =  envDict['PTMPDIR']+'/'+ envDict['caseid_1']+'/' 
+                case1_climo_dir =  envDict['PTMPDIR']+'/climo/'+ envDict['caseid_1']+'/' 
  
                 createClimFiles(envDict['clim_first_yr_1'], envDict['clim_last_yr_1'], h_path, 
                                 envDict['case1_htype'], envDict['case1_key_infile'], case1_climo_dir, envDict['caseid_1'], 
                                 suffix, varList, envDict, envDict['trends_first_yr_1'], envDict['trends_last_yr_1'], 
-                                envDict['climo_'+model+'_1'], envDict['trends_'+model+'_1'], debugMsg)
+                                envDict['climo_'+model+'_1'], envDict['trends_'+model+'_1'], model, debugMsg)
             except Exception as error:
                 print(str(error))
                 traceback.print_exc()
                 sys.exit(1)
 
-    if (envDict['MODEL_VS_MODEL'] == 'True':
+    if (envDict['MODEL_VS_MODEL']) == 'True':
         for model in ('lnd', 'atm', 'rtm'):
             if envDict['climo_'+model+'_2'] == 'True' or envDict['trends_'+model+'_2'] == 'True':
                 m_dir = model
-                if rtm in model:
+                if 'rtm' in model:
                     m_dir = 'rof'
                 try:
                     diff_time_series = envDict['DIFF_TIMESERIES']
-                    suffix = envDict[[model+'modelstream_2']
+                    suffix = envDict[model+'modelstream_2']
                     filep = '.*\.'+suffix+'.\d{4,4}-\d{2,2}\.nc'
                     envDict['clim_last_yr_2'] = (int(envDict['clim_first_yr_2']) + int(envDict['clim_num_yrs_2'])) - 1
                     envDict['trends_last_yr_2'] = (int(envDict['trends_first_yr_2']) + int(envDict['trends_num_yrs_2'])) - 1
@@ -401,7 +415,7 @@ def main(options, debugMsg):
                     createClimFiles(envDict['clim_first_yr_2'], envDict['clim_last_yr_2'], h_path,
                                 envDict['case2_htype'], envDict['case2_key_infile'], case2_climo_dir, envDict['caseid_1'], 
                                 suffix, varList, envDict, envDict['trends_first_yr_2'], envDict['trends_last_yr_2'], 
-                                envDict['climo_'+model+'_2'], envDict['trends_'+model+'_2'], debugMsg)
+                                envDict['climo_'+model+'_2'], envDict['trends_'+model+'_2'], model, debugMsg)
                 except Exception as error:
                     print(str(error))
                     traceback.print_exc()

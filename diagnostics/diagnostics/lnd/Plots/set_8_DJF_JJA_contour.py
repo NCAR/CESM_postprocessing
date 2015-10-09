@@ -22,17 +22,17 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from lnd_diags_plot_bc import LandDiagnosticPlot
 
-class set_8_DJF-JJA_contour(LandDiagnosticPlot):
-    """Set set_8_DJF-JJA_contour Plots
+class set_8_DJF_JJA_contour(LandDiagnosticPlot):
+    """Set set_8_DJF_JJA_contour Plots
     """
 
     def __init__(self, env):
-        super(Vector, self).__init__()
+        super(set_8_DJF_JJA_contour, self).__init__()
 
         # Set plot class description variables
-        self._name = 'Set set_8_DJF-JJA_contour Plots'
-        self._shortname = 'set_8_DJF-JJA_contour'
-        self._template_file = 'set_8_DJF-JJA_contour.tmpl'
+        self._name = 'Set set_8_DJF_JJA_contour Plots'
+        self._shortname = 'set_8_DJF_JJA_contour'
+        self._template_file = 'set_8_DJF_JJA_contour.tmpl'
         self.ncl_scripts = ['set_8_DJF-JJA_contour.ncl']
         self.plot_env = env.copy()
 

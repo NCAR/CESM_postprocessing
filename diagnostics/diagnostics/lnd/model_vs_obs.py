@@ -18,6 +18,7 @@ import os
 import re
 import shutil
 import traceback
+import subprocess
 
 # import modules installed by pip into virtualenv
 import jinja2
@@ -25,7 +26,6 @@ import jinja2
 # import the helper utility module
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
-import create_lnd_html
 
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
@@ -65,15 +65,31 @@ class modelVsObs(LandDiagnostic):
         #diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
         # Set some new env variables
-        env['WKDIR'] =  envDict['PTMPDIR']+'/diag/'+envDict['caseid_1']+'-obs/'
+        env['WKDIR'] =  env['DIAG_BASE']+'/diag/'+env['caseid_1']+'-obs/'
         env['WORKDIR'] = env['WKDIR']
         if scomm.is_manager():
             if not os.path.exists(env['WKDIR']):
                 os.makedirs(env['WKDIR'])
         env['PLOTTYPE']       = env['p_type']
         env['OBS_DATA']       = env['OBS_HOME']
-        env['INPUT_FILES']    = env['DIAG_HOME']+'/inputFiles/'
-        env['DIAG_RESOURCES'] = env['DIAG_HOME']+'/resources/'
+        env['INPUT_FILES']    = env['POSTPROCESS_PATH']+'/lnd_diag/inputFiles/'
+        env['DIAG_RESOURCES'] = env['POSTPROCESS_PATH']+'/lnd_diag/resources/'
+
+        # Create variable files
+        if scomm.is_manager():
+            script = env['DIAG_SHARED']+'/create_var_lists.csh'
+            rc1, err_msg = cesmEnvLib.checkFile(script,'read')
+            if rc1:
+                try:
+                    pipe = subprocess.Popen([script], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
+                    output = pipe.communicate()[0]
+                    print(output)
+                    while pipe.poll() is None:
+                        time.sleep(0.5)
+                except OSError as e:
+                    print('WARNING',e.errno,e.strerror)
+            else:
+                print('{0}... {1} file not found'.format(err_msg,web_script_1))
 
         scomm.sync()
         return env
@@ -89,9 +105,6 @@ class modelVsObs(LandDiagnostic):
         local_requested_plots = list()
         local_html_list = list()
 
-        # define the templatePath for all tasks
-        templatePath = '{0}/diagnostics/diagnostics/lnd/Templates'.format(env['POSTPROCESS_PATH']) 
-
         # all the plot module XML vars start with 'set_'  need to strip that off
         for key, value in env.iteritems():
             if ("set_" in key and value == 'True'):
@@ -102,17 +115,18 @@ class modelVsObs(LandDiagnostic):
         # first, create plotting classes and get the number of plots each will created 
         requested_plots = {}
         set_sizes = {}
-        plots_weights = []
+        #plots_weights = []
         for plot_set in requested_plot_sets:
-            requested_plots.update(lnd_diags_plot_factory.landDiagnosticPlotFactory(plot_set,env))
-        for plot_id,plot_class in requested_plots.iteritems():
-            if hasattr(plot_class, 'weight'):
-                factor = plot_class.weight
-            else:
-                factor = 1
-            plots_weights.append((plot_id,len(plot_class.expectedPlots)*factor))
+            requested_plots.update(lnd_diags_plot_factory.LandDiagnosticPlotFactory(plot_set,env))
+        #for plot_id,plot_class in requested_plots.iteritems():
+        #    if hasattr(plot_class, 'weight'):
+        #        factor = plot_class.weight
+        #    else:
+        #        factor = 1
+        #    plots_weights.append((plot_id,len(plot_class.expectedPlots)*factor))
         # partition based on the number of plots each set will create
-        local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)  
+        #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)  
+        local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
 
         timer = timekeeper.TimeKeeper()
         # loop over local plot lists - set env and then run plotting script         
@@ -127,30 +141,46 @@ class modelVsObs(LandDiagnostic):
             for name,value in plot_class.plot_env.iteritems():
                 plot_class.plot_env[name] = str(value)
             # call script to create plots
+            for script in plot_class.ncl_scripts:
                 diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
             timer.stop(str(scomm.get_rank())+plot_set)
         timer.stop(str(scomm.get_rank())+"ncl total time on task") 
 
         scomm.sync()
         print(timer.get_all_times())
-        w = 0
-        for p in plots_weights:
-            if p[0] in local_plot_list:
-                w = w + p[1]
-        print(str(scomm.get_rank())+' weight:'+str(w))
+        #w = 0
+        #for p in plots_weights:
+        #    if p[0] in local_plot_list:
+        #        w = w + p[1]
+        #print(str(scomm.get_rank())+' weight:'+str(w))
 
         # set html files
         if scomm.is_manager():
 
-            web_script_1 = 'lnd_create_webpage.pl'
-            web_script_2 = 'lnd_lookupTable.pl'
+            # Create web dirs and move images/tables to that web dir
+            for n in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
+                web_dir = env['WEBDIR']
+                set_dir = web_dir + '/set' + n
+                # Create the plot set web directory
+                if not os.path.exists(set_dir):
+                    os.makedirs(set_dir)
+                # Copy plots into the correct web dir
+                glob_string = web_dir+'/set'+n+'_*'
+                imgs = glob.glob(glob_string)
+                if len(imgs) > 0:
+                    for img in imgs:
+                        new_fn = set_dir + '/' + os.path.basename(img)
+                        os.rename(img,new_fn)
+
+            web_script_1 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_create_webpage.pl'
+            web_script_2 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_lookupTable.pl'
 
             print('Creating Web Pages')
             # lnd_create_webpage.pl call
             rc1, err_msg = cesmEnvLib.checkFile(web_script_1,'read')
             if rc1:
                 try:
-                    pipe = subprocess.Popen(['perl {0}'.format((web_script_1)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
+                    pipe = subprocess.Popen(['perl {0}'.format(web_script_1)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
                     output = pipe.communicate()[0]
                     print(output)
                     while pipe.poll() is None:
@@ -164,7 +194,7 @@ class modelVsObs(LandDiagnostic):
             rc2, err_msg = cesmEnvLib.checkFile(web_script_2,'read')
             if rc2:
                 try:
-                    pipe = subprocess.Popen(['perl {0}'.format((web_script_2)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
+                    pipe = subprocess.Popen(['perl {0}'.format(web_script_2)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
                     output = pipe.communicate()[0]
                     print(output)
                     while pipe.poll() is None:

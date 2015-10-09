@@ -63,6 +63,14 @@
          desc="Diagnostic package location"
          ></entry>
 
+  <entry id="LNDDIAG_NCLPATH"
+         type="char"
+         valid_values=""
+         value="$POSTPROCESS_PATH/lnd_diag/"
+         group="diags_lnd"
+         desc="Diagnostic package NCL script location"
+         ></entry>
+
   <entry id="LNDDIAG_OBS_HOME"
          type="char"
          valid_values=""
@@ -154,7 +162,7 @@
   <entry id="LNDDIAG_prefix_1"
          type="char"
          valid_values=""
-         value="$CASE"
+         value="$CASE.$LNDDIAG_lnd_modelstream_1."
          group="diags_lnd"
          desc="Output file names for CASE1 climos"
          ></entry>
@@ -222,7 +230,7 @@
   <entry id="LNDDIAG_COMPUTE_CLIMO_CASE2"
          type="logical"
          valid_values="True/False"
-         value="True"
+         value="False"
          group="diags_lnd"
          desc="Compute climatologies for CASE2."
          ></entry>
@@ -230,7 +238,7 @@
   <entry id="LNDDIAG_prefix_2"
          type="char"
          valid_values=""
-         value="$CASE"
+         value="$CASE.$LNDDIAG_lnd_modelstream_2."
          group="diags_lnd"
          desc="Output file names for CASE2 climos"
          ></entry>
@@ -311,12 +319,12 @@
          desc="Overwrite existing climo files"
          ></entry>
 
-  <entry id="LNDDIAG_weightAnnAvg"
+  <entry id="LNDDIAG_weightAvg"
          type="logical"
          valid_values="True/False"
          value="True"
          group="diags_lnd"
-         desc="Create annual average as a weighted average"
+         desc="Create averages as a weighted averages"
          ></entry>
 
   <entry id="LNDDIAG_meansFlag"
@@ -334,7 +342,7 @@
          valid_values="True/False"
          value="True"
          group="diags_lnd"
-         desc="Create trends for CASE1. (set1 & set6) Make trends for case1 simulation"
+         desc="Create trends for CASE1. (set1 and set6) Make trends for case1 simulation"
          ></entry>
 
   <entry id="LNDDIAG_climo_lnd_1"
@@ -342,7 +350,7 @@
          valid_values="True/False"
          value="True"
          group="diags_lnd"
-         desc="Create climos for CASE1. (set2 & set3 & set5 & set7) Make climo for case1 simulation"
+         desc="Create climos for CASE1. (set2 and set3 and set5 and set7) Make climo for case1 simulation"
          ></entry>
 
   <entry id="LNDDIAG_trends_atm_1"
@@ -392,7 +400,7 @@
          valid_values="True/False"
          value="False"
          group="diags_lnd"
-         desc="Create trends for CASE2. (set1 & set6) Make trends for case2 simulation"
+         desc="Create trends for CASE2. (set1 and set6) Make trends for case2 simulation"
          ></entry>
 
   <entry id="LNDDIAG_climo_lnd_2"
@@ -400,7 +408,7 @@
          valid_values="True/False"
          value="False"
          group="diags_lnd"
-         desc="Create climos for CASE2. (set2 & set3 & set5 & set7) Make climo for case2 simulation"
+         desc="Create climos for CASE2. (set2 and set3 and set5 and set7) Make climo for case2 simulation"
          ></entry>
 
   <entry id="LNDDIAG_trends_atm_2"
@@ -708,6 +716,14 @@
          type="logical"
          valid_values="True/False"
          value="True"
+         group="diags_lnd"
+         desc="Raster mode for set2 contour plots"
+         ></entry>
+
+  <entry id="LNDDIAG_expContours"
+         type="logical"
+         valid_values="True/False"
+         value="False"
          group="diags_lnd"
          desc="Raster mode for set2 contour plots"
          ></entry>

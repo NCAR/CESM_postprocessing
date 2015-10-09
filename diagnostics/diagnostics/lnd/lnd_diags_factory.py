@@ -12,11 +12,13 @@ def landDiagnosticsFactory(diag_type, env):
     """
     diag = None
     if diag_type == 'MODEL_VS_OBS':
-        env['NCLPATH'] = env['DIAG_HOME']+'/model-obs/'
+        env['NCLPATH'] = env['POSTPROCESS_PATH']+'/lnd_diag/model-obs/'
+        env['DIAG_SHARED'] =  env['POSTPROCESS_PATH']+'/lnd_diag/shared/'
         diag = model_vs_obs.modelVsObs()
 
     elif diag_type == 'MODEL_VS_MODEL':
-        env['NCLPATH'] = env['DIAG_HOME']+'/model1-model2/'
+        env['NCLPATH'] = env['POSTPROCESS_PATH']+'/lnd_diag/model1-model2/'
+        env['DIAG_SHARED'] =  env['POSTPROCESS_PATH']+'/lnd_diag/shared/'
         diag = model_vs_model.modelVsModel()
 
     else:

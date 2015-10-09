@@ -27,7 +27,7 @@ class set_7(LandDiagnosticPlot):
     """
 
     def __init__(self, env):
-        super(Vector, self).__init__()
+        super(set_7, self).__init__()
 
         # Set plot class description variables
         self._name = 'Set 7 Plots'
@@ -38,4 +38,8 @@ class set_7(LandDiagnosticPlot):
 
     def check_prerequisites(self, env):
         # Set plot specific variables
-        preq = 'No variables to set'
+        if (env['rtm_1'] == 'True'):
+            env['rtm_1'] = 1
+        else:
+            env['rtm_1'] = 0
+ 
