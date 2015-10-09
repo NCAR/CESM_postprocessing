@@ -67,6 +67,14 @@
          desc="Identifying test model stream"
          ></entry>
 
+  <entry id="ATMDIAG_TEST_TIMESERIES"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_atm"
+         desc="Use tseries files to compute test climos."
+         ></entry>
+
   <entry id="ATMDIAG_test_path_history"
          type="char"
          valid_values=""
@@ -109,6 +117,14 @@
          value="cam.h0"
          group="diags_atm"
          desc="Identifying control model stream"
+         ></entry>
+
+  <entry id="ATMDIAG_CNTL_TIMESERIES"
+         type="logical"
+         valid_values="True/False"
+         value="False"
+         group="diags_atm"
+         desc="Use tseries files to compute cntl climos."
          ></entry>
 
   <entry id="ATMDIAG_cntl_path_history"

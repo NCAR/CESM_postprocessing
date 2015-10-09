@@ -414,18 +414,18 @@ def main(options, debugMsg):
 
     # get model history file information from the DOUT_S_ROOT archive location
     debugMsg('calling checkHistoryFiles for control run', header=True)
-    time_series = envDict['GENERATE_TIMESERIES']
+    test_time_series = envDict['TEST_TIMESERIES']
 
     test_end_year = (int(envDict['test_first_yr']) + int(envDict['test_nyrs'])) - 1
     suffix = envDict['test_modelstream']+'.*.nc'
     filep = '.*\.'+ envDict['test_modelstream']+'.\d{4,4}-\d{2,2}\.nc'
     start_year, stop_year, in_dir, envDict['test_htype'],  envDict['test_key_infile'] = diagUtilsLib.checkHistoryFiles(
-        time_series, envDict['test_path_history'], envDict['test_casename'], envDict['test_first_yr'], test_end_year,
+        test_time_series, envDict['test_path_history'], envDict['test_casename'], envDict['test_first_yr'], test_end_year,
         'atm',suffix,filep)
 
     if envDict['test_compute_climo'] == 'True':
         try:
-            if time_series == 'TRUE':
+            if test_time_series == 'True':
                 h_path = envDict['test_path_history']+'/atm/proc/tseries/monthly/'
             else:
                 h_path = envDict['test_path_history']+'/atm/hist/'
@@ -440,14 +440,15 @@ def main(options, debugMsg):
 
     if (envDict['MODEL_VS_MODEL'] == 'True' and envDict['cntl_compute_climo'] == 'True'):
         try:
+            cntl_time_series = envDict['CNTL_TIMESERIES']
             cntl_end_year = (int(envDict['cntl_first_yr']) + int(envDict['cntl_nyrs'])) - 1
             suffix = envDict['cntl_modelstream']+'.*.nc'
             filep = '.*\.'+ envDict['cntl_modelstream']+'.\d{4,4}-\d{2,2}\.nc'
             start_year, stop_year, in_dir, envDict['cntl_htype'],  envDict['cntl_key_infile'] = diagUtilsLib.checkHistoryFiles(
-            time_series, envDict['cntl_path_history'], envDict['cntl_casename'], envDict['cntl_first_yr'], cntl_end_year,
+            cntl_time_series, envDict['cntl_path_history'], envDict['cntl_casename'], envDict['cntl_first_yr'], cntl_end_year,
             'atm',suffix,filep)
 
-            if time_series == 'TRUE':
+            if cntl_time_series == 'True':
                 h_path = envDict['cntl_path_history']+'/atm/proc/tseries/monthly/'
             else:
                 h_path = envDict['cntl_path_history']+'/atm/hist/'

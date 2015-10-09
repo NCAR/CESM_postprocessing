@@ -51,7 +51,7 @@ def create_plotset_html(html_file_prefix,web_path,set_name, env):
                     if 'xxx' in image_name:
                         image_name = image_name.replace('xxx',img_t)
                         if not os.path.isfile(web_path+'/'+image_name):
-                            line = line.replace('plot','----') 
+                            line = "<TH ALIGN=LEFT>plot" 
                         else:
                             line = line.replace('xxx',img_t)
              
