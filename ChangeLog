@@ -4,6 +4,22 @@ SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
 ================================================================================
 This file describes what tags were created and why
 ================================================================================
+	
+Originator: aliceb
+Date: 12 September 2015
+Model: postprocessing
+Version: postprocessing_20151012
+One-line: adding methods to find machine name from hostname so create_postprocess
+no longer requires machine as an optional arg for standalone
+
+M       Machines/machine_postprocess.xsd
+M       Machines/machine_postprocess.xml
+A       get_machine
+M       create_postprocess
+M       cesm_utils/cesm_utils/cesmEnvLib.py
+M       diagnostics/diagnostics/ocn/Plots/ecosystem_maps.py
+
+================================================================================
 
 Originator: mickelso
 Date: 9 October 2015

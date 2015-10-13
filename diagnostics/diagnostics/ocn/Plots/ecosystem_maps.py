@@ -210,9 +210,10 @@ class EcosystemMaps_obs(EcosystemMaps):
 
         self._expectedPlots_s1_t1 = [('NH4','map_NH4'),('NO3_excess','map_NO3_excess'),('spChl','map_spChl',),('diatChl','map_diatChl'),('diazChl','map_diazChl'),
                                      ('spC','map_spC'),('diatC','map_diatC'),('diazC','map_diazC'),('photoC_sp','map_photoC_sp'),('photoC_diat','map_photoC_diat'), 
-                                     ('photoC_diaz','map_photoC_diaz'),('diaz_Nfix','map_diaz_Nfix'),('DENITRIF','map_DENITRIF'),('NITRIF','map_NITRIF'),('CaCO3_form','map_CaCO3_form'),
-                                     ('bSi_form','map_bSi_form'),('IRON_FLUX','map_IRON_FLUX'),('POC_FLUX_IN','map_POC_FLUX_IN'),('CaCO3_FLUX_IN','map_CaCO3_FLUX_IN'),('SiO2_FLUX_IN','map_SiO2_FLUX_IN'),
-                                     ('STF_O2','map_STF_O2'),('FvPER_DIC','map_FvPER_DIC'),('FvICE_DIC','map_FvICE_DIC'),(]
+                                     ('photoC_diaz','map_photoC_diaz'),('diaz_Nfix','map_diaz_Nfix'),('DENITRIF','map_DENITRIF'),('NITRIF','map_NITRIF'),
+                                     ('CaCO3_form','map_CaCO3_form'),('bSi_form','map_bSi_form'),('IRON_FLUX','map_IRON_FLUX'),('POC_FLUX_IN','map_POC_FLUX_IN'),
+                                     ('CaCO3_FLUX_IN','map_CaCO3_FLUX_IN'),('SiO2_FLUX_IN','map_SiO2_FLUX_IN'),('STF_O2','map_STF_O2'),('FvPER_DIC','map_FvPER_DIC'),
+                                     ('FvICE_DIC','map_FvICE_DIC')]
 
         self._expectedPlots_s1_t2 = [(0,'sp_nutlim','map_nutlim_sp'), (0,'diat_nutlim','map_nutlim_diat'), (0,'diaz_nutlim','map_nutlim_diaz')]
 
@@ -222,7 +223,7 @@ class EcosystemMaps_obs(EcosystemMaps):
         self._plotTitles = ['Lat, Lon', 'Ecosystem: Maps at Depth (with obs where applicable)']
 
         self._labels = ['NO3','PO4','SiO3','O2','DIC','ALK','Fe']
-        self._linkNames = ['0m', '50m', '200m', '500m', '1000m', '2000m', '3000m', '4000m']
+        self._linkNames = ['0m', '50m', '100m','200m', '300m','500m', '1000m', '1500m', '2000m', '2500m','3000m', '3500','4000m']
         self._expectedPlots_s2_prefix = 'mod_obs_map'
 
         self._template_file = 'ecosystem_maps.tmpl'

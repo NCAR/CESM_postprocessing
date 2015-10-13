@@ -10,6 +10,7 @@
 	    <xs:sequence>
 
 	      <xs:element name="timeseries_pes" type="xs:string"/>
+	      <xs:element name="mp_timeout" type="xs:string"/>
 	      <xs:element name="mpi_command" type="xs:string"/>
 	      <xs:element name="pythonpath" type="xs:string"/>
 	      <xs:element name="project" type="xs:string"/>

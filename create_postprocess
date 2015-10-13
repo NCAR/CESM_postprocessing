@@ -97,6 +97,32 @@ class XmlEntry(object):
 
 
 # -------------------------------------------------------------------------------
+# commandline_options - parse any command line options
+# -------------------------------------------------------------------------------
+
+def commandline_options():
+    """Process the command line arguments.
+
+    """
+    parser = argparse.ArgumentParser(
+        description='Read the necessary xml files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks. Runtime options can be set in the env_*.xml files in the caseroot.')
+
+    parser.add_argument('--backtrace', action='store_true',
+                        help='show exception backtraces as extra debugging '
+                        'output')
+
+    parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
+                        help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
+
+    parser.add_argument('--caseroot', nargs=1, required=True, 
+                        help='fully quailfied path to case root directory')
+
+    options = parser.parse_args()
+        
+    return options
+
+
+# -------------------------------------------------------------------------------
 # check_standalone - read the env_postprocess.xml, if it exists, and check for
 # the STANDALONE xml entry
 # -------------------------------------------------------------------------------
@@ -123,59 +149,6 @@ def check_standalone(caseroot):
                 standalone = True
 
     return standalone
-
-# -------------------------------------------------------------------------------
-# commandline_options - parse any command line options
-# -------------------------------------------------------------------------------
-
-def commandline_options():
-    """Process the command line arguments.
-
-    """
-    parser = argparse.ArgumentParser(
-        description='Read the necessary xml files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks. Runtime options can be set in the env_*.xml files in the caseroot.')
-
-    parser.add_argument('--backtrace', action='store_true',
-                        help='show exception backtraces as extra debugging '
-                        'output')
-
-    parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
-                        help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
-
-    parser.add_argument('--caseroot', nargs=1, required=True, 
-                        help='fully quailfied path to case root directory')
-
-    parser.add_argument('--machine', nargs=1, required=False, default=None,
-                        help='supported machine name is required when creating a caseroot that does not already exist')
-
-    options = parser.parse_args()
-
-# TODO check the machine...
-
-    # check to make sure CASEROOT is a valid, readable directory
-    standalone = False
-    if not os.path.isdir(options.caseroot[0]):
-        create_caseroot = raw_input('create_postprocess WARNING: caseroot {0} does not exist. Would like to create it for post processing purposes (Y/N)? '.format(options.caseroot[0]))
-        if 'y' in create_caseroot.lower():
-            if options.machine is None:
-                print('create_postprocess ERROR: cannot create a new caseroot without also specifying a supported machine. Exiting...')
-                sys.exit(1)
-            try:
-                os.mkdir(options.caseroot[0])
-                standalone = True
-            except:
-                raise OSError('create_postprocess ERROR: cannot create a new caseroot. Exiting...')
-    # check if this is a standalone case that has already been created
-    else:
-        # read the env_postprocess.xml, if it exists, and check for STANDALONE flag
-        standalone = check_standalone(options.caseroot[0])
-        if (standalone):
-            if options.machine is None:
-                print('create_postprocess ERROR: cannot create a new caseroot without also specifying a supported machine. Exiting...')
-                sys.exit(1)
-        
-    return options, standalone
-
 
 # -------------------------------------------------------------------------------
 # create_env_file - generate the env_[file].xml 
@@ -410,7 +383,6 @@ def initialize_main(envDict, options, standalone):
     else:
         caseList = caseroot.split('/')
         envDict['CASE'] = caseList[-1]
-        envDict['MACH'] = options.machine[0]
 
     # refer to the caseroot that was specified on the command line instead of what
     # is read in the environment as the caseroot may have changed from what is listed
@@ -422,21 +394,34 @@ def initialize_main(envDict, options, standalone):
 # -------------------------------------------------------------------------------
 # main
 # -------------------------------------------------------------------------------
-def main(options, standalone):
+def main(options):
     """ main
 
     Arguments:
     options (list) - input options from command line
-    standalone (boolean) - indicate if this is postprocessing for a standalone case
     """
-    # initialize the environment dictionary
     envDict = dict()
-    envDict = initialize_main(envDict, options, standalone)
 
     # set the postprocessing dir in the envDict
     envDict['POSTPROCESS_PATH'] = os.getcwd()
 
-    # TODO - needs to check the compset to see what is active 
+    # get the machine name from the hostname
+    hostname = cesmEnvLib.get_hostname()
+    envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
+
+    standalone = check_standalone(options.caseroot[0])
+    # check to make sure CASEROOT is a valid, readable directory
+    if not os.path.isdir(options.caseroot[0]):
+        try:
+            os.mkdir(options.caseroot[0])
+            standalone = True
+        except:
+            raise OSError('create_postprocess ERROR: cannot create a new caseroot. Exiting...')
+
+    # initialize the environment dictionary
+    envDict = initialize_main(envDict, options, standalone)
+
+    # TODO - need to check the compset to see what is active 
     # and return the compList accordingly
 
     # set the list of components
@@ -510,9 +495,9 @@ def main(options, standalone):
 #===================================
 
 if __name__ == "__main__":
-    options, standalone = commandline_options()
+    options = commandline_options()
     try:
-        status = main(options, standalone)
+        status = main(options)
         sys.exit(status)
     except Exception as error:
         print(str(error))

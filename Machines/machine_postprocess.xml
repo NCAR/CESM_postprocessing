@@ -2,8 +2,9 @@
 
 <machine_postprocess>
 
-  <machine name="yellowstone">
+  <machine name="yellowstone" hostname="yslogin">
     <timeseries_pes>64</timeseries_pes>
+    <mp_timeout>14400</mp_timeout>
     <mpi_command>mpirun.lsf</mpi_command>
     <pythonpath></pythonpath>
     <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
@@ -44,8 +45,9 @@
     </components>
   </machine>
 
-  <machine name="edison">
+  <machine name="edison" hostname="edison">
     <timeseries_pes>144</timeseries_pes>
+    <mp_timeout>14400</mp_timeout>
     <mpi_command>aprun -n {{ pes }}</mpi_command>
     <pythonpath>/global/project/projectdirs/ccsm1/pythonlib/lib/python2.7/site-packages/PyNIO</pythonpath>
     <f2py fcompiler="intelem" f77exec="/opt/intel/composer_xe_2015.1.133/bin/intel64/ifort">f2py</f2py>

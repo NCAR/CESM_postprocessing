@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+"""print the machine name from the hostname
+
+__________________________
+Created on October, 2015
+
+Author: CSEG <cseg@cgd.ucar.edu>
+"""
+
+from __future__ import print_function
+
+import sys
+
+# check the system python version and require 2.7.x or greater
+if sys.hexversion < 0x02070000:
+    print(70 * "*")
+    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("It appears that you are running python {0}".format(
+            ".".join(str(x) for x in sys.version_info[0:3])))
+    print(70 * "*")
+    sys.exit(1)
+
+#
+# built-in modules
+#
+import os
+
+
+#
+# import modules installed in the virtual environment
+#
+from cesm_utils import cesmEnvLib
+
+
+# -------------------------------------------------------------------------------
+# main
+# -------------------------------------------------------------------------------
+def main():
+    """ main
+    """
+    # set some variables
+    ppdir = os.getcwd()
+
+    machine = None
+    hostname = cesmEnvLib.get_hostname()
+
+    machine = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(ppdir))
+
+    if machine is None:
+        message = "Could not identify machine from host name and machines_postprocess.xml config file.\n"
+        message += "    hostname = {0}\n".format(hostname)
+        raise RuntimeError(message)
+
+    return machine
+    
+    
+#===================================
+
+if __name__ == "__main__":
+    try:
+        machine = main()
+        print("{0}".format(machine))
+    except Exception as error:
+        print(str(error))
+        sys.exit(1)

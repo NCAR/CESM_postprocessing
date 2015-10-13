@@ -9,9 +9,17 @@ Updated Sept 4, 2014 - make sure execute permission is allowed
 @author: NCAR - CSEG
 """
 import os
+import platform
 import re
 import subprocess
-import xml.etree.ElementTree as ET
+
+#
+# installed dependencies
+#
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
 
 re_val = re.compile(r'\$(\{([A-Za-z0-9_]+)\}|[A-Za-z0-9_]+)')
 
@@ -179,3 +187,43 @@ def which(program):
                 return exe_file
 
     return None
+
+#===========================================   
+# get_hostname
+#===========================================   
+def get_hostname():
+    """ get_hostname
+        return the platform hostname
+    """
+    hostname = platform.node()
+    index = hostname.find(".")
+    if index > 0:
+        hostname = hostname[0:index]
+
+    return hostname
+
+
+#===========================================   
+# get_machine_name
+#===========================================   
+def get_machine_name(hostname, xmlFile):
+    """ get_machine_xml - return the machine name
+    from the xmlFile given the hostname.
+
+    Return:
+    machine (string) - machine name
+    """
+    machine = None
+    rc, err_msg = checkFile(xmlFile, 'read')
+    if rc:
+        xml_tree = etree.ElementTree()
+        xml_tree.parse(xmlFile)
+
+        # find the matching machine name
+        for xmlmachine in xml_tree.findall("machine"):
+            xmlhostname = xmlmachine.get("hostname")
+            if (hostname.lower() in xmlhostname.lower() or
+                xmlhostname.lower() in hostname.lower()):
+                    machine = xmlmachine.get("name").lower()
+
+    return machine
