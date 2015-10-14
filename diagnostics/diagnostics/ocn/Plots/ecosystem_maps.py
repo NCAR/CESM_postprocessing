@@ -85,87 +85,25 @@ class EcosystemMaps(OceanDiagnosticPlot):
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        empty = ['','']
-        rowList = [0,1,2,3,4,5,6]
-        colList = [0,1,2,3,4,5]
-        plot_table_s1_t1 = list()
-        plot_table_s1_t2 = list()
-        plot_table_s1_t3 = list()
-        plot_table_s2 = list()
-        plot_table_s3 = list()
+        plots_s1 = dict()
+        # loop through the expectedPlots dictionary to check if files exist or not
 
-        # initialize the plot tables with the empty values
-        for i in colList:
-            for j in rowList:
-                plot_table_s1_t1.append(empty)
-
-        for i in colList:
-            plot_table_s1_t2.append(empty)
-            plot_table_s1_t3.append(empty)
-
-        # replace elements in the plot table arrays with expectedPlots values
-        # s1_t1
-        i = 0
-        row = 0
-        column = 0
-        ai = 0
-        while (i < len(self._expectedPlots_s1_t1)):
-            rownum, label, image = self._expectedPlots_s1_t1[i]
-            img_file = '{0}.png'.format(image)
-            if (row == rownum):
-                rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
-                if not rc:
-                    plot_table_s1_t1[ai] = ['{0} - Error'.format(img_file),'']
-                else:
-                    plot_table_s1_t1[ai] = [label, img_file]
-                ai += 1
-                column += 1
-            else:
-                row += 1
-                ai = row * len(colList)
-                column = 0
-                if (row == rownum):
-                    rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
-                    if not rc:
-                        plot_table_s1_t1[ai] = ['{0} - Error'.format(img_file),'']
-                    else:
-                        plot_table_s1_t1[ai] = [label, img_file]
-                    ai += 1
-            i += 1
-
-        # s1_t2
-        i = 0
-        while (i < len(self._expectedPlots_s1_t2)):
-            rownum, label, image = self._expectedPlots_s1_t2[i]
-            img_file = '{0}.png'.format(image)
-            rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
+        for label, image in self._expectedPlots_s1.iteritems():
+            plots_s1[label] = '{0}.{1}'.format(image, imgFormat)
+            imageFile = '{0}/{1}.{2}'.format(workdir, image, imgFormat)
+            rc, err_msg = cesmEnvLib.checkFile(imageFile, 'read')
             if not rc:
-                plot_table_s1_t2[i] = ['{0} - Error'.format(img_file),'']
-            else:
-                plot_table_s1_t2[i] = [label, img_file]
-            i += 1
+                plots_s1[label] = '{0} - Error'.format(image)
 
-        # s1_t3
-        i = 0
-        while (i < len(self._expectedPlots_s1_t3)):
-            rownum, label, image = self._expectedPlots_s1_t3[i]
-            img_file = '{0}.png'.format(image)
-            rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
-            if not rc:
-                plot_table_s1_t3[i] = ['{0} - Error'.format(img_file),'']
-            else:
-                plot_table_s1_t3[i] = [label, img_file]
-            i += 1
-
-        # s2
-        num_rows_s2 = len(self._linkNames)+1
-        plot_list = list()
+        # load up the plots_s2 table of tuples
+        plots_s2 = []
+        num_cols = 14
         for i in range(len(self._labels)):
             plot_tuple_list = []
             plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
             for j in range(len(self._linkNames)):
-                img_file = '{0}_{1}_{2}.png'.format(self._expectedPlots_s2_prefix, self._labels[i], self._linkNames[j])
+                img_file = '{1}_{2}.{3}'.format(self._prefix, self._labels[i], self._linkNames[j])
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
                     plot_tuple = (j+1, self._linkNames[j],'{0} - Error'.format(img_file))
@@ -174,7 +112,7 @@ class EcosystemMaps(OceanDiagnosticPlot):
                 plot_tuple_list.append(plot_tuple)
 
             print('DEBUG... plot_tuple_list[{0}] = {1}'.format(i, plot_tuple_list))
-            plot_table_s2.append(plot_tuple_list)
+            plots_s2.append(plot_tuple_list)
 
         # create a jinja2 template object
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
@@ -184,16 +122,11 @@ class EcosystemMaps(OceanDiagnosticPlot):
 
         # add the template variables
         templateVars = { 'title' : self._name,
-                         'cols' : len(colList),
-                         'colList' : colList,
-                         'rowList' : rowList,
-                         'plot_title_s1' : self._plotTitles[0],
-                         'plot_title_s2' : self._plotTitles[1],
-                         'plot_table_s1_t1' : plot_table_s1_t1,
-                         'plot_table_s1_t2' : plot_table_s1_t2,
-                         'plot_table_s1_t3' : plot_table_s1_t3,
-                         'plot_table_s2' : plot_table_s2,
-                         'num_rows_s2' : num_rows_s2
+                         'plotTitles' : self._plotTitles,
+                         'plots_s1' : plots_s1,
+                         'plots_s2' : plots_s2,
+                         'num_cols' : num_cols,
+                         'num_rows' : len(self._labels),
                          }
 
         # render the html template using the plot tables
@@ -208,25 +141,22 @@ class EcosystemMaps_obs(EcosystemMaps):
         self._python = ['clim_maps_surface', 'clim_maps_surface_2D', 'clim_maps_at_depths',
                         'nutlim_maps', 'model_obs_maps_surface', 'model_obs_maps_at_depths']
 
-        self._expectedPlots_s1_t1 = [('NH4','map_NH4'),('NO3_excess','map_NO3_excess'),('spChl','map_spChl',),('diatChl','map_diatChl'),('diazChl','map_diazChl'),
-                                     ('spC','map_spC'),('diatC','map_diatC'),('diazC','map_diazC'),('photoC_sp','map_photoC_sp'),('photoC_diat','map_photoC_diat'), 
-                                     ('photoC_diaz','map_photoC_diaz'),('diaz_Nfix','map_diaz_Nfix'),('DENITRIF','map_DENITRIF'),('NITRIF','map_NITRIF'),
-                                     ('CaCO3_form','map_CaCO3_form'),('bSi_form','map_bSi_form'),('IRON_FLUX','map_IRON_FLUX'),('POC_FLUX_IN','map_POC_FLUX_IN'),
-                                     ('CaCO3_FLUX_IN','map_CaCO3_FLUX_IN'),('SiO2_FLUX_IN','map_SiO2_FLUX_IN'),('STF_O2','map_STF_O2'),('FvPER_DIC','map_FvPER_DIC'),
-                                     ('FvICE_DIC','map_FvICE_DIC')]
-
-        self._expectedPlots_s1_t2 = [(0,'sp_nutlim','map_nutlim_sp'), (0,'diat_nutlim','map_nutlim_diat'), (0,'diaz_nutlim','map_nutlim_diaz')]
-
-        self._expectedPlots_s1_t3 = [(0,'pCO2SURF','mod_obs_map_pCO2SURF_0m'), (0,'FG_CO2','mod_obs_map_FG_CO2_0m'), (0,'totChl','mod_obs_map_totChl_0m'), 
-                                     (0,'photoC_tot','mod_obs_map_photoC_tot_0m'), (0,'phytoC','mod_obs_map_phytoC_0m'), (0,'phyto_mu','mod_obs_map_phyto_mu_0m')]
+        self._template_file = 'ecosystem_maps.tmpl'
 
         self._plotTitles = ['Lat, Lon', 'Ecosystem: Maps at Depth (with obs where applicable)']
 
+        self._expectedPlots_s1 = {'NH4':'map_NH4','NO3_excess':'map_NO3','spChl':'map_spChl','diatChl':'map_diatChl','diazChl':'map_diazChl',
+                                  'spC':'map_spC','diatC':'map_diatC','diazC':'map_diazC','photoC_sp':'map_photoC_sp','photoC_diat':'map_photoC_diat', 
+                                  'photoC_diaz':'map_photoC_diaz','diaz_Nfix':'map_diaz_Nfix','DENITRIF':'map_DENITRIF','NITRIF':'map_NITRIF',
+                                  'CaCO3_form':'map_CaCO3_form','bSi_form':'map_bSi_form','IRON_FLUX':'map_IRON_FLUX','POC_FLUX_IN':'map_POC_FLUX_IN',
+                                  'CaCO3_FLUX_IN':'map_CaCO3_FLUX_IN','SiO2_FLUX_IN':'map_SiO2_FLUX_IN','STF_O2':'map_STF_O2','FvPER_DIC':'map_FvPER_DIC',
+                                  'FvICE_DIC':'map_FvICE_DIC','sp_nutlim':'map_nutlim_sp','diat_nutlim':'map_nutlim_diat','diaz_nutlim':'map_nutlim_diaz',
+                                  'pCO2SURF':'mod_obs_map_pCO2SURF_0m','FG_CO2':'mod_obs_map_FG_CO2_0m','totChl':'mod_obs_map_totChl_0m', 
+                                  'photoC_tot':'mod_obs_map_photoC_tot_0m','phytoC':'mod_obs_map_phytoC_0m','phyto_mu':'mod_obs_map_phyto_mu_0m'}
+
         self._labels = ['NO3','PO4','SiO3','O2','DIC','ALK','Fe']
         self._linkNames = ['0m', '50m', '100m','200m', '300m','500m', '1000m', '1500m', '2000m', '2500m','3000m', '3500','4000m']
-        self._expectedPlots_s2_prefix = 'mod_obs_map'
-
-        self._template_file = 'ecosystem_maps.tmpl'
+        self._prefix = 'mod_obs_map'
     
     def _setup_args(self, env):
         # arg order list expected as line separated 

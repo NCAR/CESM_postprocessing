@@ -93,6 +93,11 @@ class modelVsObsEcosys(OceanDiagnostic):
         env['POPDIAGPY'] = env['POPDIAGPY2'] = env['POPDIAG'] = os.environ['POPDIAG'] = 'TRUE'
         env['PME'] = os.environ['PME'] = '1'
         env['mappdir'] = env['ECODATADIR']+'/mapping'
+
+        # create the plot_depths.dat file
+        fh = open('{0}/plot_depths.dat'.format(env['WORKDIR']),'w')
+        fh.write('{0}\n'.format(env['DEPTHS']))
+        fh.close()
         
         return env
 
@@ -162,7 +167,7 @@ class modelVsObsEcosys(OceanDiagnostic):
                 plot.check_prerequisites(env)
 
                 print('model vs. obs ecosys - Generating plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
-#                plot.generate_plots(env)
+                plot.generate_plots(env)
 
                 print('model vs. obs ecosys - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
