@@ -375,6 +375,7 @@ def initialize_main(envDict, options, standalone):
     """
     # CASEROOT is given on the command line as required option --caseroot
     caseroot = options.caseroot[0]
+    pp = envDict['POSTPROCESS_PATH']
 
     if not standalone:
         # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
@@ -388,6 +389,7 @@ def initialize_main(envDict, options, standalone):
     # is read in the environment as the caseroot may have changed from what is listed
     # in the env xml
     envDict['CASEROOT'] = caseroot
+    envDict['POSTPROCESS_PATH'] = pp
 
     return envDict
 

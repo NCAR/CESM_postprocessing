@@ -167,11 +167,11 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
        tseries (boolean) - TRUE if TIMESERIES plots are specified
     """
     # the following are used for timeseries averages and ignored otherwise
-    mean_diff_rms_obs_dir = '{0}/ocn_diag/ocn_diag/timeseries_obs'.format(ppDir)
+    mean_diff_rms_obs_dir = '{0}/ocn_diag/timeseries_obs'.format(ppDir)
     region_nc_var = 'REGION_MASK'
     regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
     region_wgt_var = 'TAREA'
-    obs_dir = '{0}/ocn_diag/ocn_diag/timeseries_obs'.format(ppDir)
+    obs_dir = '{0}/ocn_diag/timeseries_obs'.format(ppDir)
     obs_file = 'obs.nc'
     reg_obs_file_suffix = '_hor_mean_obs.nc'
 

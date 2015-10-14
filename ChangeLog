@@ -9,6 +9,17 @@ Originator: aliceb
 Date: 14 September 2015
 Model: postprocessing
 Version: postprocessing_20151014
+One-line: bug fix for POSTPROCESS_PATH and non-standalone
+
+M       create_postprocess
+M       diagnostics/diagnostics/ocn/ocn_avg_generator.py
+
+================================================================================
+	
+Originator: aliceb
+Date: 14 September 2015
+Model: postprocessing
+Version: postprocessing_20151014
 One-line: minor cleanups and more debugging of ocn ecosys plots
 
 M       diagnostics/diagnostics/ocn/Plots/ecosystem_maps.py
