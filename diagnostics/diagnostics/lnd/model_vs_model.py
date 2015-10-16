@@ -63,7 +63,7 @@ class modelVsModel(LandDiagnostic):
         #diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
         # Set some new env variables
-        env['WKDIR'] =  env['DIAG_BASE']+'/diag/'+env['caseid_1']+'-obs/'
+        #env['WKDIR'] =  env['DIAG_BASE']+'/diag/'+env['caseid_1']+'-'+env['caseid_2']+'/'
         env['WORKDIR'] = env['WKDIR']
         if scomm.is_manager():
             if not os.path.exists(env['WKDIR']):
@@ -155,6 +155,24 @@ class modelVsModel(LandDiagnostic):
 
         # set html files
         if scomm.is_manager():
+
+            # Create web dirs and move images/tables to that web dir
+            for n in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
+                web_dir = env['WKDIR'] 
+                set_dir = web_dir + '/set' + n
+                # Create the plot set web directory
+                if not os.path.exists(set_dir):
+                    os.makedirs(set_dir)
+                # Copy plots into the correct web dir
+                glob_string = web_dir+'/set'+n+'_*'
+                imgs = glob.glob(glob_string)
+                if len(imgs) > 0:
+                    for img in imgs:
+                        new_fn = set_dir + '/' + os.path.basename(img)
+                        os.rename(img,new_fn)
+            
+            env['WEB_DIR'] = web_dir
+            shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/shared/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
             web_script_1 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_create_webpage.pl'
             web_script_2 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_lookupTable.pl'
 

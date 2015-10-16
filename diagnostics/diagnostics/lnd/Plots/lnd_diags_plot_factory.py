@@ -32,8 +32,8 @@ def LandDiagnosticPlotFactory(plot_type,env):
             plot_set['set_1DiffPlot_lnd'] = set_1DiffPlot_lnd.set_1DiffPlot(env)
     elif plot_type == "set_2":
         plot_set['set_2'] = set_2_lnd.set_2(env)
-        if (env['MODEL_VS_MODEL'] == 'True'):
-            plot_set['set_2_seas_lnd'] = set_2_seas_lnd.set_2_seas(env)
+       # if (env['MODEL_VS_MODEL'] == 'True'):
+       #     plot_set['set_2_seas_lnd'] = set_2_seas_lnd.set_2_seas(env)
     elif plot_type == "set_3":
         plot_set['set_3'] = set_3_lnd.set_3(env)
     elif plot_type == "set_4":

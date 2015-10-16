@@ -27,12 +27,20 @@
 <!-- 1: Path to data                                                                                -->
 <!-- ============================================================================================== -->
 
-  <entry id="LNDDIAG_PTMPDIR"
+  <entry id="LNDDIAG_PTMPDIR_1"
          type="char"
          valid_values=""
          value="$DOUT_S_ROOT/lnd/proc/"
          group="diags_lnd"
-         desc="Pre-process history file location"
+         desc="Pre-process history file location for CASE1"
+         ></entry>
+
+  <entry id="LNDDIAG_PTMPDIR_2"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Pre-process history file location for CASE2"
          ></entry>
 
   <entry id="LNDDIAG_SOURCE_1"
@@ -40,15 +48,15 @@
          valid_values=""
          value="$DOUT_S_ROOT"
          group="diags_lnd"
-         desc="Location of history files for CASE1"
+         desc="Root location of history files for CASE1"
          ></entry>
 
   <entry id="LNDDIAG_SOURCE_2"
          type="char"
          valid_values=""
-         value="$DOUT_S_ROOT"
+         value=""
          group="diags_lnd"
-         desc="Location of history files for CASE2"
+         desc="Root location of history files for CASE2"
          ></entry>
 
 <!-- ============================================================================================== -->

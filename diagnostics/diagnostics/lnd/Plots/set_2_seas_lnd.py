@@ -27,7 +27,7 @@ class set_2_seas(LandDiagnosticPlot):
     """
 
     def __init__(self, env):
-        super(Vector, self).__init__()
+        super(set_2_seas, self).__init__()
 
         # Set plot class description variables
         self._name = 'Set set_2_seas Plots'

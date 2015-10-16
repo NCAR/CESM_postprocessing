@@ -108,16 +108,6 @@ def buildLndAvgList(climo, avg_start_year, avg_stop_year, trends, trends_start_y
             if not rc:
                 avgList.append('{0}_mean:{1}:{2}'.format(seas.lower(), avg_start_year, avg_stop_year))
 
-
-        # Monthly Files
-        m_names = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec']
-        for m in range(1,13):
-            month = str(m).zfill(2)
-            avgFile = '{0}.{1}-{2}.{3}_climo.nc'.format(avgFileBaseName, avg_start_year, avg_stop_year,month)
-            rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-            if not rc:
-                avgList.append('{0}:{1}:{2}'.format(m_names[m-1], avg_start_year, avg_stop_year))    
-
         # Mons File
         avgFile = '{0}.{1}-{2}.MONS_climo.nc'.format(avgFileBaseName, avg_start_year, avg_stop_year)
         rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
@@ -373,7 +363,7 @@ def main(options, debugMsg):
                     h_path = envDict['SOURCE_1']+'/'+m_dir+'/proc/tseries/monthly/'
                 else:
                     h_path = envDict['SOURCE_1']+'/'+m_dir+'/hist/'
-                case1_climo_dir =  envDict['PTMPDIR']+'/climo/'+ envDict['caseid_1']+'/' 
+                case1_climo_dir =  envDict['PTMPDIR_1']+'/climo/'+ envDict['caseid_1']+'/' 
  
                 createClimFiles(envDict['clim_first_yr_1'], envDict['clim_last_yr_1'], h_path, 
                                 envDict['case1_htype'], envDict['case1_key_infile'], case1_climo_dir, envDict['caseid_1'], 
@@ -391,8 +381,8 @@ def main(options, debugMsg):
                 if 'rtm' in model:
                     m_dir = 'rof'
                 try:
-                    diff_time_series = envDict['DIFF_TIMESERIES']
-                    suffix = envDict[model+'modelstream_2']
+                    diff_time_series = envDict['CASE2_TIMESERIES']
+                    suffix = envDict[model+'_modelstream_2']
                     filep = '.*\.'+suffix+'.\d{4,4}-\d{2,2}\.nc'
                     envDict['clim_last_yr_2'] = (int(envDict['clim_first_yr_2']) + int(envDict['clim_num_yrs_2'])) - 1
                     envDict['trends_last_yr_2'] = (int(envDict['trends_first_yr_2']) + int(envDict['trends_num_yrs_2'])) - 1
@@ -410,10 +400,10 @@ def main(options, debugMsg):
                         h_path = envDict['SOURCE_2']+'/'+m_dir+'/proc/tseries/monthly/'
                     else:
                         h_path = envDict['SOURCE_2']+'/'+m_dir+'/hist/'
-                    case2_climo_dir =  envDict['PTMPDIR']+'/'+ envDict['caseid_2']+'/'
+                    case2_climo_dir =  envDict['PTMPDIR_2']+'/climo/'+ envDict['caseid_2']+'/'
 
                     createClimFiles(envDict['clim_first_yr_2'], envDict['clim_last_yr_2'], h_path,
-                                envDict['case2_htype'], envDict['case2_key_infile'], case2_climo_dir, envDict['caseid_1'], 
+                                envDict['case2_htype'], envDict['case2_key_infile'], case2_climo_dir, envDict['caseid_2'], 
                                 suffix, varList, envDict, envDict['trends_first_yr_2'], envDict['trends_last_yr_2'], 
                                 envDict['climo_'+model+'_2'], envDict['trends_'+model+'_2'], model, debugMsg)
                 except Exception as error:

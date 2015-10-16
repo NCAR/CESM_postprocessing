@@ -159,7 +159,7 @@ class modelVsObs(LandDiagnostic):
 
             # Create web dirs and move images/tables to that web dir
             for n in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
-                web_dir = env['WEBDIR']
+                web_dir = env['WKDIR'] 
                 set_dir = web_dir + '/set' + n
                 # Create the plot set web directory
                 if not os.path.exists(set_dir):
@@ -171,7 +171,8 @@ class modelVsObs(LandDiagnostic):
                     for img in imgs:
                         new_fn = set_dir + '/' + os.path.basename(img)
                         os.rename(img,new_fn)
-
+            env['WEB_DIR'] = web_dir
+            shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/shared/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
             web_script_1 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_create_webpage.pl'
             web_script_2 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_lookupTable.pl'
 

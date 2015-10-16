@@ -46,7 +46,7 @@ class LandDiagnostic(object):
         # create the working directory first before calling the base class prerequisites
         endYr = (int(env['clim_first_yr_'+t]) + int(env['clim_num_yrs_'+t])) - 1  
         subdir = '{0}.{1}-{2}/{3}.{4}_{5}'.format(env['caseid_'+t], env['clim_first_yr_'+t], endYr,self._name.lower(), env['clim_first_yr_'+t], endYr)
-        workdir = '{0}/climo/{1}/{2}'.format(env['PTMPDIR'], env['caseid_'+t], subdir)
+        workdir = '{0}/climo/{1}/{2}'.format(env['PTMPDIR_'+t], env['caseid_'+t], subdir)
 
         if (scomm.is_manager()):
             try:
@@ -64,7 +64,7 @@ class LandDiagnostic(object):
                 else:
                     m_dir = model
                 # create symbolic links between the old and new workdir and get the real names of the files
-                old_workdir = env['PTMPDIR']+'/climo/'+env['caseid_'+t]+'/'+env['caseid_'+t]+'.'+str(env['clim_first_yr_'+t])+'-'+str(endYr)+'/'+m_dir
+                old_workdir = env['PTMPDIR_'+t]+'/climo/'+env['caseid_'+t]+'/'+env['caseid_'+t]+'.'+str(env['clim_first_yr_'+t])+'-'+str(endYr)+'/'+m_dir
                 env['case'+t+'_path_climo'] = workdir
                 if 'lnd' in model:
                    workdir_mod = workdir
@@ -82,8 +82,8 @@ class LandDiagnostic(object):
                             rc1, err_msg1 = cesmEnvLib.checkFile(new_fn, 'read')
                             if not rc1:
                                 os.symlink(climo_file,new_fn)
-        env['DIAG_BASE'] = env['PTMPDIR'] 
-        env['PTMPDIR'] = workdir
+        env['DIAG_BASE'] = env['PTMPDIR_1'] 
+        env['PTMPDIR_'+t] = '{0}/climo/{1}/{2}'.format(env['PTMPDIR_'+t], env['caseid_'+t], subdir)
         return env
 
     def check_prerequisites(self, env, scomm):
