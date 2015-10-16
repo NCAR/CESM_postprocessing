@@ -6,15 +6,15 @@ Arguments:
 caseroot (mandatory) - full path to a valid CESM case
 
 Creates files: 
-$CASEROOT/env_postprocess.xml
-$CASEROOT/env_timeseries.xml
-$CASEROOT/env_diags_atm.xml
-$CASEROOT/env_diags_ice.xml
-$CASEROOT/env_diags_lnd.xml
-$CASEROOT/env_diags_ocn.xml
-$CASEROOT/$CASENAME.timeseries
-$CASEROOT/$CASENAME.$COMP_averages
-$CASEROOT/$CASENAME.$COMP_diagnostics
+$CASEROOT/postprocess.xml
+$CASEROOT/timeseries.xml
+$CASEROOT/diags_atm.xml
+$CASEROOT/diags_ice.xml
+$CASEROOT/diags_lnd.xml
+$CASEROOT/diags_ocn.xml
+$CASEROOT/timeseries
+$CASEROOT/$COMP_averages
+$CASEROOT/$COMP_diagnostics
 __________________________
 Created on April, 2015
 
@@ -436,19 +436,19 @@ def main(options):
     # generate the env_postprocess.xml file
     config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_PATH'])
     tmpl_file = 'env_postprocess.tmpl'
-    env_file = '{0}/env_postprocess.xml'.format(envDict['CASEROOT'])
+    env_file = '{0}/postprocess.xml'.format(envDict['CASEROOT'])
     create_env_file(envDict, config_file, tmpl_file, env_file, 'postprocess', '', standalone)
 
     # generate the env_timeseries.xml file
     config_file = '{0}/Config/config_timeseries.xml'.format(envDict['POSTPROCESS_PATH'])
-    env_file = '{0}/env_timeseries.xml'.format(envDict['CASEROOT'])
+    env_file = '{0}/timeseries.xml'.format(envDict['CASEROOT'])
     shutil.copy2(config_file, env_file)
 
     # generate the env_diags_[component].xml files
     for comp in compList:
         config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
         tmpl_file = 'env_diags.tmpl'
-        env_file = '{0}/env_diags_{1}.xml'.format(envDict['CASEROOT'], comp)
+        env_file = '{0}/diags_{1}.xml'.format(envDict['CASEROOT'], comp)
         create_env_file(envDict, config_file, tmpl_file, env_file, 'diags_{0}'.format(comp), machine['{0}_obs_root'.format(comp)], standalone)
 
     # define the template files for the batch scripts
@@ -457,8 +457,9 @@ def main(options):
 
     # generate the timeseries batch submit script from template files
     postProcessCmd = 'cesm_tseries_generator.py'
-    outFile = '{0}/{1}.timeseries'.format(envDict['CASEROOT'], envDict['CASE'])
-    processName = '{0}.timeseries'.format(envDict['CASE'])
+    processName = 'timeseries'
+    outFile = '{0}/{1}'.format(envDict['CASEROOT'],processName)
+
     create_batch(envDict['POSTPROCESS_PATH'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
                  machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
                  envDict['CASEROOT'], machine['modules'], options, standalone)
@@ -467,16 +468,16 @@ def main(options):
     for comp in compList:
         # generate the averages batch submit script
         postProcessCmd = '{0}_avg_generator.py'.format(comp)
-        outFile = '{0}/{1}.{2}_averages'.format(envDict['CASEROOT'], envDict['CASE'], comp)
-        processName = '{0}.{1}_averages'.format(envDict['CASE'], comp)
+        processName = '{0}_averages'.format(comp)
+        outFile = '{0}/{1}'.format(envDict['CASEROOT'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
                      envDict['CASEROOT'], machine['modules'], options, standalone)
 
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
-        outFile = '{0}/{1}.{2}_diagnostics'.format(envDict['CASEROOT'], envDict['CASE'], comp)
-        processName = '{0}.{1}_diagnostics'.format(envDict['CASE'], comp)
+        processName = '{0}_diagnostics'.format(comp)
+        outFile = '{0}/{1}'.format(envDict['CASEROOT'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
                      envDict['CASEROOT'], machine['modules'], options, standalone)

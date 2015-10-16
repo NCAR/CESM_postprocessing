@@ -4,7 +4,7 @@
 #BSUB -N 
 #BSUB -W 0:10
 #BSUB -R "span[ptile=8]"
-#BSUB -P P93300606
+#BSUB -P P93300014
 #BSUB -o pyAve.%J.out         # output file name in which %J is replaced by the job ID
 #BSUB -e pyAve.%J.err         # error file name in which %J is replaced by the job ID
 
@@ -20,7 +20,7 @@ module load intel/15.0.3
 module load netcdf
 module load ncl/6.3.0
 
-mpirun.lsf ./test_ocn_series.py
+mpirun.lsf ./test_ocn_slice2.py
 
 deactivate
 

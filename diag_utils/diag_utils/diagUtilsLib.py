@@ -464,7 +464,7 @@ def createSymLink(sourceFile, linkFile):
     rc, err_msg = cesmEnvLib.checkFile(sourceFile, 'read')
     if not rc:
 # these should be raise RuntimeError instead of OSError
-        raise RunTimeError(err_msg)
+        raise RuntimeError(err_msg)
 
     # check if the linkFile exists and is readable
     rc, err_msg = cesmEnvLib.checkFile(linkFile, 'read')
@@ -498,7 +498,7 @@ def atm_regrid(climo_file, regrid_script, in_grid, out_grid, env):
     elif '240' in in_grid:
        in_grid = '240'
     else:
-        raise RunTimeError('The in grid resolution is not a valid option: ',in_grid)
+        raise RuntimeError('The in grid resolution is not a valid option: ',in_grid)
 
     se_file = climo_file[:-3] + '_r_' + in_grid + climo_file[-3:] # Create a new name for the existing se climo file
     env['INGRID'] = in_grid

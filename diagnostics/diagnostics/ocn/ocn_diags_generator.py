@@ -420,8 +420,6 @@ if __name__ == "__main__":
             print('***************************************************')
         sys.exit(status)
 
-##    except RunTimeError as error:
-        
     except Exception as error:
         print(str(error))
         if options.backtrace:

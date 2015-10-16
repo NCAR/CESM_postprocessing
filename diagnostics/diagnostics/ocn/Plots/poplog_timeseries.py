@@ -55,7 +55,7 @@ class PopLog(OceanDiagnosticPlot):
                                               ('Gibraltar','diagts_transport.gibraltar'), ('Nares_Straight','diagts_transport.nares')]
         
         self._expectedPlotHeaders = ['Global Average Fields', 'Nino Indices', 'Transport Diagnostics']
-        self._expectedInFiles = ['diagts_3d.asc', 'diagts_cfc.asc', 'diagts_ecosys.asc', 'diagts_fwflux.asc', 'diagts_hflux.asc', 'diagts_info.asc',
+        self._expectedInFiles = ['diagts_3d.asc', 'diagts_cfc.asc', 'diagts_ecosys.asc', 'diagts_fwflux.asc', 'diagts_hflux.asc', 'diagts_info.asc', 'diagts_precfactor.asc',
                                  'diagts_nino.asc', 'transports.bering.asc', 'transports.drake.asc', 'transports.florida.asc', 'transports.gibraltar.asc',
                                  'transports.itf1.asc', 'transports.itf2.asc', 'transports.mozambique.asc', 'transports.nares.asc', 'transports.nwpassage.asc',
                                  'transports.windward1.asc', 'transports.windward2.asc']

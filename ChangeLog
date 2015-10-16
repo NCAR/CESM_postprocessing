@@ -4,6 +4,25 @@ SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
 ================================================================================
 This file describes what tags were created and why
 ================================================================================
+	
+Originator: aliceb
+Date: 14 September 2015
+Model: postprocessing
+Version: postprocessing_20151014
+One-line: updates for create_postprocess and ocn diags
+
+M       diag_utils/diag_utils/diagUtilsLib.py
+M       Templates/env_postprocess.tmpl
+M       create_postprocess
+M       diagnostics/diagnostics/ocn/model_timeseries.py
+M       diagnostics/diagnostics/ocn/Plots/poplog_timeseries.py
+M       diagnostics/diagnostics/ocn/Plots/moc_annual_timeseries.py
+M       diagnostics/diagnostics/ocn/tests/test_runAvg_mpi.csh
+M       diagnostics/diagnostics/ocn/ocn_diags_generator.py
+M       diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
+M       diagnostics/diagnostics/ocn/ocn_avg_generator.py
+
+================================================================================
 
 Originator: mickelso
 Date: 16 October 2015

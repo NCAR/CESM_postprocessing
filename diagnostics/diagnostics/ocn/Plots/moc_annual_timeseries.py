@@ -54,8 +54,8 @@ class MOCAnnual(OceanDiagnosticPlot):
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
 
         # create link to MOC average file
-        sourceFile = '{0}/{1}.pop.h.{2}-{3}.moc.nc'.format(env['TAVGDIR'], env['CASE'], env['YEAR0'], env['YEAR1'])
-        linkFile = '{0}/{1}.pop.h.MOC.{2}_cat_{3}.nc'.format(env['WORKDIR'], env['CASE'], env['YEAR0'], env['YEAR1'])
+        sourceFile = '{0}/{1}.pop.h.{2}-{3}.moc.nc'.format(env['TAVGDIR'], env['CASE'], env['YEAR0'].zfill(4), env['YEAR1'].zfill(4))
+        linkFile = '{0}/{1}.pop.h.MOC.{2}_cat_{3}.nc'.format(env['WORKDIR'], env['CASE'], env['YEAR0'].zfill(4), env['YEAR1'].zfill(4))
         diagUtilsLib.createSymLink(sourceFile, linkFile)
         env['MOCTSANNFILE'] = os.environ['MOCTSANNFILE'] = linkFile
 

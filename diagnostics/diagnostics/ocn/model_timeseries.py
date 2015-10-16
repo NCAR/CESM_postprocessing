@@ -145,10 +145,15 @@ class modelTimeseries(OceanDiagnostic):
                     with open (outFile, 'w') as results:
                         try:
                             subprocess.check_call(cmd[0], stdout=results, env=env)
-                            rc, err_msg = cesmEnvLib.checkFile(outFile, 'read')
-                            if rc:
-                                # get the tail of the .txt file and redirect to a .asc file for the web
-                                ascFile = '{0}.asc'.format(cmd[1])
+                        except subprocess.CalledProcessError as e:
+                            print('WARNING: {0} time series error executing command:'.format(self._name))
+                            print('    {0}'.format(e.cmd))
+                            print('    rc = {0}'.format(e.returncode))
+
+                        rc, err_msg = cesmEnvLib.checkFile(outFile, 'read')
+                        if rc:
+                            # get the tail of the .txt file and redirect to a .asc file for the web
+                            ascFile = '{0}.asc'.format(cmd[1])
                             with open (ascFile, 'w') as results:
                                 try:
                                     # TODO - read the .txt in and write just the lines needed to avoid subprocess call
@@ -158,11 +163,6 @@ class modelTimeseries(OceanDiagnostic):
                                     print('WARNING: {0} time series error executing command:'.format(self._name))
                                     print('    {0}'.format(e.cmd))
                                     print('    rc = {0}'.format(e.returncode))
-
-                        except subprocess.CalledProcessError as e:
-                            print('WARNING: {0} time series error executing command:'.format(self._name))
-                            print('    {0}'.format(e.cmd))
-                            print('    rc = {0}'.format(e.returncode))
 
             else:
                 print('model timeseries - Coupler logs do not exist. Disabling MTS_PM_CPLLOG module')

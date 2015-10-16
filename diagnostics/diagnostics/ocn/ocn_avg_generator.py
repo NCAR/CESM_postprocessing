@@ -397,7 +397,7 @@ def main(options, debugMsg):
         debugMsg('...cntrl_htype = {0}'.format(envDict['cntrl_htype']), header=True)
         debugMsg('...CNTRLTAVGDIR = {0}'.format(envDict['CNTRLTAVGDIR']), header=True)
         debugMsg('...CNTRLCASE = {0}'.format(envDict['CNTRLCASE']), header=True)
-        debugMsg('...TIMESERIES = {0}'.format(envDict['TIMESERIES']), header=True)
+        debugMsg('...CNTRLCASE_TIMESERIES = {0}'.format(envDict['CNTRLCASE_TIMESERIES']), header=True)
         debugMsg('...varlist = {0}'.format(varList), header=True)
         
         # don't create timeseries averages for the control case so set to False
@@ -427,8 +427,6 @@ if __name__ == "__main__":
         status = main(options, debugMsg)
         debugMsg('*** Successfully completed generating ocean climatology averages ***', header=False)
         sys.exit(status)
-
-##    except RunTimeError as error:
         
     except Exception as error:
         print(str(error))
