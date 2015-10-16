@@ -145,7 +145,7 @@ class EcosystemMaps_obs(EcosystemMaps):
 
         self._plotTitles = ['Lat, Lon', 'Ecosystem: Maps at Depth (with obs where applicable)']
 
-        self._expectedPlots_s1 = {'NH4':'map_NH4','NO3_excess':'map_NO3','spChl':'map_spChl','diatChl':'map_diatChl','diazChl':'map_diazChl',
+        self._expectedPlots_s1 = {'NH4':'map_NH4','NO3_excess':'map_NO3','spChl':'map_spChl','diatChl':'map_diatChl','diazChl':'map_diazChl', 'totChl':'map_totChl',
                                   'spC':'map_spC','diatC':'map_diatC','diazC':'map_diazC','photoC_sp':'map_photoC_sp','photoC_diat':'map_photoC_diat', 
                                   'photoC_diaz':'map_photoC_diaz','diaz_Nfix':'map_diaz_Nfix','DENITRIF':'map_DENITRIF','NITRIF':'map_NITRIF',
                                   'CaCO3_form':'map_CaCO3_form','bSi_form':'map_bSi_form','IRON_FLUX':'map_IRON_FLUX','POC_FLUX_IN':'map_POC_FLUX_IN',

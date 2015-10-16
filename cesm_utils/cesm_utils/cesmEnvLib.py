@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 """
-This module provides utility functions for working with the CESM $CASEROOT/env_*.xml files
-except the env_archive.xml file which is parsed in the cesm_tseries_generate.py directly.
+This module provides utility functions for working with the CESM $CASEROOT XML files
 __________________________
 Created on Apr 30, 2014
 Updated Sept 4, 2014 - make sure execute permission is allowed

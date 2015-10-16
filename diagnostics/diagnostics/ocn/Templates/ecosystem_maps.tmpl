@@ -43,15 +43,43 @@
         <a href="{{ plots_s1['diazChl'] }}">diazChl</a>
      {% endif %}
   </td>
-#START HERE...
+  <td>
+     {% if 'Error' in plots_s1['totChl'] %}
+        {{ plots_s1['totChl'] }}
+     {% else %}
+        <a href="{{ plots_s1['totChl'] }}">totChl</a>
+     {% endif %}
+  </td>    
+  <td>&nbsp;</td>
+</tr>
 
-  <td><a href="map_totChl.png">diazChl</a></td>
-</tr>
 <tr>
-  <td><a href="map_spC.png">spC</a></td>
-  <td><a href="map_diatC.png">diatC</a></td>
-  <td><a href="map_diazC.png">diazC</a></td>
+  <td>
+     {% if 'Error' in plots_s1['spC'] %}
+        {{ plots_s1['spC'] }}
+     {% else %}
+        <a href="{{ plots_s1['spC'] }}">spC</a>
+     {% endif %}
+  </td>
+  <td>
+     {% if 'Error' in plots_s1['diatC'] %}
+        {{ plots_s1['diatC'] }}
+     {% else %}
+        <a href="{{ plots_s1['diatC'] }}">diatC</a>
+     {% endif %}
+  </td>
+  <td>
+     {% if 'Error' in plots_s1['diazC'] %}
+        {{ plots_s1['diazChl'] }}
+     {% else %}
+        <a href="{{ plots_s1['diazC'] }}">diazC</a>
+     {% endif %}
+  </td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
 </tr>
+
+START HERE...
 <tr>
   <td><a href="map_photoC_sp.png">photoC_sp</a></td>
   <td><a href="map_photoC_diat.png">photoC_diat</a></td>
