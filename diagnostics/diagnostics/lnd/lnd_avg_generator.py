@@ -396,7 +396,7 @@ def main(options, debugMsg):
                         diff_time_series, envDict['SOURCE_2'], envDict['caseid_2'], envDict['trends_first_yr_2'], envDict['trends_last_yr_2'],
                         m_dir,suffix,filep)
 
-                    if diff_time_series == 'TRUE':
+                    if diff_time_series == 'True':
                         h_path = envDict['SOURCE_2']+'/'+m_dir+'/proc/tseries/monthly/'
                     else:
                         h_path = envDict['SOURCE_2']+'/'+m_dir+'/hist/'

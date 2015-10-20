@@ -561,40 +561,40 @@
 
   <entry id="LNDDIAG_CN"
          type="logical"
-         valid_values="True/False"
-         value="False"
+         valid_values="0/1"
+         value="0"
          group="diags_lnd"
          desc="Logical: Is CN active?"
          ></entry>
 
   <entry id="LNDDIAG_C13"
          type="logical"
-         valid_values="True/False"
-         value="False"
+         valid_values="0/1"
+         value="0"
          group="diags_lnd"
          desc="Logical: Is C13 active?"
          ></entry>
 
   <entry id="LNDDIAG_CLAMP"
          type="logical"
-         valid_values="True/False"
-         value="False"
+         valid_values="0/1"
+         value="0"
          group="diags_lnd"
          desc="True: CLAMP terminology/False: CLM-CN terminology"
          ></entry>
 
   <entry id="LNDDIAG_CASA"
          type="logical"
-         valid_values="True/False"
-         value="False"
+         valid_values="0/1"
+         value="0"
          group="diags_lnd"
          desc="True: CASA terminology/False: CLM-CN terminology"
          ></entry>
 
   <entry id="LNDDIAG_HYDRO"
          type="logical"
-         valid_values="True/False"
-         value="True"
+         valid_values="0/1"
+         value=""
          group="diags_lnd"
          desc="Logical: HYDRO vars active?"
          ></entry>

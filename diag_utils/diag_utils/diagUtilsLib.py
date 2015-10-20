@@ -149,17 +149,17 @@ def checkXMLyears(hfstart_year, hfstop_year, rstart_year, rstop_year):
     stop_year (string) - for average calculations
     """
     # make sure the requested years from the XML are in range with the actual history files
-    if not int(hfstart_year) <= int(rstart_year) <= int(hfstop_year):
-        err_msg = 'ERROR: diagUtilsLib.checkXMLyears requested XML YEAR0 = {0} does not fall within range of actual available model history file years: {1}-{2}'.format(rstart_year, hfstart_year, hfstop_year)
-        raise OSError(err_msg)
+    #if not int(hfstart_year) <= int(rstart_year) <= int(hfstop_year):
+    #    err_msg = 'ERROR: diagUtilsLib.checkXMLyears requested XML YEAR0 = {0} does not fall within range of actual available model history file years: {1}-{2}'.format(rstart_year, hfstart_year, hfstop_year)
+    #    raise OSError(err_msg)
+#
+#    if not int(hfstart_year) <= int(rstop_year) <= int(hfstop_year):
+#        err_msg = 'ERROR: diagUtilsLib.checkXMLyears requested XML YEAR1 = {0} does not fall within range of actual available model history file years: {1}-{2}'.format(rstop_year, hfstart_year, hfstop_year)
+#        raise OSError(err_msg)
 
-    if not int(hfstart_year) <= int(rstop_year) <= int(hfstop_year):
-        err_msg = 'ERROR: diagUtilsLib.checkXMLyears requested XML YEAR1 = {0} does not fall within range of actual available model history file years: {1}-{2}'.format(rstop_year, hfstart_year, hfstop_year)
-        raise OSError(err_msg)
-
-    if int(rstop_year) < int(rstart_year):
-        err_msg = 'ERROR: diagUtilsLib.checkXMLyears requested XML YEAR1 = {0} is less than YEAR0 = {1}'.format(rstop_year, rstart_year)
-        raise OSError(err_msg)
+#    if int(rstop_year) < int(rstart_year):
+#        err_msg = 'ERROR: diagUtilsLib.checkXMLyears requested XML YEAR1 = {0} is less than YEAR0 = {1}'.format(rstop_year, rstart_year)
+#        raise OSError(err_msg)
 
     start_year = rstart_year
     stop_year = rstop_year
