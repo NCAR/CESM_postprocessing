@@ -6,6 +6,7 @@
 
 <config_definition version="1.0">
 
+<groups>
   <!-- =========================================================================== -->
   <!-- atm_settings - general settings to be applied to all diagnostics routines   -->
   <!-- NOTE: case specific environment variables from env_*.xml will be            -->
@@ -14,6 +15,10 @@
   <!-- The full $PATH variable will be set in the atm_diags_generator.py file      -->
   <!-- using all the path settings defined here.                                   -->
   <!-- =========================================================================== -->
+
+  <group name="global">
+  <order>0</order>
+  <comment>Environmental variables that control which AMWG diagnostics to produce</comment>
 
   <entry id="ATMDIAG_DIAG_VERSION"
          type="integer"
@@ -46,10 +51,15 @@
          group="diags_atm"
          desc="Remove any existing diagnostic files."
          ></entry>
+  </group>
 
 <!-- ============================================================================================== -->
 <!-- Set test datset                                                                                -->
 <!-- ============================================================================================== -->
+
+  <group name="test_params">
+  <order>1</order>
+  <comment>Set test datset</comment>
 
   <entry id="ATMDIAG_test_casename"
          type="char"
@@ -98,10 +108,14 @@
          group="diags_atm"
          desc="Path to generated diags."
          ></entry>
+  </group>
 
 <!-- ============================================================================================== -->
 <!-- Set cntl datset                                                                                -->
 <!-- ============================================================================================== -->
+  <group name="cntl_params">
+  <order>2</order>
+  <comment>Set control datset</comment>
 
   <entry id="ATMDIAG_cntl_casename"
          type="char"
@@ -158,10 +172,15 @@
          group="diags_atm"
          desc="Compute climatologies for the cntl case."
          ></entry>
+  </group>
 
 <!-- ============================================================================================== -->
 <!-- Set date ranges                                                                                -->
 <!-- ============================================================================================== -->
+
+  <group name="date_params">
+  <order>3</order>
+  <comment>Set date ranges</comment>
 
   <entry id="ATMDIAG_test_first_yr"
          type="integer"
@@ -195,9 +214,15 @@
          desc="The number of years of cntl data to be used for the diagnostics."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Input data paths                                                                               -->
 <!-- ============================================================================================== -->
+
+  <group name="input_data_paths">
+  <order>4</order>
+  <comment>Set input data paths</comment>
 
   <entry id="ATMDIAG_OBS_DATA"
          type="char"
@@ -223,9 +248,15 @@
          desc="Local machine fully qualified directory path to AMWG mapping data."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Set climo settings                                                                             -->
 <!-- ============================================================================================== -->
+
+  <group name="climo_settings">
+  <order>5</order>
+  <comment>Set climatology specific settings</comment>
 
   <entry id="ATMDIAG_strip_off_vars"
          type="logical"
@@ -243,9 +274,15 @@
          desc="Weight the months by their number of days."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Select Plot Sets										    --> 
 <!-- ============================================================================================== -->
+
+  <group name="plot_sets">
+  <order>6</order>
+  <comment>Select plot sets</comment>
 
   <entry id="ATMDIAG_all_sets"
          type="logical"
@@ -479,9 +516,15 @@
          desc="Cntl case to compare against for Taylor Diagrams"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Seasonal plot selection                                                                        -->
 <!-- ============================================================================================== -->
+
+  <group name="seasons">
+  <order>7</order>
+  <comment>Select which seasons to generate climatolgies and plots</comment>
 
   <entry id="ATMDIAG_plot_ANN_climo"
          type="logical"
@@ -531,9 +574,15 @@
          desc="Create monthly plots - used by sets 8,10,11,12"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Customize plots                                                                                -->
 <!-- ============================================================================================== -->
+
+  <group name="custom_plots">
+  <order>8</order>
+  <comment>Customized plot settings</comment>
 
   <entry id="ATMDIAG_p_type"
          type="char"
@@ -631,9 +680,15 @@
          desc="Level of significance"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Additional settings                                                                            -->
 <!-- ============================================================================================== -->
+
+  <group name="additiona_settings">
+  <order>9</order>
+  <comment>Additional misc. settings</comment>
 
   <entry id="ATMDIAG_DIAG_HOME"
          type="char"
@@ -699,9 +754,15 @@
          desc="Email address to send completion message to"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Interpolation settings                                                                         -->
 <!-- ============================================================================================== -->
+
+  <group name="interp_settings">
+  <order>10</order>
+  <comment>Interpolation settings</comment>
 
   <entry id="ATMDIAG_INTERP_METHOD"
              type="char"
@@ -759,9 +820,15 @@
          desc="Interpolated cntl climo FV resolution"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Stations to plot (set 12)                                                                      -->
 <!-- ============================================================================================== -->
+
+  <group name="stations">
+  <order>11</order>
+  <comment>Stations to plot (set 12)</comment>
 
 <!-- =============================== -->
 <!-- ARCTIC (60N-90N)                -->
@@ -1222,11 +1289,17 @@
          desc="Plot station mcmurdo_antarctica #11"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Paleoclimate settings                                                                          -->
 <!-- ============================================================================================== -->
 
-<entry id="ATMDIAG_paleo"
+  <group name="paleo_settings">
+  <order>12</order>
+  <comment>Paleoclimate settings</comment>
+
+  <entry id="ATMDIAG_paleo"
          type="logical"
          valid_values="True/False"
          value="False"
@@ -1265,5 +1338,8 @@
            group="diags_atm"
            desc="Morrison-Gettleman Microphysics plots"
            ></entry>
+  
+  </group>
+</groups>
 
 </config_definition>

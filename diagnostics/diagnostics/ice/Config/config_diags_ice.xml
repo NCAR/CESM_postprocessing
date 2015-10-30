@@ -15,6 +15,12 @@
   <!-- using all the path settings defined here.                                   -->
   <!-- =========================================================================== -->
 
+<groups>
+  
+  <group name="global">
+  <order>0</order>
+  <comment>Environmental variables that control which Ice Model diagnostics to produce</comment>
+
   <entry id="ICEDIAG_DIAG_VERSION"
          type="integer"
          valid_values=""
@@ -47,9 +53,15 @@
          desc="Remove any existing diagnostic files."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Set CONT datset                                                                                -->
 <!-- ============================================================================================== -->
+
+  <group name="cont_dataset">
+  <order>1</order>
+  <comment>Set CONT dataset</comment>
 
   <entry id="ICEDIAG_COMPUTE_CLIMO_CONT"
          type="logical"
@@ -131,9 +143,15 @@
            desc="OLD for u, v var names. NEW for uvel, vvel var names."
            ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Set DIFF datset                                                                                -->
 <!-- ============================================================================================== -->
+
+  <group name="diff_dataset">
+  <order>2</order>
+  <comment>Set DIFF datset</comment>
 
   <entry id="ICEDIAG_COMPUTE_CLIMO_DIFF"
          type="logical"
@@ -207,9 +225,15 @@
          desc="Boolean for high resolution."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Set date ranges                                                                                -->
 <!-- ============================================================================================== -->
+
+  <group name="date_ranges">
+  <order>3</order>
+  <comment>Set date ranges</comment>
 
   <entry id="ICEDIAG_BEGYR_CONT"
          type="integer"
@@ -251,9 +275,15 @@
          desc="Number of years to avg (for contour plots)."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Input data paths                                                                               -->
 <!-- ============================================================================================== -->
+
+  <group name="input_path">
+  <order>4</order>
+  <comment>Input data paths</comment>
 
   <entry id="ICEDIAG_GRIDFILECONT"
          type="char"
@@ -295,9 +325,15 @@
          desc="Mask file that contains ice regions."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Select Plot Sets                                                                               -->
 <!-- ============================================================================================== -->
+
+  <group name="plot_sets">
+  <order>5</order>
+  <comment>Select plot sets</comment>
 
   <entry id="ICEDIAG_PLOT_CONT"
          type="logical"
@@ -355,9 +391,15 @@
          desc="Make regional line plots."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- Select Plot Options									    --> 
 <!-- ============================================================================================== -->
+
+  <group name="plot_opts">
+  <order>6</order>
+  <comment>Select plot options</comment>
 
   <entry id="ICEDIAG_X1_OFF"
          type="integer"
@@ -391,10 +433,15 @@
          desc="Plot resolution"
          ></entry>
 
+  </group>
 
 <!-- ============================================================================================== -->
 <!-- Path settings                                                                                  -->
 <!-- ============================================================================================== -->
+
+  <group name="path_settings">
+  <order>7</order>
+  <comment>Path settings</comment>
 
   <entry id="ICEDIAG_DIAG_HOME"
          type="char"
@@ -459,6 +506,8 @@
          group="diags_ice"
          desc="Email address to send completion message to"
          ></entry>
+  </group>
+</groups>
 
 </config_definition>
 

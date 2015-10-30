@@ -15,6 +15,12 @@
   <!-- using all the path settings defined here.                                   -->
   <!-- =========================================================================== -->
 
+<groups>
+  
+  <group name="global">
+  <order>0</order>
+  <comment>Environmental variables that control which Land Model diagnostics to produce</comment>
+
   <entry id="LNDDIAG_DIAG_VERSION"
          type="char"
          valid_values=""
@@ -23,9 +29,15 @@
          desc="Package Version"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 1: Path to data                                                                                -->
 <!-- ============================================================================================== -->
+
+  <group name="data_path">
+  <order>1</order>
+  <comment>Path to data</comment>
 
   <entry id="LNDDIAG_PTMPDIR_1"
          type="char"
@@ -59,9 +71,15 @@
          desc="Root location of history files for CASE2"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 2a,2b: Diagnostic paths                                                                        -->
 <!-- ============================================================================================== -->
+
+  <group name="diag_path">
+  <order>2</order>
+  <comment>Diagnostic paths</comment>
 
   <entry id="LNDDIAG_DIAG_HOME"
          type="char"
@@ -87,9 +105,15 @@
          desc="Location of observational datasets"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 2c: Compare to Observations in set 2                                                           -->
 <!-- ============================================================================================== -->
+
+  <group name="comp_obs">
+  <order>3</order>
+  <comment>Compare to observations in set 2</comment>
 
   <entry id="LNDDIAG_plotObs"
          type="integer"
@@ -99,9 +123,15 @@
          desc="Compare to observations in set 2 (1 = compare to PD observations; 0 = OFF)"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 3: Location of the variable lists                                                              -->
 <!-- ============================================================================================== -->
+
+  <group name="var_list_local">
+  <order>4</order>
+  <comment>Location of the variable lists</comment>
 
   <entry id="LNDDIAG_INPUT_HOME"
          type="char"
@@ -127,9 +157,15 @@
          desc="Master CASA variable list"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 4: Runtypes (Users can select both model vs obs and model vs model)                            -->
 <!-- ============================================================================================== -->
+
+  <group name="run_types">
+  <order>5</order>
+  <comment>Runtypes</comment>
 
   <entry id="LNDDIAG_MODEL_VS_OBS"
          type="logical"
@@ -154,10 +190,16 @@
          group="diags_lnd"
          desc="Remove any existing diagnostic files."
          ></entry>
+  
+  </group>
 
 <!-- ============================================================================================== -->
 <!-- 5a: CASE1 settings                                                                             -->
 <!-- ============================================================================================== -->
+
+  <group name="case_1_settings">
+  <order>6</order>
+  <comment>CASE1 settings</comment>
 
   <entry id="LNDDIAG_COMPUTE_CLIMO_CASE1"
          type="logical"
@@ -231,9 +273,15 @@
          desc="Use tseries files to compute CASE1 climos."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 5b: CASE2 settings                                                                             -->
 <!-- ============================================================================================== -->
+
+  <group name="case_2_settings">
+  <order>7</order>
+  <comment>CASE2 settings</comment>
 
   <entry id="LNDDIAG_COMPUTE_CLIMO_CASE2"
          type="logical"
@@ -307,9 +355,15 @@
          desc="Use tseries files to compute CASE2 climos."
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 6: Set which climatological files need to be created                                           -->
 <!-- ============================================================================================== -->
+
+  <group name="which_climos">
+  <order>8</order>
+  <comment>Set which climatological files need to be created</comment>
 
   <entry id="LNDDIAG_overWriteTrend"
          type="logical"
@@ -459,9 +513,15 @@
          desc="Create climos for rtm CASE2 (set7)"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 7,8: Set date ranges                                                                                -->
 <!-- ============================================================================================== -->
+
+  <group name="date_ranges">
+  <order>9</order>
+  <comment>Set date ranges</comment>
 
   <entry id="LNDDIAG_clim_first_yr_1"
          type="integer"
@@ -527,9 +587,15 @@
          desc="Number of years for CASE2 (TRENDS)"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 9: SPECIAL CASE DESCRIPTION                                                                    -->
 <!-- ============================================================================================== -->
+
+  <group name="spec_case_descr">
+  <order>10</order>
+  <comment>Special case description</comment>
 
   <entry id="LNDDIAG_trends_match_Flag"
          type="logical"
@@ -555,9 +621,15 @@
          desc="First year of overlap case2 (TRENDS)"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 10: Active variables?                                                                          -->
 <!-- ============================================================================================== -->
+
+  <group name="active_variables">
+  <order>11</order>
+  <comment>Active variables?</comment>
 
   <entry id="LNDDIAG_CN"
          type="logical"
@@ -599,10 +671,15 @@
          desc="Logical: HYDRO vars active?"
          ></entry>
 
+  </group>
 
 <!-- ============================================================================================== -->
 <!-- 11: Select Plot Sets                                                                           -->
 <!-- ============================================================================================== -->
+
+  <group name="plot_sets">
+  <order>12</order>
+  <comment>Select plot sets</comment>
 
   <entry id="LNDDIAG_set_0"
          type="logical"
@@ -692,9 +769,15 @@
          desc="Plot Set 9: VALIDATION DIAGNOSTICS (ONLY FOR MODEL-MODEL)"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 12: Select Plot Options									    --> 
 <!-- ============================================================================================== -->
+
+  <group name="plot_opt">
+  <order>13</order>
+  <comment>Select plot options</comment>
 
   <entry id="LNDDIAG_projection"
          type="integer"
@@ -752,9 +835,15 @@
          desc="Plot output type"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 13: Web Options                                                                                -->
 <!-- ============================================================================================== -->
+
+  <group name="web_opt">
+  <order>14</order>
+  <comment>Web options</comment>
 
   <entry id="LNDDIAG_DOWEB"
          type="logical"
@@ -804,9 +893,15 @@
          desc="Email address to send completion message to"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 14: Regridding Options                                                                         -->
 <!-- ============================================================================================== -->
+
+  <group name="regrid_opt">
+  <order>15</order>
+  <comment>Regridding options</comment>
 
 <!-- CASE 1 -->
 
@@ -908,9 +1003,15 @@
          desc="Exact path to area file directory"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 15: Plot set 2 options                                                                         -->
 <!-- ============================================================================================== -->
+
+  <group name="pset2_opt">
+  <order>16</order>
+  <comment>Plot set 2 options</comment>
 
    <entry id="LNDDIAG_sig_lvl"
          type="integer"
@@ -968,9 +1069,15 @@
          desc="observation resolution (set 2)"
          ></entry>
 
+  </group>
+
 <!-- ============================================================================================== -->
 <!-- 16: Paleo Options                                                                              -->
 <!-- ============================================================================================== -->
+
+  <group name="paleo_opt">
+  <order>17</order>
+  <comment>Paleo options</comment>
 
    <entry id="LNDDIAG_paleo"
          type="logical"
@@ -1003,7 +1110,8 @@
          group="diags_lnd"
          desc="True: make difference plots for different continental outlines"
          ></entry>
-
+  </group>
+</groups>
 
 </config_definition>
 
