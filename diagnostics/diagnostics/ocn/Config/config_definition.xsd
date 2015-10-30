@@ -5,21 +5,40 @@
     <xs:complexType>
       <xs:sequence>
 
-	<xs:element name="entry" maxOccurs="unbounded">
+	<xs:element name="groups">
 	  <xs:complexType>
-	    <xs:simpleContent>
-	      <xs:extension base="xs:string">
-		<xs:attribute name="id" type="xs:string"/>
-		<xs:attribute name="type" type="xs:string" use="optional"/>
-		<xs:attribute name="valid_values" type="xs:string" use="optional"/>
-		<xs:attribute name="list" type="xs:string" use="optional"/>
-		<xs:attribute name="value" type="xs:string" use="optional"/>
-		<xs:attribute name="group" type="xs:string" use="optional"/>
-		<xs:attribute name="desc" type="xs:string" use="optional"/>
-	      </xs:extension>
-	    </xs:simpleContent>
+	    <xs:sequence>
+
+	      <xs:element name="group" maxOccurs="unbounded">
+		<xs:complexType>
+		  <xs:sequence>
+		    <xs:element name="order" type="xs:string"/>
+		    <xs:element name="comment"  type="xs:string"/>
+
+		    <xs:element name="entry" maxOccurs="unbounded">
+		      <xs:complexType>
+			<xs:simpleContent>
+			  <xs:extension base="xs:string">
+			    <xs:attribute name="id" type="xs:string"/>
+			    <xs:attribute name="type" type="xs:string" use="optional"/>
+			    <xs:attribute name="valid_values" type="xs:string" use="optional"/>
+			    <xs:attribute name="value" type="xs:string" use="optional"/>
+			    <xs:attribute name="group" type="xs:string" use="optional"/>
+			    <xs:attribute name="desc" type="xs:string" use="optional"/>
+			  </xs:extension>
+			</xs:simpleContent>
+		      </xs:complexType>
+		    </xs:element>
+
+		  </xs:sequence>
+		  <xs:attribute name="name" type="xs:string"/>
+		</xs:complexType>
+	      </xs:element>
+
+	    </xs:sequence>
 	  </xs:complexType>
 	</xs:element>
+
 
       </xs:sequence>
       <xs:attribute name="version" type="xs:string"/>

@@ -3,7 +3,7 @@
 them into bash scripts for batch submission of postprocessing tasks. 
 
 Arguments:
-caseroot (mandatory) - full path to a valid CESM case
+caseroot (mandatory) - full path to a CESM case
 
 Creates files: 
 $CASEROOT/env_postprocess.xml
@@ -42,6 +42,7 @@ import collections
 import os
 import platform
 import pprint
+from operator import itemgetter
 import re
 import shutil
 import subprocess
@@ -78,7 +79,7 @@ from cesm_utils import cesmEnvLib
 import jinja2
 
 # -------------------------------------------------------------------------------
-# define a class to be used for the xml entry, id, desc values
+# define a class to be used for the xml entry, id, desc, group values
 # -------------------------------------------------------------------------------
 class XmlEntry(object):
     def __init__(self, id, value, desc):
@@ -95,7 +96,6 @@ class XmlEntry(object):
     def desc(self):
         return self._desc
 
-
 # -------------------------------------------------------------------------------
 # commandline_options - parse any command line options
 # -------------------------------------------------------------------------------
@@ -107,14 +107,14 @@ def commandline_options():
     parser = argparse.ArgumentParser(
         description='Read the necessary XML files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks. Runtime options can be set in the XML files in the caseroot.')
 
-    parser.add_argument('--backtrace', action='store_true',
+    parser.add_argument('-backtrace', '--backtrace', action='store_true',
                         help='show exception backtraces as extra debugging '
                         'output')
 
-    parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
+    parser.add_argument('-debug', '--debug', nargs=1, required=False, type=int, default=0,
                         help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
-    parser.add_argument('--caseroot', nargs=1, required=True, 
+    parser.add_argument('-caseroot', '--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
 
     options = parser.parse_args()
@@ -153,7 +153,7 @@ def check_standalone(caseroot):
 # -------------------------------------------------------------------------------
 # create_env_file - generate the XML file
 # -------------------------------------------------------------------------------
-def create_env_file(envDict, configFile, tmplFile, envFile, group, obs_root, standalone):
+def create_env_file(envDict, configFile, tmplFile, envFile, obs_root, standalone):
     """create the XML file in the CASEROOT
     
     Arguments:
@@ -161,14 +161,12 @@ def create_env_file(envDict, configFile, tmplFile, envFile, group, obs_root, sta
     configFile (string) - full path to input config_[definition].xml file
     tmplFile (string) - template file for output [file].xml
     envFile (string) - output [file].xml name
-    group (string) - group designation read from XML file
     obs_root (string) - observation data file root directory
     standalone (boolean) - indicate if this is postprocessing for a standalone case
     
-    Returns:
-    envDict (dictionary) - environment dictionary
     """
-    xml_list = []
+    group_list = list()
+    sorted_group_list = list()
     rc, err_msg = cesmEnvLib.checkFile(configFile, 'read')
     rc1, err_msg1 = cesmEnvLib.checkFile('{0}/Templates/{1}'.format(envDict['POSTPROCESS_PATH'], tmplFile), 'read')
 
@@ -176,14 +174,27 @@ def create_env_file(envDict, configFile, tmplFile, envFile, group, obs_root, sta
         xml_tree = etree.ElementTree()
         #print ('creating configFile = {0}'.format(configFile))
         xml_tree.parse(configFile)
-        for entry_tag in xml_tree.findall('entry'):
-            if entry_tag.get('group').lower() == group:
+
+        for group_tag in xml_tree.findall('./groups/group'):
+            xml_list = list()
+            group_dict = dict()
+            name = group_tag.get('name')
+            order = int(group_tag.find('order').text)
+            comment = group_tag.find('comment').text
+
+            for entry_tag in group_tag.findall('entry'):
                 xml_list.append(XmlEntry(entry_tag.get('id'), entry_tag.get('value'), entry_tag.get('desc')))
 
+            group_dict = { 'order' : order, 'name' : name, 'comment' : comment, 'xml_list' : xml_list }
+            group_list.append(group_dict)
+
+        sorted_group_list = sorted(group_list, key=itemgetter('order'))
+
         # add an additional entry for machine dependent input observation files root path
+        xml_list = list()
         if obs_root:
             if len(obs_root) > 0:
-                xml_obs = XmlEntry('DIAGOBSROOT', obs_root, 'Diagnostics observation files root path')
+                xml_obs = XmlEntry('DIAGOBSROOT', obs_root, 'Machine dependent diagnostics observation files root path')
                 xml_list.append(xml_obs)
         
         # the xml_list now contains a list of XmlEntry classes that can be written to the template
@@ -195,6 +206,7 @@ def create_env_file(envDict, configFile, tmplFile, envFile, group, obs_root, sta
                              'case' : envDict['CASE'],
                              'postprocess_path' : envDict['POSTPROCESS_PATH'],
                              'xml_list' : xml_list,
+                             'group_list' : sorted_group_list,
                              'standalone' : standalone }
         
             # render the template
@@ -437,19 +449,19 @@ def main(options):
     config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_PATH'])
     tmpl_file = 'env_postprocess.tmpl'
     env_file = '{0}/env_postprocess.xml'.format(envDict['CASEROOT'])
-    create_env_file(envDict, config_file, tmpl_file, env_file, 'postprocess', '', standalone)
+    create_env_file(envDict, config_file, tmpl_file, env_file, '', standalone)
 
     # generate the env_timeseries.xml file
     config_file = '{0}/Config/config_timeseries.xml'.format(envDict['POSTPROCESS_PATH'])
     env_file = '{0}/env_timeseries.xml'.format(envDict['CASEROOT'])
     shutil.copy2(config_file, env_file)
 
-    # generate the diags_[component].xml files
+    # generate the env_diags_[component].xml files
     for comp in compList:
         config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
         tmpl_file = 'env_diags.tmpl'
         env_file = '{0}/env_diags_{1}.xml'.format(envDict['CASEROOT'], comp)
-        create_env_file(envDict, config_file, tmpl_file, env_file, 'diags_{0}'.format(comp), machine['{0}_obs_root'.format(comp)], standalone)
+        create_env_file(envDict, config_file, tmpl_file, env_file, machine['{0}_obs_root'.format(comp)], standalone)
 
     # define the template files for the batch scripts
     batch_tmpl = 'batch_{0}.tmpl'.format(envDict['MACH'])

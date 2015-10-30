@@ -164,7 +164,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
        case_prefix (string) - input filename prefix
        averageList (list) - list of averages to be created
        varList (list) - list of variables. Note: an empty list implies all variables.
-       tseries (boolean) - TRUE if TIMESERIES plots are specified
+       tseries (boolean) - TRUE if TIMESERIES plots are specified.
     """
     # the following are used for timeseries averages and ignored otherwise
     mean_diff_rms_obs_dir = '{0}/ocn_diag/timeseries_obs'.format(ppDir)
@@ -361,13 +361,15 @@ def main(options, debugMsg):
     suffix = 'pop.h.*.nc'
     file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
     start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
-        envDict['GENERATE_TIMESERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
+        envDict['MODELCASE_TIMESERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
         envDict['YEAR0'], envDict['YEAR1'], 'ocn', suffix, file_pattern)
     envDict['YEAR0'] = start_year
     envDict['YEAR1'] = stop_year
     envDict['in_dir'] = in_dir
     envDict['htype'] = htype
 
+    # TIMESERIES denotes the plotting diagnostic type requested and whether or
+    # not to generate the necessary climo files for those plot sets
     try:
         createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
                         envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], 

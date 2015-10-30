@@ -265,26 +265,44 @@ def copy_html_files(env, subdir):
     env (dictionary) - environment dictionary
     subdir (sting) - sub-directory
     """
-    toplevel = False
-    
-    if len(subdir) == 0:
-        toplevel = True
-        subdir = '{0}.{1}-{2}'.format(env['CASE'], env['YEAR0'], env['YEAR1'])
-    else:
-        subdir = '{0}.{1}-{2}/{3}'.format(env['CASE'], env['YEAR0'], env['YEAR1'], subdir)
-    remoteConnect = '{0}@{1}:{2}/{3}'.format(env['WEBLOGIN'], env['WEBHOST'], env['WEBDIR'], subdir)
-    print('Secure copying HTML and graphics files from {0} to {1}'.format(env['WORKDIR'], remoteConnect))
-
-    # make sure directory exists
+    # check if ssh key is set for passwordless access to the web host
+    sshkey = True
     try:
-        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}/{3}'".format(env['WEBLOGIN'],env['WEBHOST'],env['WEBDIR'],subdir)], env=env, shell=True)
-        pipe.wait()
+        pipe = subprocess.Popen( ["ssh -oNumberOfPasswordPrompts=0 {0}@{1} 'echo hello'".format(env['WEBLOGIN'],env['WEBHOST'])], 
+                                 shell=False,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE )
+        result = ssh.stdout.readlines()
+        if result == []:
+            error = ssh.stderr.readlines()
+            print >>sys.stderr, "ERROR: %s" % error
+            sshkey = False
     except OSEerror as e:
-        print('WARNING: unable to create remote directory {0}/{1}'.format(env['WEBDIR'],subdir))
+        print('WARNING: unable to check ssh keys')
         print('    {0} - {1}'.format(e.errno, e.strerror))
+        sshkey = False
+
+    if sshkey:
+        toplevel = False
+        if len(subdir) == 0:
+            toplevel = True
+            subdir = '{0}.{1}-{2}'.format(env['CASE'], env['YEAR0'], env['YEAR1'])
+        else:
+            subdir = '{0}.{1}-{2}/{3}'.format(env['CASE'], env['YEAR0'], env['YEAR1'], subdir)
+        remoteConnect = '{0}@{1}:{2}/{3}'.format(env['WEBLOGIN'], env['WEBHOST'], env['WEBDIR'], subdir)
+        print('Secure copying HTML and graphics files from {0} to {1}'.format(env['WORKDIR'], remoteConnect))
+
+        # make sure directory exists
+        try:
+            pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}/{3}'".format(env['WEBLOGIN'],env['WEBHOST'],env['WEBDIR'],subdir)], env=env, shell=True)
+            pipe.wait()
+        except OSEerror as e:
+            print('WARNING: unable to create remote directory {0}/{1}'.format(env['WEBDIR'],subdir))
+            print('    {0} - {1}'.format(e.errno, e.strerror))
+            sshkey = False
 
     # copy the logos and style sheet to the top level
-    if toplevel:
+    if sshkey and toplevel:
         localFiles = '{0}/logos'.format(env['WORKDIR'])
         try:
             pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
@@ -302,31 +320,33 @@ def copy_html_files(env, subdir):
             print('    {0} - {1}'.format(e.errno, e.strerror))
 
     # copy the html files
-    localFiles = '{0}/*.html'.format(env['WORKDIR'])
-    try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
-        pipe.wait()
-    except OSError as e:
-        print('WARNING: scp command failed with error::')
-        print('    {0} - {1}'.format(e.errno, e.strerror))
+    if sshkey:
+        localFiles = '{0}/*.html'.format(env['WORKDIR'])
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
 
-    # copy the graphics files
-    localFiles = '{0}/*.{1}'.format(env['WORKDIR'], env['IMAGEFORMAT'])
-    try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
-        pipe.wait()
-    except OSError as e:
-        print('WARNING: scp command failed with error::')
-        print('    {0} - {1}'.format(e.errno, e.strerror))
+        # copy the graphics files
+        localFiles = '{0}/*.{1}'.format(env['WORKDIR'], env['IMAGEFORMAT'])
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
 
-    # copy the asc files
-    localFiles = '{0}/*.asc'.format(env['WORKDIR'])
-    try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
-        pipe.wait()
-    except OSError as e:
-        print('WARNING: scp command failed with error::')
-        print('    {0} - {1}'.format(e.errno, e.strerror))
+        # copy the asc files
+        localFiles = '{0}/*.asc'.format(env['WORKDIR'])
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
+
 
 #==============================================================================
 # create_za - generate the ocean global zonal average file used for most of the plots
