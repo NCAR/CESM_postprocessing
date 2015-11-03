@@ -43,7 +43,8 @@ class OceanDiagnostic(object):
         """This method sets up the unique working directory for a given diagnostic type
         """
         # create the working directory first before calling the base class prerequisites 
-        subdir = '{0}.{1}_{2}'.format(self._name.lower(), env['YEAR0'], env['YEAR1'])
+##        subdir = '{0}.{1}_{2}'.format(self._name.lower(), env['YEAR0'], env['YEAR1'])
+        subdir = '{0}'.format(self._name.lower())
         workdir = '{0}/{1}'.format(env['WORKDIR'], subdir)
         print('working directory = {0}'.format(workdir))
 

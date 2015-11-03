@@ -350,18 +350,12 @@ def main(options, debugMsg):
     tavg_dir = envDict['TAVGDIR'] 
     case_name = envDict['CASE']
 
-    # initialize some variables needed for the pyaverager specifier class
-#    start_year = 0
-#    stop_year = 1
-#    htype = 'series'
-#    in_dir = '{0}/ocn/hist'.format(envDict['DOUT_S_ROOT'])
-
     # get model history file information from the DOUT_S_ROOT archive location
     debugMsg('calling checkHistoryFiles for model case', header=True)
     suffix = 'pop.h.*.nc'
     file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
     start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
-        envDict['MODELCASE_TIMESERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
+        envDict['MODELCASE_INPUT_TSERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
         envDict['YEAR0'], envDict['YEAR1'], 'ocn', suffix, file_pattern)
     envDict['YEAR0'] = start_year
     envDict['YEAR1'] = stop_year
@@ -385,7 +379,7 @@ def main(options, debugMsg):
         suffix = 'pop.h.*.nc'
         file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
         start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
-            envDict['CNTRLCASE_TIMESERIES'], envDict['CNTRLCASEDIR'], envDict['CNTRLCASE'], 
+            envDict['CNTRLCASE_INPUT_TSERIES'], envDict['CNTRLCASEDIR'], envDict['CNTRLCASE'], 
             envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], 'ocn', suffix, file_pattern)
         envDict['CNTRLYEAR0'] = start_year
         envDict['CNTRLYEAR1'] = stop_year
@@ -399,7 +393,7 @@ def main(options, debugMsg):
         debugMsg('...cntrl_htype = {0}'.format(envDict['cntrl_htype']), header=True)
         debugMsg('...CNTRLTAVGDIR = {0}'.format(envDict['CNTRLTAVGDIR']), header=True)
         debugMsg('...CNTRLCASE = {0}'.format(envDict['CNTRLCASE']), header=True)
-        debugMsg('...CNTRLCASE_TIMESERIES = {0}'.format(envDict['CNTRLCASE_TIMESERIES']), header=True)
+        debugMsg('...CNTRLCASE_INPUT_TSERIES = {0}'.format(envDict['CNTRLCASE_INPUT_TSERIES']), header=True)
         debugMsg('...varlist = {0}'.format(varList), header=True)
         
         # don't create timeseries averages for the control case so set to False

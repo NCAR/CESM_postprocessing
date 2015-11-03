@@ -268,17 +268,11 @@ def copy_html_files(env, subdir):
     # check if ssh key is set for passwordless access to the web host
     sshkey = True
     try:
-        pipe = subprocess.Popen( ["ssh -oNumberOfPasswordPrompts=0 {0}@{1} 'echo hello'".format(env['WEBLOGIN'],env['WEBHOST'])], 
-                                 shell=False,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE )
-        result = ssh.stdout.readlines()
-        if result == []:
-            error = ssh.stderr.readlines()
-            print >>sys.stderr, "ERROR: %s" % error
-            sshkey = False
+        pipe = subprocess.Popen( ["ssh -oNumberOfPasswordPrompts=0 {0}@{1} 'echo hello'".format(env['WEBLOGIN'],env['WEBHOST'])], env=env, shell=True)
+        pipe.wait()
     except OSEerror as e:
-        print('WARNING: unable to check ssh keys')
+        print('WARNING: unable to connect to remote web host {0}@{1} without a password'.format(env['WEBLOGIN'],env['WEBHOST']))
+        print('    You will need to copy the files in {0} manually to a web server.'.format(env['WORKDIR']))
         print('    {0} - {1}'.format(e.errno, e.strerror))
         sshkey = False
 
@@ -301,8 +295,9 @@ def copy_html_files(env, subdir):
             print('    {0} - {1}'.format(e.errno, e.strerror))
             sshkey = False
 
-    # copy the logos and style sheet to the top level
     if sshkey and toplevel:
+
+        # copy the logos and style sheet to the top level
         localFiles = '{0}/logos'.format(env['WORKDIR'])
         try:
             pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
@@ -319,8 +314,9 @@ def copy_html_files(env, subdir):
             print('WARNING: scp command failed with error::')
             print('    {0} - {1}'.format(e.errno, e.strerror))
 
-    # copy the html files
     if sshkey:
+
+        # copy the html files
         localFiles = '{0}/*.html'.format(env['WORKDIR'])
         try:
             pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)

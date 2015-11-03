@@ -14,7 +14,7 @@
   <groups>
     <group name="global">
       <order>0</order>
-      <comment>Environment variable settings that are common to all diagnostic types.</comment>
+      <comment>Settings that are common to all diagnostic types.</comment>
 
       <entry id="OCNDIAG_DIAGROOTPATH"
 	     type="char"
@@ -447,7 +447,7 @@
 	     desc="Local machine filename for tavg file."
 	     ></entry>
 
-      <entry id="OCNDIAG_MODELCASE_TIMESERIES"
+      <entry id="OCNDIAG_MODELCASE_INPUT_TSERIES"
 	     type="logical"
 	     valid_values="TRUE/FALSE"
 	     value="FALSE"
@@ -456,8 +456,14 @@
 	     ></entry>
     </group>
 
-    <group name="control_case_options">
+    <group name="model_case_options_averager">
       <order>4</order>
+      <comment>Environment variable settings for model case option for the pyAverager tool.</comment>
+
+    </group>
+
+    <group name="control_case_options">
+      <order>5</order>
       <comment>Environment variable settings for control case options.</comment>
 
       <entry id="OCNDIAG_CNTRLCASEDIR"
@@ -549,7 +555,7 @@
 		   g_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc"
 	     ></entry>
 
-      <entry id="OCNDIAG_CNTRLCASE_TIMESERIES"
+      <entry id="OCNDIAG_CNTRLCASE_INPUT_TSERIES"
 	     type="logical"
 	     valid_values="TRUE/FALSE"
 	     value="FALSE"
@@ -558,8 +564,16 @@
 	     ></entry>
     </group>
 
+
+    <group name="control_case_options_averager">
+      <order>6</order>
+      <comment>Environment variable settings for control case option for the pyAverager tool.</comment>
+
+    </group>
+
+
     <group name="timeseries_options">
-      <order>5</order>
+      <order>7</order>
       <comment>Environment variable settings for timeseries options.</comment>
 
       <entry id="OCNDIAG_MOC0"
@@ -620,7 +634,7 @@
     </group>
 
     <group name="ncl_options">
-      <order>6</order>
+      <order>8</order>
       <comment>Environment variable settings related to NCL.</comment>
 
       <entry id="OCNDIAG_CNTRLVLS"
@@ -737,7 +751,7 @@
     </group>
 
     <group name="web_options">
-      <order>7</order>
+      <order>9</order>
       <comment>Environment variable settings related to web posting of plots.</comment>
 
       <entry id="OCNDIAG_CLEANUP_FILES"
@@ -782,7 +796,7 @@
     </group>
 
     <group name="model_vs_obs_plots">
-      <order>8</order>
+      <order>10</order>
       <comment>Environment variable settings for turning on and off model vs. observations plot modules.</comment>
 
       <entry id="OCNDIAG_MVO_PM_SFC2D"
@@ -906,7 +920,7 @@
     </group>
 
     <group name="model_vs_control_plots">
-      <order>9</order>
+      <order>11</order>
       <comment>Environment variable settings for turning on and off model vs. control plot modules.</comment>
 
       <entry id="OCNDIAG_MVC_PM_SFC2D"
@@ -995,7 +1009,7 @@
     </group>
 
     <group name="model_timeseries_plots">
-      <order>10</order>
+      <order>12</order>
       <comment>Environment variable settings for turning on and off model timeseries plot modules.</comment>
 
       <entry id="OCNDIAG_MTS_PM_CPLLOG"
@@ -1042,7 +1056,7 @@
     </group>
 
     <group name="model_vs_obs_ecosys_plots">
-      <order>11</order>
+      <order>13</order>
       <comment>Environment variable settings for turning on and off model vs. observations ecosystem plot modules.</comment>
 
       <entry id="OCNDIAG_MVOECOSYS_PM_E_MAPS"
@@ -1075,7 +1089,7 @@
     </group>
 
     <group name="model_vs_control_ecosys_plots">
-      <order>12</order>
+      <order>14</order>
       <comment>Environment variable settings for turning on and off model vs. control ecosystem plot modules.</comment>
       <entry id="OCNDIAG_MVCECOSYS_PM_E_MAPS"
 	     type="logical"
@@ -1100,7 +1114,7 @@
     </group>
 
     <group name="model_timeseries_ecosys_plots">
-      <order>13</order>
+      <order>15</order>
       <comment>Environment variable settings for turning on and off model ecosystem timeseries plot modules.</comment>
       <entry id="OCNDIAG_MTSECOSYS_PM_E_GLOBL"
 	     type="logical"

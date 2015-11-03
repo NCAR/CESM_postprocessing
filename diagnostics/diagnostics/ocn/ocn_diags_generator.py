@@ -112,6 +112,7 @@ def setup_diags(envDict):
                     diag_dict[diag.lower()] = '{0}'.format(diag.lower())
                 elif 'timeseries' in diag.lower():
                     diag_dict[diag.lower()] = 'model_{0}'.format(diag.lower())
+
     return requested_diags, diag_dict
 
 

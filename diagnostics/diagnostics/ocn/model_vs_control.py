@@ -52,7 +52,7 @@ class modelVsControl(OceanDiagnostic):
         """ check prerequisites
         """
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
-        self._name = '{0}_{1}'.format(self._name, env['CNTRLCASE'])
+        ##self._name = '{0}_{1}'.format(self._name, env['CNTRLCASE'])
         super(modelVsControl, self).check_prerequisites(env)
 
         # clean out the old working plot files from the workdir
@@ -178,7 +178,7 @@ class modelVsControl(OceanDiagnostic):
 
         for requested_plot in local_requested_plots:
             try:
-                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('obs',requested_plot)
+                plot = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('control',requested_plot)
 
                 print('model vs. control - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.check_prerequisites(env)
