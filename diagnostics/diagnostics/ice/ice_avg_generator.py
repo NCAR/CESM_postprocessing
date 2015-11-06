@@ -64,6 +64,9 @@ def commandline_options():
     parser.add_argument('--control-run', action='store_true', default=False,
                         help='Controls whether or not to process climatology files for a control run using the settings in the caseroot env_diags_[component].xml files.')
 
+    parser.add_argument('--standalone', action='store_true',
+                        help='switch to indicate stand-alone post processing caseroot')
+
     options = parser.parse_args()
 
     # check to make sure CASEROOT is a valid, readable directory
@@ -250,7 +253,7 @@ def createClimFiles(avg_start_year, avg_stop_year, in_dir, split, split_size, ht
 #============================================
 # initialize_envDict - initialization envDict
 #============================================
-def initialize_envDict(envDict, caseroot, debugMsg):
+def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     """initialize_main - initialize settings on rank 0 
     
     Arguments:
@@ -264,6 +267,8 @@ def initialize_envDict(envDict, caseroot, debugMsg):
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     # TODO put this file list into the config_postprocess definition
     env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_postprocess.xml', 'env_diags_ice.xml']
+    if standalone:
+        env_file_list =  ['env_postprocess.xml', 'env_diags_ice.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
@@ -325,7 +330,7 @@ def main(options, debugMsg):
     
 
     debugMsg('calling initialize_envDict', header=True)
-    envDict = initialize_envDict(envDict, caseroot, debugMsg)
+    envDict = initialize_envDict(envDict, caseroot, debugMsg, options.standalone)
 
     # specify variables to include in the averages, empty list implies get them all
     varList = []
@@ -350,9 +355,9 @@ def main(options, debugMsg):
             if cont_time_series == 'True':
                 h_path = envDict['PATH_CONT']+'/ice/proc/tseries/monthly/'
                 # Check to see if tseries is split into hemispheres
-                split = checkIceSplit(envDict['ICE_NY'], envDict['cont_key_infile'])
+                split = checkIceSplit(envDict['ICE_NY_CONT'], envDict['cont_key_infile'])
                 if split:
-                    split_size = 'nj='+envDict['ICE_NY']+',ni='+envDict['ICE_NX']
+                    split_size = 'nj='+envDict['ICE_NY_CONT']+',ni='+envDict['ICE_NX_CONT']
             else:
                 h_path = envDict['PATH_CONT']+'/ice/hist/'
                 split = False 
@@ -379,9 +384,9 @@ def main(options, debugMsg):
             if diff_time_series == 'True':
                 h_path = envDict['PATH_DIFF']+'/ice/proc/tseries/monthly/'
                 # Check to see if tseries is split into hemispheres
-                split = checkIceSplit(envDict['ICE_NY'], envDict['diff_key_infile'])
+                split = checkIceSplit(envDict['ICE_NY_DIFF'], envDict['diff_key_infile'])
                 if split:
-                    split_size = 'nj='+envDict['ICE_NY']+',ni='+envDict['ICE_NX']
+                    split_size = 'nj='+envDict['ICE_NY_DIFF']+',ni='+envDict['ICE_NX_DIFF']
             else:
                 h_path = envDict['PATH_DIFF']+'/ice/hist/'
                 split = False

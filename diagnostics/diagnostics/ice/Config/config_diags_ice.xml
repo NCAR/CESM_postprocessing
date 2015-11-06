@@ -95,6 +95,22 @@
          desc="Grid type"
          ></entry>
 
+  <entry id="ICEDIAG_ICE_NX_CONT"
+         type="char"
+         valid_values=""
+         value="$ICE_NX"
+         group="diags_ice"
+         desc="Number of ice cells in the i direction"
+         ></entry>
+
+  <entry id="ICEDIAG_ICE_NY_CONT"
+         type="char"
+         valid_values=""
+         value="$ICE_NX"
+         group="diags_ice"
+         desc="Number of ice cells in the j direction"
+         ></entry>
+
   <entry id="ICEDIAG_PATH_CONT"
          type="char"
          valid_values=""
@@ -183,6 +199,22 @@
          value="$ICE_GRID"
          group="diags_ice"
          desc="Grid type"
+         ></entry>
+
+  <entry id="ICEDIAG_ICE_NX_DIFF"
+         type="char"
+         valid_values=""
+         value="$ICE_NX"
+         group="diags_ice"
+         desc="Number of ice cells in the i direction"
+         ></entry>
+
+  <entry id="ICEDIAG_ICE_NY_DIFF"
+         type="char"
+         valid_values=""
+         value="$ICE_NX"
+         group="diags_ice"
+         desc="Number of ice cells in the j direction"
          ></entry>
 
   <entry id="ICEDIAG_PATH_DIFF"
@@ -456,7 +488,7 @@
          valid_values=""
          value="$ICEDIAG_DIAG_HOME/code/"
          group="diags_ice"
-         desc="Local machine path to AMWG diagnostics package NCL library directory."
+         desc="Local machine path to ice diagnostics package NCL library directory."
          ></entry>
 
   <entry id="ICEDIAG_DOWEB"
@@ -488,7 +520,7 @@
          valid_values=""
          value=""
          group="diags_ice"
-         desc="Remote machine path to AMWG diagnostics HTML directory."
+         desc="Remote machine path to ice diagnostics HTML directory."
          ></entry>
 
   <entry id="ICEDIAG_email"
