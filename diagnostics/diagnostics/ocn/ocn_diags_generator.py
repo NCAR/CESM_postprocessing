@@ -234,65 +234,67 @@ def main(options, main_comm, debugMsg):
         for diag in diag_list:
             print('  {0}'.format(diag))
 
-        if envDict['DOWEB'].upper() in ['T','TRUE']:
-            try:
-                os.makedirs(envDict['WORKDIR'])
-            except OSError as exception:
-                if exception.errno != errno.EEXIST:
-                    err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(envDict['WORKDIR'])
-                    raise OSError(err_msg)
+        try:
+            os.makedirs(envDict['WORKDIR'])
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(envDict['WORKDIR'])
+                raise OSError(err_msg)
 
-            debugMsg('Ocean diagnostics - Creating main index.html page', header=True, verbosity=2)
+        debugMsg('Ocean diagnostics - Creating main index.html page', header=True, verbosity=2)
 
-            # define the templatePath
-            templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
+        # define the templatePath
+        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(envDict['POSTPROCESS_PATH']) 
 
-            templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
-            templateEnv = jinja2.Environment( loader=templateLoader )
+        templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
+        templateEnv = jinja2.Environment( loader=templateLoader )
             
-            template_file = 'ocean_diagnostics.tmpl'
-            template = templateEnv.get_template( template_file )
+        template_file = 'ocean_diagnostics.tmpl'
+        template = templateEnv.get_template( template_file )
             
-            # get the current datatime string for the template
-            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # get the current datatime string for the template
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            # set the template variables
-            templateVars = { 'casename' : envDict['CASE'],
-                             'tagname' : envDict['CCSM_REPOTAG'],
-                             'diag_dict' : diag_dict,
-                             'control_casename' : envDict['CNTRLCASE'],
-                             'start_year' : envDict['YEAR0'],
-                             'stop_year' : envDict['YEAR1'],
-                             'control_start_year' : envDict['CNTRLYEAR0'],
-                             'control_stop_year' : envDict['CNTRLYEAR1'],
-                             'today': now
-                             }
+        # set the template variables
+        templateVars = { 'casename' : envDict['CASE'],
+                         'tagname' : envDict['CCSM_REPOTAG'],
+                         'diag_dict' : diag_dict,
+                         'control_casename' : envDict['CNTRLCASE'],
+                         'start_year' : envDict['YEAR0'],
+                         'stop_year' : envDict['YEAR1'],
+                         'control_start_year' : envDict['CNTRLYEAR0'],
+                         'control_stop_year' : envDict['CNTRLYEAR1'],
+                         'today': now,
+                         'tseries_start_year' : envDict['TSERIES_YEAR0'],
+                         'tseries_stop_year' : envDict['TSERIES_YEAR1']
+                         }
 
-            # write the main index.html page to the top working directory
-            main_html = template.render( templateVars )
-            with open( '{0}/index.html'.format(envDict['WORKDIR']), 'w') as index:
-                index.write(main_html)
+        # write the main index.html page to the top working directory
+        main_html = template.render( templateVars )
+        with open( '{0}/index.html'.format(envDict['WORKDIR']), 'w') as index:
+            index.write(main_html)
 
-            debugMsg('Ocean diagnostics - Copying stylesheet', header=True, verbosity=2)
-            shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(envDict['WORKDIR']))
+        debugMsg('Ocean diagnostics - Copying stylesheet', header=True, verbosity=2)
+        shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(envDict['WORKDIR']))
 
-            debugMsg('Ocean diagnostics - Copying logo files', header=True, verbosity=2)
-            if not os.path.exists('{0}/logos'.format(envDict['WORKDIR'])):
-                os.mkdir('{0}/logos'.format(envDict['WORKDIR']))
+        debugMsg('Ocean diagnostics - Copying logo files', header=True, verbosity=2)
+        if not os.path.exists('{0}/logos'.format(envDict['WORKDIR'])):
+            os.mkdir('{0}/logos'.format(envDict['WORKDIR']))
 
-            for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
-                shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
+        for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
+            shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
 
-            if len(envDict['WEBDIR']) > 0 and len(envDict['WEBHOST']) > 0 and len(envDict['WEBLOGIN']) > 0:
-                # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(envDict, '')
-            else:
-                print('--------------------------------------------------------------------------')
-                print('Ocean Diagnostics - Web files successfully created in directory:')
-                print('{0}'.format(envDict['WORKDIR']))
-                print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
-                print('You will need to manually copy the web files to a remote web server.')
-                print('--------------------------------------------------------------------------')
+        if (envDict['DOWEB'].upper() in ['T','TRUE']) and len(envDict['WEBDIR']) > 0 and len(envDict['WEBHOST']) > 0 and len(envDict['WEBLOGIN']) > 0:
+            # copy over the files to a remote web server and webdir 
+            diagUtilsLib.copy_html_files(envDict, '')
+        else:
+            print('--------------------------------------------------------------------------')
+            print('Ocean Diagnostics - Web files successfully created in directory:')
+            print('{0}'.format(envDict['WORKDIR']))
+            print('The env_diags_ocn.xml variables DOWEB, WEBDIR, WEBHOST, and WEBLOGIN were not all set.')
+            print('You will need to manually copy the web files to a remote web server')
+            print('using the copy_html tool.')
+            print('--------------------------------------------------------------------------')
 
     main_comm.sync()
 

@@ -46,10 +46,20 @@
 {% endif %}
 <!-- post processing directory location on local machine -->
 <entry id="POSTPROCESS_PATH" value="{{ postprocess_path }}" />
-{% for xml in xml_list %}
-<!--"{{ xml._desc }}" -->
+{% for group in group_list %}
+  {% for k,v in group.iteritems() %}
+    {% if k == 'comment' %}
+       {% set comment = v %}
+    {% elif k == 'xml_list' %}
+<!-- ======================================================================= -->
+<!-- {{ comment }} -->
+<!-- ======================================================================= -->
+       {% for xml in v %}
+<!-- {{ xml._desc }} -->
 <entry id="{{ xml._id }}" value="{{ xml._value }}" />
+       {% endfor %}
+    {% endif %}
+  {% endfor %}
 {% endfor %}
-
 <!-- ====================================== -->
 </config_definition>

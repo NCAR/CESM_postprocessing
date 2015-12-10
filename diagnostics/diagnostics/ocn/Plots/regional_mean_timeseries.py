@@ -67,8 +67,8 @@ class RegionalMeanTS(OceanDiagnosticPlot):
 
         # create links to the regional horizontal mean average files
         for region in self._regions:
-            sourceFile = '{0}/{1}_hor_mean_hor.meanConcat.{2}.pop.h_{3}-{4}.nc'.format(env['TAVGDIR'], region, env['CASE'], env['YEAR0'].zfill(4), env['YEAR1'].zfill(4))
-            linkFile = '{0}/{1}_hor_mean_{2}.pop.h_{3}-{4}.nc'.format(env['WORKDIR'], region, env['CASE'], env['YEAR0'].zfill(4), env['YEAR1'].zfill(4))
+            sourceFile = '{0}/{1}_hor_mean_hor.meanConcat.{2}.pop.h_{3}-{4}.nc'.format(env['TAVGDIR'], region, env['CASE'], env['TSERIES_YEAR0'].zfill(4), env['TSERIES_YEAR1'].zfill(4))
+            linkFile = '{0}/{1}_hor_mean_{2}.pop.h_{3}-{4}.nc'.format(env['WORKDIR'], region, env['CASE'], env['TSERIES_YEAR0'].zfill(4), env['TSERIES_YEAR1'].zfill(4))
             diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def generate_plots(self, env):

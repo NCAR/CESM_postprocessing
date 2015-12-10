@@ -118,28 +118,26 @@ class modelVsObs(OceanDiagnostic):
             for plot in requested_plots:
                 print('  {0}'.format(plot))
 
-            if env['DOWEB'].upper() in ['T','TRUE']:
+            print('model vs. obs - Creating plot html header')
+            templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
+            templateEnv = jinja2.Environment( loader=templateLoader )
                 
-                print('model vs. obs - Creating plot html header')
-                templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
-                templateEnv = jinja2.Environment( loader=templateLoader )
-                
-                template_file = 'model_vs_obs.tmpl'
-                template = templateEnv.get_template( template_file )
+            template_file = 'model_vs_obs.tmpl'
+            template = templateEnv.get_template( template_file )
     
-                # get the current datatime string for the template
-                now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            # get the current datatime string for the template
+            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-                # test the template variables
-                templateVars = { 'casename' : env['CASE'],
-                                 'tagname' : env['CCSM_REPOTAG'],
-                                 'start_year' : env['YEAR0'],
-                                 'stop_year' : env['YEAR1'],
-                                 'today': now
-                                 }
+            # test the template variables
+            templateVars = { 'casename' : env['CASE'],
+                             'tagname' : env['CCSM_REPOTAG'],
+                             'start_year' : env['YEAR0'],
+                             'stop_year' : env['YEAR1'],
+                             'today': now
+                             }
 
-                print('model vs. obs - Rendering plot html header')
-                plot_html = template.render( templateVars )
+            print('model vs. obs - Rendering plot html header')
+            plot_html = template.render( templateVars )
 
         scomm.sync()
 
@@ -213,14 +211,15 @@ class modelVsObs(OceanDiagnostic):
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
-            if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
+            if (env['DOWEB'].upper() in ['T','TRUE']) and len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
                 diagUtilsLib.copy_html_files(env, 'model_vs_obs')
             else:
                 print('Model vs. Observations - Web files successfully created in directory:')
                 print('{0}'.format(env['WORKDIR']))
-                print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
-                print('You will need to manually copy the web files to a remote web server.')
+                print('The env_diags_ocn.xml variables DOWEB, WEBDIR, WEBHOST, and WEBLOGIN were not all set.')
+                print('You will need to manually copy the web files to a remote web server')
+                print('using the copy_html utility.')
 
             print('*******************************************************************************')
             print('Successfully completed generating ocean diagnostics model vs. observation plots')

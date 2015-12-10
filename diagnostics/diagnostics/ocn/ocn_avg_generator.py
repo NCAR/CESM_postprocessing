@@ -80,36 +80,55 @@ def commandline_options():
 #============================================================
 # buildOcnAvgList - build the list of averages to be computed
 #============================================================
-def buildOcnTseriesAvgList(start_year, stop_year, debugMsg):
+def buildOcnTseriesAvgList(start_year, stop_year, avgFileBaseName, main_comm, debugMsg):
     """buildOcnTseriesAvgList - build the list of averages to be computed
     by the pyAverager for timeseries. Checks if the file exists or not already.
 
     Arguments:
-    start_year (string) - starting year
-    stop_year (string) - ending year
+    start_year (string) - tseries starting year
+    stop_year (string) - tseries ending year
+    avgFileBaseName (string) - avgFileBaseName (tavgdir/case.[stream].)
 
     Return:
     avgList (list) - list of averages to be passed to the pyaverager
     """
     avgList = []
+    avgListMoc = []
     
     # append the horizontal mean concatenation
     avgList.append('hor.meanConcat:{0}:{1}'.format(start_year, stop_year))
 
-    debugMsg('exit buildOcnAvgTseriesList avgList = {0}'.format(avgList))
-    return avgList
+    # the following averages are for necessary for model timeseries diagnostics
+    # append the MOC and monthly MOC files
+    avgFile = '{0}.{1}-{2}.moc.nc'.format(avgFileBaseName, start_year, stop_year)
+    if main_comm.is_manager():
+        debugMsg('mocFile = {0}'.format(avgFile), header=True, verbosity=2)
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+    if not rc:
+        avgListMoc.append('moc:{0}:{1}'.format(start_year, stop_year))
+        
+    avgFile = '{0}.{1}-{2}.mocm.nc'.format(avgFileBaseName, start_year, stop_year)
+    if main_comm.is_manager():
+        debugMsg('mocmFile = {0}'.format(avgFile), header=True, verbosity=2)
+    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+    if not rc:
+        avgListMoc.append('mocm:{0}:{1}'.format(start_year, stop_year))
+
+    if main_comm.is_manager():
+        debugMsg('exit buildOcnAvgTseriesList avgList = {0}'.format(avgList), header=True, verbosity=2)
+
+    return avgList, avgListMoc
 
 #============================================================
 # buildOcnAvgList - build the list of averages to be computed
 #============================================================
-def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg):
+def buildOcnAvgList(start_year, stop_year, tavgdir, main_comm, debugMsg):
     """buildOcnAvgList - build the list of averages to be computed
     by the pyAverager. Checks if the file exists or not already.
 
     Arguments:
     start_year (string) - starting year
     stop_year (string) - ending year
-    avgFileBaseName (string) - avgFileBaseName (tavgdir/case.[stream].)
     tavgdir (string) - averages directory
 
     Return:
@@ -119,45 +138,32 @@ def buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg):
 
     # check if mavg file already exists
     avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, start_year, stop_year)
-    debugMsg('mavgFile = {0}'.format(avgFile))
+    if main_comm.is_manager():
+        debugMsg('mavgFile = {0}'.format(avgFile), header=True, verbosity=2)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if not rc:
         avgList.append('mavg:{0}:{1}'.format(start_year, stop_year))
 
     # check if tavg file already exists
     avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, start_year, stop_year)
-    debugMsg('tavgFile = {0}'.format(avgFile))
+    if main_comm.is_manager():
+        debugMsg('tavgFile = {0}'.format(avgFile), header=True, verbosity=2)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if not rc:
         avgList.append('tavg:{0}:{1}'.format(start_year, stop_year))
 
-    # the following averages are for necessary for model timeseries diagnostics
-    # append the MOC and monthly MOC files
-    avgFile = '{0}.{1}-{2}.moc.nc'.format(avgFileBaseName, start_year, stop_year)
-    debugMsg('mocFile = {0}'.format(avgFile))
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgList.append('moc:{0}:{1}'.format(start_year, stop_year))
-        
-    avgFile = '{0}.{1}-{2}.mocm.nc'.format(avgFileBaseName, start_year, stop_year)
-    debugMsg('mocmFile = {0}'.format(avgFile))
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgList.append('mocm:{0}:{1}'.format(start_year, stop_year))
-
-    debugMsg('exit buildOcnAvgList avgList = {0}'.format(avgList))
+    if main_comm.is_manager():
+        debugMsg('exit buildOcnAvgList avgList = {0}'.format(avgList), header=True, verbosity=2)
     return avgList
 
 #========================================================================
 # callPyAverager - create the climatology files by calling the pyAverager
 #========================================================================
-def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, varList, ppDir, debugMsg):
+def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList, ppDir, main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
        Arguments:
-       start_year (integer) - starting year for diagnostics
-       stop_year (integer) - ending year for diagnositcs
        in_dir (string) - input directory with either history time slice or variable time series files
        htype (string) - 'series' or 'slice' depending on input history file type
        tavgdir (string) - output directory for climatology files
@@ -165,6 +171,8 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
        averageList (list) - list of averages to be created
        varList (list) - list of variables. Note: an empty list implies all variables.
        tseries (boolean) - TRUE if TIMESERIES plots are specified.
+       main_comm (object) - simple MPI communicator object
+
     """
     # the following are used for timeseries averages and ignored otherwise
     mean_diff_rms_obs_dir = '{0}/ocn_diag/timeseries_obs'.format(ppDir)
@@ -182,26 +190,27 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
     date_pattern = 'yyyymm-yyyymm'
     suffix = 'nc'
 
-    debugMsg('calling specification.create_specifier with following args', header=True)
-    debugMsg('... in_directory = {0}'.format(in_dir), header=True)
-    debugMsg('... out_directory = {0}'.format(tavgdir), header=True)
-    debugMsg('... prefix = {0}'.format(case_prefix), header=True)
-    debugMsg('... suffix = {0}'.format(suffix), header=True)
-    debugMsg('... date_pattern = {0}'.format(date_pattern), header=True)
-    debugMsg('... hist_type = {0}'.format(htype), header=True)
-    debugMsg('... avg_list = {0}'.format(averageList), header=True)
-    debugMsg('... weighted = {0}'.format(wght), header=True)
-    debugMsg('... ncformat = {0}'.format(ncfrmt), header=True)
-    debugMsg('... varlist = {0}'.format(varList), header=True)
-    debugMsg('... serial = {0}'.format(serial), header=True)
-    debugMsg('... clobber = {0}'.format(clobber), header=True)
-    debugMsg('... mean_diff_rms_obs_dir = {0}'.format(mean_diff_rms_obs_dir), header=True)
-    debugMsg('... region_nc_var = {0}'.format(region_nc_var), header=True)
-    debugMsg('... regions = {0}'.format(regions), header=True)
-    debugMsg('... region_wgt_var = {0}'.format(region_wgt_var), header=True)
-    debugMsg('... obs_dir = {0}'.format(obs_dir), header=True)
-    debugMsg('... obs_file = {0}'.format(obs_file), header=True)
-    debugMsg('... reg_obs_file_suffix = {0}'.format(reg_obs_file_suffix), header=True)
+    if main_comm.is_manager():
+        debugMsg('calling specification.create_specifier with following args', header=True)
+        debugMsg('... in_directory = {0}'.format(in_dir), header=True)
+        debugMsg('... out_directory = {0}'.format(tavgdir), header=True)
+        debugMsg('... prefix = {0}'.format(case_prefix), header=True)
+        debugMsg('... suffix = {0}'.format(suffix), header=True)
+        debugMsg('... date_pattern = {0}'.format(date_pattern), header=True)
+        debugMsg('... hist_type = {0}'.format(htype), header=True)
+        debugMsg('... avg_list = {0}'.format(averageList), header=True)
+        debugMsg('... weighted = {0}'.format(wght), header=True)
+        debugMsg('... ncformat = {0}'.format(ncfrmt), header=True)
+        debugMsg('... varlist = {0}'.format(varList), header=True)
+        debugMsg('... serial = {0}'.format(serial), header=True)
+        debugMsg('... clobber = {0}'.format(clobber), header=True)
+        debugMsg('... mean_diff_rms_obs_dir = {0}'.format(mean_diff_rms_obs_dir), header=True)
+        debugMsg('... region_nc_var = {0}'.format(region_nc_var), header=True)
+        debugMsg('... regions = {0}'.format(regions), header=True)
+        debugMsg('... region_wgt_var = {0}'.format(region_wgt_var), header=True)
+        debugMsg('... obs_dir = {0}'.format(obs_dir), header=True)
+        debugMsg('... obs_file = {0}'.format(obs_file), header=True)
+        debugMsg('... reg_obs_file_suffix = {0}'.format(reg_obs_file_suffix), header=True)
 
     try: 
         pyAveSpecifier = specification.create_specifier(
@@ -223,14 +232,17 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
             region_wgt_var = region_wgt_var,
             obs_dir = obs_dir,
             obs_file = obs_file,
-            reg_obs_file_suffix = reg_obs_file_suffix)
+            reg_obs_file_suffix = reg_obs_file_suffix,
+            main_comm = main_comm)
     except Exception as error:
         print(str(error))
         traceback.print_exc()
         sys.exit(1)
 
     try:
-        debugMsg("calling run_pyAverager")
+        if main_comm.is_manager():
+            debugMsg("calling run_pyAverager")
+
         PyAverager.run_pyAverager(pyAveSpecifier)
     except Exception as error:
         print(str(error))
@@ -240,7 +252,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, a
 #=========================================================================
 # createClimFiles - create the climatology files by calling the pyAverager
 #=========================================================================
-def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries, inVarList, ppDir, debugMsg):
+def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries, inVarList, ppDir, tseries_start_year, tseries_stop_year, main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -251,8 +263,13 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
        htype (string) - 'series' or 'slice' depending on input history file type
        tavgdir (string) - output directory for averages
        case (string) - case name
-       inVarList (list) - if empty, then create climatology files for all vars, RHO, SALT and TEMP
        tseries (boolean) - TRUE if TIMESERIES plots are specified
+       inVarList (list) - if empty, then create climatology files for all vars, RHO, SALT and TEMP
+       ppDir (string) - postprocessing directory
+       tseries_start_year (integer) - starting year for timeseries diagnostics 
+       tseries_stop_year (integer) - stop year for timeseries diagnostics
+       main_comm (object) - simple MPI communicator object
+
     """
     # create the list of averages to be computed
     avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
@@ -260,24 +277,39 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
     averageList = []
 
     # create the list of averages to be computed by the pyAverager
-    averageList = buildOcnAvgList(start_year, stop_year, avgFileBaseName, tavgdir, debugMsg)
+    averageList = buildOcnAvgList(start_year, stop_year, tavgdir, main_comm, debugMsg)
 
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
-        callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, ppDir, debugMsg)
+        if main_comm.is_manager():
+            debugMsg('Calling callPyAverager with averageList = {0}'.format(averageList), header=True, verbosity=1)
+        callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, ppDir, main_comm, debugMsg)
+    main_comm.sync()
 
     # check if timeseries diagnostics is specified
     if tseries:
         # create the list of averages to be computed by the pyAverager
-        averageList = buildOcnTseriesAvgList(start_year, stop_year, debugMsg)
+        averageList, averageListMoc = buildOcnTseriesAvgList(tseries_start_year, tseries_stop_year, avgFileBaseName, main_comm, debugMsg)
+        main_comm.sync()
 
-        # if the averageList is empty, then all the climatology files exist with all variables
+        # generate the annual timeseries files and MOC gile with TEMP, SALT, MOC variablese
+        if len(averageListMoc) > 0:
+            # call the pyAverager with the inVarList
+            inVarList = ['SALT', 'TEMP', 'MOC']
+            if main_comm.is_manager():
+                debugMsg('Calling callPyAverager with averageListMoc = {0}'.format(averageListMoc), header=True, verbosity=1)
+            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageListMoc, inVarList, ppDir, main_comm, debugMsg)
+        main_comm.sync()
+
+        # generate the horizontal mean files with just SALT and TEMP
         if len(averageList) > 0:
             # call the pyAverager with the inVarList
             inVarList = ['SALT', 'TEMP']
-            callPyAverager(start_year, stop_year, in_dir, htype, tavgdir, case_prefix, averageList, inVarList, ppDir, debugMsg)
-
+            if main_comm.is_manager():
+                debugMsg('Calling callPyAverager with averageList = {0}'.format(averageListMoc), header=True, verbosity=1)
+            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, ppDir, main_comm, debugMsg)
+        main_comm.sync()
 
 #============================================
 # initialize_envDict - initialization envDict
@@ -321,11 +353,12 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
 # main
 #======
 
-def main(options, debugMsg):
+def main(options, main_comm, debugMsg):
     """setup the environment for running the pyAverager in parallel. 
 
     Arguments:
     options (object) - command line options
+    main_comm (object) - MPI simple communicator object
     debugMsg (object) - vprinter object for printing debugging messages
 
     The env_diags_ocn.xml configuration file defines the way the diagnostics are generated. 
@@ -336,71 +369,109 @@ def main(options, debugMsg):
     envDict = dict()
 
     # CASEROOT is given on the command line as required option --caseroot
-    caseroot = options.caseroot[0]
-    debugMsg('caseroot = {0}'.format(caseroot), header=True)
+    if main_comm.is_manager():
+        caseroot = options.caseroot[0]
+        debugMsg('caseroot = {0}'.format(caseroot), header=True)
+        debugMsg('calling initialize_envDict', header=True)
+        envDict = initialize_envDict(envDict, caseroot, debugMsg, options.standalone)
 
-    debugMsg('calling initialize_envDict', header=True)
-    envDict = initialize_envDict(envDict, caseroot, debugMsg, options.standalone)
+    # broadcast envDict to all tasks
+    envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+    sys.path.append(envDict['PATH'])
+    main_comm.sync()
 
     # specify variables to include in the averages, empty list implies get them all
     varList = []
 
     # generate the climatology files used for all plotting types using the pyAverager
-    debugMsg('calling createClimFiles', header=True)
-    tavg_dir = envDict['TAVGDIR'] 
-    case_name = envDict['CASE']
+    if main_comm.is_manager():
+        debugMsg('calling checkHistoryFiles for model case', header=True)
+        suffix = 'pop.h.*.nc'
+        file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
+        start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
+            envDict['MODELCASE_INPUT_TSERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
+            envDict['YEAR0'], envDict['YEAR1'], 'ocn', suffix, file_pattern)
+        envDict['YEAR0'] = start_year
+        envDict['YEAR1'] = stop_year
+        envDict['in_dir'] = in_dir
+        envDict['htype'] = htype
 
-    # get model history file information from the DOUT_S_ROOT archive location
-    debugMsg('calling checkHistoryFiles for model case', header=True)
-    suffix = 'pop.h.*.nc'
-    file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
-    start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
-        envDict['MODELCASE_INPUT_TSERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
-        envDict['YEAR0'], envDict['YEAR1'], 'ocn', suffix, file_pattern)
-    envDict['YEAR0'] = start_year
-    envDict['YEAR1'] = stop_year
-    envDict['in_dir'] = in_dir
-    envDict['htype'] = htype
+    main_comm.sync()
+
+    envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+    main_comm.sync()
+
 
     # TIMESERIES denotes the plotting diagnostic type requested and whether or
     # not to generate the necessary climo files for those plot sets
+    tseries = False
+    if envDict['TIMESERIES'].upper() == 'TRUE':
+        if main_comm.is_manager():
+            debugMsg('timeseries years before checkHistoryFiles {0} - {1}'.format(envDict['TSERIES_YEAR0'], envDict['TSERIES_YEAR1']), header=True)
+            tseries_start_year, tseries_stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
+                envDict['MODELCASE_INPUT_TSERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
+                envDict['TSERIES_YEAR0'], envDict['TSERIES_YEAR1'], 'ocn', suffix, file_pattern)
+            debugMsg('timeseries years after checkHistoryFiles {0} - {1}'.format(envDict['TSERIES_YEAR0'], envDict['TSERIES_YEAR1']), header=True)
+            envDict['TSERIES_YEAR0'] = tseries_start_year
+            envDict['TSERIES_YEAR1'] = tseries_stop_year
+
+        main_comm.sync()
+        tseries = True
+        envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+        main_comm.sync()
+
     try:
+        if main_comm.is_manager():
+            debugMsg('calling createClimFiles for model and timeseries', header=True)
+
         createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
                         envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], 
-                        envDict['TIMESERIES'], varList, envDict['POSTPROCESS_PATH'], debugMsg)
+                        tseries, varList, envDict['POSTPROCESS_PATH'], 
+                        envDict['TSERIES_YEAR0'], envDict['TSERIES_YEAR1'], main_comm, debugMsg)
     except Exception as error:
         print(str(error))
         traceback.print_exc()
         sys.exit(1)
 
+    main_comm.sync()
+
     # check that the necessary control climotology files exist
     if envDict['MODEL_VS_CONTROL'].upper() == 'TRUE':
-        debugMsg('calling checkHistoryFiles for control case', header=True)
-        suffix = 'pop.h.*.nc'
-        file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
-        start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
-            envDict['CNTRLCASE_INPUT_TSERIES'], envDict['CNTRLCASEDIR'], envDict['CNTRLCASE'], 
-            envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], 'ocn', suffix, file_pattern)
-        envDict['CNTRLYEAR0'] = start_year
-        envDict['CNTRLYEAR1'] = stop_year
-        envDict['cntrl_in_dir'] = in_dir
-        envDict['cntrl_htype'] = htype
 
-        debugMsg('before createClimFiles call for control', header=True)
-        debugMsg('...CNTRLYEAR0 = {0}'.format(envDict['CNTRLYEAR0']), header=True)
-        debugMsg('...CNTRLYEAR1 = {0}'.format(envDict['CNTRLYEAR1']), header=True)
-        debugMsg('...cntrl_in_dir = {0}'.format(envDict['cntrl_in_dir']), header=True)
-        debugMsg('...cntrl_htype = {0}'.format(envDict['cntrl_htype']), header=True)
-        debugMsg('...CNTRLTAVGDIR = {0}'.format(envDict['CNTRLTAVGDIR']), header=True)
-        debugMsg('...CNTRLCASE = {0}'.format(envDict['CNTRLCASE']), header=True)
-        debugMsg('...CNTRLCASE_INPUT_TSERIES = {0}'.format(envDict['CNTRLCASE_INPUT_TSERIES']), header=True)
-        debugMsg('...varlist = {0}'.format(varList), header=True)
+        if main_comm.is_manager():
+            debugMsg('calling checkHistoryFiles for control case', header=True)
+            suffix = 'pop.h.*.nc'
+            file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
+            start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
+                envDict['CNTRLCASE_INPUT_TSERIES'], envDict['CNTRLCASEDIR'], envDict['CNTRLCASE'], 
+                envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], 'ocn', suffix, file_pattern)
+            envDict['CNTRLYEAR0'] = start_year
+            envDict['CNTRLYEAR1'] = stop_year
+            envDict['cntrl_in_dir'] = in_dir
+            envDict['cntrl_htype'] = htype
+
+        main_comm.sync()
+        envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+        main_comm.sync()
+
+        if main_comm.is_manager():
+            debugMsg('before createClimFiles call for control', header=True)
+            debugMsg('...CNTRLYEAR0 = {0}'.format(envDict['CNTRLYEAR0']), header=True)
+            debugMsg('...CNTRLYEAR1 = {0}'.format(envDict['CNTRLYEAR1']), header=True)
+            debugMsg('...cntrl_in_dir = {0}'.format(envDict['cntrl_in_dir']), header=True)
+            debugMsg('...cntrl_htype = {0}'.format(envDict['cntrl_htype']), header=True)
+            debugMsg('...CNTRLTAVGDIR = {0}'.format(envDict['CNTRLTAVGDIR']), header=True)
+            debugMsg('...CNTRLCASE = {0}'.format(envDict['CNTRLCASE']), header=True)
+            debugMsg('...CNTRLCASE_INPUT_TSERIES = {0}'.format(envDict['CNTRLCASE_INPUT_TSERIES']), header=True)
+            debugMsg('...varlist = {0}'.format(varList), header=True)
+            debugMsg('calling createClimFiles for control', header=True)
         
-        # don't create timeseries averages for the control case so set to False
+        # don't create timeseries averages for the control case so set to False and set the
+        # tseries_start_year and tseries_stop_year to 0
         try:
             createClimFiles(envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], envDict['cntrl_in_dir'],
                             envDict['cntrl_htype'], envDict['CNTRLTAVGDIR'], envDict['CNTRLCASE'], 
-                            False, varList, envDict['POSTPROCESS_PATH'], debugMsg)
+                            False, varList, envDict['POSTPROCESS_PATH'], 0, 0, main_comm, debugMsg)
         except Exception as error:
             print(str(error))
             traceback.print_exc()
@@ -410,6 +481,9 @@ def main(options, debugMsg):
 #===================================
 
 if __name__ == "__main__":
+    # initialize simplecomm object
+    main_comm = simplecomm.create_comm(serial=False)
+
     # get commandline options
     options = commandline_options()
 
@@ -420,8 +494,11 @@ if __name__ == "__main__":
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
     
     try:
-        status = main(options, debugMsg)
-        debugMsg('*** Successfully completed generating ocean climatology averages ***', header=False)
+        status = main(options, main_comm, debugMsg)
+        if main_comm.is_manager():
+            print('*************************************************************')
+            print(' Successfully completed generating ocean climatology averages')
+            print('*************************************************************')
         sys.exit(status)
         
     except Exception as error:

@@ -16,6 +16,38 @@ One-line: bug fixes for atm, lnd, ice for standalone cases
 
 
 Originator: aliceb
+Date: 09 December 2015
+Model: postprocessing
+Version: not tagged
+One-line: development updates not yet fully tested. Separating out the XML into 
+groups and adding a copy_html program to scp the html generated diags to a 
+web server with or without ssh keys present. 
+
+================================================================================
+
+A       copy_html
+M       diag_utils/diag_utils/diagUtilsLib.py
+M       Templates/env_postprocess.tmpl
+M       SVN_EXTERNAL_DIRECTORIES
+M       Config/config_postprocess.xml
+M       create_postprocess
+M       diagnostics/diagnostics/ocn/model_vs_control.py
+M       diagnostics/diagnostics/ocn/model_timeseries.py
+M       diagnostics/diagnostics/ocn/Plots/ocn_diags_plot_bc.py
+M       diagnostics/diagnostics/ocn/Plots/regional_mean_timeseries.py
+M       diagnostics/diagnostics/ocn/Plots/moc_annual_timeseries.py
+M       diagnostics/diagnostics/ocn/Plots/moc_monthly_timeseries.py
+M       diagnostics/diagnostics/ocn/model_vs_obs.py
+M       diagnostics/diagnostics/ocn/ocn_diags_generator.py
+M       diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
+M       diagnostics/diagnostics/ocn/model_vs_obs_ecosys.py
+M       diagnostics/diagnostics/ocn/ocn_avg_generator.py
+M       diagnostics/diagnostics/ocn/Templates/ocean_diagnostics.tmpl
+M       diagnostics/diagnostics/atm/Config/config_diags_atm.xml
+
+================================================================================
+
+Originator: aliceb
 Date: 02 November 2015
 Model: postprocessing
 Version: postprocessing_20151102

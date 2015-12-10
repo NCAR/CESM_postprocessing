@@ -1,0 +1,277 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import sys
+
+# check the system python version and require 2.7.x or greater
+if sys.hexversion < 0x02070000:
+    print(70 * "*")
+    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("It appears that you are running python {0}".format(
+            ".".join(str(x) for x in sys.version_info[0:3])))
+    print(70 * "*")
+    sys.exit(1)
+
+#
+# built-in modules
+#
+import argparse
+import collections
+import os
+import platform
+import pprint
+import re
+import shutil
+import subprocess
+import traceback
+
+#
+# installed dependencies
+#
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
+
+if sys.version_info[0] == 2:
+    from ConfigParser import SafeConfigParser as config_parser
+else:
+    from configparser import ConfigParser as config_parser
+
+#
+# activate the virtual environment that was created by create_python_env.sh
+#
+if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
+    err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
+               'Please run $POSTPROCESSING_PATH/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
+    raise OSError(err_msg)
+
+execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
+
+#
+# import modules installed in the virtual environment
+#
+from cesm_utils import cesmEnvLib
+import jinja2
+
+#=======================================================================
+# commandline_options - parse any command line options
+#=======================================================================
+
+def commandline_options():
+    """Process the command line arguments.
+
+    """
+    parser = argparse.ArgumentParser(
+        description='Read the necessary XML files from the caseroot postprocessing configuration and secure copy the html files and diagnostics plot files to a remote webserver.')
+
+    parser.add_argument('-backtrace', '--backtrace', action='store_true',
+                        help='show exception backtraces as extra debugging '
+                        'output')
+
+    parser.add_argument('-debug', '--debug', nargs=1, required=False, type=int, default=0,
+                        help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
+
+    options = parser.parse_args()
+        
+    return options
+
+
+#=======================================================================
+# get_years
+#=======================================================================
+def get_years(env, comp):
+    """ get_years - get the start and stop years for diagnostics based on component
+    
+    Arguments:
+    env (dict) - dictionary of env variables
+    comp (string) - component name
+
+    Return:
+    start_year (string) - model start year for diagnostics
+    stop_year (string) - model stop year for diagnostics
+    """
+
+    # define component-year mapping 
+    comp_lookup = {'atm' : {'start_year':'ATMDIAG_test_first_yr', 'num_years':'ATMDIAG_test_nyrs'},
+                   'ice' : {'start_year':'ICEDIAG_BEGYR_CONT', 'stop_year':'ICEDIAG_ENDYR_CONT'},
+                   'lnd' : {'start_year':'LNDDIAG__clim_first_yr_1', 'num_years':'LNDDIAG_clim_num_yrs_1'},
+                   'ocn' : {'start_year':'OCNDIAG_MODEL_YEAR0', 'stop_year':'OCNDIAG_MODEL_YEAR1'}}
+    
+    comp_data = comp_lookup[comp]
+    start_year = "{0}".format(env[comp_data['start_year']])
+    if comp_data.has_key('num_years'):
+        stop_year = "{0}".format(int(start_year) + int(env[comp_data['num_years']]))
+    else:
+        stop_year = "{0}".format(env[comp_data['stop_year']])
+    
+    return start_year, stop_year
+
+
+
+#=======================================================================
+# check_ssh_key
+#=======================================================================
+def check_ssh_key(env):
+
+    # check if ssh key is set for passwordless access to the web host
+    try:
+        output = subprocess.check_output( "ssh -oNumberOfPasswordPrompts=0 {0}@{1} 'echo hello'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST']), 
+                                 stderr=subprocess.STDOUT,
+                                 shell=True)
+    except subprocess.CalledProcessError as e:
+        print('WARNING: unable to connect to remote web host {0}@{1} without a password'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST']))
+        print('    You will be prompted for a password in order to copy the files')
+
+
+#=======================================================================
+# create_top_level
+#=======================================================================
+def create_top_level(env):
+
+    # make sure top level remote directory exists
+    try:
+        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'])], env=env, shell=True)
+        pipe.wait()
+    except OSEerror as e:
+        print('ERROR: unable to create remote directory {0}@{1}:{2}'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR']))
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+        sys.exit(1)
+
+
+#=======================================================================
+# copy_html_files - scp files from workdir to remote directory 
+#=======================================================================
+def copy_html_files(env, comp, start_year, stop_year):
+    """ copy html files from workdir to remote dir.
+        Will prompt user if ssh keys are not set.
+
+    Arguments:
+    env (dictionary) - environment dictionary
+    comp (string) - sub-directory
+    start_year (string) - model case start year
+    stop_year (string) - model case stop year
+    """
+    # define workdir mapping
+    comp_lookup = {'atm' : {'workdir':'ATMDIAG_test_path_diag'},
+                   'ice' : {'workdir':'ICEDIAG_WKDIR'},
+                   'lnd' : {'workdir':'LNDIAG_WKDIR'},
+                   'ocn' : {'workdir':'OCNDIAG_WORKDIR'}}
+    comp_data = comp_lookup[comp]
+    localdir = env[comp_data['workdir']]
+
+    remoteConnect = '{0}@{1}:{2}/{3}'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'], comp)
+    print('Secure copying HTML and graphics files from {0} to {1}'.format(workdir, remoteConnect))
+
+#START HERE ... need to know what files to copy for each component
+    if sshkey and toplevel:
+
+        # copy the logos and style sheet to the top level
+        localFiles = '{0}/logos'.format(workdir)
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
+
+        localFiles = '{0}/*.css'.format(workdir)
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
+
+    if sshkey:
+
+        # copy the html files
+        localFiles = '{0}/*.html'.format(workdir)
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
+
+        # copy the graphics files
+        localFiles = '{0}/*.{1}'.format(workdir, env['IMAGEFORMAT'])
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
+
+        # copy the asc files
+        localFiles = '{0}/*.asc'.format(workdir)
+        try:
+            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+            pipe.wait()
+        except OSError as e:
+            print('WARNING: scp command failed with error::')
+            print('    {0} - {1}'.format(e.errno, e.strerror))
+
+    if not sshkey:
+        print('ERROR: Unable to copy html and plotting graphics files to the remote web server due to permissions')
+
+#=======================================================================
+# main
+#=======================================================================
+def main(options):
+    """ main
+
+    Arguments:
+    options (list) - input options from command line
+    """
+    env = dict()
+    envFilelist = list()
+    compList = ['atm','ice','lnd','ocn']
+    activeList = list()
+
+    # initialize the env from the env*.xml files in the casedir
+    envFileList.append('env_postprocess.xml')
+    for comp in compList:
+        envFile = 'env_diags_{0}.xml'.format(comp)
+        envFileList.append(envFile)
+
+    # check if the env_run.xml file exists
+    if os.path.isfile('env_run.xml'):
+        envFileList.append('env_run.xml')
+
+    # load the env with all the env file entries
+    env = cesmEnvLib.readXML(caseroot, env_file_list)
+
+    # check if sshkey is set
+    check_ssh_key(env)
+
+    # create the toplevel remote directory if it doesn't already exist
+    create_top_level(env)
+
+    # copy the different diag component web files
+    for comp in compList:
+        key = 'GENERATE_DIAGS_{0}'.format(comp)
+
+        if env[key].upper in ['T','TRUE'] :
+            start_year, stop_year = get_years(env, comp)
+
+            copy_html_files(env, comp, start_year, stop_year)
+
+            activeList.append((comp, start_year, stop_year))    
+
+    # build or append to a single web page to link to all the different components
+    create_index(env, compList, activeList)
+
+#===================================
+
+if __name__ == "__main__":
+    options = commandline_options()
+    try:
+        status = main(options)
+        sys.exit(status)
+    except Exception as error:
+        print(str(error))
+        if options.backtrace:
+            traceback.print_exc()
+        sys.exit(1)

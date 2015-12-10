@@ -686,7 +686,7 @@
 <!-- Additional settings                                                                            -->
 <!-- ============================================================================================== -->
 
-  <group name="additiona_settings">
+  <group name="additional_settings">
   <order>9</order>
   <comment>Additional misc. settings</comment>
 

@@ -576,6 +576,22 @@
       <order>7</order>
       <comment>Environment variable settings for timeseries options.</comment>
 
+      <entry id="OCNDIAG_TSERIES_YEAR0"
+	     type="integer"
+	     valid_values=""
+	     value="1"
+	     group="timeseries_options"
+	     desc="Model start year for timeseries diagnostics is used to match history time-slice or variable time-series year designations to begin accumulating averages and calculating diagnostic values. If value not set, then defaults to model run job start year as determined by the first monthly history file name."
+	     ></entry>
+
+      <entry id="OCNDIAG_TSERIES_YEAR1"
+	     type="integer"
+	     valid_values=""
+	     value="10"
+	     group="timeseries_options"
+	     desc="Model end year for timeseries diagnostics is used to match history time-slice or variable time-series year designations to end accumulating averages and calculating diagnostic values. If value not set, then defaults to model run job end year as determined by the last monthly history file name."
+	     ></entry>
+
       <entry id="OCNDIAG_MOC0"
 	     type="real"
 	     valid_values=""

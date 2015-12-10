@@ -268,12 +268,13 @@ def copy_html_files(env, subdir):
     # check if ssh key is set for passwordless access to the web host
     sshkey = True
     try:
-        pipe = subprocess.Popen( ["ssh -oNumberOfPasswordPrompts=0 {0}@{1} 'echo hello'".format(env['WEBLOGIN'],env['WEBHOST'])], env=env, shell=True)
-        pipe.wait()
-    except OSEerror as e:
+        output = subprocess.check_output( "ssh -oNumberOfPasswordPrompts=0 {0}@{1} 'echo hello'".format(env['WEBLOGIN'],env['WEBHOST']), 
+                                 stderr=subprocess.STDOUT,
+                                 shell=True)
+    except subprocess.CalledProcessError as e:
         print('WARNING: unable to connect to remote web host {0}@{1} without a password'.format(env['WEBLOGIN'],env['WEBHOST']))
         print('    You will need to copy the files in {0} manually to a web server.'.format(env['WORKDIR']))
-        print('    {0} - {1}'.format(e.errno, e.strerror))
+        print('    {0} - {1}'.format(e.returncode, e.output))
         sshkey = False
 
     if sshkey:

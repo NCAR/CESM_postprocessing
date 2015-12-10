@@ -79,7 +79,7 @@ from cesm_utils import cesmEnvLib
 import jinja2
 
 # -------------------------------------------------------------------------------
-# define a class to be used for the xml entry, id, desc, group values
+# define a class to be used for the xml entry, id, desc values
 # -------------------------------------------------------------------------------
 class XmlEntry(object):
     def __init__(self, id, value, desc):
@@ -493,6 +493,9 @@ def main(options):
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
                      envDict['CASEROOT'], machine['modules'], options, standalone)
+
+    # copy the copy_html script to the caseroot
+    # TODO...
 
     print('*****************************************************************************************')
     print('')

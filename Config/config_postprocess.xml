@@ -18,9 +18,7 @@
 	     valid_values=""  
 	     value="$POSTPROCESS_PATH/cesm-env2" 
 	     group="postprocess"
-	     desc="Path to the post processing python virtual environment created by the create_python_env.sh
-		   script in the postprocessing directory. The create_python_env.sh script is run once per
-		   CESM source code installation."
+	     desc="Path to the post processing python virtual environment created by the create_python_env.sh script in the postprocessing directory. The create_python_env.sh script is run once per CESM source code installation."
 	     ></entry> 
 
       <entry id="GENERATE_TIMESERIES" 
@@ -28,9 +26,7 @@
 	     valid_values="TRUE,FALSE"  
 	     value="TRUE" 
 	     group="postprocess"
-	     desc="If TRUE, create the single variable time series files using the history time slice files.
-		   All the time invariant metadata is included in each variable time series file header. 
-		   Rules for how the tseries files are created are specified in the env_archive.xml file."
+	     desc="If TRUE, create the single variable time series files using the history time slice files. All the time invariant metadata is included in each variable time series file header. Rules for how the tseries files are created are specified in the env_archive.xml file."
 	     ></entry> 
 
       <entry id="GENERATE_DIAGS_ATM"  
@@ -38,9 +34,7 @@
 	     valid_values="TRUE,FALSE"  
 	     value="FALSE" 
 	     group="postprocess"
-	     desc="If TRUE, this calls the AMWG diagnostics package parallel python wrapper
-		   script to generate climatological plots associated with the run job output.
-		   See the AMWG diagnostics documentation for more details."
+	     desc="If TRUE, this calls the AMWG diagnostics package parallel python wrapper script to generate climatological plots associated with the run job output. See the AMWG diagnostics documentation for more details."
 	     ></entry> 
 
       <entry id="GENERATE_DIAGS_ICE"  
@@ -48,9 +42,7 @@
 	     valid_values="TRUE,FALSE"  
 	     value="FALSE" 
 	     group="postprocess"
-	     desc="If TRUE, this calls the PCWG diagnostics package parallel python wrapper
-		   script to generate climatological plots associated with the run job output.
-		   See the PCWG diagnostics documentation for more details."
+	     desc="If TRUE, this calls the PCWG diagnostics package parallel python wrapper script to generate climatological plots associated with the run job output. See the PCWG diagnostics documentation for more details."
 	     ></entry> 
 
       <entry id="GENERATE_DIAGS_LND"  
@@ -58,9 +50,7 @@
 	     valid_values="TRUE,FALSE"  
 	     value="FALSE" 
 	     group="postprocess"
-	     desc="If TRUE, this calls the LMWG diagnostics package parallel python wrapper
-		   script to generate climatological plots associated with the run job output.
-		   See the LMWG diagnostics documentation for more details."
+	     desc="If TRUE, this calls the LMWG diagnostics package parallel python wrapper script to generate climatological plots associated with the run job output. See the LMWG diagnostics documentation for more details."
 	     ></entry> 
 
       <entry id="GENERATE_DIAGS_OCN" 
@@ -68,13 +58,47 @@
 	     valid_values="TRUE,FALSE"  
 	     value="TRUE" 
 	     group="postprocess"
-	     desc="If TRUE, this calls the OMWG diagnostics package parallel python wrapper
-		   script to generate climatological plots associated with the run job output.
-		   See the OMWG diagnostics documentation for more details."
+	     desc="If TRUE, this calls the OMWG diagnostics package parallel python wrapper script to generate climatological plots associated with the run job output. See the OMWG diagnostics documentation for more details."
 	     ></entry> 
+    </group>
 
-<!-- End postprocessing configuration definitions -->
+    <group name="web_options">
+      <order>1</order>
+      <comment>Environment variable settings for transferring files to a remote web server.</comment>
+
+      <entry id="GLOBAL_WEBHOST"
+	     type="char"
+	     valid_values=""
+	     value=""
+	     group="web_options"
+	     desc="Remote web host machine to serve HTML pages and diagnostics plots."
+	     ></entry>
+
+      <entry id="GLOBAL_WEBLOGIN"
+	     type="char"
+	     valid_values=""
+	     value=""
+	     group="web_options"
+	     desc="Remote web host login name which can be used with ssh keys. If ssh key is not setup, then will prompt for login on remote web host machine."
+	     ></entry>
+
+      <entry id="GLOBAL_LOCAL_WEBDIR"
+	     type="char"
+	     valid_values=""
+	     value=""
+	     group="web_options"
+	     desc="Local machine path to toplevel diagnostics directory."
+	     ></entry>
+
+      <entry id="GLOBAL_REMOTE_WEBDIR"
+	     type="char"
+	     valid_values=""
+	     value=""
+	     group="web_options"
+	     desc="Remote machine path to diagnostics directory."
+	     ></entry>
     </group>
   </groups>
 
+<!-- End postprocessing configuration definitions -->
 </config_definition>
