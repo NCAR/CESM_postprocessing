@@ -85,25 +85,64 @@ class EcosystemMaps(OceanDiagnosticPlot):
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
-        plots_s1 = dict()
-        # loop through the expectedPlots dictionary to check if files exist or not
 
-        for label, image in self._expectedPlots_s1.iteritems():
-            plots_s1[label] = '{0}.{1}'.format(image, imgFormat)
-            imageFile = '{0}/{1}.{2}'.format(workdir, image, imgFormat)
-            rc, err_msg = cesmEnvLib.checkFile(imageFile, 'read')
-            if not rc:
-                plots_s1[label] = '{0} - Error'.format(image)
+        # work on the first grouping of plots
+        plot_tables_g1 = []
+        # build up the plot_tables array
+        for h in range(len(self._expectedPlots)):
+            plot_set = self._expectedPlots[h]
+            columns = self._columns[h]
 
-        # load up the plots_s2 table of tuples
-        plots_s2 = []
-        num_cols = 14
+            for k in range(len(plot_set)):
+                plot_table = []
+                plot_tuple_list = plot_set[k]
+                num_plots = len(plot_tuple_list)
+                num_last_row = num_plots % columns[k]
+                num_rows = num_plots//columns[k]
+                index = 0
+
+                for i in range(num_rows):
+                    ptuple = []
+                    for j in range(self._columns[k]):
+                        label, plot_file = plot_tuple_list[index]
+                        img_file = '{0}.{1}'.format(plot_file, imgFormat)
+                        rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
+                        if not rc:
+                            ptuple.append(('{0}'.format(label), '{0} - Error'.format(plot_file)))
+                        else:
+                            ptuple.append(('{0}'.format(label), plot_file))
+                            index += 1                    
+                        plot_table.append(ptuple)
+
+            # pad out the last row
+            if num_last_row > 0:
+                ptuple = []
+                for i in range(num_last_row):
+                    label, plot_file = plot_tuple_list[index]
+                    img_file = '{0}.{1}'.format(plot_file, imgFormat)
+                    rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
+                    if not rc:
+                        ptuple.append(('{0}'.format(label), '{0} - Error'.format(plot_file)))
+                    else:
+                        ptuple.append(('{0}'.format(label), plot_file))
+                    index += 1                    
+
+                for i in range(columns[k] - num_last_row):
+                    ptuple.append(('',''))
+
+                plot_table.append(ptuple)
+
+            plot_tables_g1.append(('{0}'.format(self._expectedPlotHeaders[h]), plot_table, columns))
+
+        # work on the second grouping of plots
+        plot_tables_g2 = []
         for i in range(len(self._labels)):
             plot_tuple_list = []
-            plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
+            plot_tuple = (0,'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
+
             for j in range(len(self._linkNames)):
-                img_file = '{1}_{2}.{3}'.format(self._prefix, self._labels[i], self._linkNames[j])
+                img_file = '{0}_{1}_{2}.{3}'.format(self._prefix, self._labels[i], self._linkNames[j], imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
                     plot_tuple = (j+1, self._linkNames[j],'{0} - Error'.format(img_file))
@@ -112,7 +151,7 @@ class EcosystemMaps(OceanDiagnosticPlot):
                 plot_tuple_list.append(plot_tuple)
 
             print('DEBUG... plot_tuple_list[{0}] = {1}'.format(i, plot_tuple_list))
-            plots_s2.append(plot_tuple_list)
+            plot_tables_g2.append(plot_tuple_list)
 
         # create a jinja2 template object
         templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
@@ -123,10 +162,10 @@ class EcosystemMaps(OceanDiagnosticPlot):
         # add the template variables
         templateVars = { 'title' : self._name,
                          'plotTitles' : self._plotTitles,
-                         'plots_s1' : plots_s1,
-                         'plots_s2' : plots_s2,
-                         'num_cols' : num_cols,
-                         'num_rows' : len(self._labels),
+                         'plot_tables_g1' : plot_tables_g1,
+                         'plot_tables_g2' : plot_tables_g2,
+                         'num_rows_g2' : len(self._labels),
+                         'imgFormat' : imgFormat
                          }
 
         # render the html template using the plot tables
@@ -143,17 +182,30 @@ class EcosystemMaps_obs(EcosystemMaps):
 
         self._template_file = 'ecosystem_maps.tmpl'
 
-        self._plotTitles = ['Lat, Lon', 'Ecosystem: Maps at Depth (with obs where applicable)']
 
-        self._expectedPlots_s1 = {'NH4':'map_NH4','NO3_excess':'map_NO3','spChl':'map_spChl','diatChl':'map_diatChl','diazChl':'map_diazChl', 'totChl':'map_totChl',
-                                  'spC':'map_spC','diatC':'map_diatC','diazC':'map_diazC','photoC_sp':'map_photoC_sp','photoC_diat':'map_photoC_diat', 
-                                  'photoC_diaz':'map_photoC_diaz','diaz_Nfix':'map_diaz_Nfix','DENITRIF':'map_DENITRIF','NITRIF':'map_NITRIF',
-                                  'CaCO3_form':'map_CaCO3_form','bSi_form':'map_bSi_form','IRON_FLUX':'map_IRON_FLUX','POC_FLUX_IN':'map_POC_FLUX_IN',
-                                  'CaCO3_FLUX_IN':'map_CaCO3_FLUX_IN','SiO2_FLUX_IN':'map_SiO2_FLUX_IN','STF_O2':'map_STF_O2','FvPER_DIC':'map_FvPER_DIC',
-                                  'FvICE_DIC':'map_FvICE_DIC','sp_nutlim':'map_nutlim_sp','diat_nutlim':'map_nutlim_diat','diaz_nutlim':'map_nutlim_diaz',
-                                  'pCO2SURF':'mod_obs_map_pCO2SURF_0m','FG_CO2':'mod_obs_map_FG_CO2_0m','totChl':'mod_obs_map_totChl_0m', 
-                                  'photoC_tot':'mod_obs_map_photoC_tot_0m','phytoC':'mod_obs_map_phytoC_0m','phyto_mu':'mod_obs_map_phyto_mu_0m'}
+        self._expectedPlotsHeaders = ['Lat,Lon', ' ', ' ']
 
+        self._expectedPlots_s1 = [('NH4','map_NH4'), ('NO3_excess','map_NO3'), ('spChl','map_spChl'), ('diatChl','map_diatChl'), ('diazChl','map_diazChl'), ('totChl','map_totChl'),
+                                  ('spC','map_spC'), ('diatC','map_diatC'), ('diazC','map_diazC'), ('photoC_sp','map_photoC_sp'), ('photoC_diat','map_photoC_diat'), 
+                                  ('photoC_diaz','map_photoC_diaz'), ('diaz_Nfix','map_diaz_Nfix'), ('DENITRIF','map_DENITRIF'), ('NITRIF','map_NITRIF'),
+                                  ('CaCO3_form','map_CaCO3_form'), ('bSi_form','map_bSi_form'), ('IRON_FLUX','map_IRON_FLUX'), ('POC_FLUX_IN','map_POC_FLUX_IN'),
+                                  ('CaCO3_FLUX_IN','map_CaCO3_FLUX_IN'), ('SiO2_FLUX_IN','map_SiO2_FLUX_IN'), ('STF_O2','map_STF_O2'), ('FvPER_DIC','map_FvPER_DIC'),
+                                  ('FvICE_DIC','map_FvICE_DIC')]
+
+        self._expectedPlots_s2 = [('sp_nutlim','map_nutlim_sp'), ('diat_nutlim','map_nutlim_diat'), ('diaz_nutlim','map_nutlim_diaz')]
+
+        self._expectedPlots_s3 = [('pCO2SURF','mod_obs_map_pCO2SURF_0m'), ('FG_CO2','mod_obs_map_FG_CO2_0m'), ('totChl','mod_obs_map_totChl_0m'), 
+                                  ('photoC_tot','mod_obs_map_photoC_tot_0m'), ('phytoC','mod_obs_map_phytoC_0m'), ('phyto_mu','mod_obs_map_phyto_mu_0m')]
+
+        self._expectedPlots = [ self._expectedPlots_s1, self._expectedPlots_s2, self._expectedPlots_s3 ]
+
+        self._columns_s1 = [2, 4, 3, 3, 5, 4, 3]
+        self._columns_s2 = [3]
+        self._columns_s3 = [6]
+
+        self._columnns = [ self._columns_s1, self._columns_s2, self._columns_s3 ]
+
+        self._plotTitles = ['Ecosystem: Maps', 'Ecosystem: Maps at Depth (with obs where applicable)']
         self._labels = ['NO3','PO4','SiO3','O2','DIC','ALK','Fe']
         self._linkNames = ['0m', '50m', '100m','200m', '300m','500m', '1000m', '1500m', '2000m', '2500m','3000m', '3500','4000m']
         self._prefix = 'mod_obs_map'

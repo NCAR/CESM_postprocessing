@@ -25,6 +25,15 @@ if sys.hexversion < 0x02070000:
 #
 import os
 
+#
+# activate the virtual environment that was created by create_python_env.sh
+#
+if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
+    err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
+               'Please run $POSTPROCESSING_PATH/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
+    raise OSError(err_msg)
+
+execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
 
 #
 # import modules installed in the virtual environment

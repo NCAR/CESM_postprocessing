@@ -1,128 +1,33 @@
 <h3>{{ title }}</h3>
 
+<b>{% plotTitles[0] %}</b>
+
+{% for table_header, plot_table_list, cols in plot_tables_g1 %} 
+   <table class="plot">
+   <th colspan="{{ cols }}">{{ table_header }}</th>
+   {% for plot_table in plot_table_list %}
+      <tr>	     
+      {% for label, t in plot_table %}
+	  {% if 'Error' in t %}
+              <td>{{ label }} - Error</td>
+          {% elif t == '' %}
+	      <td></td>
+          {% else %}
+              <td><a href="{{ t }}.{{ imgFormat }}">{{ label }}</a></td>
+          {% endif %}
+      {% endfor %}	
+      </tr>
+   {% endfor %}	
+   </table>
+   <br/>
+{% endfor %}
+
+<b>{% plotTitles[1] %}</b>
+
 <table class="plot">
-<th colspan="5">{{ plotTitles[0] }}</th>
-<tr>
-  <td>
-     {% if 'Error' in plots_s1['NH4'] %}
-        {{ plots_s1['NH4'] }}
-     {% else %}
-        <a href="{{ plots_s1['NH4'] }}">NH4</a>
-     {% endif %}
-  </td>	 
-  <td>
-     {% if 'Error' in plots_s1['NO3_excess'] %}
-        {{ plots_s1['NO3_excess'] }}
-     {% else %}
-        <a href="{{ plots_s1['NO3_excess'] }}">NO3_excess</a>
-     {% endif %}
-  </td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
-</tr>
-<tr>
-  <td>
-     {% if 'Error' in plots_s1['spChl'] %}
-        {{ plots_s1['spChl'] }}
-     {% else %}
-        <a href="{{ plots_s1['spChl'] }}">spChl</a>
-     {% endif %}
-  </td>
-  <td>
-     {% if 'Error' in plots_s1['diatChl'] %}
-        {{ plots_s1['diatChl'] }}
-     {% else %}
-        <a href="{{ plots_s1['diatChl'] }}">diatChl</a>
-     {% endif %}
-  </td>
-  <td>
-     {% if 'Error' in plots_s1['diazChl'] %}
-        {{ plots_s1['diazChl'] }}
-     {% else %}
-        <a href="{{ plots_s1['diazChl'] }}">diazChl</a>
-     {% endif %}
-  </td>
-  <td>
-     {% if 'Error' in plots_s1['totChl'] %}
-        {{ plots_s1['totChl'] }}
-     {% else %}
-        <a href="{{ plots_s1['totChl'] }}">totChl</a>
-     {% endif %}
-  </td>    
-  <td>&nbsp;</td>
-</tr>
-
-<tr>
-  <td>
-     {% if 'Error' in plots_s1['spC'] %}
-        {{ plots_s1['spC'] }}
-     {% else %}
-        <a href="{{ plots_s1['spC'] }}">spC</a>
-     {% endif %}
-  </td>
-  <td>
-     {% if 'Error' in plots_s1['diatC'] %}
-        {{ plots_s1['diatC'] }}
-     {% else %}
-        <a href="{{ plots_s1['diatC'] }}">diatC</a>
-     {% endif %}
-  </td>
-  <td>
-     {% if 'Error' in plots_s1['diazC'] %}
-        {{ plots_s1['diazChl'] }}
-     {% else %}
-        <a href="{{ plots_s1['diazC'] }}">diazC</a>
-     {% endif %}
-  </td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
-</tr>
-
-START HERE...
-<tr>
-  <td><a href="map_photoC_sp.png">photoC_sp</a></td>
-  <td><a href="map_photoC_diat.png">photoC_diat</a></td>
-  <td><a href="map_photoC_diaz.png">photoC_diaz</a></td>
-</tr>
-<tr>
-  <td><a href="map_diaz_Nfix.png">diaz_Nfix</a></td>
-  <td><a href="map_DENITRIF.png">DENITRIF</a></td>
-  <td><a href="map_NITRIF.png">NITRIF</a></td>
-  <td><a href="map_CaCO3_form.png">CaCO3_form</a></td>
-  <td><a href="map_bSi_form.png">bSi_form</a></td>
-</tr>
-<tr>
-  <td><a href="map_IRON_FLUX.png">IRON_FLUX</a></td>
-  <td><a href="map_POC_FLUX_IN.png">POC_FLUX_IN</a></td>
-  <td><a href="map_CaCO3_FLUX_IN.png">CaCO3_FLUX_IN</a></td>
-  <td><a href="map_SiO2_FLUX_IN.png">SiO2_FLUX_IN</a></td>
-</tr>
-<tr>
-  <td><a href="map_STF_O2.png">STF_O2</a></td>
-  <td><a href="map_FvPER_DIC.png">FvPER_DIC</a></td>
-  <td><a href="map_FvICE_DIC.png">FvICE_DIC</a></td>
-</tr>
-</table>
-
-<p/>
-<table class="plot">
-<tr>   
-<!-- 'Small Phyto. growth limitation factor in upper "zref" meters' -->
-  <td><a href="map_nutlim_sp.png">sp_nutlim</a></td>
-<!-- 'Diatom growth limitation factor in upper "zref" meters' -->
-  <td><a href="map_nutlim_diat.png">diat_nutlim</a></td>
-<!-- 'Diazotrophs growth limitation factor in upper "zref" meters' -->
-  <td><a href="map_nutlim_diaz.png">diaz_nutlim</a></td>
-</tr>
-</table>
-
-<p/>
-<table class="plot">
-<th colspan="{{ num_cols }}">{{ plotTitles[1] }}</th>
-{% for i in range(num_rows) %}
+{% for i in range(num_rows_g2) %}
     <tr>
-    {% for order, label, plot in plots_s2[i] %}
+    {% for order, label, plot in plot_tables_g2[i] %}
        {% if order == 0 %}
           <td><b>{{ plot }}</b></td>	
        {% elif 'Error' in plot %}

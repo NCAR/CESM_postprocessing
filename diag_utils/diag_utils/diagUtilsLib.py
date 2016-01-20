@@ -421,7 +421,7 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, control):
     avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
     case_prefix = '{0}.pop.h'.format(case)
 
-    # prepend the years with 0's
+    # prepend the years with 0's for some of the plotting routines
     zstart_year = start_year.zfill(padding)
     zstop_year = stop_year.zfill(padding)
 
@@ -435,7 +435,13 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, control):
     avgFile = '{0}/mavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
-        mavgFile = '{0}/mavg.{1}.{2}.{3}nc'.format(workdir, zstart_year, zstop_year, cntrl)
+        zmavgFile = '{0}/mavg.{1}.{2}.{3}nc'.format(workdir, zstart_year, zstop_year, cntrl)
+        mavgFile = '{0}/mavg.{1}.{2}.{3}nc'.format(workdir, start_year, stop_year, cntrl)
+
+        rc1, err_msg1 = cesmEnvLib.checkFile(zmavgFile, 'read')
+        if not rc1:
+            os.symlink(avgFile, zmavgFile)
+
         rc1, err_msg1 = cesmEnvLib.checkFile(mavgFile, 'read')
         if not rc1:
             os.symlink(avgFile, mavgFile)
@@ -447,7 +453,13 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, control):
     avgFile = '{0}/tavg.{1}-{2}.nc'.format(tavgdir, zstart_year, zstop_year)
     rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
     if rc:
-        tavgFile = '{0}/tavg.{1}.{2}.{3}nc'.format(workdir, zstart_year, zstop_year, cntrl)
+        ztavgFile = '{0}/tavg.{1}.{2}.{3}nc'.format(workdir, zstart_year, zstop_year, cntrl)
+        tavgFile = '{0}/tavg.{1}.{2}.{3}nc'.format(workdir, start_year, stop_year, cntrl)
+
+        rc1, err_msg1 = cesmEnvLib.checkFile(ztavgFile, 'read')
+        if not rc1:
+            os.symlink(avgFile, ztavgFile)
+
         rc1, err_msg1 = cesmEnvLib.checkFile(tavgFile, 'read')
         if not rc1:
             os.symlink(avgFile, tavgFile)

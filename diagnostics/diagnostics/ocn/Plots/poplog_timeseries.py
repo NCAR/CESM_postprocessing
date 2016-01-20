@@ -161,6 +161,7 @@ class PopLog(OceanDiagnosticPlot):
                     ptuple.append(('',''))
 
                 plot_table.append(ptuple)
+
             plot_tables.append(('{0}'.format(self._expectedPlotHeaders[k]),plot_table, self._columns[k]))
 
         # create a jinja2 template object

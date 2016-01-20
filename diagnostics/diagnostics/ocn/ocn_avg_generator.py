@@ -190,6 +190,8 @@ def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList, pp
     date_pattern = 'yyyymm-yyyymm'
     suffix = 'nc'
 
+    main_comm.sync();
+
     if main_comm.is_manager():
         debugMsg('calling specification.create_specifier with following args', header=True)
         debugMsg('... in_directory = {0}'.format(in_dir), header=True)
@@ -211,6 +213,8 @@ def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList, pp
         debugMsg('... obs_dir = {0}'.format(obs_dir), header=True)
         debugMsg('... obs_file = {0}'.format(obs_file), header=True)
         debugMsg('... reg_obs_file_suffix = {0}'.format(reg_obs_file_suffix), header=True)
+
+    main_comm.sync();
 
     try: 
         pyAveSpecifier = specification.create_specifier(
@@ -244,6 +248,9 @@ def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList, pp
             debugMsg("calling run_pyAverager")
 
         PyAverager.run_pyAverager(pyAveSpecifier)
+
+        main_comm.sync();
+
     except Exception as error:
         print(str(error))
         traceback.print_exc()
@@ -287,13 +294,13 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, ppDir, main_comm, debugMsg)
     main_comm.sync()
 
-    # check if timeseries diagnostics is specified
+    # check if timeseries diagnostics is requested
     if tseries:
         # create the list of averages to be computed by the pyAverager
         averageList, averageListMoc = buildOcnTseriesAvgList(tseries_start_year, tseries_stop_year, avgFileBaseName, main_comm, debugMsg)
         main_comm.sync()
 
-        # generate the annual timeseries files and MOC gile with TEMP, SALT, MOC variablese
+        # generate the annual timeseries files and MOC file with TEMP, SALT, MOC variables
         if len(averageListMoc) > 0:
             # call the pyAverager with the inVarList
             inVarList = ['SALT', 'TEMP', 'MOC']
