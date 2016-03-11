@@ -31,12 +31,12 @@ import stat
 #
 # activate the virtual environment that was created by create_python_env.sh
 #
-if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
+if ( not os.path.isfile('../cesm-env2/bin/activate_this.py') ):
     err_msg = ('set_env ERROR: the virtual environment cesm-env2 does not exist.' \
-               'Please run $POSTPROCESSING_PATH/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
+               'Please run ../create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
     raise OSError(err_msg)
 
-execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
+execfile('../cesm-env2/bin/activate_this.py', dict(__file__='../cesm-env2/bin/activate_this.py'))
 
 try:
     import lxml.etree as etree
@@ -59,7 +59,7 @@ def commandline_options():
 
     """
     parser = argparse.ArgumentParser(
-        description='Read the caseroot postprocessing XML files and set the local environment for debugging')
+        description='Read the caseroot postprocessing XML files and set the local environment.')
 
     parser.add_argument('-component', '--component', choices=['atm','ice','lnd','ocn'], required=True, nargs=1,
                         help='select a component [atm, ice, lnd, ocn] to set the environment using the associated XML file')
@@ -67,14 +67,14 @@ def commandline_options():
     parser.add_argument('-shell', '--shell', choices=['bash','csh'], required=True, nargs=1,
                         help='select a shell [bash, csh] to create a file that can be sourced')
 
+    parser.add_argument('-caseroot', '--caseroot', required=True, nargs=1,
+                        help='fully quailfied path to case root directory')
+
     parser.add_argument('-backtrace', '--backtrace', action='store_true',
                         help='show exception backtraces as extra debugging output')
 
     parser.add_argument('-debug', '--debug', nargs=1, required=False, type=int, default=0,
                         help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
-
-    parser.add_argument('-caseroot', '--caseroot', nargs=1, required=True, 
-                        help='fully quailfied path to case root directory')
 
     options = parser.parse_args()
         
@@ -158,12 +158,14 @@ def main(options):
 
     envDict = diagUtilsLib.strip_prefix(envDict, prefix)
 
+    envDict['CASEROOT'] = options.caseroot[0]
+
     filename = 'set_env_{0}'.format(options.component[0])
     first = True
     if options.shell[0] == 'csh':
-        filename = '{0}.csh'.format(filename)
+        filename = '{0}/{1}.csh'.format(envDict['CASEROOT'], filename)
     else:
-        filename = '{0}.sh'.format(filename)
+        filename = '{0}/{1}.sh'.format(envDict['CASEROOT'], filename)
     
     with open (filename, 'w') as envFile:
         for key, value in envDict.iteritems():
@@ -177,7 +179,7 @@ def main(options):
                 else:
                     line = 'setenv {0} {1}\n\n'.format(key, value)
                 if first:
-                    instruct = 'Be sure to run "source ./{0}"'.format(filename)
+                    instruct = '*** Be sure to run "source .{0}"'.format(filename)
                     first = False
             else:
                 if tmpvalue is not None:
@@ -185,7 +187,7 @@ def main(options):
                 else:
                     line = 'set {0}={1}\n'.format(key, value) + 'export {0}\n\n'.format(key)
                 if first:
-                    instruct = 'Be sure to run "./{0}"'.format(filename)
+                    instruct = '*** Be sure to run ".{0}"'.format(filename)
                     first = False
 
             envFile.write(line)
@@ -193,7 +195,7 @@ def main(options):
     st = os.stat(filename)
     os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
-    return 'Successfully created {0}. {1}'.format(filename, instruct)
+    return '*** Successfully created {0}\n{1}'.format(filename, instruct)
     
     
 #===================================
