@@ -24,7 +24,7 @@
   <entry id="LNDDIAG_DIAG_VERSION"
          type="char"
          valid_values=""
-         value="land_diag_2015"
+         value="parallel_land_diag"
          group="diags_lnd"
          desc="Package Version"
          ></entry>
@@ -136,7 +136,7 @@
   <entry id="LNDDIAG_INPUT_HOME"
          type="char"
          valid_values=""
-         value="$DIAG_HOME/code/"
+         value="$DIAG_HOME"
          group="diags_lnd"
          desc="Path to variable list file"
          ></entry>
@@ -243,10 +243,10 @@
 
   <entry id="LNDDIAG_rtm_modelstream_1"
          type="char"
-         valid_values=""
-         value="rtm.h0"
+         valid_values="rtm.h0, mosart.h0"
+         value="mosart.h0"
          group="diags_lnd"
-         desc="Identifying rtm model stream for CASE1"
+         desc="Identifying river model stream for CASE1"
          ></entry>
 
   <entry id="LNDDIAG_commonName_1"
@@ -325,10 +325,10 @@
 
   <entry id="LNDDIAG_rtm_modelstream_2"
          type="char"
-         valid_values=""
-         value="rtm.h0"
+         valid_values="rtm.h0, mosart.h0"
+         value="mosart.h0"
          group="diags_lnd"
-         desc="Identifying rtm model stream for CASE2"
+         desc="Identifying river model stream for CASE2"
          ></entry>
 
   <entry id="LNDDIAG_commonName_2"
@@ -431,6 +431,14 @@
          desc="Create climos for atm CASE1. (set4)  Make atm climo for case1"
          ></entry>
 
+  <entry id="LNDDIAG_rmodel_1"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="(set7) Set to True for case1 if Mosart was used or False if RTM was used in the simulation"
+         ></entry>
+
   <entry id="LNDDIAG_rtm_1"
          type="logical"
          valid_values="True/False"
@@ -487,6 +495,14 @@
          value="False"
          group="diags_lnd"
          desc="Create climos for atm CASE2.  (set4)  Make atm climo for case2"
+         ></entry>
+
+  <entry id="LNDDIAG_rmodel_2"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="diags_lnd"
+         desc="(set7) Set to True for case1 if Mosart was used or False if RTM was used in the simulation"
          ></entry>
 
   <entry id="LNDDIAG_rtm_2"
@@ -680,14 +696,6 @@
   <group name="plot_sets">
   <order>12</order>
   <comment>Select plot sets</comment>
-
-  <entry id="LNDDIAG_set_0"
-         type="logical"
-         valid_values="True/False"
-         value="True"
-         group="diags_lnd"
-         desc="Plot Set 0: PRE-SCREEN for NaNs"
-         ></entry>
 
   <entry id="LNDDIAG_set_1"
          type="logical"

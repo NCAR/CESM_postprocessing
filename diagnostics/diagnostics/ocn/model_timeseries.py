@@ -201,6 +201,7 @@ class modelTimeseries(OceanDiagnostic):
                         os.remove('{0}/{1}'.format(env['WORKDIR'],ocnLogFile))
 
                 # expand the ocn.log* into a list
+                ocnLogs.sort()
                 ocnLogsString = ' '.join(ocnLogs)
 
                 # define the awk script to parse the ocn log files
@@ -239,6 +240,7 @@ class modelTimeseries(OceanDiagnostic):
                     shutil.copy2(dtFile, '{0}/{1}'.format(env['WORKDIR'],dtLogFile))
 
                 # expand the *.dt.* into a list
+                dtFiles.sort()
                 dtFilesString = ' '.join(dtFiles)
 
                 # define the awk script to parse the dt log files

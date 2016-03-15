@@ -187,4 +187,5 @@ class PopLog_timeseries(PopLog):
         super(PopLog_timeseries, self).__init__()
         self._ncl = ['pop_log_diagts_3d.monthly.ncl', 'pop_log_diagts_hflux.monthly.ncl', 
                      'pop_log_diagts_fwflux.monthly.ncl', 'pop_log_diagts_cfc.monthly.ncl', 
-                     'pop_log_diagts_transports.ncl', 'pop_log_diagts_precf.ncl']
+                     'pop_log_diagts_transports.ncl', 'pop_log_diagts_nino.monthly.ncl',
+                     'pop_log_diagts_precf.ncl']
