@@ -298,7 +298,7 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     # add the os.environ['PATH'] to the envDict['PATH']
     envDict['LANDDIAG_PATH'] = os.pathsep + os.environ['PATH']
 
-    # strip the ATMDIAG_ prefix from the envDict entries before setting the 
+    # strip the LNDDIAG_ prefix from the envDict entries before setting the 
     # enviroment to allow for compatibility with all the diag routine calls
     envDict = diagUtilsLib.strip_prefix(envDict, 'LNDDIAG_')
 
@@ -360,6 +360,7 @@ def main(options, main_comm, debugMsg):
                 # Check the history files for climos date range
                 if main_comm.is_manager():
                     debugMsg('calling checkHistoryFiles for filep = {0}, {1}, {2}'.format(filep, envDict['clim_first_yr_1'],envDict['clim_last_yr_1'] ), header=True)
+                    debugMsg('        SOURCE_1 = {0}, caseid_1 = {1}'.format(envDict['SOURCE_1'], envDict['caseid_1']), header=True)
 
                 start_year, stop_year, in_dir, envDict['case1_htype'],  envDict['case1_key_infile'] = diagUtilsLib.checkHistoryFiles(
                     case1_time_series, envDict['SOURCE_1'], envDict['caseid_1'], envDict['clim_first_yr_1'], envDict['clim_last_yr_1'],
@@ -368,6 +369,7 @@ def main(options, main_comm, debugMsg):
                 # Check the history files for trends date range
                 if main_comm.is_manager():
                     debugMsg('calling checkHistoryFiles for filep = {0}, {1}, {2}'.format(filep, envDict['clim_first_yr_1'],envDict['clim_last_yr_1'] ), header=True)
+                    debugMsg('        SOURCE_1 = {0}, caseid_1 = {1}'.format(envDict['SOURCE_1'], envDict['caseid_1']), header=True)
 
                 start_year, stop_year, in_dir, envDict['case1_htype'],  envDict['case1_key_infile'] = diagUtilsLib.checkHistoryFiles(
                     case1_time_series, envDict['SOURCE_1'], envDict['caseid_1'], envDict['trends_first_yr_1'], envDict['trends_last_yr_1'],
@@ -410,6 +412,7 @@ def main(options, main_comm, debugMsg):
                     # Check the history files for climo date range
                     if main_comm.is_manager():
                         debugMsg('calling checkHistoryFiles for filep = {0}, {1}, {2}'.format(filep, envDict['clim_first_yr_2'],envDict['clim_last_yr_2'] ), header=True)
+                        debugMsg('        SOURCE_2 = {0}, caseid_2 = {1}'.format(envDict['SOURCE_2'], envDict['caseid_2']), header=True)
 
                     start_year, stop_year, in_dir, envDict['case2_htype'],  envDict['case2_key_infile'] = diagUtilsLib.checkHistoryFiles(
                         diff_time_series, envDict['SOURCE_2'], envDict['caseid_2'], envDict['clim_first_yr_2'], envDict['clim_last_yr_2'],
@@ -418,6 +421,7 @@ def main(options, main_comm, debugMsg):
                     # Check the history files for trends date range
                     if main_comm.is_manager():
                         debugMsg('calling checkHistoryFiles for filep = {0}, {1}, {2}'.format(filep, envDict['clim_first_yr_2'],envDict['clim_last_yr_2'] ), header=True)
+                        debugMsg('        SOURCE_2 = {0}, caseid_2 = {1}'.format(envDict['SOURCE_2'], envDict['caseid_2']), header=True)
 
                     start_year, stop_year, in_dir, envDict['case2_htype'],  envDict['case2_key_infile'] = diagUtilsLib.checkHistoryFiles(
                         diff_time_series, envDict['SOURCE_2'], envDict['caseid_2'], envDict['trends_first_yr_2'], envDict['trends_last_yr_2'],

@@ -160,6 +160,7 @@ class modelVsObs(OceanDiagnostic):
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
 
                 print('model vs. obs - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+                # TODO make local_html a dictionary with key = plot name and value = html
                 html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
             
                 local_html_list.append(str(html))
@@ -179,13 +180,17 @@ class modelVsObs(OceanDiagnostic):
         # define a tag for the MPI collection of all local_html_list variables
         html_msg_tag = 1
 
+        # TODO make all_html an OrderedDict where the key is name of plot module as read in from a list in XML and value is none.
         all_html = list()
         all_html = [local_html_list]
+
         if scomm.get_size() > 1:
             if scomm.is_manager():
+                # TODO loop through the local_html_list and get the name 
                 all_html  = [local_html_list]
                 
                 for n in range(1,scomm.get_size()):
+                    # TODO temp_html becomes a dict that loop over matching the plot name with the plot list name that was read in from XML
                     rank, temp_html = scomm.collect(tag=html_msg_tag)
                     all_html.append(temp_html)
 
@@ -198,6 +203,8 @@ class modelVsObs(OceanDiagnostic):
         if scomm.is_manager():
 
             # merge the all_html list of lists into a single list
+
+            # TODO all_html is now an OrderedDict so just iterate on key, value
             all_html = list(itertools.chain.from_iterable(all_html))
             for each_html in all_html:
                 #print('each_html = {0}'.format(each_html))
