@@ -106,7 +106,7 @@
   <entry id="ICEDIAG_ICE_NY_CONT"
          type="char"
          valid_values=""
-         value="$ICE_NX"
+         value="$ICE_NY"
          group="diags_ice"
          desc="Number of ice cells in the j direction"
          ></entry>
@@ -320,7 +320,7 @@
   <entry id="ICEDIAG_GRIDFILECONT"
          type="char"
          valid_values=""
-         value="/glade/p/cesm/omwg/grids/$GRID_CONT_grid.nc"
+         value="/glade/p/cesm/omwg/grids/($ICEDIAG_GRID_CONT)_grid.nc"
          group="diags_ice"
          desc="Grid file for control case."
          ></entry>
@@ -328,7 +328,7 @@
   <entry id="ICEDIAG_GRIDFILEDIFF"
          type="char"
          valid_values=""
-         value="/glade/p/cesm/omwg/grids/$GRID_CONT_grid.nc"
+         value="/glade/p/cesm/omwg/grids/($ICEDIAG_GRID_CONT)_grid.nc"
          group="diags_ice"
          desc="Grid file for diff case."
          ></entry>
