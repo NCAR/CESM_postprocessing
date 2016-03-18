@@ -33,9 +33,9 @@ echo "Start {{ processName }} generation $(date)"
 echo "******************************************"
 
 {% if standalone %}
-{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --standalone >> {{ caseRoot }}/{{ processName }}.log 2>&1
+{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --standalone >> {{ caseRoot }}/logs/{{ processName }}.log 2>&1
 {% else %}
-{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/{{ processName }}.log 2>&1
+{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/logs/{{ processName }}.log 2>&1
 {% endif %}
 
 echo "******************************************"

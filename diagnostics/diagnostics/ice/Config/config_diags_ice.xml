@@ -212,7 +212,7 @@
   <entry id="ICEDIAG_ICE_NY_DIFF"
          type="char"
          valid_values=""
-         value="$ICE_NX"
+         value="$ICE_NY"
          group="diags_ice"
          desc="Number of ice cells in the j direction"
          ></entry>

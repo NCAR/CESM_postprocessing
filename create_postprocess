@@ -204,6 +204,7 @@ def create_env_file(envDict, configFile, tmplFile, envFile, obs_root, standalone
             template = templateEnv.get_template( tmplFile )
             templateVars = { 'caseroot' : envDict['CASEROOT'],
                              'case' : envDict['CASE'],
+                             'pp_case_path' : envDict['PP_CASE_PATH'],
                              'postprocess_path' : envDict['POSTPROCESS_PATH'],
                              'xml_list' : xml_list,
                              'group_list' : sorted_group_list,
@@ -380,6 +381,7 @@ def initialize_main(envDict, options, standalone):
     Arguments:
     options (list) - input options from command line
     envDict (dictionary) - environment dictionary
+    pp_case_path - postprocessing path in caseroot
     standalone (boolean) - indicate if this is postprocessing for a standalone case
 
     Return:
@@ -423,20 +425,35 @@ def main(options):
     hostname = cesmEnvLib.get_hostname()
     envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
 
+    # create the postprocess directories in the caseroot
     standalone = check_standalone(options.caseroot[0])
+
     # check to make sure CASEROOT is a valid, readable directory
     if not os.path.isdir(options.caseroot[0]):
-        try:
-            os.mkdir(options.caseroot[0])
-            standalone = True
-        except:
-            raise OSError('create_postprocess ERROR: cannot create a new caseroot. Exiting...')
+        # stand-alone caseroot
+        standalone = True
+        pp_case_path = options.caseroot[0]
+        logpath = '{0}/logs'.format(pp_case_path)
+    else:
+        pp_case_path = '{0}/postprocess'.format(options.caseroot[0])
+        logpath = '{0}/logs'.format(pp_case_path)
+
+    # make the appropriate dirs in the caseroot
+    try:
+        os.mkdir(pp_case_path)
+    except:
+        raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(pp_case_path))
+    try:
+        os.mkdir(logpath)
+    except:
+        raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(logpath))
 
     # initialize the environment dictionary
     envDict = initialize_main(envDict, options, standalone)
+    envDict['PP_CASE_PATH'] = pp_case_path
 
     # TODO - need to check the compset to see what is active 
-    # and return the compList accordingly
+    # and return the compList accordingly, for now create all options
 
     # set the list of components
     compList = ['atm','ice','lnd','ocn']
@@ -448,19 +465,19 @@ def main(options):
     # generate the env_postprocess.xml file
     config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_PATH'])
     tmpl_file = 'env_postprocess.tmpl'
-    env_file = '{0}/env_postprocess.xml'.format(envDict['CASEROOT'])
+    env_file = '{0}/env_postprocess.xml'.format(envDict['PP_CASE_PATH'])
     create_env_file(envDict, config_file, tmpl_file, env_file, '', standalone)
 
     # generate the env_timeseries.xml file
     config_file = '{0}/Config/config_timeseries.xml'.format(envDict['POSTPROCESS_PATH'])
-    env_file = '{0}/env_timeseries.xml'.format(envDict['CASEROOT'])
+    env_file = '{0}/env_timeseries.xml'.format(envDict['PP_CASE_PATH'])
     shutil.copy2(config_file, env_file)
 
     # generate the env_diags_[component].xml files
     for comp in compList:
         config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
         tmpl_file = 'env_diags.tmpl'
-        env_file = '{0}/env_diags_{1}.xml'.format(envDict['CASEROOT'], comp)
+        env_file = '{0}/env_diags_{1}.xml'.format(envDict['PP_CASE_PATH'], comp)
         create_env_file(envDict, config_file, tmpl_file, env_file, machine['{0}_obs_root'.format(comp)], standalone)
 
     # define the template files for the batch scripts
@@ -470,42 +487,42 @@ def main(options):
     # generate the timeseries batch submit script from template files
     postProcessCmd = 'cesm_tseries_generator.py'
     processName = 'timeseries'
-    outFile = '{0}/{1}'.format(envDict['CASEROOT'],processName)
+    outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
 
     create_batch(envDict['POSTPROCESS_PATH'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
                  machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                 envDict['CASEROOT'], machine['modules'], options, standalone)
+                 envDict['PP_CASE_PATH'], machine['modules'], options, standalone)
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
         # generate the averages batch submit script
         postProcessCmd = '{0}_avg_generator.py'.format(comp)
         processName = '{0}_averages'.format(comp)
-        outFile = '{0}/{1}'.format(envDict['CASEROOT'], processName)
+        outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['CASEROOT'], machine['modules'], options, standalone)
+                     envDict['PP_CASE_PATH'], machine['modules'], options, standalone)
 
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
         processName = '{0}_diagnostics'.format(comp)
-        outFile = '{0}/{1}'.format(envDict['CASEROOT'], processName)
+        outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['CASEROOT'], machine['modules'], options, standalone)
+                     envDict['PP_CASE_PATH'], machine['modules'], options, standalone)
 
     # copy the copy_html script to the caseroot
     # TODO...
 
     print('*****************************************************************************************')
     print('')
-    print(' The CASEROOT {0}'.format(envDict['CASEROOT']))
+    print(' The CASEROOT postprocess directory {0}'.format(envDict['PP_CASE_PATH']))
     print(' now contains all the necessary post-processing submit scripts and associated')
     print(' XML configuration files. Please review the on-line documentation at')
     print(' http://www2.cesm.ucar.edu for a complete description of how')
     print(' to configure and use the CESM post-processing tools.')
     if standalone:
-        print(' NOTICE: The postprocessing xml files in the new CASEROOT will need to be adjusted.')
+        print(' NOTICE: The postprocessing xml files in the new CASEROOT postprocess directory will need to be adjusted.')
     print('')
     print('*****************************************************************************************')
     

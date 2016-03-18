@@ -132,9 +132,9 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml', 'env_postprocess.xml', 'env_diags_ocn.xml']
+    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_ocn.xml']
     if standalone:
-        env_file_list =  ['env_postprocess.xml', 'env_diags_ocn.xml']
+        env_file_list =  ['./env_postprocess.xml', './env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
@@ -227,7 +227,7 @@ def main(options, main_comm, debugMsg):
 
         num_of_diags = len(diag_list)
         if num_of_diags == 0:
-            print('No ocean diagnostics specified. Please check the {0}/env_diags_ocn.xml settings.'.format(envDict['CASEROOT']))
+            print('No ocean diagnostics specified. Please check the {0}/env_diags_ocn.xml settings.'.format(envDict['PP_CASE_PATH']))
             sys.exit(1)
 
         print('User requested diagnostics:')

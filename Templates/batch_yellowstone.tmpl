@@ -3,8 +3,8 @@
 #BSUB -q regular
 #BSUB -N
 #BSUB -a poe
-#BSUB -o {{ processName }}.stdout.%J
-#BSUB -e {{ processName }}.stderr.%J
+##BSUB -o {{ processName }}.stdout.%J
+##BSUB -e {{ processName }}.stderr.%J
 #BSUB -J CESM_postprocessing
 #BSUB -W 02:00
 #BSUB -P {{ project }} 
