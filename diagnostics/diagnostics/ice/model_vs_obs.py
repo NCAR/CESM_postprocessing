@@ -62,6 +62,10 @@ class modelVsObs(IceDiagnostic):
         #diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
         # Set some new env variables
+        # note - some of these env vars are for model vs. model but are expected by the 
+        # NCL routines web_hem_clim.ncl and web_reg_clim.ncl that is called by both
+        # diag classes
+        env['DIAG_CODE'] = env['NCLPATH']
         env['DIAG_HOME'] = env['NCLPATH']
         env['DIAG_ROOT'] = '{0}/{1}-{2}/'.format(env['DIAG_ROOT'], env['CASE_TO_CONT'], 'obs') 
         env['WKDIR'] = env['DIAG_ROOT']
@@ -70,13 +74,16 @@ class modelVsObs(IceDiagnostic):
             if not os.path.exists(env['WKDIR']):
                 os.makedirs(env['WKDIR'])
         env['PATH_PLOT'] = env['CLIMO_CONT']
-        env['seas'] = ['jfm','fm','amj','jas','ond','on','ann']
-        env['YR_AVG_FRST'] = (int(env['ENDYR_CONT']) - int(env['YRS_TO_AVG'])) + 1
+##        env['seas'] = ['jfm','fm','amj','jas','ond','on','ann']
+        env['YR_AVG_FRST'] = str((int(env['ENDYR_CONT']) - int(env['YRS_TO_AVG'])) + 1)
         env['YR_AVG_LAST'] = env['ENDYR_CONT']
         env['VAR_NAMES'] =  env['VAR_NAME_TYPE_CONT'] 
         env['YR1'] = env['BEGYR_CONT']
         env['YR2'] = env['ENDYR_CONT']
+        env['YR1_DIFF'] = env['BEGYR_DIFF']
+        env['YR2_DIFF'] = env['ENDYR_DIFF']
         env['PRE_PROC_ROOT_CONT'] = env['PATH_CLIMO_CONT']
+        env['PRE_PROC_ROOT_DIFF'] = env['PATH_CLIMO_DIFF']
 
         # Link obs files into the climo directory
         if (scomm.is_manager()):

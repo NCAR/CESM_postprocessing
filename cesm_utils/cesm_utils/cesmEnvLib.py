@@ -86,6 +86,7 @@ def setXmlEnv(indict):
   indict (dictionary) - id=value pairs used to set environment variables
   """
   for k,v in indict.iteritems():
+##    print('setXMLenv debug: key = {0}, value = {1}'.format(k,v))
     os.environ[k] = v
 
 

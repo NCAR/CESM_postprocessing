@@ -551,8 +551,7 @@
 	     valid_values=""
 	     value="$CNTRLCASE.pop.h.RHO.mavg_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc"
 	     group="control_case_options"
-	     desc="This environment variable is set to null unless the plot_mod OCNDIAG_MVC_PM_MLD=TRUE (mixed layer depth plots) in which case, it is set to the same value as $CNTRLCASE.pop.h.RHO.mav\
-		   g_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc"
+	     desc="This environment variable is set to null unless the plot_mod OCNDIAG_MVC_PM_MLD=TRUE (mixed layer depth plots) in which case, it is set to the same value as $CNTRLCASE.pop.h.RHO.mavg_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc"
 	     ></entry>
 
       <entry id="OCNDIAG_CNTRLCASE_INPUT_TSERIES"

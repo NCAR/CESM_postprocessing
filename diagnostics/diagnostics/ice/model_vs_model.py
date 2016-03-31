@@ -76,9 +76,9 @@ class modelVsModel(IceDiagnostic):
         env['VAR_NAME_NEW'] = env['VAR_NAME_TYPE_CONT']
         env['PATH_PREV'] = env['CLIMO_DIFF']
         env['PATH_NEW'] = env['CLIMO_CONT']
-        env['PREV_YR_AVG_FRST'] = (int(env['ENDYR_DIFF']) - int(env['YRS_TO_AVG'])) + 1
+        env['PREV_YR_AVG_FRST'] = str((int(env['ENDYR_DIFF']) - int(env['YRS_TO_AVG'])) + 1)
         env['PREV_YR_AVG_LAST'] = env['ENDYR_DIFF']
-        env['NEW_YR_AVG_FRST'] = (int(env['ENDYR_CONT']) - int(env['YRS_TO_AVG'])) + 1
+        env['NEW_YR_AVG_FRST'] = str((int(env['ENDYR_CONT']) - int(env['YRS_TO_AVG'])) + 1)
         env['NEW_YR_AVG_LAST'] = env['ENDYR_CONT']
         env['YR1'] = env['BEGYR_CONT']
         env['YR2'] = env['ENDYR_CONT'] 

@@ -121,7 +121,7 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     debugMsg('envDict after readXML = {0}'.format(envDict), header=True, verbosity=2)
 
     # add the os.environ['PATH'] to the envDict['PATH']
-    envDict['ICEDIAG_PATH'] = os.pathsep + os.environ['PATH']
+    envDict['ICEDIAG_PATH'] = str(os.pathsep + os.environ['PATH'])
 
     # strip the ICEDIAG_ prefix from the envDict entries before setting the 
     # enviroment to allow for compatibility with all the diag routine calls
@@ -253,21 +253,24 @@ def main(options, main_comm, debugMsg):
             diag = ice_diags_factory.iceDiagnosticsFactory(requested_diag,envDict)
 
             # check the prerequisites for the diagnostics types
-            debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
-            
-            #if lmaster:
-            envDict = diag.check_prerequisites(envDict, inter_comm)
+            if lmaster:
+                debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
 
+            envDict = diag.check_prerequisites(envDict, inter_comm)
             inter_comm.sync()
 
-            ## broadcast the envDict
-            #envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+            # broadcast the envDict
+            envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
          
             # set the shell env using the values set in the XML and read into the envDict across all tasks
-            #cesmEnvLib.setXmlEnv(envDict)
+            cesmEnvLib.setXmlEnv(envDict)
+            inter_comm.sync()
 
-            debugMsg('inter_comm = {0}'.format(inter_comm))
+            if lmaster:
+                debugMsg('inter_comm = {0}'.format(inter_comm))
+
             diag.run_diagnostics(envDict, inter_comm)
+            inter_comm.sync()
             
         except ice_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.

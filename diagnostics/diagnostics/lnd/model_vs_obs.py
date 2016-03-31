@@ -74,6 +74,7 @@ class modelVsObs(LandDiagnostic):
         env['OBS_DATA']       = env['OBS_HOME']
         env['INPUT_FILES']    = env['POSTPROCESS_PATH']+'/lnd_diag/inputFiles/'
         env['DIAG_RESOURCES'] = env['POSTPROCESS_PATH']+'/lnd_diag/resources/'
+        env['RUNTYPE'] = 'model-obs'
 
         # Create variable files
         if scomm.is_manager():

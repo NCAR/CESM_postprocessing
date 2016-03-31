@@ -63,7 +63,8 @@ class modelVsModel(LandDiagnostic):
         #diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
         # Set some new env variables
-        #env['WKDIR'] =  env['DIAG_BASE']+'/diag/'+env['caseid_1']+'-'+env['caseid_2']+'/'
+## ASB - uncommented to see if parallel diags will work...
+        env['WKDIR'] =  env['DIAG_BASE']+'/diag/'+env['caseid_1']+'-'+env['caseid_2']+'/'
         env['WORKDIR'] = env['WKDIR']
         if scomm.is_manager():
             if not os.path.exists(env['WKDIR']):
@@ -72,6 +73,7 @@ class modelVsModel(LandDiagnostic):
         env['OBS_DATA']       = env['OBS_HOME']
         env['INPUT_FILES']    = env['POSTPROCESS_PATH']+'/lnd_diag/inputFiles/'
         env['DIAG_RESOURCES'] = env['POSTPROCESS_PATH']+'/lnd_diag/resources/'
+        env['RUNTYPE'] = 'model1-model2'
 
         # Create variable files
         if scomm.is_manager():
@@ -170,7 +172,22 @@ class modelVsModel(LandDiagnostic):
                     for img in imgs:
                         new_fn = set_dir + '/' + os.path.basename(img)
                         os.rename(img,new_fn)
-            
+                # Copy the set1Diff and set1Anom plots to set_1 webdir
+                if n == '1':
+                    glob_string = web_dir+'/set1Diff'+'_*'
+                    imgs = glob.glob(glob_string)
+                    if len(imgs) > 0:
+                        for img in imgs:
+                            new_fn = set_dir + '/' + os.path.basename(img)
+                            os.rename(img,new_fn)
+
+                    glob_string = web_dir+'/set1Anom'+'_*'
+                    imgs = glob.glob(glob_string)
+                    if len(imgs) > 0:
+                        for img in imgs:
+                            new_fn = set_dir + '/' + os.path.basename(img)
+                            os.rename(img,new_fn)
+
             env['WEB_DIR'] = web_dir
             shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/shared/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
             web_script_1 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_create_webpage.pl'
