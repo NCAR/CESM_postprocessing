@@ -189,7 +189,26 @@ class modelVsModel(LandDiagnostic):
                             os.rename(img,new_fn)
 
             env['WEB_DIR'] = web_dir
-            shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/shared/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
+##            shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/shared/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
+            shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/inputFiles/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
+
+            if n == '9':
+                web_script = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_statTable.pl'
+                rc2, err_msg = cesmEnvLib.checkFile(web_script,'read')
+                if rc2:
+                    try:
+                        pipe = subprocess.Popen(['perl {0}'.format(web_script)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
+                        output = pipe.communicate()[0]
+                        print(output)
+                        while pipe.poll() is None:
+                            time.sleep(0.5)
+                    except OSError as e:
+                        print('WARNING',e.errno,e.strerror)
+                else:
+                    print('{0}... {1} file not found'.format(err_msg,web_script_2))
+
+
+
             web_script_1 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_create_webpage.pl'
             web_script_2 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_lookupTable.pl'
 

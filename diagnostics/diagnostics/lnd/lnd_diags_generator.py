@@ -320,18 +320,23 @@ def main(options, main_comm, debugMsg):
             diag = lnd_diags_factory.landDiagnosticsFactory(requested_diag,envDict)
 
             # check the prerequisites for the diagnostics types
-            debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
+            if lmaster:
+                debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
             
             #if lmaster:
             envDict = diag.check_prerequisites(envDict, inter_comm)
-
             inter_comm.sync()
 
             ## broadcast the envDict
-            #envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+            envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
          
             # set the shell env using the values set in the XML and read into the envDict across all tasks
-            #cesmEnvLib.setXmlEnv(envDict)
+##            cesmEnvLib.setXmlEnv(envDict)
+
+            if lmaster:
+                for k,v in envDict.iteritems():
+                    if not isinstance(v, basestring):
+                        print('lnd_diags_generator - envDict: key = {0}, value = {1}'.format(k,v))
 
             debugMsg('inter_comm = {0}'.format(inter_comm))
             diag.run_diagnostics(envDict, inter_comm)

@@ -6,6 +6,7 @@
 from lnd_diags_plot_bc import UnknownPlotType
 import set_1_lnd
 import set_1DiffPlot_lnd
+import set_1AnomPlot_lnd
 import set_2_lnd
 import set_2_seas_lnd
 import set_3_lnd
@@ -30,6 +31,7 @@ def LandDiagnosticPlotFactory(plot_type,env):
         plot_set['set_1'] = set_1_lnd.set_1(env)
         if (env['MODEL_VS_MODEL'] == 'True'):
             plot_set['set_1DiffPlot_lnd'] = set_1DiffPlot_lnd.set_1DiffPlot(env)
+            plot_set['set_1AnomPlot_lnd'] = set_1AnomPlot_lnd.set_1AnomPlot(env)
     elif plot_type == "set_2":
         plot_set['set_2'] = set_2_lnd.set_2(env)
        # if (env['MODEL_VS_MODEL'] == 'True'):

@@ -88,7 +88,6 @@ class modelVsModel(IceDiagnostic):
         env['PRE_PROC_ROOT_DIFF'] = env['PATH_CLIMO_DIFF']
         env['PATH_PLOT']= env['PATH_CLIMO_CONT']
 
-
         # Link obs files into the climo directory
         if (scomm.is_manager()):
             # SSMI

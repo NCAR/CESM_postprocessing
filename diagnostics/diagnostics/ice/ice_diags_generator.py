@@ -289,7 +289,8 @@ def main(options, main_comm, debugMsg):
 
 if __name__ == "__main__":
     # initialize simplecomm object
-    main_comm = simplecomm.create_comm(serial=False)
+##    main_comm = simplecomm.create_comm(serial=False)
+    main_comm = simplecomm.create_comm(serial=True)
 
     # get commandline options
     options = commandline_options()

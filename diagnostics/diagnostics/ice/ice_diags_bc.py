@@ -60,6 +60,12 @@ class IceDiagnostic(object):
         # create symbolic links between the old and new workdir and get the real names of the files
         old_workdir = env['PATH_CLIMO_'+t]+env['CASE_TO_'+t]+'.'+str(avg_BEGYR)+'-'+env['ENDYR_'+t]
         env['PATH_CLIMO_'+t] = workdir
+
+        print('calling name = {0}'.format(self._name))
+        print('subdir = {0}'.format(subdir))
+        print('workdir = {0}'.format(workdir))
+        print('old_workdir = {0}'.format(old_workdir))
+
         # Add links to the new wkrdir that use the expected file names (existing climos have dates, the NCL do not like dates)
         if (scomm.is_manager()):
             climo_files = glob.glob(old_workdir+'/*.nc') 
@@ -86,14 +92,18 @@ class IceDiagnostic(object):
                         s = None
                     if s is not None:
                         new_fn = workdir + '/' + s + '_avg_' + str(avg_BEGYR).zfill(4) + '-' + env['ENDYR_'+t].zfill(4) + '.nc' 
+                        print('1. ice_diags_bc.py s = {0}: new_fn = {1}'.format(s, new_fn))
                     else:
                         new_fn = workdir + '/' +path_split[-1] # Take file name and add it to new path
+                        print('2. ice_diags_bc.py: new_fn = {0}'.format(new_fn))
                 else:
                     new_fn = workdir + '/' + os.path.basename(climo_file)
+                    print('3. ice_diags_bc.py: new_fn = {0}'.format(new_fn))
+
+
                 rc1, err_msg1 = cesmEnvLib.checkFile(new_fn, 'read')
                 if not rc1:
                     os.symlink(climo_file,new_fn)
-
         return env
 
     def check_prerequisites(self, env, scomm):
