@@ -114,7 +114,7 @@ class CplLog(OceanDiagnosticPlot):
             plot_tuple_list.append(plot_tuple)
 
             # create the ascii file link
-            asc_file = '{0}.{1}'.format(self._expectedPlots[i], 'asc')
+            asc_file = '{0}.{1}'.format(self._expectedPlots[i], 'txt')
             rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, asc_file), 'read' )
             if not rc:
                 plot_tuple = (i+1, 'table', '{0} - Error'.format(asc_file))

@@ -456,9 +456,17 @@
 	     ></entry>
     </group>
 
-    <group name="model_case_options_averager">
+    <group name="model_case_options_averager - OPTIONS NOT YET IMPLIMENTED">
       <order>4</order>
       <comment>Environment variable settings for model case option for the pyAverager tool.</comment>
+
+      <entry id="OCNDIAG_PYAVG_MODELCASE_VARLIST"
+	     type="char"
+	     valid_values=""
+	     value=""
+	     group="model_case_options_averager"
+	     desc="Case pyAverager variable list to include in climatology files."
+	     ></entry>
 
     </group>
 
@@ -564,9 +572,17 @@
     </group>
 
 
-    <group name="control_case_options_averager">
+    <group name="control_case_options_averager  - OPTIONS NOT YET IMPLIMENTED">
       <order>6</order>
       <comment>Environment variable settings for control case option for the pyAverager tool.</comment>
+
+      <entry id="OCNDIAG_PYAVG_CNTRLCASE_VARLIST"
+	     type="char"
+	     valid_values=""
+	     value=""
+	     group="model_case_options_averager"
+	     desc="Case pyAverager variable list to include in climatology files."
+	     ></entry>
 
     </group>
 
@@ -580,7 +596,7 @@
 	     valid_values=""
 	     value="1"
 	     group="timeseries_options"
-	     desc="Model start year for timeseries diagnostics is used to match history time-slice or variable time-series year designations to begin accumulating averages and calculating diagnostic values. If value not set, then defaults to model run job start year as determined by the first monthly history file name."
+	     desc="Model start year for timeseries diagnostics. If not set, defaults to OCNDIAG_YEAR0."
 	     ></entry>
 
       <entry id="OCNDIAG_TSERIES_YEAR1"
@@ -588,7 +604,7 @@
 	     valid_values=""
 	     value="10"
 	     group="timeseries_options"
-	     desc="Model end year for timeseries diagnostics is used to match history time-slice or variable time-series year designations to end accumulating averages and calculating diagnostic values. If value not set, then defaults to model run job end year as determined by the last monthly history file name."
+	     desc="Model end year for timeseries diagnostics. If not set, default to OCNDIAG_YEAR1."
 	     ></entry>
 
       <entry id="OCNDIAG_MOC0"
