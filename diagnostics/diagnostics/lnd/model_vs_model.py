@@ -106,12 +106,15 @@ class modelVsModel(LandDiagnostic):
         local_requested_plots = list()
         local_html_list = list()
 
-        # all the plot module XML vars start with 'set_'  need to strip that off
+        # all the plot module XML vars start with 'set_' 
         for key, value in env.iteritems():
             if ("set_" in key and value == 'True'):
                 requested_plot_sets.append(key)
         
         scomm.sync()
+
+        if scomm.is_manager():
+            print('DEBUG model_vs_model requested_plot_sets = {0}'.format(requested_plot_sets))
 
         # partition requested plots to all tasks
         # first, create plotting classes and get the number of plots each will created 
@@ -138,12 +141,17 @@ class modelVsModel(LandDiagnostic):
             timer.start(str(scomm.get_rank())+plot_set)
             plot_class = requested_plots[plot_set]
             # set all env variables (global and particular to this plot call
+
+            print('model vs. model - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
             plot_class.check_prerequisites(env)
+
             # Stringify the env dictionary
             for name,value in plot_class.plot_env.iteritems():
                 plot_class.plot_env[name] = str(value)
+
             # call script to create plots
             for script in plot_class.ncl_scripts:
+                print('model vs. obs - Generating plots for {0} on rank {1} with script {2}'.format(plot.__class__.__name__, scomm.get_rank(),script))
                 diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
             timer.stop(str(scomm.get_rank())+plot_set) 
         timer.stop(str(scomm.get_rank())+"ncl total time on task")

@@ -84,6 +84,7 @@ class LandDiagnostic(object):
                                 os.symlink(climo_file,new_fn)
         env['DIAG_BASE'] = env['PTMPDIR_1'] 
         env['PTMPDIR_'+t] = '{0}/climo/{1}/{2}'.format(env['PTMPDIR_'+t], env['caseid_'+t], subdir)
+
         return env
 
     def check_prerequisites(self, env, scomm):

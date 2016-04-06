@@ -90,7 +90,7 @@ class modelVsObs(LandDiagnostic):
                 except OSError as e:
                     print('WARNING',e.errno,e.strerror)
             else:
-                print('{0}... {1} file not found'.format(err_msg,web_script_1))
+                print('{0}... {1} file not found'.format(err_msg,script))
 
         scomm.sync()
         return env
@@ -106,11 +106,14 @@ class modelVsObs(LandDiagnostic):
         local_requested_plots = list()
         local_html_list = list()
 
-        # all the plot module XML vars start with 'set_'  need to strip that off
+        # all the plot module XML vars start with 'set_' 
         for key, value in env.iteritems():
             if ("set_" in key and value == 'True'):
                 requested_plot_sets.append(key)
         scomm.sync()
+
+        if scomm.is_manager():
+            print('DEBUG model_vs_obs requested_plot_sets = {0}'.format(requested_plot_sets))
 
         # partition requested plots to all tasks
         # first, create plotting classes and get the number of plots each will created 
@@ -128,6 +131,7 @@ class modelVsObs(LandDiagnostic):
         # partition based on the number of plots each set will create
         #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)  
         local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
+        scomm.sync()
 
         timer = timekeeper.TimeKeeper()
         # loop over local plot lists - set env and then run plotting script         
@@ -137,13 +141,19 @@ class modelVsObs(LandDiagnostic):
             timer.start(str(scomm.get_rank())+plot_set)
             plot_class = requested_plots[plot_set]
             # set all env variables (global and particular to this plot call
+
+            print('DEBUG model vs. obs - Checking prerequisite for {0} on rank {1}'.format(plot_class.__class__.__name__, scomm.get_rank()))
             plot_class.check_prerequisites(env)
+
             # Stringify the env dictionary
             for name,value in plot_class.plot_env.iteritems():
                 plot_class.plot_env[name] = str(value)
+
             # call script to create plots
             for script in plot_class.ncl_scripts:
+                print('DEBUG model vs. obs - Generating plots for {0} on rank {1} with script {2}'.format(plot_class.__class__.__name__, scomm.get_rank(),script))
                 diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
+
             timer.stop(str(scomm.get_rank())+plot_set)
         timer.stop(str(scomm.get_rank())+"ncl total time on task") 
 
@@ -182,6 +192,9 @@ class modelVsObs(LandDiagnostic):
             # lnd_create_webpage.pl call
             rc1, err_msg = cesmEnvLib.checkFile(web_script_1,'read')
             if rc1:
+                print('DEBUG env before call to web_script_1 = {0}'.format(web_script_1))
+                for k,v in env.iteritems():
+                    print('DEBUG env : key = {0}, value = {1}'.format(k,v))
                 try:
                     pipe = subprocess.Popen(['perl {0}'.format(web_script_1)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
                     output = pipe.communicate()[0]

@@ -29,7 +29,7 @@
       </component>
       <component name="ice">
 	<averages_pes>124</averages_pes>
-	<diagnostics_pes>16</diagnostics_pes>
+	<diagnostics_pes>8</diagnostics_pes>
 	<obs_root>/glade/p/cesm</obs_root>
       </component>
       <component name="lnd">

@@ -283,14 +283,15 @@ def main(options, main_comm, debugMsg):
         groups = list()
         for g in range(0,num_of_diags):
             groups.append(g)
-        debugMsg('global_rank {0}, temp_color {1}, #of groups(diag types) {2}, groups {3}, diag_list {4}'.format(grank, temp_color, num_of_diags, groups, diag_list))
+        debugMsg('global_rank {0}, temp_color {1}, #of groups(diag types) {2}, groups {3}, diag_list {4}'.format(grank, temp_color, num_of_diags, groups, diag_list), header=True, verbosity=2)
         group = groups[temp_color]
         inter_comm, multi_comm = main_comm.divide(group)
         color = inter_comm.get_color()
         lsize = inter_comm.get_size()
         lrank = inter_comm.get_rank()
         lmaster = inter_comm.is_manager()
-        debugMsg('color {0}, lsize {1}, lrank {2}, lmaster {3}'.format(color, lsize, lrank, lmaster))
+        if lmaster:
+            debugMsg('color {0}, lsize {1}, lrank {2}, lmaster {3}'.format(color, lsize, lrank, lmaster), header=True, verbosity=2)
 
         # partition the diag_list between communicators
         DIAG_LIST_TAG = 10
@@ -300,7 +301,8 @@ def main(options, main_comm, debugMsg):
                 diags_send = inter_comm.ration(data=local_diag_list, tag=DIAG_LIST_TAG)
         else:
             local_diag_list = inter_comm.ration(tag=DIAG_LIST_TAG)
-        debugMsg('local_diag_list {0}',format(local_diag_list))
+        if lmaster:
+            debugMsg('local_diag_list {0}',format(local_diag_list), header=True)
     else:
         inter_comm = main_comm
         lmaster = main_comm.is_manager()
@@ -311,7 +313,8 @@ def main(options, main_comm, debugMsg):
     inter_comm.sync()
     main_comm.sync()    
     
-    debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank))
+    if lmaster:
+        debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank), header=True, verbosity=2)
     inter_comm.sync()
 
     # loop through the local_diag_list list
@@ -331,14 +334,14 @@ def main(options, main_comm, debugMsg):
             envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
          
             # set the shell env using the values set in the XML and read into the envDict across all tasks
-##            cesmEnvLib.setXmlEnv(envDict)
+            cesmEnvLib.setXmlEnv(envDict)
 
             if lmaster:
                 for k,v in envDict.iteritems():
                     if not isinstance(v, basestring):
                         print('lnd_diags_generator - envDict: key = {0}, value = {1}'.format(k,v))
 
-            debugMsg('inter_comm = {0}'.format(inter_comm))
+            debugMsg('inter_comm size = {0}'.format(inter_comm.get_size()), header=True, verbosity=2)
             diag.run_diagnostics(envDict, inter_comm)
             
         except lnd_diags_bc.RecoverableError as e:
