@@ -122,6 +122,7 @@ class modelVsObs(LandDiagnostic):
         #plots_weights = []
         for plot_set in requested_plot_sets:
             requested_plots.update(lnd_diags_plot_factory.LandDiagnosticPlotFactory(plot_set,env))
+
         #for plot_id,plot_class in requested_plots.iteritems():
         #    if hasattr(plot_class, 'weight'):
         #        factor = plot_class.weight
@@ -130,29 +131,29 @@ class modelVsObs(LandDiagnostic):
         #    plots_weights.append((plot_id,len(plot_class.expectedPlots)*factor))
         # partition based on the number of plots each set will create
         #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)  
+
         local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
         scomm.sync()
 
         timer = timekeeper.TimeKeeper()
         # loop over local plot lists - set env and then run plotting script         
-        #for plot_id,plot_class in local_plot_list.interitems():
         timer.start(str(scomm.get_rank())+"ncl total time on task")
+
         for plot_set in local_plot_list:
             timer.start(str(scomm.get_rank())+plot_set)
             plot_class = requested_plots[plot_set]
-            # set all env variables (global and particular to this plot call
 
             print('DEBUG model vs. obs - Checking prerequisite for {0} on rank {1}'.format(plot_class.__class__.__name__, scomm.get_rank()))
             plot_class.check_prerequisites(env)
 
             # Stringify the env dictionary
-            for name,value in plot_class.plot_env.iteritems():
+            for name, value in plot_class.plot_env.iteritems():
                 plot_class.plot_env[name] = str(value)
 
             # call script to create plots
             for script in plot_class.ncl_scripts:
                 print('DEBUG model vs. obs - Generating plots for {0} on rank {1} with script {2}'.format(plot_class.__class__.__name__, scomm.get_rank(),script))
-                diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
+                diagUtilsLib.generate_ncl_plots(plot_class.plot_env, script)
 
             timer.stop(str(scomm.get_rank())+plot_set)
         timer.stop(str(scomm.get_rank())+"ncl total time on task") 
@@ -189,20 +190,29 @@ class modelVsObs(LandDiagnostic):
             web_script_2 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_lookupTable.pl'
 
             print('Creating Web Pages')
+
+            # set the shell environment
+            cesmEnvLib.setXmlEnv(env)
+
             # lnd_create_webpage.pl call
             rc1, err_msg = cesmEnvLib.checkFile(web_script_1,'read')
             if rc1:
-                print('DEBUG env before call to web_script_1 = {0}'.format(web_script_1))
-                for k,v in env.iteritems():
-                    print('DEBUG env : key = {0}, value = {1}'.format(k,v))
+##                print('DEBUG env before call to web_script_1 = {0}'.format(web_script_1))
+##                for k,v in env.iteritems():
+##                    print('DEBUG env : key = {0}, value = {1}'.format(k,v))
                 try:
-                    pipe = subprocess.Popen(['perl {0}'.format(web_script_1)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-                    output = pipe.communicate()[0]
-                    print(output)
-                    while pipe.poll() is None:
-                        time.sleep(0.5)
-                except OSError as e:
-                    print('WARNING',e.errno,e.strerror)
+##                    pipe = subprocess.Popen(['perl {0}'.format(web_script_1)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
+##                    output = pipe.communicate()[0]
+##                    print(output)
+##                    while pipe.poll() is None:
+##                        time.sleep(0.5)
+##                except OSError as e:
+##                    print('WARNING',e.errno,e.strerror)
+                    subprocess.check_call(web_script_1)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} error executing command:'.format(web_script_1))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_1))
 
@@ -210,17 +220,23 @@ class modelVsObs(LandDiagnostic):
             rc2, err_msg = cesmEnvLib.checkFile(web_script_2,'read')
             if rc2:
                 try:
-                    pipe = subprocess.Popen(['perl {0}'.format(web_script_2)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-                    output = pipe.communicate()[0]
-                    print(output)
-                    while pipe.poll() is None:
-                        time.sleep(0.5)
-                except OSError as e:
-                    print('WARNING',e.errno,e.strerror)
+##                    pipe = subprocess.Popen(['perl {0}'.format(web_script_2)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
+##                    output = pipe.communicate()[0]
+##                    print(output)
+##                    while pipe.poll() is None:
+##                        time.sleep(0.5)
+                    subprocess.check_call(web_script_2)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} error executing command:'.format(web_script_2))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
+
+##                except OSError as e:
+##                    print('WARNING',e.errno,e.strerror)
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
-            if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
+            if len(env['WEB_DIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
                 diagUtilsLib.copy_html_files(env)
             else:

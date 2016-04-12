@@ -63,7 +63,6 @@ class modelVsModel(LandDiagnostic):
         #diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
         # Set some new env variables
-## ASB - uncommented to see if parallel diags will work...
         env['WKDIR'] =  env['DIAG_BASE']+'/diag/'+env['caseid_1']+'-'+env['caseid_2']+'/'
         env['WORKDIR'] = env['WKDIR']
         if scomm.is_manager():
@@ -92,7 +91,6 @@ class modelVsModel(LandDiagnostic):
                 print('{0}... {1} file not found'.format(err_msg,web_script_1))
 
         scomm.sync()
-
         return env
 
     def run_diagnostics(self, env, scomm):
@@ -110,7 +108,6 @@ class modelVsModel(LandDiagnostic):
         for key, value in env.iteritems():
             if ("set_" in key and value == 'True'):
                 requested_plot_sets.append(key)
-        
         scomm.sync()
 
         if scomm.is_manager():
@@ -123,6 +120,7 @@ class modelVsModel(LandDiagnostic):
         #plots_weights = []
         for plot_set in requested_plot_sets:
             requested_plots.update(lnd_diags_plot_factory.LandDiagnosticPlotFactory(plot_set,env))
+
         #for plot_id,plot_class in requested_plots.iteritems(): 
         #    if hasattr(plot_class, 'weight'):
         #        factor = plot_class.weight
@@ -131,18 +129,24 @@ class modelVsModel(LandDiagnostic):
         #    plots_weights.append((plot_id,len(plot_class.expectedPlots)*factor))
         # partition based on the number of plots each set will create
         #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)  
+
+        if scomm.is_manager():
+            print('DEBUG model_vs_model requested_plots.keys = {0}'.format(requested_plots.keys()))
+
         local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
+        scomm.sync()
 
         timer = timekeeper.TimeKeeper()
+
         # loop over local plot lists - set env and then run plotting script         
-        #for plot_id,plot_class in local_plot_list.interitems():
         timer.start(str(scomm.get_rank())+"ncl total time on task")
         for plot_set in local_plot_list:
+
             timer.start(str(scomm.get_rank())+plot_set)
             plot_class = requested_plots[plot_set]
-            # set all env variables (global and particular to this plot call
 
-            print('model vs. model - Checking prerequisite for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
+            # set all env variables (global and particular to this plot call
+            print('model vs. model - Checking prerequisite for {0} on rank {1}'.format(plot_class.__class__.__name__, scomm.get_rank()))
             plot_class.check_prerequisites(env)
 
             # Stringify the env dictionary
@@ -151,10 +155,12 @@ class modelVsModel(LandDiagnostic):
 
             # call script to create plots
             for script in plot_class.ncl_scripts:
-                print('model vs. obs - Generating plots for {0} on rank {1} with script {2}'.format(plot.__class__.__name__, scomm.get_rank(),script))
+                print('model vs. model - Generating plots for {0} on rank {1} with script {2}'.format(plot_class.__class__.__name__, scomm.get_rank(),script))
                 diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
+
             timer.stop(str(scomm.get_rank())+plot_set) 
         timer.stop(str(scomm.get_rank())+"ncl total time on task")
+
         scomm.sync() 
         print(timer.get_all_times())
         #w = 0
@@ -180,7 +186,7 @@ class modelVsModel(LandDiagnostic):
                     for img in imgs:
                         new_fn = set_dir + '/' + os.path.basename(img)
                         os.rename(img,new_fn)
-                # Copy the set1Diff and set1Anom plots to set_1 webdir
+                # Copy the set1Diff and set1Anom plots to set_1 web dir
                 if n == '1':
                     glob_string = web_dir+'/set1Diff'+'_*'
                     imgs = glob.glob(glob_string)
@@ -205,33 +211,54 @@ class modelVsModel(LandDiagnostic):
                 rc2, err_msg = cesmEnvLib.checkFile(web_script,'read')
                 if rc2:
                     try:
-                        pipe = subprocess.Popen(['perl {0}'.format(web_script)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-                        output = pipe.communicate()[0]
-                        print(output)
-                        while pipe.poll() is None:
-                            time.sleep(0.5)
-                    except OSError as e:
-                        print('WARNING',e.errno,e.strerror)
-                else:
-                    print('{0}... {1} file not found'.format(err_msg,web_script_2))
+##                        pipe = subprocess.Popen(['perl {0}'.format(web_script)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
+##                        output = pipe.communicate()[0]
+##                        print(output)
+##                        while pipe.poll() is None:
+##                            time.sleep(0.5)
+##                    except OSError as e:
+##                        print('WARNING',e.errno,e.strerror)
 
+                        subprocess.check_call(web_script)
+                    except subprocess.CalledProcessError as e:
+                        print('WARNING: {0} error executing command:'.format(web_script))
+                        print('    {0}'.format(e.cmd))
+                        print('    rc = {0}'.format(e.returncode))
+                else:
+                    print('{0}... {1} file not found'.format(err_msg,web_script))
+
+                # copy the set9_statTable.html to the set9 subdir
+                set9_statTable = web_dir + '/set9_statTable.html'
+                rc2, err_msg = cesmEnvLib.checkFile(set9_statTable,'read')
+                if rc2:
+                    new_fn = web_dir + '/set9/' + os.path.basename(set9_statTable)
+                    try:
+                        os.rename(set9_statTable, new_fn)
+                    except os.OSError as e:
+                        print('WARNING: rename error for file {0}'.format(set9_statTable))
+                        print('    rc = {0}'.format(e.returncode))
+                else:
+                    print('{0}... {1} file not found'.format(err_msg,set9_statTable))
 
 
             web_script_1 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_create_webpage.pl'
             web_script_2 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_lookupTable.pl'
 
             print('Creating Web Pages')
+
+            # set the shell environment
+            cesmEnvLib.setXmlEnv(env)
+
+
             # lnd_create_webpage.pl call
             rc1, err_msg = cesmEnvLib.checkFile(web_script_1,'read')
             if rc1:
                 try:
-                    pipe = subprocess.Popen(['perl {0}'.format(web_script_1)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-                    output = pipe.communicate()[0]
-                    print(output)
-                    while pipe.poll() is None:
-                        time.sleep(0.5)
-                except OSError as e:
-                    print('WARNING',e.errno,e.strerror)
+                    subprocess.check_call(web_script_1)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} error executing command:'.format(web_script_1))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_1))
 
@@ -239,22 +266,20 @@ class modelVsModel(LandDiagnostic):
             rc2, err_msg = cesmEnvLib.checkFile(web_script_2,'read')
             if rc2:
                 try:
-                    pipe = subprocess.Popen(['perl {0}'.format(web_script_2)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-                    output = pipe.communicate()[0]
-                    print(output)
-                    while pipe.poll() is None:
-                        time.sleep(0.5)
-                except OSError as e:
-                    print('WARNING',e.errno,e.strerror)
+                    subprocess.check_call(web_script_2)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} error executing command:'.format(web_script_2))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
-            if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
+            if len(env['WEB_DIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
                 # copy over the files to a remote web server and webdir 
                 diagUtilsLib.copy_html_files(env)
             else:
                 print('Web files successfully created')
-                print('The env_diags_lnd.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
+                print('The env_diags_lnd.xml variable WEB_DIR, WEBHOST, and WEBLOGIN were not set.')
                 print('You will need to manually copy the web files to a remote web server.')
 
             print('*******************************************************************************')
