@@ -40,7 +40,7 @@ class MOCFields(OceanDiagnosticPlot):
         super(MOCFields, self).__init__()
         self._expectedPlots = [ 'MOC', 'MOC_TOTAL', 'MOC_EI', 'HT', 'FWT' ]
         self._name = 'Meridional Overturning Circulation - Meridional Heat & Freshwater Transports'
-        self._shortname = 'MOC'
+        self._shortname = 'PM_MOC'
         self._template_file = 'moc_fields.tmpl'
         self._ncl = list()
 
@@ -95,7 +95,7 @@ class MOCFields(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class MOCFields_obs(MOCFields):
 

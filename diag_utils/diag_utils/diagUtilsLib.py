@@ -254,7 +254,7 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     start_year, stop_year = checkXMLyears(hfstart_year, hfstop_year, rstart_year, rstop_year)
 
     return (start_year, stop_year, in_dir, htype, hfiles[0])
-
+            
 
 #=======================================================================
 # copy_html_files - scp files from workdir to remote directory 

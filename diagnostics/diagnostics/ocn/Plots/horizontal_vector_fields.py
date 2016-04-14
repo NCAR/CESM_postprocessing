@@ -44,7 +44,7 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
         self._labels = ['VELOCITY']
         self._name = 'Horizontal Vector Fields at Depth'
-        self._shortname = 'VECV'
+        self._shortname = 'PM_VECV'
         self._template_file = 'horizontal_vector_fields.tmpl'
         self._ncl = list()
 
@@ -109,7 +109,7 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class HorizontalVectorFields_obs(HorizontalVectorFields):
     def __init__(self):

@@ -222,18 +222,15 @@ class modelVsObsEcosys(OceanDiagnostic):
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
-            if (env['DOWEB'].upper() in ['T','TRUE']) and len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
-                # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env, 'model_vs_obs_ecosys')
-            else:
-                print('Model vs. Observations Ecosystme - Web files successfully created in directory:')
-                print('{0}'.format(env['WORKDIR']))
-                print('The env_diags_ocn.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
-                print('You will need to manually copy the web files to a remote web server')
-                print('using the copy_html utility.')
-
             print('*****************************************************************************************')
             print('Successfully completed generating ocean diagnostics model vs. observation ecosystem plots')
             print('*****************************************************************************************')
 
+        scomm.sync()
+
+        # append the web_dir location to the envDict
+        key = 'OCNDIAG_WEBDIR_{0}'.format(self._name)
+        envDict[key] = env['WORKDIR']
+
+        return env
 

@@ -184,7 +184,6 @@ class modelVsObs(LandDiagnostic):
                         new_fn = set_dir + '/' + os.path.basename(img)
                         os.rename(img,new_fn)
             env['WEB_DIR'] = web_dir
-##            shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/shared/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
             shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/inputFiles/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
             web_script_1 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_create_webpage.pl'
             web_script_2 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_lookupTable.pl'
@@ -197,17 +196,7 @@ class modelVsObs(LandDiagnostic):
             # lnd_create_webpage.pl call
             rc1, err_msg = cesmEnvLib.checkFile(web_script_1,'read')
             if rc1:
-##                print('DEBUG env before call to web_script_1 = {0}'.format(web_script_1))
-##                for k,v in env.iteritems():
-##                    print('DEBUG env : key = {0}, value = {1}'.format(k,v))
                 try:
-##                    pipe = subprocess.Popen(['perl {0}'.format(web_script_1)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-##                    output = pipe.communicate()[0]
-##                    print(output)
-##                    while pipe.poll() is None:
-##                        time.sleep(0.5)
-##                except OSError as e:
-##                    print('WARNING',e.errno,e.strerror)
                     subprocess.check_call(web_script_1)
                 except subprocess.CalledProcessError as e:
                     print('WARNING: {0} error executing command:'.format(web_script_1))
@@ -220,29 +209,13 @@ class modelVsObs(LandDiagnostic):
             rc2, err_msg = cesmEnvLib.checkFile(web_script_2,'read')
             if rc2:
                 try:
-##                    pipe = subprocess.Popen(['perl {0}'.format(web_script_2)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-##                    output = pipe.communicate()[0]
-##                    print(output)
-##                    while pipe.poll() is None:
-##                        time.sleep(0.5)
                     subprocess.check_call(web_script_2)
                 except subprocess.CalledProcessError as e:
                     print('WARNING: {0} error executing command:'.format(web_script_2))
                     print('    {0}'.format(e.cmd))
                     print('    rc = {0}'.format(e.returncode))
-
-##                except OSError as e:
-##                    print('WARNING',e.errno,e.strerror)
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
-
-            if len(env['WEB_DIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
-                # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env)
-            else:
-                print('Web files successfully created')
-                print('The env_diags_lnd.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
-                print('You will need to manually copy the web files to a remote web server.')
 
             print('*******************************************************************************')
             print('Successfully completed generating land diagnostics model vs. observation plots')
@@ -250,3 +223,8 @@ class modelVsObs(LandDiagnostic):
 
         scomm.sync()
 
+        # append the web_dir location to the envDict
+        key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
+        envDict[key] = env['WEB_DIR']
+
+        return env

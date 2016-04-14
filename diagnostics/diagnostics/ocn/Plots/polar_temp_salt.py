@@ -52,7 +52,7 @@ class PolarTempSalt(OceanDiagnosticPlot):
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
         self._labels = ['Arctic_TEMP','Arctic_SALT','Antarctic_TEMP','Antarctic_SALT']
         self._name = 'Polar Temperature and Salinity at Depth Levels'
-        self._shortname = 'KAPPAZ'
+        self._shortname = 'PM_POLARTS'
         self._template_file = 'diffusion_depth.tmpl'
         self._ncl = list()
 
@@ -118,7 +118,7 @@ class PolarTempSalt(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class PolarTempSalt_obs(PolarTempSalt):
     def __init__(self):

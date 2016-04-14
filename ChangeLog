@@ -6,6 +6,56 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: aliceb
+Date: 14 April 2016
+Model: postprocessing
+Version: postprocessing_20160414
+One-line: update ocn diag to place html plots in a user specified order on the
+index.html pag. Add timers into the *_diags_generator.py code for all components.
+Update the config_definition.xsd for all components.
+
+
+M       diag_utils/diag_utils/diagUtilsLib.py
+M       diagnostics/diagnostics/ocn/model_vs_control.py
+M       diagnostics/diagnostics/ocn/model_timeseries.py
+M       diagnostics/diagnostics/ocn/Plots/ocn_diags_plot_bc.py
+M       diagnostics/diagnostics/ocn/Plots/regional_area.py
+M       diagnostics/diagnostics/ocn/Plots/zonal_average_3d_fields.py
+M       diagnostics/diagnostics/ocn/Plots/western_boundary.py
+M       diagnostics/diagnostics/ocn/Plots/horizontal_vector_fields.py
+M       diagnostics/diagnostics/ocn/Plots/bolus_velocity.py
+M       diagnostics/diagnostics/ocn/Plots/moc_fields.py
+M       diagnostics/diagnostics/ocn/Plots/basin_averages.py
+M       diagnostics/diagnostics/ocn/Plots/diffusion_depth.py
+M       diagnostics/diagnostics/ocn/Plots/temp_salt_depth.py
+M       diagnostics/diagnostics/ocn/Plots/surface_flux_fields.py
+M       diagnostics/diagnostics/ocn/Plots/surface_fields.py
+M       diagnostics/diagnostics/ocn/Plots/passive_tracers_depth.py
+M       diagnostics/diagnostics/ocn/Plots/eulerian_velocity.py
+M       diagnostics/diagnostics/ocn/Plots/seasonal_cycle.py
+M       diagnostics/diagnostics/ocn/Plots/polar_temp_salt.py
+M       diagnostics/diagnostics/ocn/Plots/mixed_layer_depth.py
+M       diagnostics/diagnostics/ocn/Plots/equatorial_upperocean.py
+M       diagnostics/diagnostics/ocn/model_vs_obs.py
+M       diagnostics/diagnostics/ocn/ocn_diags_generator.py
+M       diagnostics/diagnostics/ocn/Config/config_definition.xsd
+M       diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
+M       diagnostics/diagnostics/ocn/model_vs_obs_ecosys.py
+M       diagnostics/diagnostics/ice/model_vs_model.py
+M       diagnostics/diagnostics/ice/model_vs_obs.py
+M       diagnostics/diagnostics/ice/ice_diags_generator.py
+M       diagnostics/diagnostics/ice/Config/config_definition.xsd
+M       diagnostics/diagnostics/ice/Config/config_diags_ice.xml
+M       diagnostics/diagnostics/atm/Config/config_definition.xsd
+M       diagnostics/diagnostics/atm/atm_diags_generator.py
+M       diagnostics/diagnostics/lnd/model_vs_model.py
+M       diagnostics/diagnostics/lnd/lnd_diags_generator.py
+M       diagnostics/diagnostics/lnd/model_vs_obs.py
+M       diagnostics/diagnostics/lnd/Config/config_diags_lnd.xml
+M       diagnostics/diagnostics/lnd/Config/config_definition.xsd
+
+================================================================================
+
+Originator: aliceb
 Date: 12 April 2016
 Model: postprocessing
 Version: postprocessing_20160412

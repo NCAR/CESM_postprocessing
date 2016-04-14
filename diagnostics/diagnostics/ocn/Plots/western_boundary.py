@@ -40,7 +40,7 @@ class WesternBoundary(OceanDiagnosticPlot):
         super(WesternBoundary, self).__init__()
         self._expectedPlots = [ 'DWBC' ]
         self._name = 'Western Boundary Currents'
-        self._shortname = 'DWBC'
+        self._shortname = 'PM_WBC'
         self._template_file = 'western_boundary.tmpl'
         self._ncl = list()
 
@@ -95,7 +95,7 @@ class WesternBoundary(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class WesternBoundary_obs(WesternBoundary):
 

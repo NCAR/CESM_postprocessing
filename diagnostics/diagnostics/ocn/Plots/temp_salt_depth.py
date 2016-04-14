@@ -45,7 +45,7 @@ class TempSaltDepth(OceanDiagnosticPlot):
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
         self._labels = ['TEMP','SALT']
         self._name = 'Temperature and Salinity at Depth Levels'
-        self._shortname = 'TSZ'
+        self._shortname = 'PM_TSZ'
         self._template_file = 'temp_salt_depth.tmpl'
         self._ncl = list()
 
@@ -110,7 +110,7 @@ class TempSaltDepth(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class TempSaltDepth_obs(TempSaltDepth):
 

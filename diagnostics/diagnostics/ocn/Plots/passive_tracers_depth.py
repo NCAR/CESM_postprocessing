@@ -44,7 +44,7 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
 
         self._labels = ['IAGE']
         self._name = 'Passive Tracers at Depth Levels'
-        self._shortname = 'PASSIVEZ'
+        self._shortname = 'PM_PASSIVEZ'
         self._template_file = 'passive_tracers_depth.tmpl'
         self._ncl = list()
 
@@ -109,7 +109,7 @@ class PassiveTracersDepth(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class PassiveTracersDepth_obs(PassiveTracersDepth):
 

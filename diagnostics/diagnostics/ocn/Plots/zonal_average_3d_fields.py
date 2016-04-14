@@ -46,7 +46,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         self._expectedPlots_Southern = [ 'TEMP_SOU_za', 'SALT_SOU_za', 'IAGE_SOU_za', 'KAPPA_ISOP_SOU_za', 'KAPPA_THIC_SOU_za' ]
         self._labels = ['Global','Atlantic','Pacific','Indian','Southern']
         self._name = '3D Fields, Zonally Averaged'
-        self._shortname = 'FLD3DZA'
+        self._shortname = 'PM_FLD3DZA'
         self._template_file = 'zonal_average_3d_fields.tmpl'
         self._ncl = list()
 
@@ -197,7 +197,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 
 class ZonalAverage3dFields_obs(ZonalAverage3dFields):

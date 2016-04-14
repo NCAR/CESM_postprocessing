@@ -203,7 +203,6 @@ class modelVsModel(LandDiagnostic):
                             os.rename(img,new_fn)
 
             env['WEB_DIR'] = web_dir
-##            shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/shared/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
             shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/inputFiles/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
 
             if n == '9':
@@ -211,14 +210,6 @@ class modelVsModel(LandDiagnostic):
                 rc2, err_msg = cesmEnvLib.checkFile(web_script,'read')
                 if rc2:
                     try:
-##                        pipe = subprocess.Popen(['perl {0}'.format(web_script)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-##                        output = pipe.communicate()[0]
-##                        print(output)
-##                        while pipe.poll() is None:
-##                            time.sleep(0.5)
-##                    except OSError as e:
-##                        print('WARNING',e.errno,e.strerror)
-
                         subprocess.check_call(web_script)
                     except subprocess.CalledProcessError as e:
                         print('WARNING: {0} error executing command:'.format(web_script))
@@ -249,7 +240,6 @@ class modelVsModel(LandDiagnostic):
             # set the shell environment
             cesmEnvLib.setXmlEnv(env)
 
-
             # lnd_create_webpage.pl call
             rc1, err_msg = cesmEnvLib.checkFile(web_script_1,'read')
             if rc1:
@@ -274,17 +264,16 @@ class modelVsModel(LandDiagnostic):
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
-            if len(env['WEB_DIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
-                # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env)
-            else:
-                print('Web files successfully created')
-                print('The env_diags_lnd.xml variable WEB_DIR, WEBHOST, and WEBLOGIN were not set.')
-                print('You will need to manually copy the web files to a remote web server.')
+            # append the web_dir location to the envDict
+            key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
+            envDict[key] = env['WEB_DIR']
 
             print('*******************************************************************************')
+            print('Run copy_html utility to copy web files and plots to a remote web server')
+            print('> {0}/copy_html'.format(env['CASEROOT']))
             print('Successfully completed generating land diagnostics model vs. model plots')
             print('*******************************************************************************')
             
         scomm.sync()
 
+        return env

@@ -41,7 +41,7 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         self._expectedPlots = [ 'mld1', 'mld2' ]
         self._webPlotsDict = { 'mld1' : 'MLD.125', 'mld2' : 'MLD.03' }
         self._name = 'Mixed Layer Depth Plots'
-        self._shortname = 'MLD'
+        self._shortname = 'PM_MLD'
         self._template_file = 'mixed_layer_depth.tmpl'
         self._ncl = list()
 
@@ -106,7 +106,7 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 
 class MixedLayerDepth_obs(MixedLayerDepth):

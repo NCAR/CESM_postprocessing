@@ -11,6 +11,7 @@ if sys.hexversion < 0x02070000:
     sys.exit(1)
 
 # import core python modules
+import collections
 import datetime
 import errno
 import glob
@@ -124,7 +125,6 @@ class modelVsControl(OceanDiagnostic):
         # setup some global variables
         requested_plots = list()
         local_requested_plots = list()
-        local_html_list = list()
 
         # define the templatePath for all tasks
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
@@ -187,49 +187,29 @@ class modelVsControl(OceanDiagnostic):
                 print('model vs. control - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
 
-                print('model vs. control - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
-                html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
-            
-                local_html_list.append(str(html))
-                #print('local_html_list = {0}'.format(local_html_list))
-
-            except ocn_diags_plot_bc.RecoverableError as e:
-                # catch all recoverable errors, print a message and continue.
-                print(e)
-                print("Skipped '{0}' and continuing!".format(request_plot))
             except RuntimeError as e:
                 # unrecoverable error, bail!
+                print("Skipped '{0}' and continuing!".format(request_plot))
                 print(e)
-                return 1
 
         scomm.sync()
 
-        # define a tag for the MPI collection of all local_html_list variables
-        html_msg_tag = 1
+        # initialize OrderedDict with plot_order list entries as key
+        html_order = collections.OrderedDict()
+        for plot in env['MVC_PLOT_ORDER'].split():
+            html_order[plot] = '';
 
-        all_html = list()
-        all_html = [local_html_list]
-        if scomm.get_size() > 1:
-            if scomm.is_manager():
-                all_html  = [local_html_list]
-                
-                for n in range(1,scomm.get_size()):
-                    rank, temp_html = scomm.collect(tag=html_msg_tag)
-                    all_html.append(temp_html)
-
-                #print('all_html = {0}'.format(all_html))
-            else:
-                return_code = scomm.collect(data=local_html_list, tag=html_msg_tag)
-
-        scomm.sync()
-        
         if scomm.is_manager():
+            for plot in env['MVC_PLOT_ORDER'].split():
+                if plot in requested_plots:
+                    print('calling get_html for plot = {0}'.format(plot))
+                    plot_obj = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('control', plot)
+                    shortname, html = plot_obj.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
+                    html_order[shortname] = html
 
-            # merge the all_html list of lists into a single list
-            all_html = list(itertools.chain.from_iterable(all_html))
-            for each_html in all_html:
-                #print('each_html = {0}'.format(each_html))
-                plot_html += each_html
+            for k, v in html_order.iteritems():
+                print('Adding html for plot = {0}'.format(k))
+                plot_html += v
 
             print('model vs. control - Adding footer html')
             with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
@@ -239,18 +219,16 @@ class modelVsControl(OceanDiagnostic):
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
-            if (env['DOWEB'].upper() in ['T','TRUE']) and len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
-                # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env, 'model_vs_control')
-            else:
-                print('Model vs. control - Web files successfully created in directory:')
-                print('{0}'.format(env['WORKDIR']))
-                print('The env_diags_ocn.xml variable DOWEB, WEBDIR, WEBHOST, and WEBLOGIN were not all set.')
-                print('You will need to manually copy the web files to a remote web server')
-                print('Using the copy_html utility.')
-
             print('***************************************************************************')
             print('Successfully completed generating ocean diagnostics model vs. control plots')
             print('***************************************************************************')
+
+        scomm.sync()
+
+        # append the web_dir location to the envDict
+        key = 'OCNDIAG_WEBDIR_{0}'.format(self._name)
+        env[key] = env['WORKDIR']
+
+        return env
 
 

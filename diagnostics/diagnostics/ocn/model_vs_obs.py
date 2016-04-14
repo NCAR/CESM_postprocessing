@@ -11,6 +11,7 @@ if sys.hexversion < 0x02070000:
     sys.exit(1)
 
 # import core python modules
+import collections
 import datetime
 import errno
 import glob
@@ -99,12 +100,11 @@ class modelVsObs(OceanDiagnostic):
         # setup some global variables
         requested_plots = list()
         local_requested_plots = list()
-        local_html_list = list()
 
         # define the templatePath for all tasks
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
 
-        # all the plot module XML vars start with MVO_PM_  need to strip that off
+        # all the plot module XML vars start with MVO_PM_  need to strip off the MVO_
         for key, value in env.iteritems():
             if (re.search("\AMVO_PM_", key) and value.upper() in ['T','TRUE']):
                 k = key[4:]                
@@ -128,7 +128,7 @@ class modelVsObs(OceanDiagnostic):
             # get the current datatime string for the template
             now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            # test the template variables
+            # set the template variables
             templateVars = { 'casename' : env['CASE'],
                              'tagname' : env['CCSM_REPOTAG'],
                              'start_year' : env['YEAR0'],
@@ -159,56 +159,28 @@ class modelVsObs(OceanDiagnostic):
                 print('model vs. obs - Converting plots for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 plot.convert_plots(env['WORKDIR'], env['IMAGEFORMAT'])
 
-                print('model vs. obs - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
-                # TODO make local_html a dictionary with key = plot name and value = html
-                html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
-            
-                local_html_list.append(str(html))
-                #print('local_html_list = {0}'.format(local_html_list))
-
-            except ocn_diags_bc.RecoverableError as e:
-                # catch all recoverable errors, print a message and continue.
+            except RuntimeError as e:
                 print(e)
                 print("model vs. obs - Skipped '{0}' and continuing!".format(request_plot))
-            except RuntimeError as e:
-                # unrecoverable error, bail!
-                print(e)
-                return 1
 
         scomm.sync()
 
-        # define a tag for the MPI collection of all local_html_list variables
-        html_msg_tag = 1
+        # initialize OrderedDict with plot_order list entries as key
+        html_order = collections.OrderedDict()
+        for plot in env['MVO_PLOT_ORDER'].split():
+            html_order[plot] = '';
 
-        # TODO make all_html an OrderedDict where the key is name of plot module as read in from a list in XML and value is none.
-        all_html = list()
-        all_html = [local_html_list]
-
-        if scomm.get_size() > 1:
-            if scomm.is_manager():
-                # TODO loop through the local_html_list and get the name 
-                all_html  = [local_html_list]
-                
-                for n in range(1,scomm.get_size()):
-                    # TODO temp_html becomes a dict that loop over matching the plot name with the plot list name that was read in from XML
-                    rank, temp_html = scomm.collect(tag=html_msg_tag)
-                    all_html.append(temp_html)
-
-                #print('all_html = {0}'.format(all_html))
-            else:
-                return_code = scomm.collect(data=local_html_list, tag=html_msg_tag)
-
-        scomm.sync()
-        
         if scomm.is_manager():
+            for plot in env['MVO_PLOT_ORDER'].split():
+                if plot in requested_plots:
+                    print('calling get_html for plot = {0}'.format(plot))
+                    plot_obj = ocn_diags_plot_factory.oceanDiagnosticPlotFactory('obs', plot)
+                    shortname, html = plot_obj.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
+                    html_order[shortname] = html
 
-            # merge the all_html list of lists into a single list
-
-            # TODO all_html is now an OrderedDict so just iterate on key, value
-            all_html = list(itertools.chain.from_iterable(all_html))
-            for each_html in all_html:
-                #print('each_html = {0}'.format(each_html))
-                plot_html += each_html
+            for k, v in html_order.iteritems():
+                print('Adding html for plot = {0}'.format(k))
+                plot_html += v
 
             print('model vs. obs - Adding footer html')
             with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
@@ -218,18 +190,15 @@ class modelVsObs(OceanDiagnostic):
             with open( '{0}/index.html'.format(env['WORKDIR']), 'w') as index:
                 index.write(plot_html)
 
-            if (env['DOWEB'].upper() in ['T','TRUE']) and len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
-                # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env, 'model_vs_obs')
-            else:
-                print('Model vs. Observations - Web files successfully created in directory:')
-                print('{0}'.format(env['WORKDIR']))
-                print('The env_diags_ocn.xml variables DOWEB, WEBDIR, WEBHOST, and WEBLOGIN were not all set.')
-                print('You will need to manually copy the web files to a remote web server')
-                print('using the copy_html utility.')
-
             print('*******************************************************************************')
             print('Successfully completed generating ocean diagnostics model vs. observation plots')
             print('*******************************************************************************')
 
+        scomm.sync()
+
+        # append the web_dir location to the envDict
+        key = 'OCNDIAG_WEBDIR_{0}'.format(self._name)
+        env[key] = env['WORKDIR']
+
+        return env
 

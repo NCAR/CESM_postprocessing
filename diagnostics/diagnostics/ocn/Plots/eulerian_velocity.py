@@ -46,7 +46,7 @@ class EulerianVelocity(OceanDiagnosticPlot):
 
         self._labels = ['UVEL','VVEL','WVEL']
         self._name = 'Eulerian Velocity Components at Depth Levels'
-        self._shortname = 'VELZ'
+        self._shortname = 'PM_VELZ'
         self._template_file = 'eulerian_velocity.tmpl'
         self._ncl = list()
 
@@ -111,7 +111,7 @@ class EulerianVelocity(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class EulerianVelocity_obs(EulerianVelocity):
 

@@ -113,8 +113,10 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_lnd.xml']
+    envDict['STANDALONE'] = False
     if standalone:
         env_file_list =  ['./env_postprocess.xml', './env_diags_ice.xml']
+        envDict['STANDALONE'] = True
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
@@ -267,9 +269,9 @@ def main(options, main_comm, debugMsg):
             inter_comm.sync()
 
             if lmaster:
-                debugMsg('inter_comm = {0}'.format(inter_comm))
+                debugMsg('inter_comm size = {0}'.format(inter_comm.get_size()), header=True, verbosity=2)
 
-            diag.run_diagnostics(envDict, inter_comm)
+            envDict = diag.run_diagnostics(envDict, inter_comm)
             inter_comm.sync()
             
         except ice_diags_bc.RecoverableError as e:
@@ -283,14 +285,18 @@ def main(options, main_comm, debugMsg):
 
     main_comm.sync()
 
+    # update the env_diags_ice.xml with ICEDIAG_WEBDIR settings to be used by the copy_html utility
+
 
 #===================================
 
 
 if __name__ == "__main__":
     # initialize simplecomm object
-##    main_comm = simplecomm.create_comm(serial=False)
     main_comm = simplecomm.create_comm(serial=False)
+
+    # setup an overall timer
+    timer = timekeeper.TimeKeeper()
 
     # get commandline options
     options = commandline_options()
@@ -302,15 +308,17 @@ if __name__ == "__main__":
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
     
     try:
+        timer.start("Total Time")
         status = main(options, main_comm, debugMsg)
         main_comm.sync()
+        timer.stop("Total Time")
         if main_comm.is_manager():
             print('***************************************************')
+            print('Run copy_html utility to copy web files and plots to a remote web server')
+            print('Total Time: {0} seconds'.format(timer.get_time("Total Time")))
             print('Successfully completed generating ice diagnostics')
             print('***************************************************')
         sys.exit(status)
-
-##    except RunTimeError as error:
         
     except Exception as error:
         print(str(error))

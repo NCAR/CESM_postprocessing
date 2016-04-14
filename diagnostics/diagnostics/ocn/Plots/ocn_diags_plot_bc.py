@@ -66,7 +66,7 @@ class OceanDiagnosticPlot(object):
         """This method returns the html snippet for the plot.
         """
         self._create_html(workdir, templatePath, imgFormat)
-        return self._html
+        return self._shortname, self._html
 
     def _convert_plots(self, workdir, imgFormat, files):
         """ This method converts the postscript plots to imgFormat

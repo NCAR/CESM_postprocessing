@@ -491,54 +491,24 @@
          desc="Local machine path to ice diagnostics package NCL library directory."
          ></entry>
 
-  <entry id="ICEDIAG_DOWEB"
-         type="logical"
-         valid_values="True,False"
-         value="True"
-         group="diags_ice"
-         desc="Controls whether to create web files or not"
-         ></entry>
-
-  <entry id="ICEDIAG_WEBHOST"
+   <entry id="ICEDIAG_WEBDIR_MODEL_VS_OBS"
          type="char"
          valid_values=""
          value=""
          group="diags_ice"
-         desc="Remote web host machine."
+         desc="Web directory path settings set automatically by ice_diags_generator.py for MODEL_VS_OBS diagnostics"
          ></entry>
 
-  <entry id="ICEDIAG_WEBLOGIN"
+   <entry id="ICEDIAG_WEBDIR_MODEL_VS_MODEL"
          type="char"
          valid_values=""
          value=""
          group="diags_ice"
-         desc="Remote web host login name."
+         desc="Web directory path settings set automatically by ice_diags_generator.py for MODEL_VS_MODEL diagnostics"
          ></entry>
 
-  <entry id="ICEDIAG_WEBDIR"
-         type="char"
-         valid_values=""
-         value=""
-         group="diags_ice"
-         desc="Remote machine path to ice diagnostics HTML directory."
-         ></entry>
-
-  <entry id="ICEDIAG_email"
-         type="logical"
-         valid_values="True/False"
-         value="False"
-         group="diags_ice"
-         desc="Send email at package completion"
-         ></entry>
-
-  <entry id="ICEDIAG_email_address"
-         type="char"
-         valid_values=""
-         value=""
-         group="diags_ice"
-         desc="Email address to send completion message to"
-         ></entry>
   </group>
+
 </groups>
 
 </config_definition>

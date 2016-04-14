@@ -48,7 +48,7 @@ from diag_utils import diagUtilsLib
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
-#import the diagnosticss classes
+#import the diagnostics classes
 from diagnostics.ocn import ocn_diags_bc
 from diagnostics.ocn import ocn_diags_factory
 
@@ -284,18 +284,6 @@ def main(options, main_comm, debugMsg):
         for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
             shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
 
-        if (envDict['DOWEB'].upper() in ['T','TRUE']) and len(envDict['WEBDIR']) > 0 and len(envDict['WEBHOST']) > 0 and len(envDict['WEBLOGIN']) > 0:
-            # copy over the files to a remote web server and webdir 
-            diagUtilsLib.copy_html_files(envDict, '')
-        else:
-            print('--------------------------------------------------------------------------')
-            print('Ocean Diagnostics - Web files successfully created in directory:')
-            print('{0}'.format(envDict['WORKDIR']))
-            print('The env_diags_ocn.xml variables DOWEB, WEBDIR, WEBHOST, and WEBLOGIN were not all set.')
-            print('You will need to manually copy the web files to a remote web server')
-            print('using the copy_html tool.')
-            print('--------------------------------------------------------------------------')
-
     main_comm.sync()
 
     # broadcast the diag_list to all tasks
@@ -383,7 +371,7 @@ def main(options, main_comm, debugMsg):
                 # set the shell env using the values set in the XML and read into the envDict across all tasks
                 cesmEnvLib.setXmlEnv(envDict)
                 # run the diagnostics
-                diag.run_diagnostics(envDict, inter_comm)
+                envDict = diag.run_diagnostics(envDict, inter_comm)
 
             inter_comm.sync()
             
@@ -398,12 +386,17 @@ def main(options, main_comm, debugMsg):
 
     main_comm.sync()
 
+    # update the env_diags_ocn.xml with OCNIAG_WEBDIR settings to be used by the copy_html utility
+
 #===================================
 
 
 if __name__ == "__main__":
     # initialize simplecomm object
     main_comm = simplecomm.create_comm(serial=False)
+
+    # setup an overall timer
+    timer = timekeeper.TimeKeeper()
 
     # get commandline options
     options = commandline_options()
@@ -415,10 +408,15 @@ if __name__ == "__main__":
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
     
     try:
+        timer.start("Total Time")
+        print('calling main')
         status = main(options, main_comm, debugMsg)
         main_comm.sync()
+        timer.stop("Total Time")
         if main_comm.is_manager():
             print('***************************************************')
+            print('Run copy_html utility to copy web files and plots to a remote web server')
+            print('Total Time: {0} seconds'.format(timer.get_time("Total Time")))
             print('Successfully completed generating ocean diagnostics')
             print('***************************************************')
         sys.exit(status)

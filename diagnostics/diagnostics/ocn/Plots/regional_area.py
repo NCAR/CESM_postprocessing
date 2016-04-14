@@ -44,7 +44,7 @@ class RegionalArea(OceanDiagnosticPlot):
         self._labels = ['0-500m','500-2000m']
         self._linkNames = ['TEMP', 'SALT']
         self._name = 'Regional Average Temperature and Salinity anomaly vs. depth'
-        self._shortname = 'REGIONALTS'
+        self._shortname = 'PM_REGIONALTS'
         self._template_file = 'regional_area.tmpl'
         self._ncl = list()
 
@@ -119,7 +119,7 @@ class RegionalArea(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class RegionalArea_obs(RegionalArea):
     def __init__(self):

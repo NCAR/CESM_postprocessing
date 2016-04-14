@@ -163,8 +163,10 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_lnd.xml']
+    envDict['STANDALONE'] = False
     if standalone:
         env_file_list =  ['./env_postprocess.xml', './env_diags_lnd.xml']
+        envDict['STANDALONE'] = True
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
@@ -326,23 +328,23 @@ def main(options, main_comm, debugMsg):
             if lmaster:
                 debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
             
-            #if lmaster:
             envDict = diag.check_prerequisites(envDict, inter_comm)
             inter_comm.sync()
 
-            ## broadcast the envDict
+            # broadcast the envDict
             envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
          
             # set the shell env using the values set in the XML and read into the envDict across all tasks
             cesmEnvLib.setXmlEnv(envDict)
 
+            # debug check if the envDict contains a non-string entry
             if lmaster:
                 for k,v in envDict.iteritems():
                     if not isinstance(v, basestring):
-                        print('lnd_diags_generator - envDict: key = {0}, value = {1}'.format(k,v))
+                        debugMsg('lnd_diags_generator - envDict: key = {0}, value = {1}'.format(k,v), header=True, verbosity=2)
 
             debugMsg('inter_comm size = {0}'.format(inter_comm.get_size()), header=True, verbosity=2)
-            diag.run_diagnostics(envDict, inter_comm)
+            envDict = diag.run_diagnostics(envDict, inter_comm)
             
         except lnd_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
@@ -355,6 +357,9 @@ def main(options, main_comm, debugMsg):
 
     main_comm.sync()
 
+    # update the env_diags_lnd.xml with LNDIAG_WEBDIR settings to be used by the copy_html utility
+
+
 
 #===================================
 
@@ -362,6 +367,9 @@ def main(options, main_comm, debugMsg):
 if __name__ == "__main__":
     # initialize simplecomm object
     main_comm = simplecomm.create_comm(serial=False)
+
+    # setup an overall timer
+    timer = timekeeper.TimeKeeper()
 
     # get commandline options
     options = commandline_options()
@@ -373,16 +381,18 @@ if __name__ == "__main__":
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
     
     try:
+        timer.start("Total Time")
         status = main(options, main_comm, debugMsg)
         main_comm.sync()
+        timer.stop("Total Time")
         if main_comm.is_manager():
             print('***************************************************')
+            print('Run copy_html utility to copy web files and plots to a remote web server')
+            print('Total Time: {0} seconds'.format(timer.get_time("Total Time")))
             print('Successfully completed generating land diagnostics')
             print('***************************************************')
         sys.exit(status)
 
-##    except RunTimeError as error:
-        
     except Exception as error:
         print(str(error))
         if options.backtrace:

@@ -191,17 +191,14 @@ class modelVsObs(IceDiagnostic):
             create_ice_html.create_plotset_html(env['HTML_HOME']+'/regional.html',web_dir+'/regional.html',env)
             create_ice_html.create_plotset_html(env['HTML_HOME']+'/vector.html',web_dir+'/vector.html',env)
 
-            if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
-                # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env)
-            else:
-                print('Web files successfully created in directory {0}'.format(env['WKDIR']))
-                print('The env_diags_ice.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
-                print('You will need to manually copy the web files to a remote web server.')
+
+            # append the web_dir location to the envDict
+            key = 'ICEDIAG_WEBDIR_{0}'.format(self._name)
+            envDict[key] = web_dir
 
             print('*******************************************************************************')
             print('Successfully completed generating ice diagnostics model vs. observation plots')
             print('*******************************************************************************')
 
         scomm.sync()
-
+        return envDict

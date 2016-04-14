@@ -40,7 +40,7 @@ class SeasonalCycle(OceanDiagnosticPlot):
         super(SeasonalCycle, self).__init__()
         self._expectedPlots = [ 'EQ_PAC_SST_SEASONAL_CYCLE' ]
         self._name = 'Seasonal Cycle Plots'
-        self._shortname = 'SCP'
+        self._shortname = 'PM_SEAS'
         self._template_file = 'seasonal_cycle.tmpl'
         self._ncl = list()
 
@@ -100,7 +100,7 @@ class SeasonalCycle(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 
 class SeasonalCycle_obs(SeasonalCycle):

@@ -340,6 +340,9 @@ if __name__ == "__main__":
     # initialize simplecomm object
     main_comm = simplecomm.create_comm(serial=False)
 
+    # setup an overall timer
+    timer = timekeeper.TimeKeeper()
+
     # get commandline options
     options = commandline_options()
 
@@ -350,16 +353,18 @@ if __name__ == "__main__":
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
     
     try:
+        timer.start("Total Time")
         status = main(options, main_comm, debugMsg)
         main_comm.sync()
+        timer.stop("Total Time")
         if main_comm.is_manager():
             print('***************************************************')
+            print('Run copy_html utility to copy web files and plots to a remote web server')
+            print('Total Time: {0} seconds'.format(timer.get_time("Total Time")))
             print('Successfully completed generating atmosphere diagnostics')
             print('***************************************************')
         sys.exit(status)
 
-##    except RunTimeError as error:
-        
     except Exception as error:
         print(str(error))
         if options.backtrace:

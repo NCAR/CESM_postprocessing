@@ -41,7 +41,7 @@ class BasinAverages(OceanDiagnosticPlot):
         self._expectedPlots = [ 'TSprof_Canadabasin', 'TSprof_Eurasianbasin', 'TSprof_Makarovbasin' ]
         self._webPlotsDict = {'TSprof_Canadabasin':'Canada_Basin','TSprof_Eurasianbasin':'Eurasian_Basin','TSprof_Makarovbasin':'Makarov_Basin'}
         self._name = 'Depth Profiles of Basin-average Temperature and Salinity'
-        self._shortname = 'BASINAVGTS'
+        self._shortname = 'PM_BASINAVGTS'
         self._template_file = 'basin_averages.tmpl'
         self._ncl = list()
 
@@ -93,7 +93,7 @@ class BasinAverages(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class BasinAverages_obs(BasinAverages):
     def __init__(self):

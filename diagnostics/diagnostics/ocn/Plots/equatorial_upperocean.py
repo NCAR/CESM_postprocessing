@@ -57,7 +57,7 @@ class EquatorialUpperocean(OceanDiagnosticPlot):
         self._suffix = ['Longitude_Depth','Latitude_Depth_143','Latitude_Depth_156', 'Latitude_Depth_165','Latitude_Depth_180', 'Latitude_Depth_190','Latitude_Depth_205', 'Latitude_Depth_220','Latitude_Depth_235', 'Latitude_Depth_250','Latitude_Depth_265']
 
         self._name = 'Equatorial Upperocean'
-        self._shortname = 'UOEQ'
+        self._shortname = 'PM_UOEQ'
         self._template_file = 'equatorial_upperocean.tmpl'
         self._ncl = list()
 
@@ -170,7 +170,7 @@ class EquatorialUpperocean(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class EquatorialUpperocean_obs(EquatorialUpperocean):
 

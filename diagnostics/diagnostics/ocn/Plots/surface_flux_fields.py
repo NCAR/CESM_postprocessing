@@ -48,7 +48,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
                                    'SALT_F_GLO_za', 'ROFF_F_GLO_za' ]
 
         self._name = '2D Surface Flux Fields'
-        self._shortname = 'SFCFLX'
+        self._shortname = 'PM_SFC2D'
         self._template_file = 'surface_flux_fields.tmpl'
         self._ncl = list()
 
@@ -196,7 +196,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
     
 class SurfaceFluxFields_obs(SurfaceFluxFields):
 

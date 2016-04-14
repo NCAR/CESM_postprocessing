@@ -42,7 +42,7 @@ class SurfaceFields(OceanDiagnosticPlot):
         self._expectedPlots_za = [ 'SSH_GLO_za', 'HBLT_GLO_za', 'HMXL_GLO_za', 'DIA_DEPTH_GLO_za', 'TLT_GLO_za', 'INT_DEPTH_GLO_za' ]
 
         self._name = '2D Surface Fields'
-        self._shortname = 'FLD2D'
+        self._shortname = 'PM_FLD2D'
         self._template_file = 'surface_fields.tmpl'
         self._ncl = list()
 
@@ -168,7 +168,7 @@ class SurfaceFields(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class SurfaceFields_obs(SurfaceFields):
 

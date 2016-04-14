@@ -790,45 +790,69 @@
 	     valid_values="TRUE,FALSE"
 	     value="TRUE"
 	     group="web_options"
-	     desc="Logical to control if working files are deleted (TRUE) or saved (FALSE) after successful completion of generating diagnostics"
+	     desc="Logical to control if working files are deleted (TRUE) or saved (FALSE) prior to generating a new set of diagnostics."
 	     ></entry>
 
-      <entry id="OCNDIAG_DOWEB"
-	     type="logical"
-	     valid_values="TRUE,FALSE"
-	     value="TRUE"
-	     group="web_options"
-	     desc="Logical to control if web html files should be created or not in the WORKDIR location (TRUE) or not (FALSE)."
-	     ></entry>
+   <entry id="OCNDIAG_WEBDIR_MODEL_VS_OBS"
+         type="char"
+         valid_values=""
+         value=""
+         group="web_options"
+         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_VS_OBS diagnostics"
+         ></entry>
 
-      <entry id="OCNDIAG_WEBHOST"
-	     type="char"
-	     valid_values=""
-	     value=""
-	     group="web_options"
-	     desc="Remote web host machine to serve HTML pages and converted plots."
-	     ></entry>
+   <entry id="OCNDIAG_WEBDIR_MODEL_VS_CONTROL"
+         type="char"
+         valid_values=""
+         value=""
+         group="web_options"
+         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_VS_CONTROL diagnostics"
+         ></entry>
 
-      <entry id="OCNDIAG_WEBLOGIN"
-	     type="char"
-	     valid_values=""
-	     value=""
-	     group="web_options"
-	     desc="Remote web host login name which can be used with ssh keys. If ssh key is not setup, then will prompt for login on remote web host machine."
-	     ></entry>
+   <entry id="OCNDIAG_WEBDIR_MODEL_TIMESERIES"
+         type="char"
+         valid_values=""
+         value=""
+         group="web_options"
+         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_TIMESERIES diagnostics"
+         ></entry>
 
-      <entry id="OCNDIAG_WEBDIR"
-	     type="char"
-	     valid_values=""
-	     value=""
-	     group="web_options"
-	     desc="Remote machine path to OMWG diagnostics HTML directory."
-	     ></entry>
+   <entry id="OCNDIAG_WEBDIR_MODEL_VS_OBS_ECOSYS"
+         type="char"
+         valid_values=""
+         value=""
+         group="web_options"
+         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_VS_OBS diagnostics"
+         ></entry>
+
+   <entry id="OCNDIAG_WEBDIR_MODEL_VS_CONTROL_ECOSYS"
+         type="char"
+         valid_values=""
+         value=""
+         group="web_options"
+         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_VS_CONTROL_ECOSYS diagnostics"
+         ></entry>
+
+   <entry id="OCNDIAG_WEBDIR_MODEL_TIMESERIES_ECOSYS"
+         type="char"
+         valid_values=""
+         value=""
+         group="web_options"
+         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_TIMESERIES_ECOSYS diagnostics"
+         ></entry>
+
     </group>
 
     <group name="model_vs_obs_plots">
       <order>10</order>
       <comment>Environment variable settings for turning on and off model vs. observations plot modules.</comment>
+
+      <entry id="OCNDIAG_MVO_PLOT_ORDER"
+	     type="char"
+	     valid_values=""
+	     value="PM_SFC2D PM_FLD2D PM_FLD3DZA PM_MOC PM_WBC PM_SEAS PM_MLD PM_TSZ PM_PASSIVEZ PM_VELZ PM_VELISOPZ PM_KAPPAZ PM_UOEQ PM_VECV PM_POLARTS PM_BASINAVGTS PM_REGIONALTS"
+	     group="model_vs_obs_plots"
+	     desc="Model vs. observations plot order for displaying html plots on main index.html page. This is a space delimited ordered list."></entry>
 
       <entry id="OCNDIAG_MVO_PM_SFC2D"
 	     type="logical"
@@ -954,6 +978,13 @@
       <order>11</order>
       <comment>Environment variable settings for turning on and off model vs. control plot modules.</comment>
 
+      <entry id="OCNDIAG_MVC_PLOT_ORDER"
+	     type="char"
+	     valid_values=""
+	     value="PM_SFC2D PM_FLD2D PM_FLD3DZA PM_MOC PM_WBC PM_SEAS PM_MLD PM_TSZ PM_PASSIVEZ PM_VELZ PM_VELISOPZ PM_KAPPAZ PM_UOEQ PM_VECV PM_POLARTS PM_BASINAVGTS PM_REGIONALTS"
+	     group="model_vs_control_plots"
+	     desc="Model vs. control plot order for displaying html plots on main index.html page. This is a space delimited ordered list."></entry>
+
       <entry id="OCNDIAG_MVC_PM_SFC2D"
 	     type="logical"
 	     valid_values="TRUE,FALSE"
@@ -1043,6 +1074,13 @@
       <order>12</order>
       <comment>Environment variable settings for turning on and off model timeseries plot modules.</comment>
 
+      <entry id="OCNDIAG_MTS_PLOT_ORDER"
+	     type="char"
+	     valid_values=""
+	     value="PM_CPLLOG PM_YPOPLOG PM_HORZMN PM_ENSOWVLT PM_MOCANN PM_MOCMON"
+	     group="model_timeseries_plots"
+	     desc="Model timeseries plot order for displaying html plots on main index.html page. This is a space delimited ordered list."></entry>
+
       <entry id="OCNDIAG_MTS_PM_CPLLOG"
 	     type="logical"
 	     valid_values="TRUE,FALSE"
@@ -1090,6 +1128,13 @@
       <order>13</order>
       <comment>Environment variable settings for turning on and off model vs. observations ecosystem plot modules.</comment>
 
+      <entry id="OCNDIAG_MVOECOSYS_PLOT_ORDER"
+	     type="char"
+	     valid_values=""
+	     value="PM_E_MAPS PM_E_VERT PM_E_SEAS PM_E_O2"
+	     group="model_vs_obs_ecosys_plots"
+	     desc="Model timeseries plot order for displaying html plots on main index.html page. This is a space delimited ordered list."></entry>
+
       <entry id="OCNDIAG_MVOECOSYS_PM_E_MAPS"
 	     type="logical"
 	     valid_values="TRUE,FALSE"
@@ -1122,6 +1167,14 @@
     <group name="model_vs_control_ecosys_plots">
       <order>14</order>
       <comment>Environment variable settings for turning on and off model vs. control ecosystem plot modules.</comment>
+
+      <entry id="OCNDIAG_MVCECOSYS_PLOT_ORDER"
+	     type="char"
+	     valid_values=""
+	     value="PM_E_MAPS PM_E_VERT PM_E_SEAS"
+	     group="model_vs_control_ecosys_plots"
+	     desc="Model timeseries plot order for displaying html plots on main index.html page. This is a space delimited ordered list."></entry>
+
       <entry id="OCNDIAG_MVCECOSYS_PM_E_MAPS"
 	     type="logical"
 	     valid_values="TRUE,FALSE"
@@ -1147,6 +1200,14 @@
     <group name="model_timeseries_ecosys_plots">
       <order>15</order>
       <comment>Environment variable settings for turning on and off model ecosystem timeseries plot modules.</comment>
+
+      <entry id="OCNDIAG_MTSECOSYS_PLOT_ORDER"
+	     type="char"
+	     valid_values=""
+	     value="PM_E_GLOBL PM_E_TMSR PM_E_ZTMSR"
+	     group="model_timeseries_ecosys_plots"
+	     desc="Model timeseries plot order for displaying html plots on main index.html page. This is a space delimited ordered list."></entry>
+
       <entry id="OCNDIAG_MTSECOSYS_PM_E_GLOBL"
 	     type="logical"
 	     valid_values="TRUE,FALSE"

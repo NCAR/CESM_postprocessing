@@ -163,9 +163,9 @@
 <!-- 4: Runtypes (Users can select both model vs obs and model vs model)                            -->
 <!-- ============================================================================================== -->
 
-  <group name="run_types">
+  <group name="diag_types">
   <order>5</order>
-  <comment>Runtypes</comment>
+  <comment>Diagnostics Types</comment>
 
   <entry id="LNDDIAG_MODEL_VS_OBS"
          type="logical"
@@ -615,26 +615,26 @@
 
   <entry id="LNDDIAG_trends_match_Flag"
          type="logical"
-         valid_values="True/False"
-         value=""
+         valid_values="0/1"
+         value="0"
          group="diags_lnd"
-         desc="Compare different years for trends"
+         desc="Compare different years for trends. 0 for False 1 for True."
          ></entry>
 
   <entry id="LNDDIAG_trends_match_yr_1"
          type="integer"
          valid_values=""
-         value=""
+         value="1"
          group="diags_lnd"
-         desc="First year of overlap case1 (TRENDS)"
+         desc="First year of overlap case1 (TRENDS). Set to any year."
          ></entry>
 
   <entry id="LNDDIAG_trends_match_yr_2"
          type="integer"
          valid_values=""
-         value=""
+         value="1"
          group="diags_lnd"
-         desc="First year of overlap case2 (TRENDS)"
+         desc="First year of overlap case2 (TRENDS). Set to any year."
          ></entry>
 
   </group>
@@ -846,69 +846,11 @@
   </group>
 
 <!-- ============================================================================================== -->
-<!-- 13: Web Options                                                                                -->
-<!-- ============================================================================================== -->
-
-  <group name="web_opt">
-  <order>14</order>
-  <comment>Web options</comment>
-
-  <entry id="LNDDIAG_DOWEB"
-         type="logical"
-         valid_values="True,False"
-         value="True"
-         group="diags_lnd"
-         desc="Controls whether to create web files or not"
-         ></entry>
-
-  <entry id="LNDDIAG_WEBHOST"
-         type="char"
-         valid_values=""
-         value=""
-         group="diags_lnd"
-         desc="Remote web host machine."
-         ></entry>
-
-  <entry id="LNDDIAG_WEBLOGIN"
-         type="char"
-         valid_values=""
-         value=""
-         group="diags_lnd"
-         desc="Remote web host login name."
-         ></entry>
-
-  <entry id="LNDDIAG_WEBDIR"
-         type="char"
-         valid_values=""
-         value=""
-         group="diags_lnd"
-         desc="Remote machine path to AMWG diagnostics HTML directory."
-         ></entry>
-
-  <entry id="LNDDIAG_email"
-         type="logical"
-         valid_values="True/False"
-         value="False"
-         group="diags_lnd"
-         desc="Send email at package completion"
-         ></entry>
-
-  <entry id="LNDDIAG_email_address"
-         type="char"
-         valid_values=""
-         value=""
-         group="diags_lnd"
-         desc="Email address to send completion message to"
-         ></entry>
-
-  </group>
-
-<!-- ============================================================================================== -->
 <!-- 14: Regridding Options                                                                         -->
 <!-- ============================================================================================== -->
 
   <group name="regrid_opt">
-  <order>15</order>
+  <order>14</order>
   <comment>Regridding options</comment>
 
 <!-- CASE 1 -->
@@ -1018,7 +960,7 @@
 <!-- ============================================================================================== -->
 
   <group name="pset2_opt">
-  <order>16</order>
+  <order>15</order>
   <comment>Plot set 2 options</comment>
 
    <entry id="LNDDIAG_sig_lvl"
@@ -1084,7 +1026,7 @@
 <!-- ============================================================================================== -->
 
   <group name="paleo_opt">
-  <order>17</order>
+  <order>16</order>
   <comment>Paleo options</comment>
 
    <entry id="LNDDIAG_paleo"
@@ -1119,7 +1061,33 @@
          desc="True: make difference plots for different continental outlines"
          ></entry>
   </group>
-</groups>
 
+<!-- ============================================================================================== -->
+<!-- 17: Web directory paths set automatically by lnd_diags_generator.py automatically              -->
+<!-- ============================================================================================== -->
+
+  <group name="paleo_opt">
+  <order>17</order>
+  <comment>Web directory path set automatically by lnd_diags_generator.py. Can be overwritten by user.</comment>
+
+   <entry id="LNDDIAG_WEBDIR_MODEL_VS_OBS"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Web directory path settings set automatically by lnd_diags_generator.py for MODEL_VS_OBS diagnostics"
+         ></entry>
+
+   <entry id="LNDDIAG_WEBDIR_MODEL_VS_MODEL"
+         type="char"
+         valid_values=""
+         value=""
+         group="diags_lnd"
+         desc="Web directory path settings set automatically by lnd_diags_generator.py for MODEL_VS_MODEL diagnostics"
+         ></entry>
+
+  </group>
+
+</groups>
 </config_definition>
 

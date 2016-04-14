@@ -47,7 +47,7 @@ class DiffusionDepth(OceanDiagnosticPlot):
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
         self._labels = ['KAPPA_ISOP','KAPPA_THIC']
         self._name = 'Diffusion Coefficients at Depth Levels'
-        self._shortname = 'KAPPAZ'
+        self._shortname = 'PM_KAPPAZ'
         self._template_file = 'diffusion_depth.tmpl'
         self._ncl = list()
 
@@ -112,7 +112,7 @@ class DiffusionDepth(OceanDiagnosticPlot):
         # render the html template using the plot tables
         self._html = template.render( templateVars )
         
-        return self._html
+        return self._shortname, self._html
 
 class DiffusionDepth_obs(DiffusionDepth):
 
