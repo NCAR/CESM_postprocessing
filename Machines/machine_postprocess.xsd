@@ -1,52 +1,111 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <!-- definition of attributes -->
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:attribute name="hostname" type="xs:string"/>
+  <xs:attribute name="queue" type="xs:string"/>
+  <xs:attribute name="fcompiler" type="xs:string"/>
+  <xs:attribute name="f77exec" type="xs:string"/>
+
+  <!-- definition of simple elements -->
+  <xs:element name="module" type="xs:string" />
+  <xs:element name="mp_timeout" type="xs:string"/>
+  <xs:element name="mpi_command" type="xs:string"/>
+  <xs:element name="pythonpath" type="xs:string"/>
+  <xs:element name="project" type="xs:string"/>
+  <xs:element name="obs_root" type="xs:string"/>
+
+  <!-- definition of complex elements -->
+  <xs:element name="timeseries_pes">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="queue" use="required"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="averages_pes">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="queue" use="required"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="diagnostics_pes">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="queue" use="required"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="f2py">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="fcompiler" use="required"/>
+	  <xs:attribute name="f77exec" use="required"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="modules">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="module" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="component">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="averages_pes" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="diagnostics_pes" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="obs_root" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute ref="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="components">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="component" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="machine">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="timeseries_pes" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="mp_timeout" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="mpi_command" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="pythonpath" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="f2py" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="project" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="modules" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="components" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute ref="name" use="required"/>
+      <xs:attribute ref="hostname" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="machine_postprocess">
     <xs:complexType>
       <xs:sequence>
-	
-	<xs:element name="machine" maxOccurs="unbounded">
-	  <xs:complexType>
-	    <xs:sequence>
-
-	      <xs:element name="timeseries_pes" type="xs:string"/>
-	      <xs:element name="mp_timeout" type="xs:string"/>
-	      <xs:element name="mpi_command" type="xs:string"/>
-	      <xs:element name="pythonpath" type="xs:string"/>
-	      <xs:element name="project" type="xs:string"/>
-
-	      <xs:element name="modules">
-		<xs:complexType>
-		  <xs:sequence>
-		    <xs:element name="module" type="xs:string" maxOccurs="unbounded"/>
-		  </xs:sequence>
-		</xs:complexType>
-	      </xs:element>
-
-	      <xs:element name="components" maxOccurs="unbounded">
-		<xs:complexType>
-		  <xs:sequence>
-		    
-		    <xs:element name="component" maxOccurs="unbounded">
-		      <xs:complexType>
-			<xs:sequence>
-			  <xs:element name="averages_pes" type="xs:string"/>
-			  <xs:element name="diagnostics_pes" type="xs:string"/>
-			  <xs:element name="obs_root" type="xs:string"/>
-			</xs:sequence>
-			<xs:attribute name="name" type="xs:string" use="required"/>
-		      </xs:complexType>
-		    </xs:element>
-
-		  </xs:sequence>
-		</xs:complexType>
-	      </xs:element>
-
-	    </xs:sequence>
-	    <xs:attribute name="name" type="xs:string" use="required"/>
-	  </xs:complexType>
-	</xs:element>
-	
+	<xs:element name="machine" maxOccurs="unbounded" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

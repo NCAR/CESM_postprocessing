@@ -199,6 +199,30 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
 
     # TODO - create the list of necessary climatology files for control
 
+
+    # setup the working directories
+    sys.path.append(envDict['PATH'])
+
+    # the WKDIR variable is very confusing... it gets reset in setup_workdir
+    if (envDict['MODEL_VS_MODEL'] == 'True'):
+        envDict['WKDIR'] =  envDict['PTMPDIR_1']+'/diag/'+envDict['caseid_1']+'-'+envDict['caseid_2']+'/'
+    else:
+        envDict['WKDIR'] =  envDict['PTMPDIR_1']+'/diag/'+envDict['caseid_1']+'-obs/'
+
+    if envDict['CASA'] == '1':
+        envDict['VAR_MASTER'] = envDict['var_master_casa']
+    else:
+        envDict['VAR_MASTER'] = envDict['var_master_cn']
+
+    # setup of the web_path_file text file in config_web
+    debugMsg('Setting up config_web/web_paths_lnd.txt', header=True, verbosity=1)
+
+    envDict['WEB_PATH_FILE'] = '{0}/config_web/web_paths_lnd.txt'.format(envDict['CASEROOT'])
+    if os.path.exists(envDict['WEB_PATH_FILE']):
+        os.utime(envDict['WEB_PATH_FILE'], None)
+    else:
+        open(envDict['WEB_PATH_FILE'],'a').close()
+
     return envDict
 
 #======
@@ -237,15 +261,6 @@ def main(options, main_comm, debugMsg):
 
     # broadcast envDict to all tasks
     envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
-    sys.path.append(envDict['PATH'])
-    if (envDict['MODEL_VS_MODEL'] == 'True'):
-        envDict['WKDIR'] =  envDict['PTMPDIR_1']+'/diag/'+envDict['caseid_1']+'-'+envDict['caseid_2']+'/'
-    else:
-        envDict['WKDIR'] =  envDict['PTMPDIR_1']+'/diag/'+envDict['caseid_1']+'-obs/'
-    if envDict['CASA'] == '1':
-        envDict['VAR_MASTER'] = envDict['var_master_casa']
-    else:
-        envDict['VAR_MASTER'] = envDict['var_master_cn']
     main_comm.sync()
 
     # check to see if the climos need to be regridded into a lat/lon grid
@@ -319,6 +334,9 @@ def main(options, main_comm, debugMsg):
         debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank), header=True, verbosity=2)
     inter_comm.sync()
 
+    web_dir_tag = 1
+    ic_web_info = dict()
+
     # loop through the local_diag_list list
     for requested_diag in local_diag_list:
         try:
@@ -345,7 +363,33 @@ def main(options, main_comm, debugMsg):
 
             debugMsg('inter_comm size = {0}'.format(inter_comm.get_size()), header=True, verbosity=2)
             envDict = diag.run_diagnostics(envDict, inter_comm)
-            
+
+            if lmaster:
+                debugMsg('after run_diagnostics', header=True, verbosity=1)
+
+            web_info = dict()
+            for key in envDict:
+                if 'LNDDIAG_WEBDIR' in key:
+                    web_info[key] = envDict[key]
+
+            if lsize > 1:
+                if not lmaster:
+                    debugMsg('lnd_diags_generator before collection not on master rank = {0}'.format(inter_comm.get_rank()), header=True, verbosity=1)
+                    inter_comm.collect(data=web_info, tag=web_dir_tag)
+                else:
+                    debugMsg('lnd_diags_generator before collection on master', header=True, verbosity=1)
+                    rank, tmp_web_info = inter_comm.collect(tag=web_dir_tag)
+                    ic_web_info.update(web_info)
+                    ic_web_info.update(tmp_web_info)
+            else:
+                ic_web_info.update(web_info)
+
+            inter_comm.sync()
+
+            if lmaster:
+                for k,v in ic_web_info.iteritems():
+                    debugMsg('lnd_diags_generator ic_web_info[{0}] = {1}'.format(k,v), header=True, verbosity=1)
+
         except lnd_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
             print(e)
@@ -355,10 +399,13 @@ def main(options, main_comm, debugMsg):
             print(e)
             return 1
 
+    inter_comm.sync()
     main_comm.sync()
 
     # update the env_diags_lnd.xml with LNDIAG_WEBDIR settings to be used by the copy_html utility
-
+    if main_comm.is_manager():
+        for k, v in ic_web_info.iteritems():
+            debugMsg('lnd_diags_generator: all ic_web_info[{0}] = {1}'.format(k, v), header=True, verbosity=1)
 
 
 #===================================

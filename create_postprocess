@@ -67,7 +67,7 @@ else:
 #
 if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
     err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
-               'Please run $POSTPROCESSING_PATH/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
+               ' Please run $POSTPROCESSING_PATH/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
     raise OSError(err_msg)
 
 execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
@@ -244,12 +244,14 @@ def read_machine_xml(machineName, xmlFile):
         xml_tree.parse(xmlFile)
 
         # find the matching machine name
-        for xmlmachine in xml_tree.findall("machine"):
-            if machineName.lower() == xmlmachine.get("name").lower():
+        for xmlmachine in xml_tree.findall('machine'):
+            if machineName.lower() == xmlmachine.get('name').lower():
 
                 found = True
                 # get the timeseries pes first
-                xmlDict['timeseries_pes'] = xmlmachine.find('timeseries_pes').text
+                tseries_pes = xmlmachine.find('timeseries_pes')
+                xmlDict['timeseries_pes'] = tseries_pes.text
+                xmlDict['timeseries_queue'] = tseries_pes.get('queue').lower()
 
                 # get the mpi run command
                 xmlDict['mpi_command'] = xmlmachine.find('mpi_command').text
@@ -270,8 +272,15 @@ def read_machine_xml(machineName, xmlFile):
                 # and observation data root
                 for comp in xmlmachine.findall("components/component"):
                     compName = comp.get("name").lower()
-                    xmlDict['{0}_averages_pes'.format(compName)] = comp.find('averages_pes').text
-                    xmlDict['{0}_diagnostics_pes'.format(compName)] = comp.find('diagnostics_pes').text
+
+                    avg = comp.find('averages_pes')
+                    xmlDict['{0}_averages_pes'.format(compName)] = avg.text
+                    xmlDict['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
+
+                    diags = comp.find('diagnostics_pes')
+                    xmlDict['{0}_diagnostics_pes'.format(compName)] = diags.text
+                    xmlDict['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
+
                     xmlDict['{0}_obs_root'.format(compName)] = comp.find('obs_root').text
 
         if not found:
@@ -285,7 +294,8 @@ def read_machine_xml(machineName, xmlFile):
 # -------------------------------------------------------------------------------
 # create_batch - create the batch files for post processing submission
 # -------------------------------------------------------------------------------
-def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName, project, pythonpath, caseRoot, modules, options, standalone):
+def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName,
+                 project, pythonpath, caseRoot, modules, queue, options, standalone):
     """create the batch submission files for post processing
 
     Arguments:
@@ -299,6 +309,8 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     processName (string) - post processing name for batch submission
     project (string) - project account number
     caseRoot (string) - case root directory path
+    modules (string) - module commands
+    queue (string) - queue for batch submission
     options (object) - commandline options
     standalone (boolean) - indicate if this is postprocessing for a standalone case
     """
@@ -335,6 +347,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     templateEnv = jinja2.Environment( loader=templateLoader )
     template = templateEnv.get_template( batchTmpl )
     templateVars = { 'pes' : pes,
+                     'queue' : queue,
                      'processName' : processName,
                      'project' : project }
         
@@ -433,10 +446,12 @@ def main(options):
         # stand-alone caseroot
         standalone = True
         pp_case_path = options.caseroot[0]
-        logpath = '{0}/logs'.format(pp_case_path)
+        log_path = '{0}/logs'.format(pp_case_path)
+        web_path = '{0}/config_web'.format(pp_case_path)
     else:
         pp_case_path = '{0}/postprocess'.format(options.caseroot[0])
-        logpath = '{0}/logs'.format(pp_case_path)
+        log_path = '{0}/logs'.format(pp_case_path)
+        web_path = '{0}/config_web'.format(pp_case_path)
 
     # make the appropriate dirs in the caseroot
     try:
@@ -444,9 +459,13 @@ def main(options):
     except:
         raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(pp_case_path))
     try:
-        os.mkdir(logpath)
+        os.mkdir(log_path)
     except:
-        raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(logpath))
+        raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(log_path))
+    try:
+        os.mkdir(web_path)
+    except:
+        raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(web_path))
 
     # initialize the environment dictionary
     envDict = initialize_main(envDict, options, standalone)
@@ -491,7 +510,7 @@ def main(options):
 
     create_batch(envDict['POSTPROCESS_PATH'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
                  machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                 envDict['PP_CASE_PATH'], machine['modules'], options, standalone)
+                 envDict['PP_CASE_PATH'], machine['modules'], machine['timeseries_queue'], options, standalone)
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
@@ -501,7 +520,7 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'], machine['modules'], options, standalone)
+                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_averages_queue'.format(comp)], options, standalone)
 
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
@@ -509,7 +528,7 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'], machine['modules'], options, standalone)
+                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_diagnostics_queue'.format(comp)], options, standalone)
 
     # copy the copy_html script to the caseroot
     # TODO...

@@ -204,13 +204,13 @@ class modelVsModel(IceDiagnostic):
             create_ice_html.create_plotset_html(env['HTML_HOME']+'/regional_diff.html',web_dir+'/regional.html',env)
             create_ice_html.create_plotset_html(env['HTML_HOME']+'/vector_diff.html',web_dir+'/vector.html',env)
 
-            # append the web_dir location to the envDict
+            # append the web_dir location to the env
             key = 'ICEDIAG_WEBDIR_{0}'.format(self._name)
-            envDict[key] = web_dir
+            env[key] = web_dir
 
             print('*******************************************************************************')
             print('Successfully completed generating ice diagnostics model vs. model plots')
             print('*******************************************************************************')
             
         scomm.sync()
-        return envDict
+        return env

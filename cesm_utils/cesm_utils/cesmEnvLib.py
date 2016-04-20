@@ -87,7 +87,10 @@ def setXmlEnv(indict):
   """
   for k,v in indict.iteritems():
 ##    print('setXMLenv debug: key = {0}, value = {1}'.format(k,v))
-    os.environ[k] = v
+      if not isinstance(v, basestring):
+          os.environ[k] = str(v)
+      else:
+          os.environ[k] = v
 
 
 #==============================================

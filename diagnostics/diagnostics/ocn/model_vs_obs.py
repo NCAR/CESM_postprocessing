@@ -196,7 +196,7 @@ class modelVsObs(OceanDiagnostic):
 
         scomm.sync()
 
-        # append the web_dir location to the envDict
+        # append the web_dir location to the env
         key = 'OCNDIAG_WEBDIR_{0}'.format(self._name)
         env[key] = env['WORKDIR']
 

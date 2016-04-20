@@ -231,7 +231,6 @@ class modelVsModel(LandDiagnostic):
                 else:
                     print('{0}... {1} file not found'.format(err_msg,set9_statTable))
 
-
             web_script_1 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_create_webpage.pl'
             web_script_2 = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_lookupTable.pl'
 
@@ -264,16 +263,25 @@ class modelVsModel(LandDiagnostic):
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
-            # append the web_dir location to the envDict
+            # append the web_dir location to the env
             key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
-            envDict[key] = env['WEB_DIR']
+            env[key] = env['WEB_DIR']
+
+            # append the WEB_DIR and key to the env[WEB_PATH_FILE]
+            with open(env['WEB_PATH_FILE'], 'a') as f:
+                f.write('{0}={1}\n'.format(key, env[key]))
+            f.close()
 
             print('*******************************************************************************')
-            print('Run copy_html utility to copy web files and plots to a remote web server')
-            print('> {0}/copy_html'.format(env['CASEROOT']))
             print('Successfully completed generating land diagnostics model vs. model plots')
             print('*******************************************************************************')
             
         scomm.sync()
 
+        # broadcast env to all tasks
+        env = scomm.partition(data=env, func=partition.Duplicate(), involved=True)
+        if scomm.is_manager():
+            print('DEBUG model_vs_model env[{0}] = {1}'.format(key, env[key]))
+
+        scomm.sync()
         return env

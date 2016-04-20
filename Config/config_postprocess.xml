@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
 
-<?xml-stylesheet type="text/xsl" href="config_definition.xsl" ?>
+<config_definition version="1.0">
 
-<config_definition>
-
-<!-- ======================================================================= -->
-<!-- env_postprocess.xml                                                     -->
-<!-- ======================================================================= -->
+  <!-- ======================================================================= -->
+  <!-- env_postprocess.xml                                                     -->
+  <!-- ======================================================================= -->
 
   <groups>
     <group name="postprocess">
@@ -132,5 +130,5 @@
     </group>
   </groups>
 
-<!-- End postprocessing configuration definitions -->
+  <!-- End postprocessing configuration definitions -->
 </config_definition>

@@ -217,14 +217,26 @@ class modelVsObs(LandDiagnostic):
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
+
+            # append the web_dir location to the env
+            key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
+            env[key] = env['WEB_DIR']
+
+            # append the WEB_DIR and key to the env[WEB_PATH_FILE]
+            with open(env['WEB_PATH_FILE'], 'a') as f:
+                f.write('{0}={1}\n'.format(key, env[key]))
+            f.close()
+
             print('*******************************************************************************')
             print('Successfully completed generating land diagnostics model vs. observation plots')
             print('*******************************************************************************')
 
         scomm.sync()
 
-        # append the web_dir location to the envDict
-        key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
-        envDict[key] = env['WEB_DIR']
+        # broadcast env to all tasks
+        env = scomm.partition(data=env, func=partition.Duplicate(), involved=True)
+        if scomm.is_manager():
+            print('DEBUG model_vs_obs env[{0}] = {1}'.format(key, env[key]))
 
+        scomm.sync()
         return env

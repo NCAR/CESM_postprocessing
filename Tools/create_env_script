@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""read the xml files and set the environment needed for standalone NCL testing
-
+"""read the xml files and create a shell script that
+   can be sourced to set the  environment needed for standalone NCL testing
 __________________________
 Created on October, 2015
 

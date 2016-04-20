@@ -3,7 +3,7 @@
 <machine_postprocess>
 
   <machine name="yellowstone" hostname="yslogin">
-    <timeseries_pes>64</timeseries_pes>
+    <timeseries_pes queue="regular">64</timeseries_pes>
     <mp_timeout>14400</mp_timeout>
     <mpi_command>mpirun.lsf</mpi_command>
     <pythonpath></pythonpath>
@@ -18,35 +18,36 @@
       <module>module load matplotlib/1.4.3</module>
       <module>module load intel/15.0.3</module>
       <module>module load netcdf/4.3.0</module>
-      <module>module load ncl/6.2.0</module>
       <module>module load nco/4.4.4</module>
+      <module>module use /glade/apps/contrib/ncl-nightly/modules</module>
+      <module>module load ncltest-intel</module>
     </modules>
     <components>
       <component name="atm">
-	<averages_pes>124</averages_pes>
-	<diagnostics_pes>16</diagnostics_pes>
+	<averages_pes queue="regular">124</averages_pes>
+	<diagnostics_pes queue="geyser">16</diagnostics_pes>
 	<obs_root>/glade/p/cesm</obs_root>
       </component>
       <component name="ice">
-	<averages_pes>124</averages_pes>
-	<diagnostics_pes>8</diagnostics_pes>
+	<averages_pes queue="regular">124</averages_pes>
+	<diagnostics_pes queue="geyser">8</diagnostics_pes>
 	<obs_root>/glade/p/cesm</obs_root>
       </component>
       <component name="lnd">
-	<averages_pes>124</averages_pes>
-	<diagnostics_pes>16</diagnostics_pes>
+	<averages_pes queue="regular">124</averages_pes>
+	<diagnostics_pes queue="geyser">12</diagnostics_pes>
 	<obs_root>/glade/p/cesm</obs_root>
       </component>
       <component name="ocn">
-	<averages_pes>124</averages_pes>
-	<diagnostics_pes>16</diagnostics_pes>
+	<averages_pes queue="regular">124</averages_pes>
+	<diagnostics_pes queue="geyser">16</diagnostics_pes>
 	<obs_root>/glade/p/cesm</obs_root>
       </component>
     </components>
   </machine>
 
   <machine name="edison" hostname="edison">
-    <timeseries_pes>144</timeseries_pes>
+    <timeseries_pes queue="regular">144</timeseries_pes>
     <mp_timeout>14400</mp_timeout>
     <mpi_command>aprun -n {{ pes }}</mpi_command>
     <pythonpath>/global/project/projectdirs/ccsm1/pythonlib/lib/python2.7/site-packages/PyNIO</pythonpath>
@@ -66,23 +67,23 @@
     </modules>
     <components>
       <component name="atm">
-	<averages_pes>120</averages_pes>
-	<diagnostics_pes>24</diagnostics_pes>
+	<averages_pes queue="regular">120</averages_pes>
+	<diagnostics_pes queue="regular">24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
       <component name="ice">
-	<averages_pes>120</averages_pes>
-	<diagnostics_pes>24</diagnostics_pes>
+	<averages_pes queue="regular">120</averages_pes>
+	<diagnostics_pes queue="regular">24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
       <component name="lnd">
-	<averages_pes>120</averages_pes>
-	<diagnostics_pes>24</diagnostics_pes>
+	<averages_pes queue="regular">120</averages_pes>
+	<diagnostics_pes queue="regular">24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
       <component name="ocn">
-	<averages_pes>120</averages_pes>
-	<diagnostics_pes>24</diagnostics_pes>
+	<averages_pes queue="regular">120</averages_pes>
+	<diagnostics_pes queue="regular">24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
     </components>

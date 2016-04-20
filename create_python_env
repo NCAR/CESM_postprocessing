@@ -236,22 +236,32 @@ ln -sf $pp_dir/ocn_diag/tool_lib/zon_avg/za $pp_dir/ocn_diag/tool_lib/za
 
 echo "---------------------------------------------------------"
 
+cimefile="${pp_dir}/cimeroot"
+if [ -f "$cimefile" ]; then
+    rm "$cimefile"
+    echo "$cimeroot" > "$cimefile"
+else
+    echo "$cimeroot" > "$cimefile"
+fi
+
+
 cd $curdir
 
 status=""
-info="$progname - CESM post processing virtual environment installed successfully in 
-${pp_dir}/cesm-env2.
+info="**********************************************************************************************
 
-**********************************************************************************************
+SUCCESS: $progname CESM post processing virtual environment installed successfully in 
+${pp_dir}/cesm-env2.
 
 All interaction with the virtual environment including activating and deactivating is done via
 the post processing tools that reside in the experiment caseroot directory and are created 
-using the create_postprocess --caseroot [caseroot] script. These include:
+using the create_postprocess --caseroot [caseroot] script. These tools include:
     env_postprocess.xml
-    env_diags_[component].xml
     timeseries
+    env_timeseries.xml
     [component]_averages
     [component]_diagnostics
+    env_diags_[component].xml
 
 **********************************************************************************************"
 print_result $status "$info"
