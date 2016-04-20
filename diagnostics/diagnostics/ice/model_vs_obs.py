@@ -185,6 +185,8 @@ class modelVsObs(IceDiagnostic):
                 mn = os.path.basename(map)
                 shutil.copy(map,web_dir+'/'+mn)
 
+            print('DEBUG: model_vs_obs web_dir = {0}'.format(web_dir))
+
             create_ice_html.create_plotset_html(env['HTML_HOME']+'/index_temp.html',web_dir+'/index.html',env)
             create_ice_html.create_plotset_html(env['HTML_HOME']+'/contour.html',web_dir+'/contour.html',env)
             create_ice_html.create_plotset_html(env['HTML_HOME']+'/timeseries.html',web_dir+'/timeseries.html',env)

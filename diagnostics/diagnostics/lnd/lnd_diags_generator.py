@@ -334,8 +334,11 @@ def main(options, main_comm, debugMsg):
         debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank), header=True, verbosity=2)
     inter_comm.sync()
 
-    web_dir_tag = 1
+    web_dir_ic_tag = 1
+    web_dir_mc_tag = 2
+    
     ic_web_info = dict()
+    mc_web_info = dict()
 
     # loop through the local_diag_list list
     for requested_diag in local_diag_list:

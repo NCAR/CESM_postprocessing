@@ -9,10 +9,13 @@ def create_plotset_html(html_file, new_fn, env):
     if os.path.isfile(new_fn): 
         os.remove(new_fn)
     new_html = open(new_fn,'w')
+    print('DEBUG: create_ice_html new_html = {0}'.format(new_html))
 
     web_path = os.path.dirname(new_fn)+'/'
+    print('DEBUG: create_ice_html web_path = {0}'.format(web_path))
 
     # Open html template 
+    print('DEBUG: create_ice_html html_file = {0}'.format(html_file))
     data = urllib.urlopen(html_file)
 
     # Loop through lines in partial html file.  If a href (image link) check to see 
