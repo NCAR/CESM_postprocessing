@@ -67,6 +67,9 @@ class modelVsObs(IceDiagnostic):
         # diag classes
         env['DIAG_CODE'] = env['NCLPATH']
         env['DIAG_HOME'] = env['NCLPATH']
+
+        print('DEBUG: model_vs_obs env[DIAG_HOME] = {0}'.format(env['DIAG_HOME']))
+
         env['DIAG_ROOT'] = '{0}/{1}-{2}/'.format(env['DIAG_ROOT'], env['CASE_TO_CONT'], 'obs') 
         env['WKDIR'] = env['DIAG_ROOT']
         env['WORKDIR'] = env['WKDIR']
@@ -154,6 +157,9 @@ class modelVsObs(IceDiagnostic):
         if scomm.is_manager():
             # Setup (local) web directories
             env['HTML_HOME'] = env['POSTPROCESS_PATH']+'/ice_diag/web/'    
+
+            print('DEBUG: model_vs_obs env[HTML_HOME] = {0}'.format(env['HTML_HOME']))
+
             web_dir = env['WKDIR']+'/yrs'+env['BEGYR_CONT']+'-'+env['ENDYR_CONT']
             if not os.path.exists(web_dir):
                 os.mkdir(web_dir)
@@ -187,11 +193,12 @@ class modelVsObs(IceDiagnostic):
 
             print('DEBUG: model_vs_obs web_dir = {0}'.format(web_dir))
 
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/index_temp.html',web_dir+'/index.html',env)
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/contour.html',web_dir+'/contour.html',env)
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/timeseries.html',web_dir+'/timeseries.html',env)
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/regional.html',web_dir+'/regional.html',env)
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/vector.html',web_dir+'/vector.html',env)
+            html_dir = env['HTML_HOME']
+            create_ice_html.create_plotset_html(html_dir+'/index_temp.html',web_dir+'/index.html',env)
+            create_ice_html.create_plotset_html(html_dir+'/contour.html',web_dir+'/contour.html',env)
+            create_ice_html.create_plotset_html(html_dir+'/timeseries.html',web_dir+'/timeseries.html',env)
+            create_ice_html.create_plotset_html(html_dir+'/regional.html',web_dir+'/regional.html',env)
+            create_ice_html.create_plotset_html(html_dir+'/vector.html',web_dir+'/vector.html',env)
 
 
             # append the web_dir location to the env

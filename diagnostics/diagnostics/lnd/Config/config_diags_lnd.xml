@@ -43,7 +43,7 @@
              type="char"
              valid_values=""
              value="$DOUT_S_ROOT/lnd/proc/"
-             group="diags_lnd"
+             group="data_path"
              desc="Pre-process history file location for CASE1"
              ></entry>
 
@@ -51,7 +51,7 @@
              type="char"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="data_path"
              desc="Pre-process history file location for CASE2"
              ></entry>
 
@@ -59,7 +59,7 @@
              type="char"
              valid_values=""
              value="$DOUT_S_ROOT"
-             group="diags_lnd"
+             group="data_path"
              desc="Root location of history files for CASE1"
              ></entry>
 
@@ -67,7 +67,7 @@
              type="char"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="data_path"
              desc="Root location of history files for CASE2"
              ></entry>
 
@@ -85,7 +85,7 @@
              type="char"
              valid_values=""
              value="$POSTPROCESS_PATH/lnd_diag/"
-             group="diags_lnd"
+             group="diag_path"
              desc="Diagnostic package location"
              ></entry>
 
@@ -93,7 +93,7 @@
              type="char"
              valid_values=""
              value="$POSTPROCESS_PATH/lnd_diag/"
-             group="diags_lnd"
+             group="diag_path"
              desc="Diagnostic package NCL script location"
              ></entry>
 
@@ -101,7 +101,7 @@
              type="char"
              valid_values=""
              value="$DIAGOBSROOT/lnd/obs_data/"
-             group="diags_lnd"
+             group="diag_path"
              desc="Location of observational datasets"
              ></entry>
 
@@ -119,7 +119,7 @@
              type="integer"
              valid_values="1/0"
              value="1"
-             group="diags_lnd"
+             group="comp_obs"
              desc="Compare to observations in set 2 (1 = compare to PD observations; 0 = OFF)"
              ></entry>
 
@@ -137,7 +137,7 @@
              type="char"
              valid_values=""
              value="$DIAG_HOME"
-             group="diags_lnd"
+             group="var_list_local"
              desc="Path to variable list file"
              ></entry>
 
@@ -145,7 +145,7 @@
              type="char"
              valid_values=""
              value="variable_master4.3.ncl"
-             group="diags_lnd"
+             group="var_list_local"
              desc="Master CN variable list"
              ></entry>
 
@@ -153,7 +153,7 @@
              type="char"
              valid_values=""
              value="variable_master_CASA.ncl"
-             group="diags_lnd"
+             group="var_list_local"
              desc="Master CASA variable list"
              ></entry>
 
@@ -171,7 +171,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="diag_types"
              desc="Controls whether to generate model vs. observations diagnostics"
              ></entry>
 
@@ -179,7 +179,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="diag_types"
              desc="Controls whether to generate model vs. model diagnostics"
              ></entry>
 
@@ -187,7 +187,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="diag_types"
              desc="Remove any existing diagnostic files."
              ></entry>
       
@@ -205,7 +205,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="case_1_settings"
              desc="Compute climatologies for CASE1."
              ></entry>
 
@@ -213,7 +213,7 @@
              type="char"
              valid_values=""
              value="$CASE.$LNDDIAG_lnd_modelstream_1."
-             group="diags_lnd"
+             group="case_1_settings"
              desc="Output file names for CASE1 climos"
              ></entry>
 
@@ -221,7 +221,7 @@
              type="char"
              valid_values=""
              value="$CASE"
-             group="diags_lnd"
+             group="case_1_settings"
              desc="History file case name for CASE1"
              ></entry>
 
@@ -229,7 +229,7 @@
              type="char"
              valid_values=""
              value="clm2.h0"
-             group="diags_lnd"
+             group="case_1_settings"
              desc="Identifying lnd model stream for CASE1"
              ></entry>
 
@@ -237,7 +237,7 @@
              type="char"
              valid_values="cam.h0,cam2.h0"
              value="cam.h0"
-             group="diags_lnd"
+             group="case_1_settings"
              desc="Identifying atm model stream for CASE1"
              ></entry>
 
@@ -245,7 +245,7 @@
              type="char"
              valid_values="rtm.h0, mosart.h0"
              value="mosart.h0"
-             group="diags_lnd"
+             group="case_1_settings"
              desc="Identifying river model stream for CASE1"
              ></entry>
 
@@ -253,7 +253,7 @@
              type="char"
              valid_values=""
              value="test"
-             group="diags_lnd"
+             group="case_1_settings"
              desc="Common name for ID'ing CASE1"
              ></entry>
 
@@ -261,7 +261,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="case_1_settings"
              desc="Use common name for CASE1 in plots"
              ></entry>
 
@@ -269,7 +269,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="case_1_settings"
              desc="Use tseries files to compute CASE1 climos."
              ></entry>
 
@@ -287,7 +287,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="case_2_settings"
              desc="Compute climatologies for CASE2."
              ></entry>
 
@@ -295,7 +295,7 @@
              type="char"
              valid_values=""
              value="case2.$LNDDIAG_lnd_modelstream_2."
-             group="diags_lnd"
+             group="case_2_settings"
              desc="Output file names for CASE2 climos"
              ></entry>
 
@@ -303,7 +303,7 @@
              type="char"
              valid_values=""
              value="case2"
-             group="diags_lnd"
+             group="case_2_settings"
              desc="History file case name for CASE2"
              ></entry>
 
@@ -311,7 +311,7 @@
              type="char"
              valid_values=""
              value="clm2.h0"
-             group="diags_lnd"
+             group="case_2_settings"
              desc="Identifying model stream for CASE2"
              ></entry>
 
@@ -319,7 +319,7 @@
              type="char"
              valid_values="cam.h0,cam2.h0"
              value="cam.h0"
-             group="diags_lnd"
+             group="case_2_settings"
              desc="Identifying atm model stream for CASE2"
              ></entry>
 
@@ -327,7 +327,7 @@
              type="char"
              valid_values="rtm.h0, mosart.h0"
              value="mosart.h0"
-             group="diags_lnd"
+             group="case_2_settings"
              desc="Identifying river model stream for CASE2"
              ></entry>
 
@@ -335,7 +335,7 @@
              type="char"
              valid_values=""
              value="test"
-             group="diags_lnd"
+             group="case_2_settings"
              desc="Common name for ID'ing CASE2"
              ></entry>
 
@@ -343,7 +343,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="case_2_settings"
              desc="Use common name for CASE2 in plots"
              ></entry>
 
@@ -351,7 +351,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="case_2_settings"
              desc="Use tseries files to compute CASE2 climos."
              ></entry>
 
@@ -369,7 +369,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="which_climos"
              desc="Overwrite existing trend files"
              ></entry>
 
@@ -377,7 +377,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="which_climos"
              desc="Overwrite existing climo files"
              ></entry>
 
@@ -385,7 +385,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create averages as a weighted averages"
              ></entry>
 
@@ -393,7 +393,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create seasonal means. Required for Model vs Model, optional for Model vs Obs"
              ></entry>
 
@@ -403,7 +403,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create trends for CASE1. (set1 and set6) Make trends for case1 simulation"
              ></entry>
 
@@ -411,7 +411,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create climos for CASE1. (set2 and set3 and set5 and set7) Make climo for case1 simulation"
              ></entry>
 
@@ -419,7 +419,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create trends for atm CASE1. (set4)  Make atm trends for case1"
              ></entry>
 
@@ -427,7 +427,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create climos for atm CASE1. (set4)  Make atm climo for case1"
              ></entry>
 
@@ -435,7 +435,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="(set7) Set to True for case1 if Mosart was used or False if RTM was used in the simulation"
              ></entry>
 
@@ -443,7 +443,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="(set7) Set to True for case1 if RTM variables are on separate history files"
              ></entry>
 
@@ -451,7 +451,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create trends for rtm CASE1. (set7) Set to True for case1 if RTM variables are on separate history files"
              ></entry>
 
@@ -459,7 +459,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create climos for rtm CASE1 (set7)"
              ></entry>
 
@@ -469,7 +469,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create trends for CASE2. (set1 and set6) Make trends for case2 simulation"
              ></entry>
 
@@ -477,7 +477,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create climos for CASE2. (set2 and set3 and set5 and set7) Make climo for case2 simulation"
              ></entry>
 
@@ -485,7 +485,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create trends for atm CASE2.  (set4)  Make atm trends for case2"
              ></entry>
 
@@ -493,7 +493,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create climos for atm CASE2.  (set4)  Make atm climo for case2"
              ></entry>
 
@@ -501,7 +501,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="which_climos"
              desc="(set7) Set to True for case1 if Mosart was used or False if RTM was used in the simulation"
              ></entry>
 
@@ -509,7 +509,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="which_climos"
              desc="(set7) Set to True for case2 if RTM variables are on separate history files"
              ></entry>
 
@@ -517,7 +517,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create trends for rtm CASE2. (set7) Set to True for case2 if RTM variables are on separate history files"
              ></entry>
 
@@ -525,7 +525,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="which_climos"
              desc="Create climos for rtm CASE2 (set7)"
              ></entry>
 
@@ -543,7 +543,7 @@
              type="integer"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="date_ranges"
              desc="Start year for CASE1 (CLIMO)"
              ></entry>
 
@@ -551,7 +551,7 @@
              type="integer"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="date_ranges"
              desc="Number of years for CASE1 (CLIMO)"
              ></entry>
 
@@ -559,7 +559,7 @@
              type="integer"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="date_ranges"
              desc="Start year for CASE2 (CLIMO)"
              ></entry>
 
@@ -567,7 +567,7 @@
              type="integer"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="date_ranges"
              desc="Number of years for CASE2 (CLIMO)"
              ></entry>
 
@@ -575,7 +575,7 @@
              type="integer"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="date_ranges"
              desc="Start year for CASE1 (TRENDS)"
              ></entry>
 
@@ -583,7 +583,7 @@
              type="integer"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="date_ranges"
              desc="Number of years for CASE1 (TRENDS)"
              ></entry>
 
@@ -591,7 +591,7 @@
              type="integer"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="date_ranges"
              desc="Start year for CASE2 (TRENDS)"
              ></entry>
 
@@ -599,7 +599,7 @@
              type="integer"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="date_ranges"
              desc="Number of years for CASE2 (TRENDS)"
              ></entry>
 
@@ -617,7 +617,7 @@
              type="logical"
              valid_values="0/1"
              value="0"
-             group="diags_lnd"
+             group="spec_case_descr"
              desc="Compare different years for trends. 0 for False 1 for True."
              ></entry>
 
@@ -625,7 +625,7 @@
              type="integer"
              valid_values=""
              value="1"
-             group="diags_lnd"
+             group="spec_case_descr"
              desc="First year of overlap case1 (TRENDS). Set to any year."
              ></entry>
 
@@ -633,7 +633,7 @@
              type="integer"
              valid_values=""
              value="1"
-             group="diags_lnd"
+             group="spec_case_descr"
              desc="First year of overlap case2 (TRENDS). Set to any year."
              ></entry>
 
@@ -651,7 +651,7 @@
              type="logical"
              valid_values="0/1"
              value="0"
-             group="diags_lnd"
+             group="active_variables"
              desc="Logical: Is CN active?"
              ></entry>
 
@@ -659,7 +659,7 @@
              type="logical"
              valid_values="0/1"
              value="0"
-             group="diags_lnd"
+             group="active_variables"
              desc="Logical: Is C13 active?"
              ></entry>
 
@@ -667,7 +667,7 @@
              type="logical"
              valid_values="0/1"
              value="0"
-             group="diags_lnd"
+             group="active_variables"
              desc="True: CLAMP terminology/False: CLM-CN terminology"
              ></entry>
 
@@ -675,7 +675,7 @@
              type="logical"
              valid_values="0/1"
              value="0"
-             group="diags_lnd"
+             group="active_variables"
              desc="True: CASA terminology/False: CLM-CN terminology"
              ></entry>
 
@@ -683,7 +683,7 @@
              type="logical"
              valid_values="0/1"
              value=""
-             group="diags_lnd"
+             group="active_variables"
              desc="Logical: HYDRO vars active?"
              ></entry>
 
@@ -701,7 +701,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 1: ANNUAL TRENDS"
              ></entry>
 
@@ -709,7 +709,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 2: CE CONTOUR PLOTS"
              ></entry>
 
@@ -717,7 +717,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 3: REGIONAL MONTHLY 2M-TEMP,PRECIP,RUNOFF,RADIATIVE AND TURBULENT FLUXES"
              ></entry>
 
@@ -725,7 +725,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 4: VERTICAL PROFILES"
              ></entry>
 
@@ -733,7 +733,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 5: ANNUAL MEANS OF REGIONAL HYDROLOGIC CYCLE AND GLOBAL QUANTITIES"
              ></entry>
 
@@ -741,7 +741,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 6: ANNUAL TRENDS FOR REGIONS"
              ></entry>
 
@@ -749,7 +749,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 7: RIVER FLOW AND DISCHARGE"
              ></entry>
 
@@ -757,7 +757,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 8: OCN-ATMOS TRACERS"
              ></entry>
 
@@ -765,7 +765,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 8_lnd: LND-ATMOS TRACERS"
              ></entry>
 
@@ -773,7 +773,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="plot_sets"
              desc="Plot Set 9: VALIDATION DIAGNOSTICS (ONLY FOR MODEL-MODEL)"
              ></entry>
 
@@ -791,7 +791,7 @@
              type="integer"
              valid_values="0/1"
              value="0"
-             group="diags_lnd"
+             group="plot_opt"
              desc="1=Cylindrical Equidistant, 0=Robinson"
              ></entry>
 
@@ -799,7 +799,7 @@
              type="integer"
              valid_values="0/1"
              value="1"
-             group="diags_lnd"
+             group="plot_opt"
              desc="1=use Blue-Yellow-Red Colormap, 0=use original colormaps"
              ></entry>
 
@@ -807,7 +807,7 @@
              type="integer"
              valid_values=""
              value="144"
-             group="diags_lnd"
+             group="plot_opt"
              desc="Controls density of output images"
              ></entry>
 
@@ -815,7 +815,7 @@
              type="logical"
              valid_values="True/False"
              value="True"
-             group="diags_lnd"
+             group="plot_opt"
              desc="Raster mode for set2 contour plots"
              ></entry>
 
@@ -823,7 +823,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="plot_opt"
              desc="Raster mode for set2 contour plots"
              ></entry>
 
@@ -831,7 +831,7 @@
              type="logical"
              valid_values="True,False"
              value="False"
-             group="diags_lnd"
+             group="plot_opt"
              desc="turn on time stamp on bottom of plots"
              ></entry>
 
@@ -839,7 +839,7 @@
              type="char"
              valid_values="ps/png"
              value="png"
-             group="diags_lnd"
+             group="plot_opt"
              desc="Plot output type"
              ></entry>
 
@@ -859,7 +859,7 @@
              type="logical"
              valid_values="True,False"
              value="False"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Regrid CASE1"
              ></entry>
 
@@ -867,7 +867,7 @@
              type="char"
              valid_values=""
              value="conserve"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Regridding method used for CASE1"
              ></entry>
 
@@ -875,7 +875,7 @@
              type="char"
              valid_values=""
              value="SE_NE30"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Resolution to regrid from for CASE1"
              ></entry>
 
@@ -883,7 +883,7 @@
              type="char"
              valid_values=""
              value="FV_192x288"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Resolution to regrid to for CASE1"
              ></entry>
 
@@ -891,7 +891,7 @@
              type="char"
              valid_values=""
              value="$DIAGOBSROOT/lnd/regriddingFiles/ne30/"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Exact path to weighted file directory"
              ></entry>
 
@@ -899,7 +899,7 @@
              type="char"
              valid_values=""
              value="$DIAGOBSROOT/lnd/regriddingFiles/"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Exact path to area file directory"
              ></entry>
 
@@ -909,7 +909,7 @@
              type="logical"
              valid_values="True,False"
              value="False"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Regrid CASE2"
              ></entry>
 
@@ -917,7 +917,7 @@
              type="char"
              valid_values=""
              value="conserve"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Regridding method used for CASE2"
              ></entry>
 
@@ -925,7 +925,7 @@
              type="char"
              valid_values=""
              value="SE_NE30"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Resolution to regrid from for CASE2"
              ></entry>
 
@@ -933,7 +933,7 @@
              type="char"
              valid_values=""
              value="FV_192x288"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Resolution to regrid to for CASE2"
              ></entry>
 
@@ -941,7 +941,7 @@
              type="char"
              valid_values=""
              value="$DIAGOBSROOT/lnd/regriddingFiles/ne30/"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Exact path to weighted file directory"
              ></entry>
 
@@ -949,7 +949,7 @@
              type="char"
              valid_values=""
              value="$DIAGOBSROOT/lnd/regriddingFiles/"
-             group="diags_lnd"
+             group="regrid_opt"
              desc="Exact path to area file directory"
              ></entry>
 
@@ -967,7 +967,7 @@
              type="integer"
              valid_values=""
              value="0.10"
-             group="diags_lnd"
+             group="pset2_opt"
              desc="level of significance (set 2)"
              ></entry>
 
@@ -975,7 +975,7 @@
              type="integer"
              valid_values=""
              value="1"
-             group="diags_lnd"
+             group="pset2_opt"
              desc="0 = SUBREGION, 1 = GLOBAL (set 2)"
              ></entry>
 
@@ -983,7 +983,7 @@
              type="integer"
              valid_values=""
              value="30."
-             group="diags_lnd"
+             group="pset2_opt"
              desc="southern boundary in degrees north (set 2)"
              ></entry>
 
@@ -991,7 +991,7 @@
              type="integer"
              valid_values=""
              value="80."
-             group="diags_lnd"
+             group="pset2_opt"
              desc="northern boundary in degrees north (set 2)"
              ></entry>
 
@@ -999,7 +999,7 @@
              type="integer"
              valid_values=""
              value="-130."
-             group="diags_lnd"
+             group="pset2_opt"
              desc="western boundary in degrees east (set 2)"
              ></entry>
 
@@ -1007,7 +1007,7 @@
              type="integer"
              valid_values=""
              value="-50."
-             group="diags_lnd"
+             group="pset2_opt"
              desc="eastern boundary in degrees east (set 2)"
              ></entry>
 
@@ -1015,7 +1015,7 @@
              type="char"
              valid_values=""
              value="T42"
-             group="diags_lnd"
+             group="pset2_opt"
              desc="observation resolution (set 2)"
              ></entry>
 
@@ -1033,7 +1033,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="paleo_opt"
              desc="True: use or create coastlines"
              ></entry>
 
@@ -1041,7 +1041,7 @@
              type="integer"
              valid_values=""
              value="0"
-             group="diags_lnd"
+             group="paleo_opt"
              desc="minimum land in test case (fraction 0-1)  (default=0)"
              ></entry>
 
@@ -1049,7 +1049,7 @@
              type="integer"
              valid_values=""
              value="0"
-             group="diags_lnd"
+             group="paleo_opt"
              desc="minimum land in std case (fraction 0-1)  (default=0)"
              ></entry>
 
@@ -1057,7 +1057,7 @@
              type="logical"
              valid_values="True/False"
              value="False"
-             group="diags_lnd"
+             group="paleo_opt"
              desc="True: make difference plots for different continental outlines"
              ></entry>
     </group>
@@ -1069,13 +1069,13 @@
 
     <group name="web_paths">
       <order>17</order>
-      <comment>Web directory path set automatically by lnd_diags_generator.py. These cannot be overwritten by user.</comment>
+      <comment>Web directory path set automatically by lnd_diags_generator.py.</comment>
 
       <entry id="LNDDIAG_WEBDIR_MODEL_VS_OBS"
              type="char"
              valid_values=""
-             value="$LNDDIAG_PTMPDIR_1/climo/$LNDDIAG_caseid_1/$LNDDIAG_caseid_1.$LNDDIAG"
-             group="diags_lnd"
+             value=""
+             group="web_paths"
              desc="Web directory path settings set automatically by lnd_diags_generator.py for MODEL_VS_OBS diagnostics"
              ></entry>
 
@@ -1083,7 +1083,7 @@
              type="char"
              valid_values=""
              value=""
-             group="diags_lnd"
+             group="web_paths"
              desc="Web directory path settings set automatically by lnd_diags_generator.py for MODEL_VS_MODEL diagnostics"
              ></entry>
 

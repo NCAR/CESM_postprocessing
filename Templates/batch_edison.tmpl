@@ -1,7 +1,7 @@
 #PBS -N {{ processName }}
-#PBS -q regular
-#PBS -l mppwidth={{ pes }}
-#PBS -l walltime=48:00
+#PBS -q {{ queue }}
+#PBS -l nodes={{ pes }}:ppn={{ ppn }}
+#PBS -l walltime={{ wallclock }}
 #PBS -o {{ processName }}.stdout
 #PBS -e {{ processName }}.stderr
 

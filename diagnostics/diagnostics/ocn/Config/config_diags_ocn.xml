@@ -27,9 +27,9 @@
       <entry id="OCNDIAG_TAVGDIR"
 	     type="char"
 	     valid_values=""
-	     value="$DOUT_S_ROOT/ocn/proc/tavg"
+	     value="$DOUT_S_ROOT/ocn/proc/tavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1"
 	     group="global"
-	     desc="Local machine directory for climatology files created by the ocn_avg_generator.py."
+	     desc="Local machine directory for climatology files created by the ocn_avg_generator.py. This directory must have write permissions for the user running the postprocessing."
 	     ></entry>
 
       <entry id="OCNDIAG_MODPATH"
@@ -86,6 +86,14 @@
 	     value="$OCNDIAG_ECOPATH/ecosys_vars.txt"
 	     group="global"
 	     desc="local machine filename containing the list of ecosystem variables to be averaged."
+	     ></entry>
+
+      <entry id="OCNDIAG_CLEANUP_FILES"
+	     type="logical"
+	     valid_values="TRUE,FALSE"
+	     value="TRUE"
+	     group="web_options"
+	     desc="Logical to control if working files are deleted (TRUE) or saved (FALSE) prior to generating a new set of diagnostics."
 	     ></entry>
     </group>
 
@@ -479,7 +487,7 @@
 	     valid_values=""
 	     value=""
 	     group="control_case_options"
-	     desc="local directory path to control model DOUT_S_ROOT path for OMWG model vs. control diagnostics."
+	     desc="Local directory path to control model DOUT_S_ROOT path for OMWG model vs. control diagnostics."
 	     ></entry>
 
       <entry id="OCNDIAG_CNTRLCASE"
@@ -524,10 +532,10 @@
 
       <entry id="OCNDIAG_CNTRLTAVGDIR"
 	     type="char"
-	     valid_values="$DOUT_S_ROOT/ocn/proc/tavg"
+	     valid_values="$OCNDIAG_CNTRLCASEDIR/ocn/proc/tavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1"
 	     value=""
 	     group="control_case_options"
-	     desc="Local directory path to control model climatology files for OMWG model vs. model diagnostics"
+	     desc="Local directory path to control model climatology files for OMWG model vs. model diagnostics. This directory must have write permissions for the user running the postprocessing."
 	     ></entry>
 
       <entry id="OCNDIAG_CNTRLSEASAVGTEMP"
@@ -781,70 +789,8 @@
 	     ></entry>
     </group>
 
-    <group name="web_options">
-      <order>9</order>
-      <comment>Environment variable settings related to web posting of plots.</comment>
-
-      <entry id="OCNDIAG_CLEANUP_FILES"
-	     type="logical"
-	     valid_values="TRUE,FALSE"
-	     value="TRUE"
-	     group="web_options"
-	     desc="Logical to control if working files are deleted (TRUE) or saved (FALSE) prior to generating a new set of diagnostics."
-	     ></entry>
-
-   <entry id="OCNDIAG_WEBDIR_MODEL_VS_OBS"
-         type="char"
-         valid_values=""
-         value=""
-         group="web_options"
-         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_VS_OBS diagnostics"
-         ></entry>
-
-   <entry id="OCNDIAG_WEBDIR_MODEL_VS_CONTROL"
-         type="char"
-         valid_values=""
-         value=""
-         group="web_options"
-         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_VS_CONTROL diagnostics"
-         ></entry>
-
-   <entry id="OCNDIAG_WEBDIR_MODEL_TIMESERIES"
-         type="char"
-         valid_values=""
-         value=""
-         group="web_options"
-         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_TIMESERIES diagnostics"
-         ></entry>
-
-   <entry id="OCNDIAG_WEBDIR_MODEL_VS_OBS_ECOSYS"
-         type="char"
-         valid_values=""
-         value=""
-         group="web_options"
-         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_VS_OBS diagnostics"
-         ></entry>
-
-   <entry id="OCNDIAG_WEBDIR_MODEL_VS_CONTROL_ECOSYS"
-         type="char"
-         valid_values=""
-         value=""
-         group="web_options"
-         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_VS_CONTROL_ECOSYS diagnostics"
-         ></entry>
-
-   <entry id="OCNDIAG_WEBDIR_MODEL_TIMESERIES_ECOSYS"
-         type="char"
-         valid_values=""
-         value=""
-         group="web_options"
-         desc="Web directory path settings set automatically by ocn_diags_generator.py for MODEL_TIMESERIES_ECOSYS diagnostics"
-         ></entry>
-
-    </group>
-
     <group name="model_vs_obs_plots">
-      <order>10</order>
+      <order>9</order>
       <comment>Environment variable settings for turning on and off model vs. observations plot modules.</comment>
 
       <entry id="OCNDIAG_MVO_PLOT_ORDER"
@@ -975,7 +921,7 @@
     </group>
 
     <group name="model_vs_control_plots">
-      <order>11</order>
+      <order>10</order>
       <comment>Environment variable settings for turning on and off model vs. control plot modules.</comment>
 
       <entry id="OCNDIAG_MVC_PLOT_ORDER"
@@ -1071,7 +1017,7 @@
     </group>
 
     <group name="model_timeseries_plots">
-      <order>12</order>
+      <order>11</order>
       <comment>Environment variable settings for turning on and off model timeseries plot modules.</comment>
 
       <entry id="OCNDIAG_MTS_PLOT_ORDER"
@@ -1125,7 +1071,7 @@
     </group>
 
     <group name="model_vs_obs_ecosys_plots">
-      <order>13</order>
+      <order>12</order>
       <comment>Environment variable settings for turning on and off model vs. observations ecosystem plot modules.</comment>
 
       <entry id="OCNDIAG_MVOECOSYS_PLOT_ORDER"
@@ -1165,7 +1111,7 @@
     </group>
 
     <group name="model_vs_control_ecosys_plots">
-      <order>14</order>
+      <order>13</order>
       <comment>Environment variable settings for turning on and off model vs. control ecosystem plot modules.</comment>
 
       <entry id="OCNDIAG_MVCECOSYS_PLOT_ORDER"
@@ -1198,7 +1144,7 @@
     </group>
 
     <group name="model_timeseries_ecosys_plots">
-      <order>15</order>
+      <order>14</order>
       <comment>Environment variable settings for turning on and off model ecosystem timeseries plot modules.</comment>
 
       <entry id="OCNDIAG_MTSECOSYS_PLOT_ORDER"
@@ -1229,6 +1175,27 @@
 	     group="model_timeseries_ecosys_plots"
 	     desc="Logical to control whether to create time-series vertical profile ecosystem plots."></entry>
     </group>
+
+
+    <!-- ============================================================================================== -->
+    <!-- 17: Web directory paths - these are set in the code and are not read in the xml.               -->
+    <!-- These variables are read by the copy_html utility.                                             -->
+    <!-- ============================================================================================== -->
+
+    <group name="web_paths">
+      <order>15</order>
+      <comment>Web directory path set automatically by ocn_diags_generator.py.</comment>
+
+      <entry id="OCNDIAG_WEBDIR"
+             type="char"
+             valid_values=""
+             value=""
+             group="web_paths"
+             desc="Web directory path setting set automatically by ocn_diags_generator.py"
+             ></entry>
+
+    </group>
+
 
   </groups>
 

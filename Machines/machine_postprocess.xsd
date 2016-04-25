@@ -5,12 +5,13 @@
   <xs:attribute name="name" type="xs:string"/>
   <xs:attribute name="hostname" type="xs:string"/>
   <xs:attribute name="queue" type="xs:string"/>
+  <xs:attribute name="pes_per_node" type="xs:string"/>
+  <xs:attribute name="wallclock" type="xs:string"/>
   <xs:attribute name="fcompiler" type="xs:string"/>
   <xs:attribute name="f77exec" type="xs:string"/>
 
   <!-- definition of simple elements -->
   <xs:element name="module" type="xs:string" />
-  <xs:element name="mp_timeout" type="xs:string"/>
   <xs:element name="mpi_command" type="xs:string"/>
   <xs:element name="pythonpath" type="xs:string"/>
   <xs:element name="project" type="xs:string"/>
@@ -22,6 +23,8 @@
       <xs:simpleContent>
 	<xs:extension base="xs:string">
 	  <xs:attribute name="queue" use="required"/>
+	  <xs:attribute name="pes_per_node" use="optional"/>
+	  <xs:attribute name="wallclock" use="required"/>
 	</xs:extension>
       </xs:simpleContent>
     </xs:complexType>
@@ -32,6 +35,8 @@
       <xs:simpleContent>
 	<xs:extension base="xs:string">
 	  <xs:attribute name="queue" use="required"/>
+	  <xs:attribute name="pes_per_node" use="optional"/>
+	  <xs:attribute name="wallclock" use="required"/>
 	</xs:extension>
       </xs:simpleContent>
     </xs:complexType>
@@ -42,6 +47,8 @@
       <xs:simpleContent>
 	<xs:extension base="xs:string">
 	  <xs:attribute name="queue" use="required"/>
+	  <xs:attribute name="pes_per_node" use="optional"/>
+	  <xs:attribute name="wallclock" use="required"/>
 	</xs:extension>
       </xs:simpleContent>
     </xs:complexType>
@@ -89,7 +96,6 @@
     <xs:complexType>
       <xs:sequence>
 	<xs:element ref="timeseries_pes" minOccurs="0" maxOccurs="1"/>
-	<xs:element ref="mp_timeout" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="mpi_command" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="pythonpath" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="f2py" minOccurs="0" maxOccurs="1"/>

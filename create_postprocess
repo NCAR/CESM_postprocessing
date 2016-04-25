@@ -233,10 +233,10 @@ def read_machine_xml(machineName, xmlFile):
     xmlFile (string) - XML file containing machine pe layout for postprocessing
 
     Return:
-    peDict (dictionary) - PE count for each postprocess task
+    machine (dictionary) - dictionary with machine specific settings read from the XML file
     """
-    xmlDict = dict()
-    xmlDict['modules'] = []
+    machine = dict()
+    machine['modules'] = []
     found = False
     rc, err_msg = cesmEnvLib.checkFile(xmlFile, 'read')
     if rc:
@@ -250,23 +250,25 @@ def read_machine_xml(machineName, xmlFile):
                 found = True
                 # get the timeseries pes first
                 tseries_pes = xmlmachine.find('timeseries_pes')
-                xmlDict['timeseries_pes'] = tseries_pes.text
-                xmlDict['timeseries_queue'] = tseries_pes.get('queue').lower()
+                machine['timeseries_pes'] = tseries_pes.text
+                machine['timeseries_queue'] = tseries_pes.get('queue').lower()
+                machine['timeseries_ppn'] = tseries_pes.get('pes_per_node').lower()
+                machine['timeseries_wallclock'] = tseries_pes.get('wallclock').lower()
 
                 # get the mpi run command
-                xmlDict['mpi_command'] = xmlmachine.find('mpi_command').text
+                machine['mpi_command'] = xmlmachine.find('mpi_command').text
 
                 # get the pythonpath command
-                xmlDict['pythonpath'] = xmlmachine.find('pythonpath').text
-                if xmlDict['pythonpath'] is None:
-                    xmlDict['pythonpath'] = ''
+                machine['pythonpath'] = xmlmachine.find('pythonpath').text
+                if machine['pythonpath'] is None:
+                    machine['pythonpath'] = ''
 
                 # get the project
-                xmlDict['project'] = xmlmachine.find('project').text
+                machine['project'] = xmlmachine.find('project').text
 
                 # loop through the module list
                 for mod in xmlmachine.findall("modules/module"):
-                    xmlDict['modules'].append(mod.text)
+                    machine['modules'].append(mod.text)
 
                 # loop through the compList to get the component PE layouts
                 # and observation data root
@@ -274,14 +276,18 @@ def read_machine_xml(machineName, xmlFile):
                     compName = comp.get("name").lower()
 
                     avg = comp.find('averages_pes')
-                    xmlDict['{0}_averages_pes'.format(compName)] = avg.text
-                    xmlDict['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
+                    machine['{0}_averages_pes'.format(compName)] = avg.text
+                    machine['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
+                    machine['{0}_averages_ppn'.format(compName)] = avg.get('pes_per_node').lower()
+                    machine['{0}_averages_wallclock'.format(compName)] = avg.get('wallclock').lower()
 
                     diags = comp.find('diagnostics_pes')
-                    xmlDict['{0}_diagnostics_pes'.format(compName)] = diags.text
-                    xmlDict['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
+                    machine['{0}_diagnostics_pes'.format(compName)] = diags.text
+                    machine['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
+                    machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
+                    machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
 
-                    xmlDict['{0}_obs_root'.format(compName)] = comp.find('obs_root').text
+                    machine['{0}_obs_root'.format(compName)] = comp.find('obs_root').text
 
         if not found:
             err_msg = ('create_postprocess ERROR: Invalid machine "{0}" requested for postprocessing'.format(machine))
@@ -289,13 +295,13 @@ def read_machine_xml(machineName, xmlFile):
     else:
         raise OSError(err_msg)
 
-    return xmlDict
+    return machine
 
 # -------------------------------------------------------------------------------
 # create_batch - create the batch files for post processing submission
 # -------------------------------------------------------------------------------
 def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName,
-                 project, pythonpath, caseRoot, modules, queue, options, standalone):
+                 project, pythonpath, caseRoot, modules, queue, ppn, wallclock, options, standalone):
     """create the batch submission files for post processing
 
     Arguments:
@@ -349,7 +355,9 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     templateVars = { 'pes' : pes,
                      'queue' : queue,
                      'processName' : processName,
-                     'project' : project }
+                     'project' : project,
+                     'ppn' : ppn,
+                     'wallclock' : wallclock }
         
     # render this template into the batchdirectives string
     batchdirectives = template.render( templateVars )
@@ -510,7 +518,8 @@ def main(options):
 
     create_batch(envDict['POSTPROCESS_PATH'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
                  machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                 envDict['PP_CASE_PATH'], machine['modules'], machine['timeseries_queue'], options, standalone)
+                 envDict['PP_CASE_PATH'], machine['modules'], machine['timeseries_queue'], 
+                 machine['timeseries_ppn'], machine['timeseries_wallclock'], options, standalone)
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
@@ -520,7 +529,8 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_averages_queue'.format(comp)], options, standalone)
+                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_averages_queue'.format(comp)], 
+                     machine['{0}_averages_ppn'.format(comp)], machine['{0}_averages_wallclock'.format(comp)], options, standalone)
 
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
@@ -528,9 +538,13 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_diagnostics_queue'.format(comp)], options, standalone)
+                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_diagnostics_queue'.format(comp)],
+                     machine['{0}_diagnostics_ppn'.format(comp)], machine['{0}_diagnostics_wallclock'.format(comp)], options, standalone)
 
-    # copy the copy_html script to the caseroot
+    # copy the copy_html script to the caseroot 
+    # TODO...
+
+    # copy the pp_env_set and pp_env_get to the caseroot
     # TODO...
 
     print('*****************************************************************************************')

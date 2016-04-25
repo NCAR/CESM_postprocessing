@@ -74,7 +74,7 @@ def commandline_options():
 #==============================================================================================
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
 #==============================================================================================
-def readArchiveXML(caseroot, dout_s_root, casename, debug):
+def readArchiveXML(caseroot, dout_s_root, casename, standalone, debug):
     """ reads the $CASEROOT/env_timeseries.xml file and builds a fully defined list of 
          reshaper specifications to be passed to the pyReshaper tool.
 
@@ -82,16 +82,23 @@ def readArchiveXML(caseroot, dout_s_root, casename, debug):
     caseroot (string) - case root path
     dout_s_root (string) - short term archive root path
     casename (string) - casename
+    standalone (boolean) - logical to indicate if postprocessing case is stand-alone or not
     """
     specifiers = list()
     xml_tree = ET.ElementTree()
+
+    # get path to env_timeseries.xml file
+    env_timeseries = '{0}/postprocess/env_timeseries.xml'.format(caseroot)
+    if standalone:
+        env_timeseries = '{0}/env_timeseries.xml'.format(caseroot)
+
     # check if the env_timeseries.xml file exists
-    if ( not os.path.isfile('{0}/env_timeseries.xml'.format(caseroot)) ):
+    if ( not os.path.isfile(env_timeseries) ):
         err_msg = "cesm_tseries_generator.py ERROR: {0}/env_timeseries.xml does not exist.".format(caseroot)
         raise OSError(err_msg)
     else:
         # parse the xml
-        xml_tree.parse('{0}/env_timeseries.xml'.format(caseroot))
+        xml_tree.parse(env_timeseries)
 
         # loop through all the comp_archive_spec elements to find the tseries related elements
         for comp_archive_spec in xml_tree.findall("components/comp_archive_spec"):
@@ -253,7 +260,7 @@ def main(options, scomm, rank, size):
 
     # loading the specifiers from the env_timeseries.xml  only needs to run on the master task (rank=0) 
     if rank == 0:
-        specifiers = readArchiveXML(caseroot, cesmEnv['DOUT_S_ROOT'], cesmEnv['CASE'], debug)
+        specifiers = readArchiveXML(caseroot, cesmEnv['DOUT_S_ROOT'], cesmEnv['CASE'], options.standalone, debug)
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper

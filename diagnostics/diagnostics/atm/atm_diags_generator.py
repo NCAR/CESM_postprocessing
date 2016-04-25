@@ -154,7 +154,7 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_lnd.xml']
+    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_atm.xml']
     if standalone:
         env_file_list =  ['./env_postprocess.xml', './env_diags_atm.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)

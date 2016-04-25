@@ -51,10 +51,10 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         super(MixedLayerDepth, self).check_prerequisites(env)
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
 
-        # set SEASAVGRHO env var to the envDict['SEASAVGRHO'] output file name
+        # set SEASAVGRHO env var to the env['SEASAVGRHO'] output file name
         os.environ['SEASAVGRHO'] = env['SEASAVGRHO']
 
-        # set CNTRLSEASAVGRHO env var to the envDict['CNTRLSEASAVGRHO'] output file name
+        # set CNTRLSEASAVGRHO env var to the env['CNTRLSEASAVGRHO'] output file name
         os.environ['CNTRLSEASAVGRHO'] = env['CNTRLSEASAVGRHO']
 
         # set a link to RHOOBSDIR/RHOOBSFILE

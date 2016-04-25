@@ -272,7 +272,7 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
     # TODO put this file list into the config_postprocess definition
-    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_lnd.xml']
+    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_ice.xml']
     if standalone:
         env_file_list =  ['./env_postprocess.xml', './env_diags_ice.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)

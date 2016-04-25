@@ -1,10 +1,10 @@
 #BSUB -n {{ pes }}
-#BSUB -R "span[ptile=8]"
+#BSUB -R "span[ptile={{ ppn }}]"
 #BSUB -q {{ queue }}
 #BSUB -N
 #BSUB -a poe
 #BSUB -J CESM_postprocessing
-#BSUB -W 02:00
+#BSUB -W {{ wallclock }}
 #BSUB -P {{ project }} 
 
 . /glade/apps/opt/lmod/lmod/init/bash

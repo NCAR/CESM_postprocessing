@@ -64,6 +64,10 @@ class modelVsModel(IceDiagnostic):
 
         # Set some new env variables
         env['DIAG_CODE'] = env['NCLPATH']
+        env['DIAG_HOME'] = env['NCLPATH']
+
+        print('DEBUG: model_vs_model env[DIAG_HOME] = {0}'.format(env['DIAG_HOME']))
+
         env['DIAG_ROOT'] = '{0}/{1}-{2}/'.format(env['DIAG_ROOT'], env['CASE_TO_CONT'], env['CASE_TO_DIFF'])
         env['WKDIR'] = env['DIAG_ROOT']
         env['WORKDIR'] = env['WKDIR']
@@ -198,11 +202,14 @@ class modelVsModel(IceDiagnostic):
                 mn = os.path.basename(map)
                 shutil.copy(map,web_dir+'/'+mn)
 
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/index_diff_temp.html',web_dir+'/index.html',env)
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/contour_diff.html',web_dir+'/contour.html',env)
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/timeseries_diff.html',web_dir+'/timeseries.html',env)
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/regional_diff.html',web_dir+'/regional.html',env)
-            create_ice_html.create_plotset_html(env['HTML_HOME']+'/vector_diff.html',web_dir+'/vector.html',env)
+            print('DEBUG: model_vs_model web_dir = {0}'.format(web_dir))
+
+            html_dir = env['HTML_HOME']
+            create_ice_html.create_plotset_html(html_dir+'/index_diff_temp.html',web_dir+'/index.html',env)
+            create_ice_html.create_plotset_html(html_dir+'/contour_diff.html',web_dir+'/contour.html',env)
+            create_ice_html.create_plotset_html(html_dir+'/timeseries_diff.html',web_dir+'/timeseries.html',env)
+            create_ice_html.create_plotset_html(html_dir+'/regional_diff.html',web_dir+'/regional.html',env)
+            create_ice_html.create_plotset_html(html_dir+'/vector_diff.html',web_dir+'/vector.html',env)
 
             # append the web_dir location to the env
             key = 'ICEDIAG_WEBDIR_{0}'.format(self._name)
