@@ -94,7 +94,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, debug):
 
     # check if the env_timeseries.xml file exists
     if ( not os.path.isfile(env_timeseries) ):
-        err_msg = "cesm_tseries_generator.py ERROR: {0}/env_timeseries.xml does not exist.".format(caseroot)
+        err_msg = "cesm_tseries_generator.py ERROR: {0} does not exist.".format(env_timeseries)
         raise OSError(err_msg)
     else:
         # parse the xml
@@ -243,6 +243,13 @@ def main(options, scomm, rank, size):
 
     # CASEROOT is given on the command line as required option --caseroot
     caseroot = options.caseroot[0]
+
+    # set the caseroot based on standalone or not
+    pp_caseroot = caseroot
+    if not options.standalone:
+        caseroot, pp_subdir = os.path.split(caseroot)
+    if rank == 0:
+        print('cesm_tseries_generator: caseroot = {0}'.format(caseroot))
 
     # set the debug level 
     debug = options.debug[0]
