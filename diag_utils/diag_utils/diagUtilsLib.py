@@ -74,7 +74,6 @@ def generate_ncl_plots(env, nclPlotFile):
             #print('    {0} - {1}'.format(e.errno, e.strerror))
     else:
         print('{0}... continuing with additional NCL calls.'.format(err_msg))
-
     return 0
 
 

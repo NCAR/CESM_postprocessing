@@ -114,6 +114,7 @@ def regrid_climos(env,main_comm):
 
     # If SE grid, convert to lat/lon grid
     regrid_script = 'se2fv_esmf.regrid2file.ncl'
+
     # Convert Case1
     m_dir = 'lnd'
     if (env['regrid_1'] == 'True'):
@@ -124,6 +125,7 @@ def regrid_climos(env,main_comm):
         workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR_1'], env['caseid_1'], subdir, m_dir)
         print('LOOKING TO REGRID IN: '+workdir)
         climo_files = glob.glob( workdir+'/*.nc')
+
         # partition the climo files between the ranks so each rank will get a portion of the list to regrid
         local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
         env['WORKDIR'] = workdir
@@ -132,6 +134,7 @@ def regrid_climos(env,main_comm):
         for climo_file in local_climo_files:
             diagUtilsLib.lnd_regrid(climo_file, regrid_script, '1', workdir, env)
         os.chdir(current_dir)
+
     # Convert Case2
     if (env['MODEL_VS_MODEL'] == 'True' and env['regrid_2'] == 'True'):
         # get list of climo files to regrid

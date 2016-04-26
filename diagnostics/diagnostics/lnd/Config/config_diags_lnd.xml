@@ -100,7 +100,7 @@
       <entry id="LNDDIAG_OBS_HOME"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/lnd/obs_data/"
+             value="$DIAGOBSROOT/obs_data/"
              group="diag_path"
              desc="Location of observational datasets"
              ></entry>
@@ -890,7 +890,7 @@
       <entry id="LNDDIAG_wgt_dir_1"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/lnd/regriddingFiles/ne30/"
+             value="$DIAGOBSROOT/regriddingFiles/ne30/"
              group="regrid_opt"
              desc="Exact path to weighted file directory"
              ></entry>
@@ -898,7 +898,7 @@
       <entry id="LNDDIAG_area_dir_1"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/lnd/regriddingFiles/"
+             value="$DIAGOBSROOT/regriddingFiles/"
              group="regrid_opt"
              desc="Exact path to area file directory"
              ></entry>
@@ -940,7 +940,7 @@
       <entry id="LNDDIAG_wgt_dir_2"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/lnd/regriddingFiles/ne30/"
+             value="$DIAGOBSROOT/regriddingFiles/ne30/"
              group="regrid_opt"
              desc="Exact path to weighted file directory"
              ></entry>
@@ -948,7 +948,7 @@
       <entry id="LNDDIAG_area_dir_2"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/lnd/regriddingFiles/"
+             value="$DIAGOBSROOT/regriddingFiles/"
              group="regrid_opt"
              desc="Exact path to area file directory"
              ></entry>

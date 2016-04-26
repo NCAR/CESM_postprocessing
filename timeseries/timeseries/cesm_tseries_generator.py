@@ -166,7 +166,11 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, debug):
                         # check that there are actually a list of history files to work with
                         for in_file in all_in_files:
                             if re.search(file_extension, in_file):
-                                history_files.append(in_file_path+"/"+in_file)
+                                # check to make sure this file ends in .nc and not something else
+                                if in_file.endswith('.nc'):
+                                    history_files.append(in_file_path+"/"+in_file)
+                                else:
+                                    print('cesm_tseries_generator.py WARNING - unable to operate on file {0}/{1}'.format(in_file_path,in_file))
 
                         # sort the list of input history files in order to get the output suffix 
                         # from the first and last file
