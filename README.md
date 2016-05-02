@@ -6,7 +6,7 @@ Please see the shared Google document for CESM postprocessing documentation unti
 https://docs.google.com/a/ucar.edu/document/d/1toJt7y35cy_730-tGaKkzYC5H509iY9DYNmLFDGNe6E/edit?usp=sharing
 
 ## Updating your local postprocessing sandbox
-Be sure to follow these steps when updating you local CESM postprocessing sandbox.
+Be sure to follow these steps when updating you local CESM postprocessing sandbox with the SVN trunk.
 > cd $postprocess_sandbox
 
 > make clobber
