@@ -8,9 +8,13 @@ https://docs.google.com/a/ucar.edu/document/d/1toJt7y35cy_730-tGaKkzYC5H509iY9DY
 ## Updating your local postprocessing sandbox
 Be sure to follow these steps when updating you local CESM postprocessing sandbox.
 > cd $postprocess_sandbox
+
 > make clobber
+
 > make clobber-env
-> svn up 
+
+> svn update 
+
 > ./create_postprocess_env -cimeroot $CIMEROOT -machine yellowstone
 
 The Github issue will add instructions if ./create_postprocess needs to be rerun for existing postprocessing caseroots.
