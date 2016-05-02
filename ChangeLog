@@ -6,6 +6,27 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: aliceb
+Date: 2 May 2016
+Model: postprocessing
+Version: postprocessing_20160502
+One-line: Fixes for ice diags set 4 problem in NCL. Update PyAverager to fix
+problem using variable timeseries input files and a subset of years. Add first
+pass and creating lnd regrid files in parallel in separate directories.
+
+M       diag_utils/diag_utils/diagUtilsLib.py
+M       diag_utils/VERSION
+M       Machines/machine_postprocess.xml
+M       Templates/env_postprocess.tmpl
+M       SVN_EXTERNAL_DIRECTORIES
+M       cesm_utils/VERSION
+M       diagnostics/VERSION
+M       diagnostics/diagnostics/ocn/model_timeseries.py
+M       diagnostics/diagnostics/lnd/lnd_diags_generator.py
+M       timeseries/VERSION
+
+================================================================================
+
+Originator: aliceb
 Date: 26 April 2016
 Model: postprocessing
 Version: postprocessing_20160426a

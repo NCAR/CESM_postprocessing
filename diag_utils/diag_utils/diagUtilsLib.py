@@ -58,7 +58,7 @@ def generate_ncl_plots(env, nclPlotFile):
     # check if the nclPlotFile exists - 
     # don't exit if it does not exists just print a warning.
     nclFile = '{0}/{1}'.format(env['NCLPATH'],nclPlotFile)
-    print('      calling NCL routine {0}'.format(nclFile))
+    print('Calling NCL routine {0} from {1}'.format(nclFile, env['WORKDIR']))
     rc, err_msg = cesmEnvLib.checkFile(nclFile, 'read')
     if rc:
         try:
@@ -552,19 +552,31 @@ def atm_regrid(climo_file, regrid_script, in_grid, out_grid, env):
 #======================================================================
 # Function to regrid the lnd climatology files
 #======================================================================
-def lnd_regrid(climo_file, regrid_script, t, outdir, env):
-    """ Regrid the climatology file that was passed in
+def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
+    """ Regrid the climatology file that was passed in 
     """
+    # move the climo file into the tmp_outdir in order to run
+    # in parallel and avoid conflicts with duplicate temp file name from ESMF
+    tmp_outdir = '{0}/{1}'.format(outdir, ext_dir)
+    os.rename(outdir+'/'+climo_file, tmp_outdir+'/'+climo_file)
+
     env['method']   = env['method_'+t]
     env['wgt_dir']  = env['wgt_dir_'+t]
     env['wgt_file'] = env['old_res_'+t]+'_to_'+env['new_res_'+t]+'.'+env['method_'+t]+'.nc'
     env['area_dir'] = env['area_dir_'+t]
     env['area_file']= env['new_res_'+t]+'_area.nc' 
-    env['procDir']  = outdir
+##    env['procDir']  = outdir
+    env['procDir']  = tmp_outdir
     env['oldres']   = env['old_res_'+t]
     env['InFile']   = os.path.basename(climo_file)
     env['OutFile']  = env['new_res_'+t]+'_'+os.path.basename(climo_file)
     env['newfn']    = env['old_res_'+t]+'_'+os.path.basename(climo_file)
+
+    # store some directory state variables to allow for working in the tmp_outdir
+    workdir = env['WORKDIR']
+    env['WORKDIR'] = tmp_outdir
+    current_dir = os.getcwd()
+    os.chdir(tmp_outdir)
      
     # Stringify the env dictionary
     env_copy = env.copy()
@@ -573,8 +585,23 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, env):
 
     # Call ncl to regrid the climo file
     generate_ncl_plots(env_copy,regrid_script)
-    in_f = os.path.basename(climo_file)
-    os.rename(outdir+'/'+in_f, outdir+'/'+env['oldres']+in_f)
-    os.rename(outdir+'/'+env['OutFile'], outdir+'/'+in_f)
 
+    # move files back to their original locations
+    in_f = os.path.basename(climo_file)
+    os.rename(tmp_outdir+'/'+in_f, outdir+'/'+env['oldres']+in_f)
+    os.rename(tmp_outdir+'/'+env['OutFile'], outdir+'/'+in_f)
+
+    # restore the working dir
+    os.chdir(current_dir)
+    env['WORKDIR'] = workdir
+
+    # remove the tmp_workdir if it is empty
+    try:
+        os.rmdir(tmp_workdir)
+    except OSError as ex:
+        if ex.errno == errno.ENOTEMPTY:
+            print('WARNING lnd_regrid: {0} directory not empty'.format(tmp_workdir))
+    
+
+    
 

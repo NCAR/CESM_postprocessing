@@ -112,6 +112,9 @@ class modelTimeseries(OceanDiagnostic):
 
                         # remove the original .gz file in the workdir
                         os.remove('{0}/{1}'.format(env['WORKDIR'],cplLogFile))
+                    else:
+                        # append the original gunzipped cpl log file to the cplLogs list
+                        cplLogs.append('{0}/{1}'.format(env['WORKDIR'],cplLog))
 
                 # parse the cpllog depending on the coupler version - default to 7b
                 print('model_timeseries: setting up heat and freshwater awk calls with cplLogs = {0}'.format(cplLogs))
@@ -200,6 +203,10 @@ class modelTimeseries(OceanDiagnostic):
 
                         # remove the original .gz file in the workdir
                         os.remove('{0}/{1}'.format(env['WORKDIR'],ocnLogFile))
+
+                    else:
+                        # append the original gunzipped ocn log file to the ocnLogs list
+                        ocnLogs.append('{0}/{1}'.format(env['WORKDIR'],ocnLogFile))
 
                 # expand the ocn.log* into a list
                 ocnLogs.sort()

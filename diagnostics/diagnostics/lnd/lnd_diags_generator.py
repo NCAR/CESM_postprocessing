@@ -29,6 +29,7 @@ if sys.hexversion < 0x02070000:
 
 # import core python modules
 import argparse
+import fnmatch
 import os
 import re
 import traceback
@@ -96,6 +97,58 @@ def setup_diags(envDict):
 
     return requested_diags
 
+#================================================
+# get_climo_files_to_regrid
+#================================================
+def get_climo_files_to_regrid(file_extensions, workdir, stream, env):
+    """ get_climo_files_to_regrid - return a list of climo files that need to be 
+        regrided in a given workdir.
+
+        Input:
+        file_extensions (list) - list of file extensions of associated files to be regridded.
+                                 This list also defines the names of the subdirectories to
+                                 be used to setup the regridding in parallel.
+        workdir (string) - location of climo files to be regridded
+        stream (string) - lnd history stream used in filename
+        env (dict) - environment dictionary
+
+        Return:
+        climo_files (dict) - dictionary of climo files to be regridded
+     """
+    climo_files_dict = dict()
+    current_dir = os.getcwd()
+    os.chdir(workdir)
+
+    endYr = str((int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1)
+    file_prefix = '{0}.{1}.{2}-{3}'.format(env['caseid_1'], stream, env['clim_first_yr_1'].zfill(4), endYr.zfill(4))
+    
+    trends_endYr = str((int(env['trends_first_yr_1']) + int(env['trends_num_yrs_1'])) - 1)
+    trends_file_ANN_ALL = '{0}.{1}.{2}-{3}.ANN_ALL.nc'.format(env['caseid_1'], stream, env['trends_first_yr_1'].zfill(4), trends_endYr.zfill(4))
+
+    # build up the dictionary of climo files to be regridded
+    for filename in os.listdir('.'):
+        print('DEBUG: in get_climo_files_to_regrid filename = {0}'.format(filename))
+
+        for ext in file_extensions:
+            if fnmatch.fnmatch(filename, '{0}.{1}.nc'.format(file_prefix, ext)):
+                climo_files_dict[ext] = filename
+                print('DEBUG: matching fn {0} = {1}'.format(climo_files_dict[ext], filename))
+        
+        if fnmatch.fnmatch(filename, trends_file_ANN_ALL):
+            climo_files_dict['trends_ANN_ALL'] = filename
+
+    # create the temporary work directories for each climo file
+    for ext_dir, climo_file in climo_files_dict.iteritems():
+        tmp_workdir = '{0}/{1}'.format(workdir, ext_dir)
+        try:
+            os.makedirs(tmp_workdir)
+        except OSError as e:
+            if e.errno != errno.EEXISTS:
+                err_msg = 'ERROR: problem accessing the regridding working directory (0}'.format(tmp_workdir)
+                raise OSError(err_msg)
+
+    os.chdir(current_dir)
+    return climo_files_dict
 
 #================================================
 # regrid 
@@ -110,10 +163,16 @@ def regrid_climos(env,main_comm):
             os.makedirs(env['WKDIR'])
     main_comm.sync()
  
+    climo_files_dict = dict()
     env['NCLPATH'] = env['POSTPROCESS_PATH']+'/lnd_diag/shared/'   
 
     # If SE grid, convert to lat/lon grid
     regrid_script = 'se2fv_esmf.regrid2file.ncl'
+
+    # define list of file extensions of associated files to be regridded
+    file_extensions = ['_MONS_climo', '_ANN_climo', '_ANN_means',
+                       '_DJF_climo', '_DJF_means', '_JJA_climo', '_JJA_means',
+                       '_MAM_climo', '_MAM_means', '_SON_climo', '_SON_means']
 
     # Convert Case1
     m_dir = 'lnd'
@@ -124,15 +183,24 @@ def regrid_climos(env,main_comm):
         subdir = '{0}.{1}-{2}'.format(env['caseid_1'], env['clim_first_yr_1'], endYr)
         workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR_1'], env['caseid_1'], subdir, m_dir)
         print('LOOKING TO REGRID IN: '+workdir)
-        climo_files = glob.glob( workdir+'/*.nc')
+#        climo_files = glob.glob( workdir+'/*.nc')
+        if main_comm.is_manager():
+            climo_files_dict = get_climo_files_to_regrid(file_extensions, workdir, env['lnd_modelstream_1'], env)
+            for ext, filename in climo_files_dict.iteritems():
+                print('DEBUG: regridding climo_files_dict[{0}] = {1}'.format(ext, filename))
+        main_comm.sync()
 
-        # partition the climo files between the ranks so each rank will get a portion of the list to regrid
-        local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
+        # broadcast the climo_files_dict to all tasks
+        climo_files_dict = main_comm.partition(data=climo_files_dict, func=partition.Duplicate(), involved=True)
+
+        # partition the climo files between the ranks so each rank will get a portion of the dictionary to regrid
+        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualStride(), involved=True)
+
         env['WORKDIR'] = workdir
         current_dir = os.getcwd()
         os.chdir(workdir)
-        for climo_file in local_climo_files:
-            diagUtilsLib.lnd_regrid(climo_file, regrid_script, '1', workdir, env)
+        for ext_dir in local_file_extensions:
+            diagUtilsLib.lnd_regrid(climo_files_dict[ext_dir], regrid_script, '1', workdir, ext_dir, env)
         os.chdir(current_dir)
 
     # Convert Case2
@@ -141,12 +209,19 @@ def regrid_climos(env,main_comm):
         endYr = (int(env['clim_first_yr_2']) + int(env['clim_num_yrs_2'])) - 1
         subdir = '{0}.{1}-{2}'.format(env['caseid_2'], env['clim_first_yr_2'], endYr)
         workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR_2'], env['caseid_2'], subdir, m_dir)
-        climo_files = glob.glob(workdir+'/*.nc')
+        print('LOOKING TO REGRID IN: '+workdir)
+#        climo_files = glob.glob(workdir+'/*.nc')
+        if main_comm.is_manager():
+            climo_files_dict = get_climo_files_to_regrid(file_extensions, workdir, env['lnd_modelstream_2'], env)
+        main_comm.sync()
+
         # partition the climo files between the ranks so each rank will get a portion of the list to regrid
         local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
         env['WORKDIR'] = workdir
-        for climo_file in local_climo_files:
-            diagUtilsLib.lnd_regrid(climo_file, regrid_script, '2', workdir, env)
+##        for climo_file in local_climo_files:
+##            diagUtilsLib.lnd_regrid(climo_file, regrid_script, '2', workdir, env)
+
+    main_comm.sync()
     env['WORKDIR'] = env['WKDIR']
     print("Finished regridding, id: "+str(main_comm.get_rank()))
 
