@@ -13,7 +13,9 @@ Be sure to follow these steps when updating you local CESM postprocessing sandbo
 
 > make clobber-env
 
-> svn update -- or -- svn co [trunk]
+> svn propset svn:externals -F SVN_EXTERNAL_DIRECTORIES .
+
+> svn update
 
 > ./create_postprocess_env -cimeroot $CIMEROOT -machine yellowstone
 
