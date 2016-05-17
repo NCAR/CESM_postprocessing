@@ -7,12 +7,15 @@ Created on Apr 01, 2015
 @author: NCAR - CSEG
 """
 
+import errno
+import glob
 import os
 import re
-import glob
-import subprocess
-import time
 import shutil
+import subprocess
+import sys
+import time
+
 from cesm_utils import cesmEnvLib
 
 #=======================================================================
@@ -595,12 +598,23 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
     os.chdir(current_dir)
     env['WORKDIR'] = workdir
 
-    # remove the tmp_workdir if it is empty
+    # add the area variable back into the regridded file
     try:
-        os.rmdir(tmp_workdir)
-    except OSError as ex:
-        if ex.errno == errno.ENOTEMPTY:
-            print('WARNING lnd_regrid: {0} directory not empty'.format(tmp_workdir))
+        print('DEBUG lnd_regrid: Adding area variable back to regridded file')
+        print('DEBUG lnd_regrid: ncks command - ncks -A -v area {0}/{1} {2}/{3}'.format(env['area_dir'], env['area_file'], outdir, in_f))
+        pipe = subprocess.Popen(['ncks -A -v area {0}/{1} {2}/{3}'.format(env['area_dir'], env['area_file'], outdir, in_f)], cwd=env['WORKDIR'], env=env_copy, shell=True, stdout=subprocess.PIPE)
+        output = pipe.communicate()[0]
+        while pipe.poll() is None:
+            time.sleep(0.5)
+    except OSError as e:
+        print('WARNING lnd_regrid',e.errno,e.strerror)
+
+    # remove the tmp_outdir if it is empty
+    try:
+        os.rmdir(tmp_outdir)
+    except OSError as e:
+        if e.errno == errno.ENOTEMPTY:
+            print('WARNING lnd_regrid: {0} directory not empty - not removed.'.format(tmp_outdir))
     
 
     

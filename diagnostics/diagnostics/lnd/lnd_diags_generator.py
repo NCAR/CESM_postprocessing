@@ -2,9 +2,8 @@
 """Generate lnd diagnostics from a CESM case 
 
 This script provides an interface between:
-1. the CESM case environment,
-2. the land diagnostics environment defined in XML files,
-3. the popdiag zonal average and plotting packages
+1. the CESM case environment and/or postprocessing environment
+2. the land diagnostics environment defined in XML files
 
 It is called from the run script and resides in the $SRCROOT/postprocessing/cesm-env2.
 and assumes that the lnd_avg_generator.py script has been run to generate the
@@ -30,6 +29,7 @@ if sys.hexversion < 0x02070000:
 # import core python modules
 import argparse
 import fnmatch
+import errno
 import os
 import re
 import traceback
@@ -41,7 +41,7 @@ from diag_utils import diagUtilsLib
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
-#import the diagnosticss classes
+# import the diagnostics classes
 from diagnostics.lnd import lnd_diags_bc
 from diagnostics.lnd import lnd_diags_factory
 
@@ -100,7 +100,7 @@ def setup_diags(envDict):
 #================================================
 # get_climo_files_to_regrid
 #================================================
-def get_climo_files_to_regrid(file_extensions, workdir, stream, env):
+def get_climo_files_to_regrid(file_extensions, workdir, stream, t, env, debugMsg):
     """ get_climo_files_to_regrid - return a list of climo files that need to be 
         regrided in a given workdir.
 
@@ -111,6 +111,8 @@ def get_climo_files_to_regrid(file_extensions, workdir, stream, env):
         workdir (string) - location of climo files to be regridded
         stream (string) - lnd history stream used in filename
         env (dict) - environment dictionary
+        t (string) - model designation 1 or 2
+        debugMsg (object) - debug message object
 
         Return:
         climo_files (dict) - dictionary of climo files to be regridded
@@ -119,23 +121,33 @@ def get_climo_files_to_regrid(file_extensions, workdir, stream, env):
     current_dir = os.getcwd()
     os.chdir(workdir)
 
-    endYr = str((int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1)
-    file_prefix = '{0}.{1}.{2}-{3}'.format(env['caseid_1'], stream, env['clim_first_yr_1'].zfill(4), endYr.zfill(4))
+    regrid_weights = list()
+
+    endYr = str((int(env['clim_first_yr_'+t]) + int(env['clim_num_yrs_'+t])) - 1)
+    file_prefix = '{0}.{1}.{2}-{3}'.format(env['caseid_'+t], stream, env['clim_first_yr_'+t].zfill(4), endYr.zfill(4))
     
-    trends_endYr = str((int(env['trends_first_yr_1']) + int(env['trends_num_yrs_1'])) - 1)
-    trends_file_ANN_ALL = '{0}.{1}.{2}-{3}.ANN_ALL.nc'.format(env['caseid_1'], stream, env['trends_first_yr_1'].zfill(4), trends_endYr.zfill(4))
+    # trends file may have different years
+    trends_endYr = str((int(env['trends_first_yr_'+t]) + int(env['trends_num_yrs_'+t])) - 1)
+    trends_file_ANN_ALL = '{0}.{1}.{2}-{3}.ANN_ALL.nc'.format(env['caseid_'+t], stream, env['trends_first_yr_'+t].zfill(4), trends_endYr.zfill(4))
 
     # build up the dictionary of climo files to be regridded
     for filename in os.listdir('.'):
-        print('DEBUG: in get_climo_files_to_regrid filename = {0}'.format(filename))
+        debugMsg('in get_climo_files_to_regrid filename = {0}'.format(filename), header=True, verbosity=1)
 
         for ext in file_extensions:
             if fnmatch.fnmatch(filename, '{0}.{1}.nc'.format(file_prefix, ext)):
                 climo_files_dict[ext] = filename
-                print('DEBUG: matching fn {0} = {1}'.format(climo_files_dict[ext], filename))
+                if 'means' in ext:
+                    regrid_weights.append((ext, 50))
+                elif 'MONS' in ext:
+                    regrid_weights.append((ext, 20))
+                else:
+                    regrid_weights.append((ext, 10))
+                debugMsg('DEBUG: matching fn {0} = {1}'.format(climo_files_dict[ext], filename), header=True, verbosity=1)
         
         if fnmatch.fnmatch(filename, trends_file_ANN_ALL):
-            climo_files_dict['trends_ANN_ALL'] = filename
+            climo_files_dict['ANN_ALL'] = filename
+            regrid_weights.append(('ANN_ALL', 100))
 
     # create the temporary work directories for each climo file
     for ext_dir, climo_file in climo_files_dict.iteritems():
@@ -148,82 +160,111 @@ def get_climo_files_to_regrid(file_extensions, workdir, stream, env):
                 raise OSError(err_msg)
 
     os.chdir(current_dir)
-    return climo_files_dict
+    return climo_files_dict, regrid_weights
 
 #================================================
 # regrid 
 #================================================
-def regrid_climos(env,main_comm):
+def regrid_climos(env, main_comm, debugMsg, timer):
     """ regrid_climos - regrid the climos into a lat/lon grid
-    """
 
-    import glob  
+    Arguments:
+    env (dictionary) - environment
+    main_comm (object) - communicator object
+    debugMsg (object) - debug message
+    timer (object) - timer object
+    """
     if main_comm.is_manager():
         if not os.path.exists(env['WKDIR']):
             os.makedirs(env['WKDIR'])
     main_comm.sync()
  
     climo_files_dict = dict()
+    regrid_weights = list()
     env['NCLPATH'] = env['POSTPROCESS_PATH']+'/lnd_diag/shared/'   
 
     # If SE grid, convert to lat/lon grid
     regrid_script = 'se2fv_esmf.regrid2file.ncl'
 
     # define list of file extensions of associated files to be regridded
-    file_extensions = ['_MONS_climo', '_ANN_climo', '_ANN_means',
-                       '_DJF_climo', '_DJF_means', '_JJA_climo', '_JJA_means',
+    # The order of these extensions is important for load balancing 
+    file_extensions = ['ANN_ALL', '_ANN_climo', 'MONS_climo', '_DJF_climo',
+                       '_ANN_means', '_JJA_climo', '_DJF_means', '_JJA_means',
                        '_MAM_climo', '_MAM_means', '_SON_climo', '_SON_means']
 
     # Convert Case1
     m_dir = 'lnd'
     if (env['regrid_1'] == 'True'):
-        # get list of climo files to regrid
-        # create the working directory first before calling the base class prerequisites
+
+        # setup the working directory first before calling the base class prerequisites
         endYr = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1
         subdir = '{0}.{1}-{2}'.format(env['caseid_1'], env['clim_first_yr_1'], endYr)
         workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR_1'], env['caseid_1'], subdir, m_dir)
-        print('LOOKING TO REGRID IN: '+workdir)
-#        climo_files = glob.glob( workdir+'/*.nc')
+
         if main_comm.is_manager():
-            climo_files_dict = get_climo_files_to_regrid(file_extensions, workdir, env['lnd_modelstream_1'], env)
+            debugMsg('Regridding in {0}: '.format(workdir), header=True, verbosity=1)
+            # get list of climo files to regrid
+            climo_files_dict, regrid_weights = get_climo_files_to_regrid(file_extensions, workdir, env['lnd_modelstream_1'], '1', env, debugMsg)
             for ext, filename in climo_files_dict.iteritems():
-                print('DEBUG: regridding climo_files_dict[{0}] = {1}'.format(ext, filename))
+                debugMsg('regridding climo_files_dict[{0}] = {1}'.format(ext, filename), header=True, verbosity=1)
         main_comm.sync()
 
         # broadcast the climo_files_dict to all tasks
         climo_files_dict = main_comm.partition(data=climo_files_dict, func=partition.Duplicate(), involved=True)
 
         # partition the climo files between the ranks so each rank will get a portion of the dictionary to regrid
-        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualStride(), involved=True)
+##        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualStride(), involved=True)
+##        local_file_extensions = main_comm.partition(regrid_weights, func=partition.WeightBalanced(), involved=True)
+        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualLength(), involved=True)
+        debugMsg('local_file_extensions list with length {0}'.format(local_file_extensions), header=True, verbosity=1)
 
+        # preserve the current workdir in the env dictionary
         env['WORKDIR'] = workdir
-        current_dir = os.getcwd()
-        os.chdir(workdir)
         for ext_dir in local_file_extensions:
+            timer.start(ext_dir)
             diagUtilsLib.lnd_regrid(climo_files_dict[ext_dir], regrid_script, '1', workdir, ext_dir, env)
-        os.chdir(current_dir)
+            timer.stop(ext_dir)
+            debugMsg("Total time to regrid file {0} = {1}".format(climo_files_dict[ext_dir], timer.get_time(ext_dir)), header=True, verbosity=1)
+
+    main_comm.sync()
 
     # Convert Case2
     if (env['MODEL_VS_MODEL'] == 'True' and env['regrid_2'] == 'True'):
+
         # get list of climo files to regrid
         endYr = (int(env['clim_first_yr_2']) + int(env['clim_num_yrs_2'])) - 1
         subdir = '{0}.{1}-{2}'.format(env['caseid_2'], env['clim_first_yr_2'], endYr)
         workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR_2'], env['caseid_2'], subdir, m_dir)
-        print('LOOKING TO REGRID IN: '+workdir)
-#        climo_files = glob.glob(workdir+'/*.nc')
+
         if main_comm.is_manager():
-            climo_files_dict = get_climo_files_to_regrid(file_extensions, workdir, env['lnd_modelstream_2'], env)
+            debugMsg('Regridding in {0}: '.format(workdir), header=True, verbosity=1)
+            climo_files_dict = get_climo_files_to_regrid(file_extensions, workdir, env['lnd_modelstream_2'], '2', env, debugMsg)
+            for ext, filename in climo_files_dict.iteritems():
+                debugMsg('regridding climo_files_dict[{0}] = {1}'.format(ext, filename), header=True, verbosity=1)
         main_comm.sync()
 
-        # partition the climo files between the ranks so each rank will get a portion of the list to regrid
-        local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
+        # broadcast the climo_files_dict to all tasks
+        climo_files_dict = main_comm.partition(data=climo_files_dict, func=partition.Duplicate(), involved=True)
+
+        # partition the climo files between the ranks so each rank will get a portion of the dictionary to regrid
+##        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualStride(), involved=True)
+##        local_file_extensions = main_comm.partition(regrid_weights, func=partition.WeightBalanced(), involved=True)
+        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualLength(), involved=True)
+        debugMsg('local_file_extensions list with length {0}'.format(local_file_extensions), header=True, verbosity=1)
+
+        # preserve the current workdir in the env dictionary
         env['WORKDIR'] = workdir
-##        for climo_file in local_climo_files:
-##            diagUtilsLib.lnd_regrid(climo_file, regrid_script, '2', workdir, env)
+        for ext_dir in local_file_extensions:
+            timer.start(ext_dir)
+            diagUtilsLib.lnd_regrid(climo_files_dict[ext_dir], regrid_script, '2', workdir, ext_dir, env)
+            timer.stop(ext_dir)
+            debugMsg("Total time to regrid file {0} = {1}".format(climo_files_dict[ext_dir], timer.get_time(ext_dir)), header=True, verbosity=1)
 
     main_comm.sync()
+    if main_comm.is_manager():
+        debugMsg("Finished regridding.", header=True, verbosity=1)
+
     env['WORKDIR'] = env['WKDIR']
-    print("Finished regridding, id: "+str(main_comm.get_rank()))
 
 #============================================
 # initialize_main - initialization from main
@@ -266,7 +307,7 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     filelist = list()
 
     # check average files
-    debugMsg('calling checkAvgFiles', header=True)
+    debugMsg('calling checkAvgFiles', header=True, verbosity=1)
     rc = diagUtilsLib.checkAvgFiles(filelist)
     if not rc:
         print('---------------------------------------------------------------------------')
@@ -307,7 +348,7 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
 # main
 #======
 
-def main(options, main_comm, debugMsg):
+def main(options, main_comm, debugMsg, timer):
     """setup the environment for running the diagnostics in parallel. 
 
     Calls 2 different diagnostics generation types:
@@ -318,6 +359,7 @@ def main(options, main_comm, debugMsg):
     options (object) - command line options
     main_comm (object) - MPI simple communicator object
     debugMsg (object) - vprinter object for printing debugging messages
+    timer (object) - timer object for keeping times
 
     The env_diags_lnd.xml configuration file defines the way the diagnostics are generated. 
     See (website URL here...) for a complete desciption of the env_diags_lnd XML options.
@@ -329,12 +371,12 @@ def main(options, main_comm, debugMsg):
     # CASEROOT is given on the command line as required option --caseroot
     if main_comm.is_manager():
         caseroot = options.caseroot[0]
-        debugMsg('caseroot = {0}'.format(caseroot), header=True)
+        debugMsg('caseroot = {0}'.format(caseroot), header=True, verbosity=1)
 
-        debugMsg('calling initialize_main', header=True)
+        debugMsg('calling initialize_main', header=True, verbosity=1)
         envDict = initialize_main(envDict, caseroot, debugMsg, options.standalone)
 
-        debugMsg('calling check_ncl_nco', header=True)
+        debugMsg('calling check_ncl_nco', header=True, verbosity=1)
         diagUtilsLib.check_ncl_nco(envDict)
 
     # broadcast envDict to all tasks
@@ -343,7 +385,7 @@ def main(options, main_comm, debugMsg):
 
     # check to see if the climos need to be regridded into a lat/lon grid
     if (envDict['regrid_1'] == 'True' or envDict['regrid_2'] == 'True'):
-        regrid_climos(envDict, main_comm)
+        regrid_climos(envDict, main_comm, debugMsg, timer)
     main_comm.sync()
 
     # get list of diagnostics types to be created
@@ -378,7 +420,7 @@ def main(options, main_comm, debugMsg):
         groups = list()
         for g in range(0,num_of_diags):
             groups.append(g)
-        debugMsg('global_rank {0}, temp_color {1}, #of groups(diag types) {2}, groups {3}, diag_list {4}'.format(grank, temp_color, num_of_diags, groups, diag_list), header=True, verbosity=2)
+        debugMsg('global_rank {0}, temp_color {1}, #of groups(diag types) {2}, groups {3}, diag_list {4}'.format(grank, temp_color, num_of_diags, groups, diag_list), header=True, verbosity=1)
         group = groups[temp_color]
         inter_comm, multi_comm = main_comm.divide(group)
         color = inter_comm.get_color()
@@ -386,7 +428,7 @@ def main(options, main_comm, debugMsg):
         lrank = inter_comm.get_rank()
         lmaster = inter_comm.is_manager()
         if lmaster:
-            debugMsg('color {0}, lsize {1}, lrank {2}, lmaster {3}'.format(color, lsize, lrank, lmaster), header=True, verbosity=2)
+            debugMsg('color {0}, lsize {1}, lrank {2}, lmaster {3}'.format(color, lsize, lrank, lmaster), header=True, verbosity=1)
 
         # partition the diag_list between communicators
         DIAG_LIST_TAG = 10
@@ -397,7 +439,7 @@ def main(options, main_comm, debugMsg):
         else:
             local_diag_list = inter_comm.ration(tag=DIAG_LIST_TAG)
         if lmaster:
-            debugMsg('local_diag_list {0}',format(local_diag_list), header=True)
+            debugMsg('local_diag_list {0}',format(local_diag_list), header=True, verbosity=1)
     else:
         inter_comm = main_comm
         lmaster = main_comm.is_manager()
@@ -409,14 +451,14 @@ def main(options, main_comm, debugMsg):
     main_comm.sync()    
     
     if lmaster:
-        debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank), header=True, verbosity=2)
+        debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank), header=True, verbosity=1)
     inter_comm.sync()
 
-    web_dir_ic_tag = 1
-    web_dir_mc_tag = 2
+##    web_dir_ic_tag = 1
+##    web_dir_mc_tag = 2
     
-    ic_web_info = dict()
-    mc_web_info = dict()
+##    ic_web_info = dict()
+##    mc_web_info = dict()
 
     # loop through the local_diag_list list
     for requested_diag in local_diag_list:
@@ -425,7 +467,7 @@ def main(options, main_comm, debugMsg):
 
             # check the prerequisites for the diagnostics types
             if lmaster:
-                debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
+                debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True, verbosity=1)
             
             envDict = diag.check_prerequisites(envDict, inter_comm)
             inter_comm.sync()
@@ -440,36 +482,41 @@ def main(options, main_comm, debugMsg):
             if lmaster:
                 for k,v in envDict.iteritems():
                     if not isinstance(v, basestring):
-                        debugMsg('lnd_diags_generator - envDict: key = {0}, value = {1}'.format(k,v), header=True, verbosity=2)
+                        debugMsg('lnd_diags_generator - envDict: key = {0}, value = {1}'.format(k,v), header=True, verbosity=1)
 
-            debugMsg('inter_comm size = {0}'.format(inter_comm.get_size()), header=True, verbosity=2)
-            envDict = diag.run_diagnostics(envDict, inter_comm)
-
-            if lmaster:
-                debugMsg('after run_diagnostics', header=True, verbosity=1)
-
-            web_info = dict()
-            for key in envDict:
-                if 'LNDDIAG_WEBDIR' in key:
-                    web_info[key] = envDict[key]
-
-            if lsize > 1:
-                if not lmaster:
-                    debugMsg('lnd_diags_generator before collection not on master rank = {0}'.format(inter_comm.get_rank()), header=True, verbosity=1)
-                    inter_comm.collect(data=web_info, tag=web_dir_tag)
-                else:
-                    debugMsg('lnd_diags_generator before collection on master', header=True, verbosity=1)
-                    rank, tmp_web_info = inter_comm.collect(tag=web_dir_tag)
-                    ic_web_info.update(web_info)
-                    ic_web_info.update(tmp_web_info)
-            else:
-                ic_web_info.update(web_info)
-
-            inter_comm.sync()
+            debugMsg('inter_comm size = {0}'.format(inter_comm.get_size()), header=True, verbosity=1)
+            diag.run_diagnostics(envDict, inter_comm)
 
             if lmaster:
-                for k,v in ic_web_info.iteritems():
-                    debugMsg('lnd_diags_generator ic_web_info[{0}] = {1}'.format(k,v), header=True, verbosity=1)
+                debugMsg('lnd_diags_generator: return from run_diagnostics', header=True, verbosity=1)
+
+##            inter_comm.sync()
+
+            # broadcast the envDict
+##            envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
+
+##            web_info = dict()
+##            for key in envDict:
+##                if 'LNDDIAG_WEBDIR' in key:
+##                    web_info[key] = envDict[key]
+
+##            if lsize > 1:
+##                if not lmaster:
+##                    debugMsg('lnd_diags_generator before collection not on master rank = {0}'.format(inter_comm.get_rank()), header=True, verbosity=1)
+##                    inter_comm.collect(data=web_info, tag=web_dir_ic_tag)
+##                else:
+##                    debugMsg('lnd_diags_generator before collection on master', header=True, verbosity=1)
+##                    rank, tmp_web_info = inter_comm.collect(tag=web_dir_mc_tag)
+##                    ic_web_info.update(web_info)
+##                    ic_web_info.update(tmp_web_info)
+##            else:
+##                ic_web_info.update(web_info)
+
+##            inter_comm.sync()
+
+##            if lmaster:
+##                for k,v in ic_web_info.iteritems():
+##                    debugMsg('lnd_diags_generator ic_web_info[{0}] = {1}'.format(k,v), header=True, verbosity=1)
 
         except lnd_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
@@ -480,13 +527,15 @@ def main(options, main_comm, debugMsg):
             print(e)
             return 1
 
-    inter_comm.sync()
-    main_comm.sync()
+#    inter_comm.sync()
+#    main_comm.sync()
+
+    # need to collect the ic_web_info to the main_comm
 
     # update the env_diags_lnd.xml with LNDIAG_WEBDIR settings to be used by the copy_html utility
-    if main_comm.is_manager():
-        for k, v in ic_web_info.iteritems():
-            debugMsg('lnd_diags_generator: all ic_web_info[{0}] = {1}'.format(k, v), header=True, verbosity=1)
+#    if main_comm.is_manager():
+#        for k, v in ic_web_info.iteritems():
+#            debugMsg('lnd_diags_generator: all ic_web_info[{0}] = {1}'.format(k, v), header=True, verbosity=1)
 
 
 #===================================
@@ -503,14 +552,14 @@ if __name__ == "__main__":
     options = commandline_options()
 
     # initialize global vprinter object for printing debug messages
-    # TODO - if debug option is not set, then debugMsg shouldn't fail
+    print("debug level = {0}".format(options.debug[0]))
     if options.debug:
         header = "[" + str(main_comm.get_rank()) + "/" + str(main_comm.get_size()) + "]: DEBUG... "
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
-    
+   
     try:
         timer.start("Total Time")
-        status = main(options, main_comm, debugMsg)
+        status = main(options, main_comm, debugMsg, timer)
         main_comm.sync()
         timer.stop("Total Time")
         if main_comm.is_manager():

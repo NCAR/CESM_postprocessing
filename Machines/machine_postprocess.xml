@@ -25,6 +25,7 @@
       <component name="atm">
 	<averages_pes queue="regular" pes_per_node="4" wallclock="00:30">128</averages_pes>
 	<diagnostics_pes queue="geyser" pes_per_node="8" wallclock="02:00">16</diagnostics_pes>
+	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
 	<obs_root>/glade/p/cesm</obs_root>
       </component>
       <component name="ice">
@@ -35,6 +36,7 @@
       <component name="lnd">
 	<averages_pes queue="regular" pes_per_node="2" wallclock="02:00">128</averages_pes>
 	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">12</diagnostics_pes>
+	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
 	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
       </component>
       <component name="ocn">
@@ -67,6 +69,7 @@
       <component name="atm">
 	<averages_pes queue="regular" pes_per_node="4" wallclock="00:30">120</averages_pes>
 	<diagnostics_pes queue="regular" pes_per_node="4" wallclock="02:00">24</diagnostics_pes>
+	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
       <component name="ice">
@@ -77,6 +80,7 @@
       <component name="lnd">
 	<averages_pes queue="regular" pes_per_node="2" wallclock="02:00">120</averages_pes>
 	<diagnostics_pes queue="regular" pes_per_node="4" wallclock="02:00">12</diagnostics_pes>
+	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
 	<obs_root>/global/project/projectdirs/ccsm1/lmwg/diag/lnd_diag4.2</obs_root>
       </component>
       <component name="ocn">

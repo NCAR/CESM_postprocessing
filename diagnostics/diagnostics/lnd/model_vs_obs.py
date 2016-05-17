@@ -105,6 +105,7 @@ class modelVsObs(LandDiagnostic):
         requested_plot_sets = list()
         local_requested_plots = list()
         local_html_list = list()
+        web_path = dict()
 
         # all the plot module XML vars start with 'set_' 
         for key, value in env.iteritems():
@@ -220,23 +221,22 @@ class modelVsObs(LandDiagnostic):
 
             # append the web_dir location to the env
             key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
-            env[key] = env['WEB_DIR']
+            web_path[key] = env['WEB_DIR']
+
+            print('DEBUG model_vs_obs web_path[{0}] = {1}'.format(key, web_path[key]))
 
             # append the WEB_DIR and key to the env[WEB_PATH_FILE]
             with open(env['WEB_PATH_FILE'], 'a') as f:
-                f.write('{0}={1}\n'.format(key, env[key]))
+                f.write('{0}={1}\n'.format(key, web_path[key]))
             f.close()
 
+        scomm.sync()
+
+        # broadcast web_path dict to all tasks on subcommunicator
+#        web_path = scomm.partition(data=web_path, func=partition.Duplicate(), involved=True)
+        if scomm.is_manager():
             print('*******************************************************************************')
             print('Successfully completed generating land diagnostics model vs. observation plots')
             print('*******************************************************************************')
 
-        scomm.sync()
-
-        # broadcast env to all tasks
-        env = scomm.partition(data=env, func=partition.Duplicate(), involved=True)
-        if scomm.is_manager():
-            print('DEBUG model_vs_obs env[{0}] = {1}'.format(key, env[key]))
-
-        scomm.sync()
-        return env
+#        return web_path

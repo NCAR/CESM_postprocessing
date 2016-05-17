@@ -287,6 +287,13 @@ def read_machine_xml(machineName, xmlFile):
                     machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
                     machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
 
+                    regrid = comp.find('regrid_pes')
+                    if regrid is not None:
+                        machine['{0}_regrid_pes'.format(compName)] = regrid.text
+                        machine['{0}_regrid_queue'.format(compName)] = regrid.get('queue').lower()
+                        machine['{0}_regrid_ppn'.format(compName)] = regrid.get('pes_per_node').lower()
+                        machine['{0}_regrid_wallclock'.format(compName)] = regrid.get('wallclock').lower()
+                        
                     machine['{0}_obs_root'.format(compName)] = comp.find('obs_root').text
 
         if not found:
@@ -484,6 +491,8 @@ def main(options):
 
     # set the list of components
     compList = ['atm','ice','lnd','ocn']
+#    regridList = ['atm','lnd']
+    regridList = ['lnd']
 
     # get the machine dependent variables, modules and mpi run command in a dictionary
     machine = dict()
@@ -540,6 +549,17 @@ def main(options):
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
                      envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_diagnostics_queue'.format(comp)],
                      machine['{0}_diagnostics_ppn'.format(comp)], machine['{0}_diagnostics_wallclock'.format(comp)], options, standalone)
+
+    # generate the regrid batch submit scripts from template files
+    for comp in regridList:
+        # generate the regrid batch submit script
+        postProcessCmd = '{0}_regrid_generator.py'.format(comp)
+        processName = '{0}_regrid'.format(comp)
+        outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
+        create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_regrid_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
+                     machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
+                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
+                     machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
 
     # copy the copy_html script to the caseroot 
     # TODO...

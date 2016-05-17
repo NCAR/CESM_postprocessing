@@ -418,7 +418,7 @@
       <entry id="LNDDIAG_trends_atm_1"
              type="logical"
              valid_values="True/False"
-             value="True"
+             value="False"
              group="which_climos"
              desc="Create trends for atm CASE1. (set4)  Make atm trends for case1"
              ></entry>
@@ -426,7 +426,7 @@
       <entry id="LNDDIAG_climo_atm_1"
              type="logical"
              valid_values="True/False"
-             value="True"
+             value="False"
              group="which_climos"
              desc="Create climos for atm CASE1. (set4)  Make atm climo for case1"
              ></entry>
@@ -450,9 +450,9 @@
       <entry id="LNDDIAG_trends_rtm_1"
              type="logical"
              valid_values="True/False"
-             value="True"
+             value="False"
              group="which_climos"
-             desc="Create trends for rtm CASE1. (set7) Set to True for case1 if RTM variables are on separate history files"
+             desc="Create trends for rtm CASE1. (set7). Should always be set to False."
              ></entry>
 
       <entry id="LNDDIAG_climo_rtm_1"
@@ -518,7 +518,7 @@
              valid_values="True/False"
              value="False"
              group="which_climos"
-             desc="Create trends for rtm CASE2. (set7) Set to True for case2 if RTM variables are on separate history files"
+             desc="Create trends for rtm CASE2. (set7). Should always be False"
              ></entry>
 
       <entry id="LNDDIAG_climo_rtm_2"
@@ -650,7 +650,7 @@
       <entry id="LNDDIAG_CN"
              type="logical"
              valid_values="0/1"
-             value="0"
+             value="1"
              group="active_variables"
              desc="Logical: Is CN active?"
              ></entry>
@@ -682,7 +682,7 @@
       <entry id="LNDDIAG_HYDRO"
              type="logical"
              valid_values="0/1"
-             value=""
+             value="1"
              group="active_variables"
              desc="Logical: HYDRO vars active?"
              ></entry>
@@ -726,7 +726,7 @@
              valid_values="True/False"
              value="False"
              group="plot_sets"
-             desc="Plot Set 4: VERTICAL PROFILES"
+             desc="Plot Set 4: VERTICAL PROFILES - *NOTE* Plot set 4 is not currently working"
              ></entry>
 
       <entry id="LNDDIAG_set_5"
@@ -758,7 +758,7 @@
              valid_values="True/False"
              value="False"
              group="plot_sets"
-             desc="Plot Set 8: OCN-ATMOS TRACERS"
+             desc="Plot Set 8: OCN-ATMOS TRACERS - *NOTE* Plot set 8 is not currently working"
              ></entry>
 
       <entry id="LNDDIAG_set_8_lnd"
@@ -766,7 +766,7 @@
              valid_values="True/False"
              value="False"
              group="plot_sets"
-             desc="Plot Set 8_lnd: LND-ATMOS TRACERS"
+             desc="Plot Set 8_lnd: LND-ATMOS TRACERS - *NOTE* Plot set 8 is not currently working"
              ></entry>
 
       <entry id="LNDDIAG_set_9"

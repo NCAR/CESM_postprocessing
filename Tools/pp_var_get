@@ -35,22 +35,23 @@ except:
 
 re_val = re.compile(r'\$(\{([A-Za-z0-9_]+)\}|[A-Za-z0-9_]+)')
 
+# get the postprocess virtualenv path from the env_posprocess.xml file
+env_file = './env_postprocess.xml'
+if os.path.isfile(env_file):
+    xml_tree = ET.ElementTree()
+    xml_tree.parse(env_file)
+    for entry_tag in xml_tree.findall('entry'):
+        if entry_tag.get('id') == 'POSTPROCESS_PATH':
+            POSTPROCESS_PATH = entry_tag.get('value')
+else:
+    err_msg = ('pp_var_get ERROR: env_postprocess.xml does not exist in this directory.')
+    raise OSError(err_msg)
+
 # check if virtualenv is activated
 if hasattr(sys, 'real_prefix'):
     try:
         import jinja2
     except:
-        # get the postprocess virtualenv path from the env_posprocess.xml file
-        env_file = './env_postprocess.xml'
-        if os.path.isfile(env_file):
-            xml_tree = ET.ElementTree()
-            xml_tree.parse(env_file)
-            for entry_tag in xml_tree.findall('entry'):
-                if entry_tag.get('id') == 'POSTPROCESS_PATH':
-                    POSTPROCESS_PATH = entry_tag.get('value')
-        else:
-            err_msg = ('pp_var_get ERROR: env_postprocess.xml does not exist in this directory.')
-            raise OSError(err_msg)
         #
         # activate the virtual environment that was created by create_python_env.sh
         #
@@ -65,7 +66,19 @@ if hasattr(sys, 'real_prefix'):
         except:
             raise OSError('ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
 else:
+    #
+    # activate the virtual environment that was created by create_python_env.sh
+    #
+    activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(POSTPROCESS_PATH)
+    if ( not os.path.isfile(activate_file):
+             err_msg = ('set_env ERROR: the virtual environment in {0} does not exist.'.format(POSTPROCESS_PATH) \
+                            'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(POSTPROCESS_PATH)))
+             raise OSError(err_msg)
 
+    try:
+        execfile(activate_file, dict(__file__=activate_file))
+    except:
+        raise OSError('ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
 
 #
 # import modules installed in the virtual environment
@@ -83,7 +96,7 @@ def commandline_options():
 
     """
     parser = argparse.ArgumentParser(
-        description='Read the caseroot postprocessing XML files and get a local environment variable.')
+        description='Read the caseroot postprocessing XML files and query for a local environment variable.')
 
     parser.add_argument('-component', '--component', '-comp', choices=['atm','ice','lnd','ocn'], required=True, nargs=1,
                         help='select a component [atm, ice, lnd, ocn] to set the environment using the associated XML file')

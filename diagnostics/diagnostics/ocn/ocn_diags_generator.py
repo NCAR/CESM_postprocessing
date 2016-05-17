@@ -402,7 +402,6 @@ if __name__ == "__main__":
     options = commandline_options()
 
     # initialize global vprinter object for printing debug messages
-    # TODO - if debug option is not set, then debugMsg shouldn't fail
     if options.debug:
         header = "[" + str(main_comm.get_rank()) + "/" + str(main_comm.get_size()) + "]: DEBUG... "
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
