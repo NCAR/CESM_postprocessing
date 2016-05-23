@@ -44,6 +44,7 @@ def get_requires():
 def get_dependencies():
     return readfile(DEPENDENCIES_FILE, lambda f: f.read().strip())
 
+print('cesm_utils version = '+ get_version())
 setup(
     name="cesm_utils",
     author="Alice Bertini",

@@ -65,7 +65,7 @@ py-unit : FORCE
 env : $(ENVNAME)/bin/activate
 
 $(ENVNAME)/bin/activate : 
-	virtualenv --system-site-packages $(ENVNAME)
+	virtualenv --system-site-packages -p python2 $(ENVNAME)
 
 cesm-env2 :
 	virtualenv -p python2 $@

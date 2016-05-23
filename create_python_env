@@ -176,6 +176,10 @@ cd $pp_dir
 #----------------------------------------------------------------------
 echo "$progname - making virtual environment in ${pp_dir}/cesm-env2."
 make env
+if [ $? -ne 0 ]; then
+    echo "ERROR: Unable to create virtual environment in ${pp_dir}/cesm-env2. Exiting..."
+    exit 1
+fi
 
 #----------------------------------------------------------------------
 # activate it for this script
@@ -188,6 +192,10 @@ echo "$progname - activating virtual environment in ${pp_dir}/cesm-env2."
 #----------------------------------------------------------------------
 echo "$progname - installing all post processing tools into the virtual environment in ${pp_dir}/cesm-env2."
 make all
+if [ $? -ne 0 ]; then
+    echo "ERROR: Unable to install all postprocessing tools into the virtual environment in ${pp_dir}/cesm-env2. Exiting..."
+    exit 1
+fi
 
 #----------------------------------------------------------------------
 # run some self tests
@@ -199,6 +207,10 @@ echo "$progname - Testing post processing installation by listing the installed 
 # is one of our installed executables in the path?
 #----------------------------------------------------------------------
 module_check.py
+if [ $? -ne 0 ]; then
+    echo "ERROR: Problem with running program module_check_py in the virtual environment in ${pp_dir}/cesm-env2. Exiting..."
+    exit 1
+fi
 
 #----------------------------------------------------------------------
 # compile and install ocn_diag remap shared object (remap.so) program
@@ -208,6 +220,9 @@ echo "$progname - Compiling ocn diagnostics create_f2py_remap."
 
 # reads XML and call subprocess f2py
 ./create_f2py_remap --machine $machine
+if [ $? -ne 0 ]; then
+    echo "WARNING: Problem the ocean diagnostics create_f2py_remap in $pp_dir"
+fi
 
 #----------------------------------------------------------------------
 # cleanup and deactivate the virtualenv. 
@@ -230,6 +245,9 @@ $cimeroot/tools/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot
 
 # run the make command
 make
+if [ $? -ne 0 ]; then
+    echo "WARNING: Problem compiling the ocean diagnostics zonal average tool in fortran in $pp_dir/ocn_diag/tool_lib/zon_avg"
+fi
 
 # link the za compiled code to one level up for the NCL
 ln -sf $pp_dir/ocn_diag/tool_lib/zon_avg/za $pp_dir/ocn_diag/tool_lib/za
@@ -243,7 +261,6 @@ if [ -f "$cimefile" ]; then
 else
     echo "$cimeroot" > "$cimefile"
 fi
-
 
 cd $curdir
 
@@ -260,6 +277,7 @@ using the create_postprocess --caseroot [caseroot] script. These tools include:
     timeseries
     env_timeseries.xml
     [component]_averages
+    [lnd,atm]_regrid
     [component]_diagnostics
     env_diags_[component].xml
 

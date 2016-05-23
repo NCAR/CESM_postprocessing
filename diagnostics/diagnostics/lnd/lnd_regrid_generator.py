@@ -107,13 +107,6 @@ def get_climo_files_to_regrid(workdir, stream, t, env, debugMsg):
     current_dir = os.getcwd()
     os.chdir(workdir)
 
-    # create the temporary work directories for each climo file extension
-    for ext in file_extensions:
-        tmp_workdir = '{0}/{1}'.format(workdir, ext)
-        debugMsg('checking tmp_workdir = {0}'.format(tmp_workdir), header=True, verbosity=1)
-        if not os.path.isdir(tmp_workdir):
-            os.makedirs(tmp_workdir)
-
     endYr = str((int(env['clim_first_yr_'+t]) + int(env['clim_num_yrs_'+t])) - 1)
     file_prefix = '{0}.{1}.{2}-{3}'.format(env['caseid_'+t], stream, env['clim_first_yr_'+t].zfill(4), endYr.zfill(4))
     
@@ -121,15 +114,23 @@ def get_climo_files_to_regrid(workdir, stream, t, env, debugMsg):
     trends_endYr = str((int(env['trends_first_yr_'+t]) + int(env['trends_num_yrs_'+t])) - 1)
     trends_file_ANN_ALL = '{0}.{1}.{2}-{3}.ANN_ALL.nc'.format(env['caseid_'+t], stream, env['trends_first_yr_'+t].zfill(4), trends_endYr.zfill(4))
 
-    # build up the dictionary of climo files to be regridded
+    # build up the list of climo files to be regridded
     for filename in os.listdir('.'):
-        debugMsg('in get_climo_files_to_regrid filename = {0}'.format(filename), header=True, verbosity=1)
+        # place the largest file at the beginning of the list
+        if fnmatch.fnmatch(filename, trends_file_ANN_ALL):
+            climo_files.append([t, 'ANN_ALL',filename])
+
+    for filename in os.listdir('.'):
         for ext in file_extensions:
             if fnmatch.fnmatch(filename, '{0}.{1}.nc'.format(file_prefix, ext)):
                 climo_files.append([t,ext, filename])
-        
-        if fnmatch.fnmatch(filename, trends_file_ANN_ALL):
-            climo_files.append([t,'ANN_ALL', filename])
+
+    # create the temporary work directories for each climo file extension
+    for ext in file_extensions:
+        tmp_workdir = '{0}/{1}'.format(workdir, ext)
+        debugMsg('checking tmp_workdir = {0}'.format(tmp_workdir), header=True, verbosity=1)
+        if not os.path.isdir(tmp_workdir):
+            os.makedirs(tmp_workdir)
 
     os.chdir(current_dir)
     return climo_files
@@ -232,10 +233,7 @@ def main(options, main_comm, debugMsg, timer):
     regrid_script = 'se2fv_esmf.regrid2file.ncl'
     m_dir = 'lnd'
 
-    debugMsg('before get_climo_files if')
-
     # CASEROOT is given on the command line as required option --caseroot
-
     caseroot = options.caseroot[0]
     debugMsg('caseroot = {0}'.format(caseroot), header=True, verbosity=1)
 
@@ -243,6 +241,7 @@ def main(options, main_comm, debugMsg, timer):
     envDict = initialize_main(envDict, caseroot, debugMsg, options.standalone)
 
     if main_comm.is_manager():
+
         debugMsg('calling check_ncl_nco', header=True, verbosity=1)
         diagUtilsLib.check_ncl_nco(envDict)
 
@@ -271,14 +270,10 @@ def main(options, main_comm, debugMsg, timer):
 
     # broadcast envDict to all tasks
     envDict['NCLPATH'] = envDict['POSTPROCESS_PATH']+'/lnd_diag/shared/'   
-    debugMsg('before envDict partition')
     envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
-    debugMsg('after envDict partition')
 
     # broadcast the regrid_list to all tasks
-    debugMsg('before regrid_list partition')
     regrid_list = main_comm.partition(data=regrid_list, func=partition.Duplicate(), involved=True)
-    debugMsg('after regrid_list partition')
     main_comm.sync()
 
     # initialize some variables for distributing regridding across the communicators
@@ -292,56 +287,53 @@ def main(options, main_comm, debugMsg, timer):
         debugMsg('{0} num_regrids'.format(num_regrids), header=True, verbosity=1)
 
         for i in range(num_regrids):
-            debugMsg('{0}/{1} rationed out {2}'.format(rank, size, regrid_list[i]), header=True, verbosity=1)
+            debugMsg('Sent out index {2!r}'.format(rank, size, i), header=True, verbosity=1)
             main_comm.ration(i)
 
         for i in range(size - 1):
-            debugMsg('{0}/{1} sent None'.format(rank, size), header=True, verbosity=1)
+            debugMsg('Sent None'.format(rank, size), header=True, verbosity=1)
             main_comm.ration(None)
 
     else:
         i = -1
         while i is not None:
-            debugMsg('{0}/{1} rationed in {2}'.format(rank, size, climo_list), header=True, verbosity=1)
+            debugMsg('Recvd index {2!r}'.format(rank, size, i), header=True, verbosity=1)
             i = main_comm.ration()
 
-            # extract the i'th list of the regrid_list
-            climo_list = regrid_list[i]
-            t = climo_list[0]
-            ext_dir = climo_list[1]
-            climo_file = climo_list[2]
+            if i is not None:
+                # extract the i'th list of the regrid_list
+                climo_list = regrid_list[i]
+                t = climo_list[0]
+                ext_dir = climo_list[1]
+                climo_file = climo_list[2]
         
-            # setup the working directory first for each climo file
-            endYr = (int(env['clim_first_yr_'+t]) + int(env['clim_num_yrs_'+t])) - 1
-            subdir = '{0}.{1}-{2}'.format(env['caseid_'+t], env['clim_first_yr_'+t], endYr)
-            workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR_'+t], env['caseid_'+t], subdir, m_dir)
+                # setup the working directory first for each climo file
+                endYr = (int(envDict['clim_first_yr_'+t]) + int(envDict['clim_num_yrs_'+t])) - 1
+                subdir = '{0}.{1}-{2}'.format(envDict['caseid_'+t], envDict['clim_first_yr_'+t], endYr)
+                workdir = '{0}/climo/{1}/{2}/{3}/'.format(envDict['PTMPDIR_'+t], envDict['caseid_'+t], subdir, m_dir)
 
-            timer_tag = '{0}_{1}'.format(t, climo_file)
-            timer.start(timer_tag)
-##            diagUtilsLib.lnd_regrid(climo_file, regrid_script, t, workdir, ext_dir, env)
-            timer.stop(timer_tag)
+                timer_tag = '{0}_{1}'.format(t, climo_file)
+                timer.start(timer_tag)
+                debugMsg('Before call to lnd_regrid using workdir = {0}/{1}'.format(workdir, ext_dir), header=True, verbosity=1)
+                diagUtilsLib.lnd_regrid(climo_file, regrid_script, t, workdir, ext_dir, envDict)
+                timer.stop(timer_tag)
 
-            debugMsg("Total time to regrid file {0} = {1}".format(climo_file, timer.get_time(timer_tag)), header=True, verbosity=1)
-
-    main_comm.sync()
+                debugMsg("Total time to regrid file {0} = {1}".format(climo_file, timer.get_time(timer_tag)), header=True, verbosity=1)
 
 #===================================
 
 
 if __name__ == "__main__":
     # initialize simplecomm object
-    print("before simplecomm")
-    main_comm = simplecomm.create_comm(serial=True)
+    main_comm = simplecomm.create_comm(serial=False)
 
     # setup an overall timer
     timer = timekeeper.TimeKeeper()
 
-    print("before commandline parser")
     # get commandline options
     options = commandline_options()
 
     # initialize global vprinter object for printing debug messages
-    print("debug level = {0}".format(options.debug[0]))
     if options.debug:
         header = "[" + str(main_comm.get_rank()) + "/" + str(main_comm.get_size()) + "]: DEBUG... "
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
@@ -353,9 +345,8 @@ if __name__ == "__main__":
         timer.stop("Total Time")
         if main_comm.is_manager():
             print('***************************************************')
-            print('Run copy_html utility to copy web files and plots to a remote web server')
             print('Total Time: {0} seconds'.format(timer.get_time("Total Time")))
-            print('Successfully completed generating land diagnostics')
+            print('Successfully completed regridding of land climatology files')
             print('***************************************************')
         sys.exit(status)
 

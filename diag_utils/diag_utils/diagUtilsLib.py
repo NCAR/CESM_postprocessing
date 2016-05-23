@@ -560,6 +560,7 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
     """
     # move the climo file into the tmp_outdir in order to run
     # in parallel and avoid conflicts with duplicate temp file name from ESMF
+    print('DEBUG in diagUtilsLib.lnd_regrid')
     tmp_outdir = '{0}/{1}'.format(outdir, ext_dir)
     os.rename(outdir+'/'+climo_file, tmp_outdir+'/'+climo_file)
 
@@ -576,7 +577,7 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
     env['newfn']    = env['old_res_'+t]+'_'+os.path.basename(climo_file)
 
     # store some directory state variables to allow for working in the tmp_outdir
-    workdir = env['WORKDIR']
+##    workdir = env['WORKDIR']
     env['WORKDIR'] = tmp_outdir
     current_dir = os.getcwd()
     os.chdir(tmp_outdir)
@@ -596,13 +597,14 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
 
     # restore the working dir
     os.chdir(current_dir)
-    env['WORKDIR'] = workdir
+##    env['WORKDIR'] = workdir
 
     # add the area variable back into the regridded file
     try:
         print('DEBUG lnd_regrid: Adding area variable back to regridded file')
         print('DEBUG lnd_regrid: ncks command - ncks -A -v area {0}/{1} {2}/{3}'.format(env['area_dir'], env['area_file'], outdir, in_f))
-        pipe = subprocess.Popen(['ncks -A -v area {0}/{1} {2}/{3}'.format(env['area_dir'], env['area_file'], outdir, in_f)], cwd=env['WORKDIR'], env=env_copy, shell=True, stdout=subprocess.PIPE)
+##        pipe = subprocess.Popen(['ncks -A -v area {0}/{1} {2}/{3}'.format(env['area_dir'], env['area_file'], outdir, in_f)], cwd=env['WORKDIR'], env=env_copy, shell=True, stdout=subprocess.PIPE)
+        pipe = subprocess.Popen(['ncks -A -v area {0}/{1} {2}/{3}'.format(env['area_dir'], env['area_file'], outdir, in_f)], cwd=outdir, env=env_copy, shell=True, stdout=subprocess.PIPE)
         output = pipe.communicate()[0]
         while pipe.poll() is None:
             time.sleep(0.5)

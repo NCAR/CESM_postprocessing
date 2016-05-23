@@ -97,175 +97,6 @@ def setup_diags(envDict):
 
     return requested_diags
 
-#================================================
-# get_climo_files_to_regrid
-#================================================
-def get_climo_files_to_regrid(file_extensions, workdir, stream, t, env, debugMsg):
-    """ get_climo_files_to_regrid - return a list of climo files that need to be 
-        regrided in a given workdir.
-
-        Input:
-        file_extensions (list) - list of file extensions of associated files to be regridded.
-                                 This list also defines the names of the subdirectories to
-                                 be used to setup the regridding in parallel.
-        workdir (string) - location of climo files to be regridded
-        stream (string) - lnd history stream used in filename
-        env (dict) - environment dictionary
-        t (string) - model designation 1 or 2
-        debugMsg (object) - debug message object
-
-        Return:
-        climo_files (dict) - dictionary of climo files to be regridded
-     """
-    climo_files_dict = dict()
-    current_dir = os.getcwd()
-    os.chdir(workdir)
-
-    regrid_weights = list()
-
-    endYr = str((int(env['clim_first_yr_'+t]) + int(env['clim_num_yrs_'+t])) - 1)
-    file_prefix = '{0}.{1}.{2}-{3}'.format(env['caseid_'+t], stream, env['clim_first_yr_'+t].zfill(4), endYr.zfill(4))
-    
-    # trends file may have different years
-    trends_endYr = str((int(env['trends_first_yr_'+t]) + int(env['trends_num_yrs_'+t])) - 1)
-    trends_file_ANN_ALL = '{0}.{1}.{2}-{3}.ANN_ALL.nc'.format(env['caseid_'+t], stream, env['trends_first_yr_'+t].zfill(4), trends_endYr.zfill(4))
-
-    # build up the dictionary of climo files to be regridded
-    for filename in os.listdir('.'):
-        debugMsg('in get_climo_files_to_regrid filename = {0}'.format(filename), header=True, verbosity=1)
-
-        for ext in file_extensions:
-            if fnmatch.fnmatch(filename, '{0}.{1}.nc'.format(file_prefix, ext)):
-                climo_files_dict[ext] = filename
-                if 'means' in ext:
-                    regrid_weights.append((ext, 50))
-                elif 'MONS' in ext:
-                    regrid_weights.append((ext, 20))
-                else:
-                    regrid_weights.append((ext, 10))
-                debugMsg('DEBUG: matching fn {0} = {1}'.format(climo_files_dict[ext], filename), header=True, verbosity=1)
-        
-        if fnmatch.fnmatch(filename, trends_file_ANN_ALL):
-            climo_files_dict['ANN_ALL'] = filename
-            regrid_weights.append(('ANN_ALL', 100))
-
-    # create the temporary work directories for each climo file
-    for ext_dir, climo_file in climo_files_dict.iteritems():
-        tmp_workdir = '{0}/{1}'.format(workdir, ext_dir)
-        try:
-            os.makedirs(tmp_workdir)
-        except OSError as e:
-            if e.errno != errno.EEXISTS:
-                err_msg = 'ERROR: problem accessing the regridding working directory (0}'.format(tmp_workdir)
-                raise OSError(err_msg)
-
-    os.chdir(current_dir)
-    return climo_files_dict, regrid_weights
-
-#================================================
-# regrid 
-#================================================
-def regrid_climos(env, main_comm, debugMsg, timer):
-    """ regrid_climos - regrid the climos into a lat/lon grid
-
-    Arguments:
-    env (dictionary) - environment
-    main_comm (object) - communicator object
-    debugMsg (object) - debug message
-    timer (object) - timer object
-    """
-    if main_comm.is_manager():
-        if not os.path.exists(env['WKDIR']):
-            os.makedirs(env['WKDIR'])
-    main_comm.sync()
- 
-    climo_files_dict = dict()
-    regrid_weights = list()
-    env['NCLPATH'] = env['POSTPROCESS_PATH']+'/lnd_diag/shared/'   
-
-    # If SE grid, convert to lat/lon grid
-    regrid_script = 'se2fv_esmf.regrid2file.ncl'
-
-    # define list of file extensions of associated files to be regridded
-    # The order of these extensions is important for load balancing 
-    file_extensions = ['ANN_ALL', '_ANN_climo', 'MONS_climo', '_DJF_climo',
-                       '_ANN_means', '_JJA_climo', '_DJF_means', '_JJA_means',
-                       '_MAM_climo', '_MAM_means', '_SON_climo', '_SON_means']
-
-    # Convert Case1
-    m_dir = 'lnd'
-    if (env['regrid_1'] == 'True'):
-
-        # setup the working directory first before calling the base class prerequisites
-        endYr = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1
-        subdir = '{0}.{1}-{2}'.format(env['caseid_1'], env['clim_first_yr_1'], endYr)
-        workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR_1'], env['caseid_1'], subdir, m_dir)
-
-        if main_comm.is_manager():
-            debugMsg('Regridding in {0}: '.format(workdir), header=True, verbosity=1)
-            # get list of climo files to regrid
-            climo_files_dict, regrid_weights = get_climo_files_to_regrid(file_extensions, workdir, env['lnd_modelstream_1'], '1', env, debugMsg)
-            for ext, filename in climo_files_dict.iteritems():
-                debugMsg('regridding climo_files_dict[{0}] = {1}'.format(ext, filename), header=True, verbosity=1)
-        main_comm.sync()
-
-        # broadcast the climo_files_dict to all tasks
-        climo_files_dict = main_comm.partition(data=climo_files_dict, func=partition.Duplicate(), involved=True)
-
-        # partition the climo files between the ranks so each rank will get a portion of the dictionary to regrid
-##        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualStride(), involved=True)
-##        local_file_extensions = main_comm.partition(regrid_weights, func=partition.WeightBalanced(), involved=True)
-        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualLength(), involved=True)
-        debugMsg('local_file_extensions list with length {0}'.format(local_file_extensions), header=True, verbosity=1)
-
-        # preserve the current workdir in the env dictionary
-        env['WORKDIR'] = workdir
-        for ext_dir in local_file_extensions:
-            timer.start(ext_dir)
-            diagUtilsLib.lnd_regrid(climo_files_dict[ext_dir], regrid_script, '1', workdir, ext_dir, env)
-            timer.stop(ext_dir)
-            debugMsg("Total time to regrid file {0} = {1}".format(climo_files_dict[ext_dir], timer.get_time(ext_dir)), header=True, verbosity=1)
-
-    main_comm.sync()
-
-    # Convert Case2
-    if (env['MODEL_VS_MODEL'] == 'True' and env['regrid_2'] == 'True'):
-
-        # get list of climo files to regrid
-        endYr = (int(env['clim_first_yr_2']) + int(env['clim_num_yrs_2'])) - 1
-        subdir = '{0}.{1}-{2}'.format(env['caseid_2'], env['clim_first_yr_2'], endYr)
-        workdir = '{0}/climo/{1}/{2}/{3}/'.format(env['PTMPDIR_2'], env['caseid_2'], subdir, m_dir)
-
-        if main_comm.is_manager():
-            debugMsg('Regridding in {0}: '.format(workdir), header=True, verbosity=1)
-            climo_files_dict = get_climo_files_to_regrid(file_extensions, workdir, env['lnd_modelstream_2'], '2', env, debugMsg)
-            for ext, filename in climo_files_dict.iteritems():
-                debugMsg('regridding climo_files_dict[{0}] = {1}'.format(ext, filename), header=True, verbosity=1)
-        main_comm.sync()
-
-        # broadcast the climo_files_dict to all tasks
-        climo_files_dict = main_comm.partition(data=climo_files_dict, func=partition.Duplicate(), involved=True)
-
-        # partition the climo files between the ranks so each rank will get a portion of the dictionary to regrid
-##        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualStride(), involved=True)
-##        local_file_extensions = main_comm.partition(regrid_weights, func=partition.WeightBalanced(), involved=True)
-        local_file_extensions = main_comm.partition(file_extensions, func=partition.EqualLength(), involved=True)
-        debugMsg('local_file_extensions list with length {0}'.format(local_file_extensions), header=True, verbosity=1)
-
-        # preserve the current workdir in the env dictionary
-        env['WORKDIR'] = workdir
-        for ext_dir in local_file_extensions:
-            timer.start(ext_dir)
-            diagUtilsLib.lnd_regrid(climo_files_dict[ext_dir], regrid_script, '2', workdir, ext_dir, env)
-            timer.stop(ext_dir)
-            debugMsg("Total time to regrid file {0} = {1}".format(climo_files_dict[ext_dir], timer.get_time(ext_dir)), header=True, verbosity=1)
-
-    main_comm.sync()
-    if main_comm.is_manager():
-        debugMsg("Finished regridding.", header=True, verbosity=1)
-
-    env['WORKDIR'] = env['WKDIR']
-
 #============================================
 # initialize_main - initialization from main
 #============================================
@@ -276,6 +107,7 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     caseroot (string) - case root
     debugMsg (object) - vprinter object for printing debugging messages
+    standalone (boolean) - specify if postprocess caseroot is standalone (true) of not (false)
 
     Return:
     envDict (dictionary) - environment dictionary
@@ -381,11 +213,6 @@ def main(options, main_comm, debugMsg, timer):
 
     # broadcast envDict to all tasks
     envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
-    main_comm.sync()
-
-    # check to see if the climos need to be regridded into a lat/lon grid
-    if (envDict['regrid_1'] == 'True' or envDict['regrid_2'] == 'True'):
-        regrid_climos(envDict, main_comm, debugMsg, timer)
     main_comm.sync()
 
     # get list of diagnostics types to be created
