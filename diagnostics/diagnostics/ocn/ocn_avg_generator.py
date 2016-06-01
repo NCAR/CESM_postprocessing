@@ -334,9 +334,10 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_ocn.xml']
-    if standalone:
-        env_file_list =  ['./env_postprocess.xml', './env_diags_ocn.xml']
+##  the readXML method doesn't work with the new ESMCI/CIME
+##    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_ocn.xml']
+##    if standalone:
+    env_file_list =  ['./env_postprocess.xml', './env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict

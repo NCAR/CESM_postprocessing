@@ -132,9 +132,9 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_ocn.xml']
-    if standalone:
-        env_file_list =  ['./env_postprocess.xml', './env_diags_ocn.xml']
+##    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_ocn.xml']
+##    if standalone:
+    env_file_list =  ['./env_postprocess.xml', './env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
@@ -283,6 +283,20 @@ def main(options, main_comm, debugMsg):
 
         for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
             shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
+
+        # setup of the web_path_file text file in config_web
+        debugMsg('Setting up config_web/web_paths_ocn.txt', header=True, verbosity=1)
+
+        envDict['WEB_PATH_FILE'] = '{0}/config_web/web_paths_ocn.txt'.format(envDict['CASEROOT'])
+        if os.path.exists(envDict['WEB_PATH_FILE']):
+            os.utime(envDict['WEB_PATH_FILE'], None)
+        else:
+            open(envDict['WEB_PATH_FILE'],'a').close()
+
+        # append the WORKDIR location to the WEB_PATH_FILE
+        with open(env['WEB_PATH_FILE'], 'a') as f:
+            f.write('OCNDIAG_WEBDIR={0}\n'.format(envDict['WORKDIR']))
+        f.close()
 
     main_comm.sync()
 

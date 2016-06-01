@@ -1,0 +1,441 @@
+#!/usr/bin/env python
+"""Python program used to get and set XML variables
+"""
+
+from __future__ import print_function
+
+import sys
+
+if sys.hexversion < 0x02070000:
+    print(70 * "*")
+    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("It appears that you are running python {0}".format(
+        ".".join(str(x) for x in sys.version_info[0:3])))
+    print(70 * "*")
+    sys.exit(1)
+
+#
+# built-in modules
+#
+import argparse
+import glob
+from operator import itemgetter
+import os
+import re
+import traceback
+
+import xml.etree.ElementTree as etree
+
+
+# get the postprocess virtualenv path from the env_postprocess.xml file
+env_file = './env_postprocess.xml'
+postprocess_path = ''
+standalone = ''
+if os.path.isfile(env_file):
+    xml_tree = etree.ElementTree()
+    xml_tree.parse(env_file)
+    for entry_tag in xml_tree.findall('entry'):
+        if entry_tag.get('id') == 'POSTPROCESS_PATH':
+            postprocess_path = entry_tag.get('value')
+        if entry_tag.get('id') == 'STANDALONE':
+            standalone = entry_tag.get('value')
+else:
+    err_msg = ('pp_config ERROR: env_postprocess.xml does not exist in this directory.')
+    raise OSError(err_msg)
+
+# check if virtualenv is activated
+if hasattr(sys, 'real_prefix'):
+    try:
+        import jinja2
+    except:
+        #
+        # activate the virtual environment that was created by create_python_env.sh
+        #
+        activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
+        if not os.path.isfile(activate_file):
+            err_msg = ('pp_config ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
+                          + 'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(postprocess_path))
+            raise OSError(err_msg)
+
+        try:
+            execfile(activate_file, dict(__file__=activate_file))
+        except:
+            raise OSError('pp_config ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
+else:
+    #
+    # activate the virtual environment that was created by create_python_env.sh
+    #
+    activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
+    if not os.path.isfile(activate_file):
+             err_msg = ('pp_config ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
+                           + 'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(postprocess_path))
+             raise OSError(err_msg)
+
+    try:
+        execfile(activate_file, dict(__file__=activate_file))
+    except:
+        raise OSError('pp_config ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
+
+
+if sys.version_info[0] == 2:
+    from ConfigParser import SafeConfigParser as config_parser
+else:
+    from configparser import ConfigParser as config_parser
+
+#
+# installed dependencies
+#
+import jinja2
+
+#
+# other modules in this package
+#
+from cesm_utils import cesmEnvLib
+from asaptools import vprinter
+
+# -------------------------------------------------------------------------------
+#
+# XML processing classes
+#
+# -------------------------------------------------------------------------------
+class XmlEntry(object):
+    def __init__(self, id, value, desc):
+        self._id = id
+        self._value = value
+        self._desc = desc
+
+    def id(self):
+        return self._id
+
+    def value(self):
+        return self._value
+
+    def desc(self):
+        return self._desc
+
+
+class PostProcessingXML(object):
+    """NOTE(bja, 201605) not sure how much resuable code there will be
+    between different xml versions.
+
+    """
+
+    prefix_map = []
+
+    def __init__(self):
+        """
+        """
+        pass
+
+
+class PostProcessingXML_v1(PostProcessingXML):
+    """
+    """
+    def __init__(self):
+        """
+        """
+        """
+        NOTE(bja, 201605) v1 doesn't have sub-versions to worry about.
+        """
+        pass
+
+    def xml_to_dict(self, xml_tree, envDict):
+        """
+        for the <entry id=value> xml files in casedir/env_file_list,
+        returns a dictionary output["id"]="value"
+
+        Arguments:
+        casedir (string) - case root directory
+        env_file_list - list of env_*.xml files to parse in the casedir
+
+        Return:
+        output (dictionary)
+        """
+        for entry_tag in xml_tree.findall('entry'):
+            envDict[entry_tag.get('id')] = entry_tag.get('value')
+
+        # expand nested environment variables
+        for k, v in envDict.iteritems():
+            envDict[k] = cesmEnvLib.expand(v, envDict)
+
+        # remove () in output dictionary values
+        for k, v in envDict.iteritems():
+            envDict[k] = re.sub('[()]', '', v)
+    
+    def write(self, envDict, comp, new_entry_id, new_entry_value):
+        
+        # assume writing env_postprocess.xml
+        config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_PATH'])
+        template_file = 'env_postprocess.tmpl'
+        env_file = '{0}/env_postprocess.xml'.format(envDict['PP_CASE_PATH'])
+
+        if len(comp) > 0:
+            # a component name was included in the entry_id so update env_diags_[comp].xml
+            config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
+            template_file = 'env_diags.tmpl'
+            env_file = '{0}/env_diags_{1}.xml'.format(envDict['PP_CASE_PATH'], comp)
+
+        # write out the correct file
+        self.write_env_file(envDict, config_file, template_file, env_file, comp, new_entry_id, new_entry_value)
+
+
+    def write_env_file(self, envDict, configFile, tmplFile, envFile, comp, new_entry_id, new_entry_value):
+        """create the XML file in the CASEROOT
+
+        Arguments:
+        envDict (dictionary) - environment dictionary
+        configFile (string) - full path to input config_[definition].xml file
+        tmplFile (string) - template file for output [file].xml
+        envFile (string) - output [file].xml name
+        new_entry_id (string) - ID of value to be updated
+        new_entry_value (string) - updated value
+        """
+        group_list = list()
+        sorted_group_list = list()
+        rc, err_msg = cesmEnvLib.checkFile(configFile, 'read')
+        if not rc:
+            raise OSError(err_msg)
+        
+        rc, err_msg = cesmEnvLib.checkFile('{0}/Templates/{1}'.format(envDict['POSTPROCESS_PATH'], tmplFile), 'read')
+        if not rc:
+            raise OSError(err_msg)
+        
+        rc, err_msg = cesmEnvLib.checkFile(envFile, 'write')
+        if not rc:
+            raise OSError(err_msg)
+
+        xml_tree = etree.ElementTree()
+        xml_tree.parse(configFile)
+
+        for group_tag in xml_tree.findall('./groups/group'):
+            xml_list = list()
+            group_dict = dict()
+            name = group_tag.get('name')
+            order = int(group_tag.find('order').text)
+            comment = group_tag.find('comment').text
+
+            for entry_tag in group_tag.findall('entry'):
+                if entry_tag.get('id') == new_entry_id:
+                    xml_list.append(XmlEntry(new_entry_id,
+                                             new_entry_value,
+                                             entry_tag.get('desc')))
+                else:
+                    xml_list.append(XmlEntry(entry_tag.get('id'),
+                                         envDict[entry_tag.get('id')],
+                                         entry_tag.get('desc')))
+
+            group_dict = {'order': order,
+                          'name': name,
+                          'comment': comment,
+                          'xml_list': xml_list}
+
+            group_list.append(group_dict)
+
+        sorted_group_list = sorted(group_list, key=itemgetter('order'))
+
+        # add an additional entry for machine dependent input
+        # observation files root path
+        xml_list = list()
+        if 'DIAGOBSROOT' in new_entry_id:
+            xml_obs = XmlEntry('{0}DIAG_DIAGOBSROOT'.format(comp.upper()), 
+                               new_entry_value, 
+                               'Machine dependent diagnostics observation files root path')
+            xml_list.append(xml_obs)
+
+        # the xml_list now contains a list of XmlEntry classes that
+        # can be written to the template
+        templateLoader = jinja2.FileSystemLoader(
+            searchpath='{0}/Templates'.format(envDict['POSTPROCESS_PATH']))
+        templateEnv = jinja2.Environment(loader=templateLoader)
+
+        template = templateEnv.get_template(tmplFile)
+        templateVars = { 'xml_list' : xml_list,
+                         'group_list' : sorted_group_list,
+                         'standalone' : standalone }
+
+        # render the template
+        env_tmpl = template.render(templateVars)
+
+        # write the env_file
+        with open(envFile, 'w') as xml:
+            xml.write(env_tmpl)
+
+class PostProcessingXML_v2(PostProcessingXML):
+    """
+
+    """
+    def __init__(self, version_list):
+        """NOTE(bja, 201605) Backward compatible minor oversions. Not sure if
+        they need special logic....
+
+        """
+        msg = "CIME xml v2 spec has not been implemented."
+        raise RuntimeError(msg)
+
+        self._minor_version = None
+        self._patch_version = None
+
+        if len(version_list) > 1:
+            self._minor_version = version_list[1]
+        if len(version_list) > 2:
+            self._minor_version = version_list[2:]
+
+    def xml_to_dict(self, tree, envDict):
+        """NOTE(bja, 201605) not sure how the groups are handled here.... Are
+        they going into the dict?
+
+        """
+        pass
+
+    def write(self, tree, filename):
+        """TODO(bja, 201605) jinja2 processing here
+        """
+        pass
+
+
+# -------------------------------------------------------------------------------
+#
+# XML processing factory
+#
+# -------------------------------------------------------------------------------
+def post_processing_xml_factory(xml_tree):
+    """Determine what version of the xml file we are using and create the
+    appropriate class
+
+    NOTE(bja, 201605) pseudo code, actual xml queries will depend on actual xml
+
+    """
+    processor = None
+    version = xml_tree.findall('./config_definition[@version]')
+    if len(version) == 1:
+        version_list = version[0].split('.')
+        major_version = version_list[0]
+        if (major_version == '2'):
+            processor = PostProcessingXML_v2(version_list)
+        else:
+            # Unsupported version, error!
+            msg = "ERROR: Unsupported XML version : {0}".format(major_version)
+            raise RuntimeError(msg)
+    elif len(version) == 0:
+        processor = PostProcessingXML_v1()
+    else:
+        # would valid xml have multiple version tags...?
+        raise RuntimeError("pp_config ERROR: XML file has multiple version tags!")
+    if not processor:
+        raise RuntimeError("pp_config ERROR: couldn't create xml processing class!")
+    return processor
+
+
+# -------------------------------------------------------------------------------
+#
+# User input
+#
+# -------------------------------------------------------------------------------
+
+def commandline_options():
+    """Process the command line arguments.
+
+    """
+    parser = argparse.ArgumentParser(
+        description=('pp_config: get and set post-processing '
+                     'configuration variables.'))
+
+    parser.add_argument('-backtrace', '--backtrace', action='store_true',
+                        help='show exception backtraces as extra debugging '
+                        'output')
+
+    parser.add_argument('-caseroot','--caseroot', nargs=1, default=['.'],
+                        help='path to postprocessing case directory')
+
+    parser.add_argument('-debug', '--debug', nargs=1, required=False, type=int, default=0,
+                        help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
+
+    parser.add_argument('-get', '--get', nargs=1, default=[],
+                        help='variable name to retreive')
+
+    parser.add_argument('-set', '--set', nargs=1, default=[],
+                        help=('variable and value to set in the form: '
+                              '"key=value"'))
+
+    parser.add_argument('-value', '--value', action='store_true',
+                        help=('print only the value of the variable.'
+                              'Works in conjunction with the --get option'))
+
+    options = parser.parse_args()
+    return options
+
+
+# -------------------------------------------------------------------------------
+#
+# main
+#
+# -------------------------------------------------------------------------------
+def main(options):
+
+
+    debugMsg = vprinter.VPrinter(header='', verbosity=0)
+    if options.debug:
+        header = 'pp_config: DEBUG... '
+        debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
+
+    case_dir = options.caseroot[0]
+    debugMsg("Using case directory : {0}".format(case_dir), header=True, verbosity=1)
+    os.chdir(case_dir)
+
+    xml_filenames = glob.glob('*.xml')
+
+    xml_trees = []
+    for filename in xml_filenames:
+        file_path = os.path.join(case_dir, filename)
+        file_path = os.path.abspath(file_path)
+        if os.path.isfile(file_path):
+            xml_trees.append(etree.parse(file_path))
+        else:
+            msg = 'pp_config WARNING: {0} does not exist.'.format(file_path)
+            print(msg)
+
+    # assume that all env*.xml files are the same version in a case
+    xml_processor = post_processing_xml_factory(xml_trees[0])
+
+    envDict = os.environ.copy()
+    for tree in xml_trees:
+        xml_processor.xml_to_dict(tree, envDict)
+
+    #
+    # 'get' user input
+    #
+    if options.get:
+        entry_id = options.get[0]
+        if options.value:
+            print("{0}".format(envDict[entry_id]))
+        else:
+            print("{0}={1}".format(entry_id, envDict[entry_id]))
+
+    #
+    # 'set' user input
+    #
+    if options.set:
+        key_value = options.set[0].split('=')
+        new_entry_id = key_value[0].strip()
+        new_entry_value = key_value[1].strip().replace('\n','')
+
+        # get the component name based on the entry_id 
+        entry_parts = new_entry_id.split('_')
+        comp = entry_parts[0][:3]
+        if comp.upper() not in ['ATM','ICE','LND','OCN']:
+            comp = ''
+
+        xml_processor.write(envDict, comp.lower(), new_entry_id, new_entry_value)
+
+if __name__ == "__main__":
+
+
+    try:
+        options = commandline_options()
+        status = main(options)
+        sys.exit(status)
+    except Exception as error:
+        print(str(error))
+        if options.backtrace:
+            traceback.print_exc()
+        sys.exit(1)

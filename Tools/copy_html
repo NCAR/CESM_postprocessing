@@ -26,28 +26,61 @@ import shutil
 import subprocess
 import traceback
 
-#
-# installed dependencies
-#
-try:
-    import lxml.etree as etree
-except:
-    import xml.etree.ElementTree as etree
+
+# get the postprocess virtualenv path from the env_posprocess.xml file
+env_file = './env_postprocess.xml'
+postprocess_path = ''
+standalone = ''
+if os.path.isfile(env_file):
+    xml_tree = ET.ElementTree()
+    xml_tree.parse(env_file)
+    for entry_tag in xml_tree.findall('entry'):
+        if entry_tag.get('id') == 'POSTPROCESS_PATH':
+            postprocess_path = entry_tag.get('value')
+        if entry_tag.get('id') == 'STANDALONE':
+            standalone = entry_tag.get['value']
+else:
+    err_msg = ('copy_html ERROR: env_postprocess.xml does not exist in this directory.')
+    raise OSError(err_msg)
+
+# check if virtualenv is activated
+if hasattr(sys, 'real_prefix'):
+    try:
+        import jinja2
+    except:
+        #
+        # activate the virtual environment that was created by create_python_env.sh
+        #
+        activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(POSTPROCESS_PATH)
+        if ( not os.path.isfile(activate_file):
+            err_msg = ('copy_html ERROR: the virtual environment in {0} does not exist.'.format(POSTPROCESS_PATH) \
+                           'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(POSTPROCESS_PATH)))
+            raise OSError(err_msg)
+
+        try:
+            execfile(activate_file, dict(__file__=activate_file))
+        except:
+            raise OSError('copy_html ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
+else:
+    #
+    # activate the virtual environment that was created by create_python_env.sh
+    #
+    activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(POSTPROCESS_PATH)
+    if ( not os.path.isfile(activate_file):
+             err_msg = ('copy_html ERROR: the virtual environment in {0} does not exist.'.format(POSTPROCESS_PATH) \
+                            'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(POSTPROCESS_PATH)))
+             raise OSError(err_msg)
+
+    try:
+        execfile(activate_file, dict(__file__=activate_file))
+    except:
+        raise OSError('copy_html ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
+
 
 if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser as config_parser
 else:
     from configparser import ConfigParser as config_parser
-
-#
-# activate the virtual environment that was created by create_python_env.sh
-#
-if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
-    err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
-               'Please run $POSTPROCESSING_PATH/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
-    raise OSError(err_msg)
-
-execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
 
 #
 # import modules installed in the virtual environment
@@ -250,24 +283,23 @@ def main(options):
     compList = ['atm','ice','lnd','ocn']
     activeList = list()
 
+    # this script always run from the postprocessing caseroot 
+    pp_caseroot = os.getcwd()
+
     # initialize the env from the env*.xml files in the casedir
     envFileList.append('env_postprocess.xml')
     for comp in compList:
         envFile = 'env_diags_{0}.xml'.format(comp)
         envFileList.append(envFile)
 
-    # check if the env_run.xml file exists
-    if os.path.isfile('env_run.xml'):
-        envFileList.append('env_run.xml')
-
     # load the env with all the env file entries
-    env = cesmEnvLib.readXML(caseroot, env_file_list)
+    env = cesmEnvLib.readXML(pp_caseroot, envFileList)
 
     # check if sshkey is set
     check_ssh_key(env)
 
     # create the toplevel remote directory if it doesn't already exist
-    create_top_level(env)
+    create_remote_top_level(env)
 
     # copy the different diag component web files
     for comp in compList:

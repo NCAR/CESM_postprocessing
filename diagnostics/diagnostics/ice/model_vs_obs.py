@@ -200,10 +200,11 @@ class modelVsObs(IceDiagnostic):
             create_ice_html.create_plotset_html(html_dir+'/regional.html',web_dir+'/regional.html',env)
             create_ice_html.create_plotset_html(html_dir+'/vector.html',web_dir+'/vector.html',env)
 
-
-            # append the web_dir location to the env
+            # append the html_dir to the env[WEB_PATH_FILE]
             key = 'ICEDIAG_WEBDIR_{0}'.format(self._name)
-            env[key] = web_dir
+            with open(env['WEB_PATH_FILE'], 'a') as f:
+                f.write('{0}={1}\n'.format(key, html_dir))
+            f.close()
 
             print('*******************************************************************************')
             print('Successfully completed generating ice diagnostics model vs. observation plots')

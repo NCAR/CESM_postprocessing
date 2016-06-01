@@ -117,6 +117,9 @@ def commandline_options():
     parser.add_argument('-caseroot', '--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
 
+    parser.add_argument('-cesmtag', '--cesmtag', nargs=1, required=False,
+                        help='CESM repository tag')
+
     options = parser.parse_args()
         
     return options
@@ -153,7 +156,7 @@ def check_standalone(caseroot):
 # -------------------------------------------------------------------------------
 # create_env_file - generate the XML file
 # -------------------------------------------------------------------------------
-def create_env_file(envDict, configFile, tmplFile, envFile, obs_root, standalone):
+def create_env_file(envDict, configFile, tmplFile, envFile, obs_root, comp, standalone):
     """create the XML file in the CASEROOT
     
     Arguments:
@@ -162,64 +165,67 @@ def create_env_file(envDict, configFile, tmplFile, envFile, obs_root, standalone
     tmplFile (string) - template file for output [file].xml
     envFile (string) - output [file].xml name
     obs_root (string) - observation data file root directory
+    comp (string) - component
     standalone (boolean) - indicate if this is postprocessing for a standalone case
     
     """
     group_list = list()
     sorted_group_list = list()
     rc, err_msg = cesmEnvLib.checkFile(configFile, 'read')
-    rc1, err_msg1 = cesmEnvLib.checkFile('{0}/Templates/{1}'.format(envDict['POSTPROCESS_PATH'], tmplFile), 'read')
-
-    if rc:
-        xml_tree = etree.ElementTree()
-        #print ('creating configFile = {0}'.format(configFile))
-        xml_tree.parse(configFile)
-
-        for group_tag in xml_tree.findall('./groups/group'):
-            xml_list = list()
-            group_dict = dict()
-            name = group_tag.get('name')
-            order = int(group_tag.find('order').text)
-            comment = group_tag.find('comment').text
-
-            for entry_tag in group_tag.findall('entry'):
-                xml_list.append(XmlEntry(entry_tag.get('id'), entry_tag.get('value'), entry_tag.get('desc')))
-
-            group_dict = { 'order' : order, 'name' : name, 'comment' : comment, 'xml_list' : xml_list }
-            group_list.append(group_dict)
-
-        sorted_group_list = sorted(group_list, key=itemgetter('order'))
-
-        # add an additional entry for machine dependent input observation files root path
-        xml_list = list()
-        if obs_root:
-            if len(obs_root) > 0:
-                xml_obs = XmlEntry('DIAGOBSROOT', obs_root, 'Machine dependent diagnostics observation files root path')
-                xml_list.append(xml_obs)
-        
-        # the xml_list now contains a list of XmlEntry classes that can be written to the template
-        templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(envDict['POSTPROCESS_PATH']) )
-        templateEnv = jinja2.Environment( loader=templateLoader )
-        if rc1:
-            template = templateEnv.get_template( tmplFile )
-            templateVars = { 'caseroot' : envDict['CASEROOT'],
-                             'case' : envDict['CASE'],
-                             'pp_case_path' : envDict['PP_CASE_PATH'],
-                             'postprocess_path' : envDict['POSTPROCESS_PATH'],
-                             'xml_list' : xml_list,
-                             'group_list' : sorted_group_list,
-                             'standalone' : standalone }
-        
-            # render the template
-            env_tmpl = template.render( templateVars )
-
-            # write the env_file
-            with open( envFile, 'w') as xml:
-                xml.write(env_tmpl)
-        else:
-            raise OSError(err_msg)
-    else:
+    if not rc:
         raise OSError(err_msg)
+
+    rc, err_msg = cesmEnvLib.checkFile('{0}/Templates/{1}'.format(envDict['POSTPROCESS_PATH'], tmplFile), 'read')
+    if not rc:
+        raise OSError(err_msg)
+
+    xml_tree = etree.ElementTree()
+    #print ('creating configFile = {0}'.format(configFile))
+    xml_tree.parse(configFile)
+    
+    for group_tag in xml_tree.findall('./groups/group'):
+        xml_list = list()
+        group_dict = dict()
+        name = group_tag.get('name')
+        order = int(group_tag.find('order').text)
+        comment = group_tag.find('comment').text
+        
+        for entry_tag in group_tag.findall('entry'):
+            # check if the value needs to be inherited from the envDict
+            if entry_tag.get('value') == 'inherit':
+                xml_list.append(XmlEntry(entry_tag.get('id'), envDict[entry_tag.get('id')], entry_tag.get('desc')))
+            else:
+                xml_list.append(XmlEntry(entry_tag.get('id'), entry_tag.get('value'), entry_tag.get('desc')))
+                    
+        group_dict = { 'order' : order, 'name' : name, 'comment' : comment, 'xml_list' : xml_list }
+        group_list.append(group_dict)
+
+    sorted_group_list = sorted(group_list, key=itemgetter('order'))
+
+    # add an additional entry for machine dependent input observation files root path
+    xml_list = list()
+    if obs_root:
+        if len(obs_root) > 0:
+            xml_obs = XmlEntry('{0}DIAG_DIAGOBSROOT'.format(comp.upper()), 
+                               obs_root, 
+                               'Machine dependent diagnostics observation files root path')
+            xml_list.append(xml_obs)
+        
+    # the xml_list now contains a list of XmlEntry classes that can be written to the template
+    templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(envDict['POSTPROCESS_PATH']) )
+    templateEnv = jinja2.Environment( loader=templateLoader )
+
+    template = templateEnv.get_template( tmplFile )
+    templateVars = { 'xml_list' : xml_list,
+                     'group_list' : sorted_group_list,
+                     'standalone' : standalone }
+        
+    # render the template
+    env_tmpl = template.render( templateVars )
+
+    # write the env_file
+    with open( envFile, 'w') as xml:
+        xml.write(env_tmpl)
 
 # -------------------------------------------------------------------------------
 # read_machine_xml
@@ -239,67 +245,67 @@ def read_machine_xml(machineName, xmlFile):
     machine['modules'] = []
     found = False
     rc, err_msg = cesmEnvLib.checkFile(xmlFile, 'read')
-    if rc:
-        xml_tree = etree.ElementTree()
-        xml_tree.parse(xmlFile)
+    if not rc:    
+        raise OSError(err_msg)
 
-        # find the matching machine name
-        for xmlmachine in xml_tree.findall('machine'):
-            if machineName.lower() == xmlmachine.get('name').lower():
+    xml_tree = etree.ElementTree()
+    xml_tree.parse(xmlFile)
 
-                found = True
-                # get the timeseries pes first
-                tseries_pes = xmlmachine.find('timeseries_pes')
-                machine['timeseries_pes'] = tseries_pes.text
-                machine['timeseries_queue'] = tseries_pes.get('queue').lower()
-                machine['timeseries_ppn'] = tseries_pes.get('pes_per_node').lower()
-                machine['timeseries_wallclock'] = tseries_pes.get('wallclock').lower()
+    # find the matching machine name
+    for xmlmachine in xml_tree.findall('machine'):
+        if machineName.lower() == xmlmachine.get('name').lower():
 
-                # get the mpi run command
-                machine['mpi_command'] = xmlmachine.find('mpi_command').text
+            found = True
+            # get the timeseries pes first
+            tseries_pes = xmlmachine.find('timeseries_pes')
+            machine['timeseries_pes'] = tseries_pes.text
+            machine['timeseries_queue'] = tseries_pes.get('queue').lower()
+            machine['timeseries_ppn'] = tseries_pes.get('pes_per_node').lower()
+            machine['timeseries_wallclock'] = tseries_pes.get('wallclock').lower()
 
-                # get the pythonpath command
-                machine['pythonpath'] = xmlmachine.find('pythonpath').text
-                if machine['pythonpath'] is None:
-                    machine['pythonpath'] = ''
+            # get the mpi run command
+            machine['mpi_command'] = xmlmachine.find('mpi_command').text
 
-                # get the project
-                machine['project'] = xmlmachine.find('project').text
+            # get the pythonpath command
+            machine['pythonpath'] = xmlmachine.find('pythonpath').text
+            if machine['pythonpath'] is None:
+                machine['pythonpath'] = ''
 
-                # loop through the module list
-                for mod in xmlmachine.findall("modules/module"):
-                    machine['modules'].append(mod.text)
+            # get the project
+            machine['project'] = xmlmachine.find('project').text
 
-                # loop through the compList to get the component PE layouts
-                # and observation data root
-                for comp in xmlmachine.findall("components/component"):
-                    compName = comp.get("name").lower()
+            # loop through the module list
+            for mod in xmlmachine.findall("modules/module"):
+                machine['modules'].append(mod.text)
 
-                    avg = comp.find('averages_pes')
-                    machine['{0}_averages_pes'.format(compName)] = avg.text
-                    machine['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
-                    machine['{0}_averages_ppn'.format(compName)] = avg.get('pes_per_node').lower()
-                    machine['{0}_averages_wallclock'.format(compName)] = avg.get('wallclock').lower()
+            # loop through the compList to get the component PE layouts
+            # and observation data root
+            for comp in xmlmachine.findall("components/component"):
+                compName = comp.get("name").lower()
 
-                    diags = comp.find('diagnostics_pes')
-                    machine['{0}_diagnostics_pes'.format(compName)] = diags.text
-                    machine['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
-                    machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
-                    machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
+                avg = comp.find('averages_pes')
+                machine['{0}_averages_pes'.format(compName)] = avg.text
+                machine['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
+                machine['{0}_averages_ppn'.format(compName)] = avg.get('pes_per_node').lower()
+                machine['{0}_averages_wallclock'.format(compName)] = avg.get('wallclock').lower()
 
-                    regrid = comp.find('regrid_pes')
-                    if regrid is not None:
-                        machine['{0}_regrid_pes'.format(compName)] = regrid.text
-                        machine['{0}_regrid_queue'.format(compName)] = regrid.get('queue').lower()
-                        machine['{0}_regrid_ppn'.format(compName)] = regrid.get('pes_per_node').lower()
-                        machine['{0}_regrid_wallclock'.format(compName)] = regrid.get('wallclock').lower()
+                diags = comp.find('diagnostics_pes')
+                machine['{0}_diagnostics_pes'.format(compName)] = diags.text
+                machine['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
+                machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
+                machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
+
+                regrid = comp.find('regrid_pes')
+                if regrid is not None:
+                    machine['{0}_regrid_pes'.format(compName)] = regrid.text
+                    machine['{0}_regrid_queue'.format(compName)] = regrid.get('queue').lower()
+                    machine['{0}_regrid_ppn'.format(compName)] = regrid.get('pes_per_node').lower()
+                    machine['{0}_regrid_wallclock'.format(compName)] = regrid.get('wallclock').lower()
                         
-                    machine['{0}_obs_root'.format(compName)] = comp.find('obs_root').text
+                machine['{0}_obs_root'.format(compName)] = comp.find('obs_root').text
 
-        if not found:
-            err_msg = ('create_postprocess ERROR: Invalid machine "{0}" requested for postprocessing'.format(machine))
-            raise OSError(err_msg)
-    else:
+    if not found:
+        err_msg = ('create_postprocess ERROR: Invalid machine "{0}" requested for postprocessing'.format(machine))
         raise OSError(err_msg)
 
     return machine
@@ -409,7 +415,6 @@ def initialize_main(envDict, options, standalone):
     Arguments:
     options (list) - input options from command line
     envDict (dictionary) - environment dictionary
-    pp_case_path - postprocessing path in caseroot
     standalone (boolean) - indicate if this is postprocessing for a standalone case
 
     Return:
@@ -420,18 +425,34 @@ def initialize_main(envDict, options, standalone):
     pp = envDict['POSTPROCESS_PATH']
 
     if not standalone:
-        # envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-        env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
-        envDict = cesmEnvLib.readXML(caseroot, env_file_list)
+        # run xmlquery to get the variables needed for postprocessing
+        os.chdir(caseroot)
+        var_names = ['CASE', 'DOUT_S_ROOT', 'ATM_GRID', 'ICE_GRID', 'LND_GRID', 'OCN_GRID']
+        for var_name in var_names:
+            cmd = ['./xmlquery {0} -value'.format(var_name)]
+            try:
+                pipe = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                output, err = pipe.communicate()
+            except OSError as e:
+                print('WARNING',e.errno,e.strerror)
+            envDict[var_name] = output
+        os.chdir(pp)
     else:
         caseList = caseroot.split('/')
         envDict['CASE'] = caseList[-1]
+        var_names = ['DOUT_S_ROOT', 'ATM_GRID', 'ICE_GRID', 'LND_GRID', 'OCN_GRID']
+        for var_name in var_names:
+            envDict[var_name] = 'undefined'
 
     # refer to the caseroot that was specified on the command line instead of what
     # is read in the environment as the caseroot may have changed from what is listed
     # in the env xml
     envDict['CASEROOT'] = caseroot
     envDict['POSTPROCESS_PATH'] = pp
+
+    envDict['CESM_TAG'] = 'undefined'
+    if options.cesmtag[0]:
+        envDict['CESM_TAG'] = options.cesmtag[0]
 
     return envDict
 
@@ -448,10 +469,6 @@ def main(options):
 
     # set the postprocessing dir in the envDict
     envDict['POSTPROCESS_PATH'] = os.getcwd()
-
-    # get the machine name from the hostname
-    hostname = cesmEnvLib.get_hostname()
-    envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
 
     # create the postprocess directories in the caseroot
     standalone = check_standalone(options.caseroot[0])
@@ -486,6 +503,10 @@ def main(options):
     envDict = initialize_main(envDict, options, standalone)
     envDict['PP_CASE_PATH'] = pp_case_path
 
+    # get the machine name from the hostname
+    hostname = cesmEnvLib.get_hostname()
+    envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
+
     # TODO - need to check the compset to see what is active 
     # and return the compList accordingly, for now create all options
 
@@ -502,7 +523,7 @@ def main(options):
     config_file = '{0}/Config/config_postprocess.xml'.format(envDict['POSTPROCESS_PATH'])
     tmpl_file = 'env_postprocess.tmpl'
     env_file = '{0}/env_postprocess.xml'.format(envDict['PP_CASE_PATH'])
-    create_env_file(envDict, config_file, tmpl_file, env_file, '', standalone)
+    create_env_file(envDict, config_file, tmpl_file, env_file, '', '', standalone)
 
     # generate the env_timeseries.xml file
     config_file = '{0}/Config/config_timeseries.xml'.format(envDict['POSTPROCESS_PATH'])
@@ -514,7 +535,7 @@ def main(options):
         config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
         tmpl_file = 'env_diags.tmpl'
         env_file = '{0}/env_diags_{1}.xml'.format(envDict['PP_CASE_PATH'], comp)
-        create_env_file(envDict, config_file, tmpl_file, env_file, machine['{0}_obs_root'.format(comp)], standalone)
+        create_env_file(envDict, config_file, tmpl_file, env_file, machine['{0}_obs_root'.format(comp)], comp, standalone)
 
     # define the template files for the batch scripts
     batch_tmpl = 'batch_{0}.tmpl'.format(envDict['MACH'])
@@ -562,10 +583,10 @@ def main(options):
                      machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
 
     # copy the copy_html script to the caseroot 
-    # TODO...
+    shutil.copy2('{0}/Tools/copy_html'.format(envDict['POSTPROCESS_PATH']), '{0}/copy_html'.format(envDict['PP_CASE_PATH']))
 
-    # copy the pp_env_set and pp_env_get to the caseroot
-    # TODO...
+    # copy the pp_config to the caseroot
+    shutil.copy2('{0}/Tools/pp_config'.format(envDict['POSTPROCESS_PATH']), '{0}/pp_config'.format(envDict['PP_CASE_PATH']))
 
     print('*****************************************************************************************')
     print('')
@@ -575,7 +596,7 @@ def main(options):
     print(' http://www2.cesm.ucar.edu for a complete description of how')
     print(' to configure and use the CESM post-processing tools.')
     if standalone:
-        print(' NOTICE: The postprocessing xml files in the new CASEROOT postprocess directory will need to be adjusted.')
+        print(' NOTICE: The env_postprocess.xml file in the new CASEROOT postprocess directory will need to be updated.')
     print('')
     print('*****************************************************************************************')
     

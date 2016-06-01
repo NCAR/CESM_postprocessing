@@ -113,11 +113,11 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_lnd.xml']
-    envDict['STANDALONE'] = False
-    if standalone:
-        env_file_list =  ['./env_postprocess.xml', './env_diags_lnd.xml']
-        envDict['STANDALONE'] = True
+##    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_lnd.xml']
+##    envDict['STANDALONE'] = False
+##    if standalone:
+    env_file_list =  ['./env_postprocess.xml', './env_diags_lnd.xml']
+##        envDict['STANDALONE'] = True
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
@@ -281,12 +281,6 @@ def main(options, main_comm, debugMsg, timer):
         debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank), header=True, verbosity=1)
     inter_comm.sync()
 
-##    web_dir_ic_tag = 1
-##    web_dir_mc_tag = 2
-    
-##    ic_web_info = dict()
-##    mc_web_info = dict()
-
     # loop through the local_diag_list list
     for requested_diag in local_diag_list:
         try:
@@ -317,34 +311,6 @@ def main(options, main_comm, debugMsg, timer):
             if lmaster:
                 debugMsg('lnd_diags_generator: return from run_diagnostics', header=True, verbosity=1)
 
-##            inter_comm.sync()
-
-            # broadcast the envDict
-##            envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
-
-##            web_info = dict()
-##            for key in envDict:
-##                if 'LNDDIAG_WEBDIR' in key:
-##                    web_info[key] = envDict[key]
-
-##            if lsize > 1:
-##                if not lmaster:
-##                    debugMsg('lnd_diags_generator before collection not on master rank = {0}'.format(inter_comm.get_rank()), header=True, verbosity=1)
-##                    inter_comm.collect(data=web_info, tag=web_dir_ic_tag)
-##                else:
-##                    debugMsg('lnd_diags_generator before collection on master', header=True, verbosity=1)
-##                    rank, tmp_web_info = inter_comm.collect(tag=web_dir_mc_tag)
-##                    ic_web_info.update(web_info)
-##                    ic_web_info.update(tmp_web_info)
-##            else:
-##                ic_web_info.update(web_info)
-
-##            inter_comm.sync()
-
-##            if lmaster:
-##                for k,v in ic_web_info.iteritems():
-##                    debugMsg('lnd_diags_generator ic_web_info[{0}] = {1}'.format(k,v), header=True, verbosity=1)
-
         except lnd_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
             print(e)
@@ -353,16 +319,6 @@ def main(options, main_comm, debugMsg, timer):
             # unrecoverable error, bail!
             print(e)
             return 1
-
-#    inter_comm.sync()
-#    main_comm.sync()
-
-    # need to collect the ic_web_info to the main_comm
-
-    # update the env_diags_lnd.xml with LNDIAG_WEBDIR settings to be used by the copy_html utility
-#    if main_comm.is_manager():
-#        for k, v in ic_web_info.iteritems():
-#            debugMsg('lnd_diags_generator: all ic_web_info[{0}] = {1}'.format(k, v), header=True, verbosity=1)
 
 
 #===================================
