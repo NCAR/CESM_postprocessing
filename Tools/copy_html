@@ -26,21 +26,22 @@ import shutil
 import subprocess
 import traceback
 
+import xml.etree.ElementTree as etree
 
-# get the postprocess virtualenv path from the env_posprocess.xml file
+# get the postprocess virtualenv path from the env_postprocess.xml file
 env_file = './env_postprocess.xml'
 postprocess_path = ''
 standalone = ''
 if os.path.isfile(env_file):
-    xml_tree = ET.ElementTree()
+    xml_tree = etree.ElementTree()
     xml_tree.parse(env_file)
     for entry_tag in xml_tree.findall('entry'):
         if entry_tag.get('id') == 'POSTPROCESS_PATH':
             postprocess_path = entry_tag.get('value')
         if entry_tag.get('id') == 'STANDALONE':
-            standalone = entry_tag.get['value']
+            standalone = entry_tag.get('value')
 else:
-    err_msg = ('copy_html ERROR: env_postprocess.xml does not exist in this directory.')
+    err_msg = ('pp_config ERROR: env_postprocess.xml does not exist in this directory.')
     raise OSError(err_msg)
 
 # check if virtualenv is activated
@@ -51,31 +52,30 @@ if hasattr(sys, 'real_prefix'):
         #
         # activate the virtual environment that was created by create_python_env.sh
         #
-        activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(POSTPROCESS_PATH)
-        if ( not os.path.isfile(activate_file):
-            err_msg = ('copy_html ERROR: the virtual environment in {0} does not exist.'.format(POSTPROCESS_PATH) \
-                           'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(POSTPROCESS_PATH)))
+        activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
+        if not os.path.isfile(activate_file):
+            err_msg = ('pp_config ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
+                          + 'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(postprocess_path))
             raise OSError(err_msg)
 
         try:
             execfile(activate_file, dict(__file__=activate_file))
         except:
-            raise OSError('copy_html ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
+            raise OSError('pp_config ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
 else:
     #
     # activate the virtual environment that was created by create_python_env.sh
     #
-    activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(POSTPROCESS_PATH)
-    if ( not os.path.isfile(activate_file):
-             err_msg = ('copy_html ERROR: the virtual environment in {0} does not exist.'.format(POSTPROCESS_PATH) \
-                            'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(POSTPROCESS_PATH)))
+    activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
+    if not os.path.isfile(activate_file):
+             err_msg = ('pp_config ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
+                           + 'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(postprocess_path))
              raise OSError(err_msg)
 
     try:
         execfile(activate_file, dict(__file__=activate_file))
     except:
-        raise OSError('copy_html ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
-
+        raise OSError('pp_config ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
 
 if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser as config_parser

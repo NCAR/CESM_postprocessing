@@ -51,17 +51,6 @@ class modelVsModel(LandDiagnostic):
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
         super(modelVsModel, self).check_prerequisites(env, scomm)
 
-        # clean out the old working plot files from the workdir
-        #if env['CLEANUP_FILES'] in ['T',True]:
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.gif')
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.ps')
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.png')
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.html')
-            
-
-        # create the plot.dat file in the workdir used by all NCL plotting routines
-        #diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
-
         # Set some new env variables
         env['WKDIR'] =  env['DIAG_BASE']+'/diag/'+env['caseid_1']+'-'+env['caseid_2']+'/'
         env['WORKDIR'] = env['WKDIR']
@@ -263,11 +252,16 @@ class modelVsModel(LandDiagnostic):
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
-            # append the web_dir location to the WEB_PATH_FILE
-            key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
-            with open(env['WEB_PATH_FILE'], 'a') as f:
-                f.write('{0}={1}\n'.format(key, env['WEB_DIR']))
-            f.close()
+            # set the LNDDIAG_WEBDIR_MODEL_VS_MODEL XML variable
+            key = 'LNDDIAG_WEBKDIR_{0}'.format(self._name)
+            value = env['WEB_DIR']
+            pp_config_cmd = '{0}/pp_config -set {1}={2}'.format(env['PP_CASE_PATH'], key, value)
+            try:
+                subprocess.check_call(pp_config_cmd)
+            except subprocess.CalledProcessError as e:
+                print('WARNING: {0} error executing command:'.format(pp_config_cmd))
+                print('    {0}'.format(e.cmd))
+                print('    rc = {0}'.format(e.returncode))
 
         scomm.sync()
 

@@ -706,52 +706,20 @@
          desc="Local machine path to AMWG diagnostics package NCL library directory."
          ></entry>
 
-  <entry id="ATMDIAG_DOWEB"
-         type="logical"
-         valid_values="True,False"
-         value="True"
-         group="diags_atm"
-         desc="Controls whether to create web files or not"
-         ></entry>
-
-  <entry id="ATMDIAG_WEBHOST"
+  <entry id="ATMDIAG_WEBDIR_MODEL_VS_OBS"
          type="char"
          valid_values=""
          value=""
-         group="diags_atm"
-         desc="Remote web host machine."
+         group="web_paths"
+         desc="Web directory path settings set automatically by atm_diags_generator.py for MODEL_VS_OBS diagnostics"
          ></entry>
 
-  <entry id="ATMDIAG_WEBLOGIN"
+  <entry id="ATMDIAG_WEBDIR_MODEL_VS_MODEL"
          type="char"
          valid_values=""
          value=""
-         group="diags_atm"
-         desc="Remote web host login name."
-         ></entry>
-
-  <entry id="ATMDIAG_WEBDIR"
-         type="char"
-         valid_values=""
-         value=""
-         group="diags_atm"
-         desc="Remote machine path to AMWG diagnostics HTML directory."
-         ></entry>
-
-  <entry id="ATMDIAG_email"
-         type="logical"
-         valid_values="True/False"
-         value="False"
-         group="diags_atm"
-         desc="Send email at package completion"
-         ></entry>
-
-  <entry id="ATMDIAG_email_address"
-         type="char"
-         valid_values=""
-         value=""
-         group="diags_atm"
-         desc="Email address to send completion message to"
+         group="web_paths"
+         desc="Web directory path settings set automatically by atm_diags_generator.py for MODEL_VS_MODEL diagnostics"
          ></entry>
 
   </group>

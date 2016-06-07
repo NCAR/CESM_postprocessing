@@ -28,23 +28,68 @@ import os
 import re
 import stat
 
-#
-# activate the virtual environment that was created by create_python_env.sh
-#
-if ( not os.path.isfile('../cesm-env2/bin/activate_this.py') ):
-    err_msg = ('set_env ERROR: the virtual environment cesm-env2 does not exist.' \
-               'Please run ../create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
-    raise OSError(err_msg)
-
-execfile('../cesm-env2/bin/activate_this.py', dict(__file__='../cesm-env2/bin/activate_this.py'))
-
 try:
     import lxml.etree as etree
 except:
-    import xml.etree.ElementTree as ET
+    import xml.etree.ElementTree as etree
+
+
+# get the postprocess virtualenv path from the env_postprocess.xml file
+env_file = './env_postprocess.xml'
+postprocess_path = ''
+standalone = ''
+if os.path.isfile(env_file):
+    xml_tree = etree.ElementTree()
+    xml_tree.parse(env_file)
+    for entry_tag in xml_tree.findall('entry'):
+        if entry_tag.get('id') == 'POSTPROCESS_PATH':
+            postprocess_path = entry_tag.get('value')
+        if entry_tag.get('id') == 'STANDALONE':
+            standalone = entry_tag.get('value')
+else:
+    err_msg = ('pp_config ERROR: env_postprocess.xml does not exist in this directory.')
+    raise OSError(err_msg)
+
+# check if virtualenv is activated
+if hasattr(sys, 'real_prefix'):
+    try:
+        import jinja2
+    except:
+        #
+        # activate the virtual environment that was created by create_python_env.sh
+        #
+        activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
+        if not os.path.isfile(activate_file):
+            err_msg = ('pp_config ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
+                          + 'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(postprocess_path))
+            raise OSError(err_msg)
+
+        try:
+            execfile(activate_file, dict(__file__=activate_file))
+        except:
+            raise OSError('pp_config ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
+else:
+    #
+    # activate the virtual environment that was created by create_python_env.sh
+    #
+    activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
+    if not os.path.isfile(activate_file):
+             err_msg = ('pp_config ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
+                           + 'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(postprocess_path))
+             raise OSError(err_msg)
+
+    try:
+        execfile(activate_file, dict(__file__=activate_file))
+    except:
+        raise OSError('pp_config ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
+
+
+if sys.version_info[0] == 2:
+    from ConfigParser import SafeConfigParser as config_parser
+else:
+    from configparser import ConfigParser as config_parser
 
 re_val = re.compile(r'\$(\{([A-Za-z0-9_]+)\}|[A-Za-z0-9_]+)')
-
 #
 # import modules installed in the virtual environment
 #
@@ -67,8 +112,8 @@ def commandline_options():
     parser.add_argument('-shell', '--shell', choices=['bash','csh'], required=True, nargs=1,
                         help='select a shell [bash, csh] to create a file that can be sourced')
 
-    parser.add_argument('-caseroot', '--caseroot', required=True, nargs=1,
-                        help='fully quailfied path to case root directory')
+    parser.add_argument('-caseroot', '--caseroot', required=False, nargs=1, default='.',
+                        help='fully quailfied path to case root post processing directory. Defaults to current directory.')
 
     parser.add_argument('-backtrace', '--backtrace', action='store_true',
                         help='show exception backtraces as extra debugging output')
@@ -115,7 +160,7 @@ def readXML(casedir, env_file_list):
   for efile in env_file_list:
     env_file = '{0}/{1}'.format(casedir, efile)
     if os.path.isfile(env_file):
-      xml_tree = ET.ElementTree()
+      xml_tree = etree.ElementTree()
       xml_tree.parse(env_file)
       for entry_tag in xml_tree.findall('entry'):
         output[entry_tag.get('id')] = entry_tag.get('value')
@@ -142,7 +187,9 @@ def main(options):
     """
     envDict = dict()
 
-    caseroot = options.caseroot[0]
+    if options.caseroot:
+        caseroot = options.caseroot[0]
+
     prefix_map = {'atm':'ATMDIAG_',
                   'ice':'ICEDIAG_',
                   'lnd':'LNDDIAG_',
@@ -179,15 +226,15 @@ def main(options):
                 else:
                     line = 'setenv {0} {1}\n\n'.format(key, value)
                 if first:
-                    instruct = '*** Be sure to run "source .{0}"'.format(filename)
+                    instruct = '*** Be sure to run "source {0}"'.format(filename)
                     first = False
             else:
                 if tmpvalue is not None:
-                    line = 'set {0}={1}:{2}\n'.format(key, value, tmpvalue) + 'export {0}\n\n'.format(key)
+                    line = 'export {0}={1}:{2}\n\n'.format(key, value, tmpvalue)
                 else:
-                    line = 'set {0}={1}\n'.format(key, value) + 'export {0}\n\n'.format(key)
+                    line = 'export {0}={1}\n\n'.format(key, value)
                 if first:
-                    instruct = '*** Be sure to run ".{0}"'.format(filename)
+                    instruct = '*** Be sure to run "source {0}"'.format(filename)
                     first = False
 
             envFile.write(line)

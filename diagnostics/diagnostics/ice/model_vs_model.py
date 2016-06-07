@@ -19,8 +19,13 @@ import re
 import shutil
 import traceback
 
-# import the helper utility module
-from cesm_utils import cesmEnvLib
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
+
+# import the local modules for postprocessing
+from cesm_utils import cesmEnvLib, processXmlLib
 from diag_utils import diagUtilsLib
 
 # import the MPI related modules
@@ -50,17 +55,6 @@ class modelVsModel(IceDiagnostic):
         """
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
         super(modelVsModel, self).check_prerequisites(env, scomm)
-
-        # clean out the old working plot files from the workdir
-        #if env['CLEANUP_FILES'] in ['T',True]:
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.gif')
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.ps')
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.png')
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.html')
-            
-
-        # create the plot.dat file in the workdir used by all NCL plotting routines
-        #diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
         # Set some new env variables
         env['DIAG_CODE'] = env['NCLPATH']
@@ -211,11 +205,17 @@ class modelVsModel(IceDiagnostic):
             create_ice_html.create_plotset_html(html_dir+'/regional_diff.html',web_dir+'/regional.html',env)
             create_ice_html.create_plotset_html(html_dir+'/vector_diff.html',web_dir+'/vector.html',env)
 
-            # append the html_dir to the env[WEB_PATH_FILE]
-            key = 'ICEDIAG_WEBDIR_{0}'.format(self._name)
-            with open(env['WEB_PATH_FILE'], 'a') as f:
-                f.write('{0}={1}\n'.format(key, html_dir))
-            f.close()
+            # set the ICEDIAG_WEBDIR_MODEL_VS_MODEL XML variable
+            env_file = '{0}/env_diags_ice.xml'.format(envDict['PP_CASE_PATH'])
+            key = 'ICEDIAG_WEBKDIR_{0}'.format(self._name)
+            value = web_dir
+            try:
+                xml_tree = etree.ElementTree()
+                xml_tree.parse(env_file)
+                xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
+                xml_processor.write(envDict, 'ocn', key, value)
+            except:
+                print('WARNING ice model_vs_model unable to write {0}={1} to {2}'.format(key, value, env_file))
 
             print('*******************************************************************************')
             print('Successfully completed generating ice diagnostics model vs. model plots')

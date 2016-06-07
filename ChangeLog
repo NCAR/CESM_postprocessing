@@ -6,6 +6,46 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: aliceb
+Date: 6 June 2016
+Model: postprocessing
+Version: not tagged 
+One-line: reworked the processXmlLib classes so that they can be called
+from the generator scripts to update the env_*.xml files. Minor mods
+to the config_diags_*.xml for default settings. 
+
+M       Machines/machine_postprocess.xml
+M       Tools/create_env_script
+M       Tools/pp_config
+D       Tools/pp_var_get
+D       Tools/PostProcessingXML.py
+M       Tools/copy_html
+M       Config/config_postprocess.xml
+M       diagnostics/diagnostics/ocn/model_vs_control.py
+M       diagnostics/diagnostics/ocn/model_timeseries.py
+M       diagnostics/diagnostics/ocn/model_vs_obs.py
+M       diagnostics/diagnostics/ocn/ocn_diags_generator.py
+M       diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
+M       diagnostics/diagnostics/ocn/model_vs_obs_ecosys.py
+M       diagnostics/diagnostics/ice/model_vs_model.py
+M       diagnostics/diagnostics/ice/model_vs_obs.py
+M       diagnostics/diagnostics/ice/Config/config_diags_ice.xml
+M       diagnostics/diagnostics/ice/ice_avg_generator.py
+M       diagnostics/diagnostics/atm/model_vs_model.py
+M       diagnostics/diagnostics/atm/model_vs_obs.py
+M       diagnostics/diagnostics/atm/Config/config_diags_atm.xml
+M       diagnostics/diagnostics/lnd/model_vs_model.py
+M       diagnostics/diagnostics/lnd/model_vs_obs.py
+M       diagnostics/diagnostics/lnd/Config/config_diags_lnd.xml
+M       cesm_utils/VERSION
+M       cesm_utils/cesm_utils/__init__.py
+A       cesm_utils/cesm_utils/processXmlLib.py
+M       cesm_utils/cesm_utils/cesmEnvLib.py
+M       cesm_utils/setup.py
+M       create_postprocess
+
+================================================================================
+
+Originator: aliceb
 Date: 23 May 2016
 Model: postprocessing
 Version: not tagged

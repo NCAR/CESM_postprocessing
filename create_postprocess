@@ -271,8 +271,10 @@ def read_machine_xml(machineName, xmlFile):
             if machine['pythonpath'] is None:
                 machine['pythonpath'] = ''
 
-            # get the project
+            # get the project from the XML first then override with env setting
             machine['project'] = xmlmachine.find('project').text
+            if os.getenv('PROJECT') is not None:
+                machine['project'] = os.getenv('PROJECT')
 
             # loop through the module list
             for mod in xmlmachine.findall("modules/module"):
@@ -479,11 +481,9 @@ def main(options):
         standalone = True
         pp_case_path = options.caseroot[0]
         log_path = '{0}/logs'.format(pp_case_path)
-        web_path = '{0}/config_web'.format(pp_case_path)
     else:
         pp_case_path = '{0}/postprocess'.format(options.caseroot[0])
         log_path = '{0}/logs'.format(pp_case_path)
-        web_path = '{0}/config_web'.format(pp_case_path)
 
     # make the appropriate dirs in the caseroot
     try:
@@ -494,10 +494,6 @@ def main(options):
         os.mkdir(log_path)
     except:
         raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(log_path))
-    try:
-        os.mkdir(web_path)
-    except:
-        raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(web_path))
 
     # initialize the environment dictionary
     envDict = initialize_main(envDict, options, standalone)
@@ -582,11 +578,11 @@ def main(options):
                      envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
                      machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
 
-    # copy the copy_html script to the caseroot 
-    shutil.copy2('{0}/Tools/copy_html'.format(envDict['POSTPROCESS_PATH']), '{0}/copy_html'.format(envDict['PP_CASE_PATH']))
-
-    # copy the pp_config to the caseroot
-    shutil.copy2('{0}/Tools/pp_config'.format(envDict['POSTPROCESS_PATH']), '{0}/pp_config'.format(envDict['PP_CASE_PATH']))
+    # copy some tools to the PP_CASE_PATH
+    files_to_copy = ['copy_html', 'pp_config', 'create_env_script']
+    for file_to_copy in files_to_copy:
+        shutil.copy2('{0}/Tools/{1}'.format(envDict['POSTPROCESS_PATH'], file_to_copy), 
+                     '{0}/{1}'.format(envDict['PP_CASE_PATH'], file_to_copy))
 
     print('*****************************************************************************************')
     print('')

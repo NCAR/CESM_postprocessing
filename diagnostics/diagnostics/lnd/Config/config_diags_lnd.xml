@@ -100,7 +100,7 @@
       <entry id="LNDDIAG_OBS_HOME"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/obs_data/"
+             value="$LNDDIAG_DIAGOBSROOT/obs_data/"
              group="diag_path"
              desc="Location of observational datasets"
              ></entry>
@@ -136,7 +136,7 @@
       <entry id="LNDDIAG_INPUT_HOME"
              type="char"
              valid_values=""
-             value="$DIAG_HOME"
+             value="$LNDDIAG_DIAG_HOME"
              group="var_list_local"
              desc="Path to variable list file"
              ></entry>
@@ -294,7 +294,7 @@
       <entry id="LNDDIAG_prefix_2"
              type="char"
              valid_values=""
-             value="case2.$LNDDIAG_lnd_modelstream_2."
+             value="$LNDDIAG_caseid_2.$LNDDIAG_lnd_modelstream_2."
              group="case_2_settings"
              desc="Output file names for CASE2 climos"
              ></entry>
@@ -302,7 +302,7 @@
       <entry id="LNDDIAG_caseid_2"
              type="char"
              valid_values=""
-             value="case2"
+             value=""
              group="case_2_settings"
              desc="History file case name for CASE2"
              ></entry>
@@ -890,7 +890,7 @@
       <entry id="LNDDIAG_wgt_dir_1"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/regriddingFiles/ne30/"
+             value="$LNDDIAG_DIAGOBSROOT/regriddingFiles/ne30/"
              group="regrid_opt"
              desc="Exact path to weighted file directory"
              ></entry>
@@ -898,7 +898,7 @@
       <entry id="LNDDIAG_area_dir_1"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/regriddingFiles/"
+             value="$LNDDIAG_DIAGOBSROOT/regriddingFiles/"
              group="regrid_opt"
              desc="Exact path to area file directory"
              ></entry>
@@ -940,7 +940,7 @@
       <entry id="LNDDIAG_wgt_dir_2"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/regriddingFiles/ne30/"
+             value="$LNDDIAG_DIAGOBSROOT/regriddingFiles/ne30/"
              group="regrid_opt"
              desc="Exact path to weighted file directory"
              ></entry>
@@ -948,7 +948,7 @@
       <entry id="LNDDIAG_area_dir_2"
              type="char"
              valid_values=""
-             value="$DIAGOBSROOT/regriddingFiles/"
+             value="$LNDDIAG_DIAGOBSROOT/regriddingFiles/"
              group="regrid_opt"
              desc="Exact path to area file directory"
              ></entry>

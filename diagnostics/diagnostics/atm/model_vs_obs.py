@@ -19,11 +19,13 @@ import re
 import shutil
 import traceback
 
-# import modules installed by pip into virtualenv
-import jinja2
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
 
-# import the helper utility module
-from cesm_utils import cesmEnvLib
+# import modules installed into virtualenv
+from cesm_utils import cesmEnvLib, processXmlLib
 from diag_utils import diagUtilsLib
 import create_atm_html
 
@@ -53,16 +55,6 @@ class modelVsObs(AtmosphereDiagnostic):
         """
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
         super(modelVsObs, self).check_prerequisites(env, scomm)
-
-        # clean out the old working plot files from the workdir
-        #if env['CLEANUP_FILES'] in ['T',True]:
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.gif')
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.ps')
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.png')
-        #    cesmEnvLib.purge(env['test_path_diag'], '.*\.html')
-
-        # create the plot.dat file in the workdir used by all NCL plotting routines
-        #diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
         # Set some new env variables
         env['DIAG_CODE'] = env['NCLPATH']
@@ -266,13 +258,17 @@ class modelVsObs(AtmosphereDiagnostic):
                 cesmEnvLib.purge(env['test_path_diag'], '.*\.nc')
                 cesmEnvLib.purge(env['test_path_diag'], '/station_ids')
 
-            if len(env['WEBDIR']) > 0 and len(env['WEBHOST']) > 0 and len(env['WEBLOGIN']) > 0:
-                # copy over the files to a remote web server and webdir 
-                diagUtilsLib.copy_html_files(env)
-            else:
-                print('Web files successfully created in directory {0}'.format(env['test_path_climo']))
-                print('The env_diags_atm.xml variable WEBDIR, WEBHOST, and WEBLOGIN were not set.')
-                print('You will need to manually copy the web files to a remote web server.')
+            # set the ATMDIAG_WEBDIR_MODEL_VS_OBS XML variable
+            env_file = '{0}/env_diags_atm.xml'.format(envDict['PP_CASE_PATH'])
+            key = 'ATMDIAG_WEBDIR_{0}'.format(self._name)
+            value = web_dir
+            try:
+                xml_tree = etree.ElementTree()
+                xml_tree.parse(env_file)
+                xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
+                xml_processor.write(envDict, 'ocn', key, value)
+            except:
+                print('WARNING atm model_vs_obs unable to write {0}={1} to {2}'.format(key, value, env_file))
 
             print('*******************************************************************************')
             print('Successfully completed generating atmosphere diagnostics model vs. observation plots')

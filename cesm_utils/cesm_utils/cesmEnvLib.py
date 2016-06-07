@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 """
-This module provides utility functions for working with the CESM $CASEROOT XML files
+This module provides utility functions for working with the CESM 
+$CASEROOT post-processing  XML files
 __________________________
 Created on Apr 30, 2014
 Updated Sept 4, 2014 - make sure execute permission is allowed
@@ -230,3 +231,4 @@ def get_machine_name(hostname, xmlFile):
                     machine = xmlmachine.get("name").lower()
 
     return machine
+

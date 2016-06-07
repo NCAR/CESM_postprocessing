@@ -7,7 +7,7 @@
     <mpi_command>mpirun.lsf</mpi_command>
     <pythonpath></pythonpath>
     <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
-    <project>P93300606</project>
+    <project></project>
     <modules>
       <module>module load python/2.7.7</module>
       <module>module load numpy/1.8.1</module>
@@ -31,7 +31,7 @@
       <component name="ice">
 	<averages_pes queue="regular" pes_per_node="2" wallclock="00:30">128</averages_pes>
 	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="00:30">4</diagnostics_pes>
-	<obs_root>/glade/p/cesm/pcwg/ice/data</obs_root>
+	<obs_root>/glade/p/cesm/pcwg/</obs_root>
       </component>
       <component name="lnd">
 	<averages_pes queue="regular" pes_per_node="2" wallclock="02:00">128</averages_pes>

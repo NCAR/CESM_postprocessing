@@ -16,6 +16,7 @@
       <order>0</order>
       <comment>Settings that are common to all diagnostic types.</comment>
 
+
       <entry id="OCNDIAG_DIAGROOTPATH"
 	     type="char"
 	     valid_values=""
@@ -181,7 +182,7 @@
       <entry id="OCNDIAG_OBSROOTPATH"
 	     type="char"
 	     valid_values=""
-	     value="$DIAGOBSROOT/omwg/obs_data"
+	     value="$OCNDIAG_DIAGOBSROOT/omwg/obs_data"
 	     group="observations"
 	     desc="This value points to the local machine's fully qualified directory path location of the OMWG observational data. The ocn_diags_generator.py script will 	error out if this directory is not available."
 	     ></entry>
@@ -189,7 +190,7 @@
       <entry id="OCNDIAG_ECODATADIR"
 	     type="char"
 	     valid_values=""
-	     value="$DIAGOBSROOT/bgcwg/obgc_diag"
+	     value="$OCNDIAG_DIAGOBSROOT/bgcwg/obgc_diag"
 	     group="observations"
 	     desc="This value points to the local machine's fully qualified directory path location of the BGCWG observational data. The ocn_diags_generator.py script will error out if this directory is not available."
 	     ></entry>

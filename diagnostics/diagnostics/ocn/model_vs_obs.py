@@ -130,7 +130,7 @@ class modelVsObs(OceanDiagnostic):
 
             # set the template variables
             templateVars = { 'casename' : env['CASE'],
-                             'tagname' : env['CCSM_REPOTAG'],
+                             'tagname' : env['CESM_TAG'],
                              'start_year' : env['YEAR0'],
                              'stop_year' : env['YEAR1'],
                              'today': now

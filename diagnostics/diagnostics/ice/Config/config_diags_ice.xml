@@ -338,7 +338,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_SSMI_PATH"
          type="char"
          valid_values=""
-         value="$DIAGOBSROOT/ice/data/SSMI.ifrac.1979-2000monthlymean.gx1v5.nc"
+         value="$ICEDIAG_DIAGOBSROOT/ice/data/SSMI.ifrac.1979-2000monthlymean.gx1v5.nc"
          group="input_path"
          desc="1981-2005 SSMI data."
          ></entry>
@@ -346,7 +346,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_ASPeCt_PATH"
          type="char"
          valid_values=""
-         value="$DIAGOBSROOT/ice/data/ASPeCt_monthly_1x1.nc"
+         value="$ICEDIAG_DIAGOBSROOT/ice/data/ASPeCt_monthly_1x1.nc"
          group="input_path"
          desc="1981-2005 SSMI data."
          ></entry>
@@ -354,7 +354,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_REGION_MASK_FILE"
          type="char"
          valid_values=""
-         value="$DIAGOBSROOT/ice/data/REGION_MASK.nc"
+         value="$ICEDIAG_DIAGOBSROOT/ice/data/REGION_MASK.nc"
          group="input_path"
          desc="Mask file that contains ice regions."
          ></entry>
@@ -372,7 +372,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PLOT_CONT"
          type="logical"
          valid_values="True/False"
-         value="False"
+         value="True"
          group="plot_sets"
          desc="Make contour plots cont case."
          ></entry>
@@ -380,7 +380,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PLOT_VECT"
          type="logical"
          valid_values="True/False"
-         value="False"
+         value="True"
          group="plot_sets"
          desc="Make vector plots cont case."
          ></entry>
@@ -388,7 +388,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PLOT_LINE"
          type="logical"
          valid_values="True/False"
-         value="False"
+         value="True"
          group="plot_sets"
          desc="Make line plots cont case."
          ></entry>
@@ -396,7 +396,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PLOT_CONT_DIFF"
          type="logical"
          valid_values="True/False"
-         value="False"
+         value="True"
          group="plot_sets"
          desc="Make contour plots cont-diff case."
          ></entry>
@@ -404,7 +404,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PLOT_VECT_DIFF"
          type="logical"
          valid_values="True/False"
-         value="False"
+         value="True"
          group="plot_sets"
          desc="Make vector plots cont-diff case."
          ></entry>
@@ -412,7 +412,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PLOT_LINE_DIFF"
          type="logical"
          valid_values="True/False"
-         value="False"
+         value="True"
          group="plot_sets"
          desc="Make line plots cont-diff case."
          ></entry>
@@ -420,7 +420,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PLOT_REGIONS"
          type="logical"
          valid_values="True/False"
-         value="False"
+         value="True"
          group="plot_sets"
          desc="Make regional line plots."
          ></entry>

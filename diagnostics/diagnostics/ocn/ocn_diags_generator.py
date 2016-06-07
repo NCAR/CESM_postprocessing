@@ -36,13 +36,19 @@ import itertools
 import os
 import re
 import shutil
+import subprocess
 import traceback
+
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
 
 # import modules installed by pip into virtualenv
 import jinja2
 
 # import local modules for postprocessing
-from cesm_utils import cesmEnvLib
+from cesm_utils import cesmEnvLib, processXmlLib
 from diag_utils import diagUtilsLib
 
 # import the MPI related modules
@@ -257,7 +263,7 @@ def main(options, main_comm, debugMsg):
 
         # set the template variables
         templateVars = { 'casename' : envDict['CASE'],
-                         'tagname' : envDict['CCSM_REPOTAG'],
+                         'tagname' : envDict['CESM_TAG'],
                          'diag_dict' : diag_dict,
                          'control_casename' : envDict['CNTRLCASE'],
                          'start_year' : envDict['YEAR0'],
@@ -283,20 +289,18 @@ def main(options, main_comm, debugMsg):
 
         for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
             shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
-
-        # setup of the web_path_file text file in config_web
-        debugMsg('Setting up config_web/web_paths_ocn.txt', header=True, verbosity=1)
-
-        envDict['WEB_PATH_FILE'] = '{0}/config_web/web_paths_ocn.txt'.format(envDict['CASEROOT'])
-        if os.path.exists(envDict['WEB_PATH_FILE']):
-            os.utime(envDict['WEB_PATH_FILE'], None)
-        else:
-            open(envDict['WEB_PATH_FILE'],'a').close()
-
-        # append the WORKDIR location to the WEB_PATH_FILE
-        with open(env['WEB_PATH_FILE'], 'a') as f:
-            f.write('OCNDIAG_WEBDIR={0}\n'.format(envDict['WORKDIR']))
-        f.close()
+ 
+        # set the OCNDIAG_WEBDIR XML variable in the env_diags_ocn.xml file
+        env_file = '{0}/env_diags_ocn.xml'.format(envDict['PP_CASE_PATH'])
+        key = 'OCNDIAG_WEBDIR'
+        value = envDict['WORKDIR']
+        try:
+            xml_tree = etree.ElementTree()
+            xml_tree.parse(env_file)
+            xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
+            xml_processor.write(envDict, 'ocn', key, value)
+        except:
+            print('WARNING ocn_diags_generator unable to write {0}={1} to {2}'.format(key, value, env_file))
 
     main_comm.sync()
 
@@ -422,7 +426,6 @@ if __name__ == "__main__":
     
     try:
         timer.start("Total Time")
-        print('calling main')
         status = main(options, main_comm, debugMsg)
         main_comm.sync()
         timer.stop("Total Time")

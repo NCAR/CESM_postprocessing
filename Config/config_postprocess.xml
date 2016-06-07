@@ -40,7 +40,7 @@
 	     valid_values=""  
 	     value="inherit"
 	     group="case_info"
-	     desc="post processing directory location on local machine"
+	     desc="post processing directory location on local machine where cesm-env2 python virtualenv is located."
 	     ></entry> 
 
       <entry id="DOUT_S_ROOT"
@@ -120,6 +120,14 @@
 	     desc="If TRUE, this calls the atm_averages script which launches the parallel python wrapper script atm_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_atm.xml file."
 	     ></entry> 
 
+      <entry id="GENERATE_REGRID_ATM"  
+	     type="logical"
+	     valid_values="TRUE,FALSE"  
+	     value="FALSE" 
+	     group="postprocess"
+	     desc="If TRUE, this calls the atm_regrid script which launches the parallel python wrapper script atm_regrid_generator.py to regrid climatological files in parallel. Settings for creating the regridded files are specified in the env_diags_atm.xml file."
+	     ></entry> 
+
       <entry id="GENERATE_DIAGS_ATM"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
@@ -150,6 +158,14 @@
 	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the lnd_averages script which launches the parallel python wrapper script lnd_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_lnd.xml file."
+	     ></entry> 
+
+      <entry id="GENERATE_REGRID_LND"  
+	     type="logical"
+	     valid_values="TRUE,FALSE"  
+	     value="FALSE" 
+	     group="postprocess"
+	     desc="If TRUE, this calls the lnd_regrid script which launches the parallel python wrapper script lnd_regrid_generator.py to regrid climatological files in parallel. Settings for creating the regridded files are specified in the env_diags_lnd.xml file."
 	     ></entry> 
 
       <entry id="GENERATE_DIAGS_LND"  
