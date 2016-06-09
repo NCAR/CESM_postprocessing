@@ -145,7 +145,7 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
        main_comm (object) - simple MPI communicator object
     """
     wght = False
-    ncfrmt = 'netcdf4'
+    ncfrmt = 'netcdf'
     serial = False
     clobber = True
     if htype == 'series':

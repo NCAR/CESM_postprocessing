@@ -144,16 +144,6 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
         sys.exit(1)
 
     # TODO - create the list of necessary climatology files for control
-
-    # setup of the web_path_file text file in config_web
-    debugMsg('Setting up config_web/web_paths_ice.txt', header=True, verbosity=1)
-
-    envDict['WEB_PATH_FILE'] = '{0}/config_web/web_paths_ice.txt'.format(envDict['CASEROOT'])
-    if os.path.exists(envDict['WEB_PATH_FILE']):
-        os.utime(envDict['WEB_PATH_FILE'], None)
-    else:
-        open(envDict['WEB_PATH_FILE'],'a').close()
-
     return envDict
 
 #======

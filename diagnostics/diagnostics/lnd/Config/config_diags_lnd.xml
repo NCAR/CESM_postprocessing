@@ -502,7 +502,7 @@
              valid_values="True/False"
              value="True"
              group="which_climos"
-             desc="(set7) Set to True for case1 if Mosart was used or False if RTM was used in the simulation"
+             desc="(set7) Set to True for case2 if Mosart was used or False if RTM was used in the simulation"
              ></entry>
 
       <entry id="LNDDIAG_rtm_2"

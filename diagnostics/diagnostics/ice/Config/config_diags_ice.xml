@@ -338,7 +338,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_SSMI_PATH"
          type="char"
          valid_values=""
-         value="$ICEDIAG_DIAGOBSROOT/ice/data/SSMI.ifrac.1979-2000monthlymean.gx1v5.nc"
+         value="$ICEDIAG_DIAGOBSROOT/SSMI.ifrac.1979-2000monthlymean.gx1v5.nc"
          group="input_path"
          desc="1981-2005 SSMI data."
          ></entry>
@@ -346,7 +346,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_ASPeCt_PATH"
          type="char"
          valid_values=""
-         value="$ICEDIAG_DIAGOBSROOT/ice/data/ASPeCt_monthly_1x1.nc"
+         value="$ICEDIAG_DIAGOBSROOT/ASPeCt_monthly_1x1.nc"
          group="input_path"
          desc="1981-2005 SSMI data."
          ></entry>
@@ -354,7 +354,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_REGION_MASK_FILE"
          type="char"
          valid_values=""
-         value="$ICEDIAG_DIAGOBSROOT/ice/data/REGION_MASK.nc"
+         value="$ICEDIAG_DIAGOBSROOT/REGION_MASK.nc"
          group="input_path"
          desc="Mask file that contains ice regions."
          ></entry>

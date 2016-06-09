@@ -253,15 +253,16 @@ class modelVsModel(LandDiagnostic):
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
             # set the LNDDIAG_WEBDIR_MODEL_VS_MODEL XML variable
-            key = 'LNDDIAG_WEBKDIR_{0}'.format(self._name)
-            value = env['WEB_DIR']
-            pp_config_cmd = '{0}/pp_config -set {1}={2}'.format(env['PP_CASE_PATH'], key, value)
+            env_file = '{0}/env_diags_lnd.xml'.format(env['PP_CASE_PATH'])
+            key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
+            value = web_dir
             try:
-                subprocess.check_call(pp_config_cmd)
-            except subprocess.CalledProcessError as e:
-                print('WARNING: {0} error executing command:'.format(pp_config_cmd))
-                print('    {0}'.format(e.cmd))
-                print('    rc = {0}'.format(e.returncode))
+                xml_tree = etree.ElementTree()
+                xml_tree.parse(env_file)
+                xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
+                xml_processor.write(env, 'lnd', key, value)
+            except:
+                print('WARNING lnd model_vs_model unable to write {0}={1} to {2}'.format(key, value, env_file))
 
         scomm.sync()
 

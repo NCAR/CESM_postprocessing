@@ -206,14 +206,14 @@ class modelVsModel(IceDiagnostic):
             create_ice_html.create_plotset_html(html_dir+'/vector_diff.html',web_dir+'/vector.html',env)
 
             # set the ICEDIAG_WEBDIR_MODEL_VS_MODEL XML variable
-            env_file = '{0}/env_diags_ice.xml'.format(envDict['PP_CASE_PATH'])
-            key = 'ICEDIAG_WEBKDIR_{0}'.format(self._name)
+            env_file = '{0}/env_diags_ice.xml'.format(env['PP_CASE_PATH'])
+            key = 'ICEDIAG_WEBDIR_{0}'.format(self._name)
             value = web_dir
             try:
                 xml_tree = etree.ElementTree()
                 xml_tree.parse(env_file)
                 xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
-                xml_processor.write(envDict, 'ocn', key, value)
+                xml_processor.write(env, 'ice', key, value)
             except:
                 print('WARNING ice model_vs_model unable to write {0}={1} to {2}'.format(key, value, env_file))
 

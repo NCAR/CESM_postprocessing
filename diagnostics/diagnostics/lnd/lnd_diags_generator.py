@@ -165,15 +165,6 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     else:
         envDict['VAR_MASTER'] = envDict['var_master_cn']
 
-    # setup of the web_path_file text file in config_web
-    debugMsg('Setting up config_web/web_paths_lnd.txt', header=True, verbosity=1)
-
-    envDict['WEB_PATH_FILE'] = '{0}/config_web/web_paths_lnd.txt'.format(envDict['CASEROOT'])
-    if os.path.exists(envDict['WEB_PATH_FILE']):
-        os.utime(envDict['WEB_PATH_FILE'], None)
-    else:
-        open(envDict['WEB_PATH_FILE'],'a').close()
-
     return envDict
 
 #======

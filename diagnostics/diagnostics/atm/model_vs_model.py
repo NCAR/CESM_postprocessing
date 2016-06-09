@@ -267,14 +267,14 @@ class modelVsModel(AtmosphereDiagnostic):
 
 
             # set the ATMDIAG_WEBDIR_MODEL_VS_MODEL XML variable
-            env_file = '{0}/env_diags_atm.xml'.format(envDict['PP_CASE_PATH'])
+            env_file = '{0}/env_diags_atm.xml'.format(env['PP_CASE_PATH'])
             key = 'ATMDIAG_WEBDIR_{0}'.format(self._name)
             value = web_dir
             try:
                 xml_tree = etree.ElementTree()
                 xml_tree.parse(env_file)
                 xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
-                xml_processor.write(envDict, 'ocn', key, value)
+                xml_processor.write(env, 'atm', key, value)
             except:
                 print('WARNING atm model_vs_model unable to write {0}={1} to {2}'.format(key, value, env_file))
 
