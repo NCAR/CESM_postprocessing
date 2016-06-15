@@ -453,7 +453,7 @@ def initialize_main(envDict, options, standalone):
     envDict['POSTPROCESS_PATH'] = pp
 
     envDict['CESM_TAG'] = 'undefined'
-    if options.cesmtag[0]:
+    if options.cesmtag:
         envDict['CESM_TAG'] = options.cesmtag[0]
 
     return envDict

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- definition of attributes -->
+  <xs:attribute name="id" type="xs:string"/>
+  <xs:attribute name="value" type="xs:string"/>
+
+  <!-- definition of complex elements -->
+  <xs:element name="entry">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="id" use="required"/>
+	  <xs:attribute name="value"  use="required"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="config_definition">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="entry" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema> 
