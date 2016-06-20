@@ -1,9 +1,7 @@
 # CESM_postprocessing
 Github Project repository for the CESM post-processing tools documentation and issues tracking.
 
-Please see the shared Google document for CESM postprocessing documentation until it is migrated into Github at URL:
-
-https://docs.google.com/a/ucar.edu/document/d/1toJt7y35cy_730-tGaKkzYC5H509iY9DYNmLFDGNe6E/edit?usp=sharing
+Please see this repositories wiki for documentation.
 
 ## Updating your local postprocessing sandbox
 The CESM post-processing code is still maintained in Subversion until we migrate all the 
