@@ -1,7 +1,7 @@
 # CESM_postprocessing
 Github Project repository for the CESM post-processing tools documentation and issues tracking.
 
-Please see this repositories wiki for documentation.
+Please refer to the Wiki for documentation.
 
 ## Updating your local postprocessing sandbox
 The CESM post-processing code is still maintained in Subversion until we migrate all the 
