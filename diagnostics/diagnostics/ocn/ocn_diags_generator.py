@@ -107,17 +107,19 @@ def setup_diags(envDict):
     """
     requested_diags = list()
     diag_dict = dict()
-    avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_CONTROL', 'MODEL_VS_CONTROL_ECOSYS', 'TIMESERIES', 'TIMESERIES_ECOSYS']
+    avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_CONTROL', 'MODEL_VS_CONTROL_ECOSYS', 'MODEL_TIMESERIES', 'MODEL_TIMESERIES_ECOSYS']
     for diag in avail_diags:
-        diag_dict[diag.lower()] = False
+        diag_dict[diag] = False
         for key, value in envDict.iteritems():
             if (diag == key and value.upper() in ['T','TRUE']):
                 requested_diags.append(key)
-                diag_dict[diag.lower()] = '{0}'.format(diag.lower())
-                if '_vs_' in diag.lower():
-                    diag_dict[diag.lower()] = '{0}'.format(diag.lower())
-                elif 'timeseries' in diag.lower():
-                    diag_dict[diag.lower()] = 'model_{0}'.format(diag.lower())
+                diag_dict[diag] = '{0}'.format(diag)
+                if 'MODEL_VS_CONTROL' in diag:
+                    diag_dict[diag] = '{0}_{1}'.format(diag, envDict['CNTRLCASE'])
+                elif '_VS_' in diag:
+                    diag_dict[diag] = '{0}'.format(diag)
+                elif 'TIMESERIES' in diag:
+                    diag_dict[diag] = '{0}'.format(diag)
 
     return requested_diags, diag_dict
 
@@ -138,8 +140,6 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-##    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_ocn.xml']
-##    if standalone:
     env_file_list =  ['./env_postprocess.xml', './env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 

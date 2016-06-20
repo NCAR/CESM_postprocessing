@@ -6,9 +6,31 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: aliceb
+Date: 20 June 2016
+Model: postprocessing
+Version: postprocessing_20160620
+One-line: add ICEDIAG_CLEANUP_FILES option. Fix  github issues #20
+and #3.
+
+M       Tools/pp_config
+M       cesm_utils/cesm_utils/processXmlLib.py
+M       diagnostics/diagnostics/ocn/model_vs_control.py
+M       diagnostics/diagnostics/ocn/model_timeseries.py
+M       diagnostics/diagnostics/ocn/ocn_diags_bc.py
+M       diagnostics/diagnostics/ocn/ocn_diags_generator.py
+M       diagnostics/diagnostics/ocn/ocn_diags_factory.py
+M       diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
+M       diagnostics/diagnostics/ocn/ocn_avg_generator.py
+M       diagnostics/diagnostics/ice/model_vs_model.py
+M       diagnostics/diagnostics/ice/ice_diags_bc.py
+M       diagnostics/diagnostics/ice/model_vs_obs.py
+
+================================================================================
+
+Originator: aliceb
 Date: 15 June 2016
 Model: postprocessing
-Version: postprocessing_20160609
+Version: postprocessing_20160615
 One-line: add env_file.xsd for validation of env_*.xml files in caseroot. Fix
 to --cesmtag argument option to create_postprocess.
 

@@ -166,6 +166,8 @@ class modelVsModel(IceDiagnostic):
             # Setup (local) web directories
             env['HTML_HOME'] = env['POSTPROCESS_PATH']+'/ice_diag/web/'
             web_dir = env['WKDIR']+'/yrs'+env['BEGYR_CONT']+'-'+env['ENDYR_CONT']
+            if env['CLEANUP_FILES'].lower() in ['t','true'] and os.path.exists(web_dir):
+                shutil.rmtree(web_dir)
             if not os.path.exists(web_dir):
                 os.mkdir(web_dir)
             if not os.path.exists(web_dir+'/contour'):

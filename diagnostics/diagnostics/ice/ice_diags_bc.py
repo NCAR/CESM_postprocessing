@@ -3,6 +3,7 @@
 """
 from __future__ import print_function
 
+import shutil
 import sys
 import glob
 
@@ -50,6 +51,8 @@ class IceDiagnostic(object):
         env['CLIMO_'+t] = workdir
 
         if (scomm.is_manager()):
+            if env['CLEANUP_FILES'].lower() in ['t','true'] and os.path.exists(workdir):
+                shutil.rmtree(workdir)
             try:
                 os.makedirs(workdir)
             except OSError as exception:
@@ -67,15 +70,15 @@ class IceDiagnostic(object):
             print('workdir = {0}'.format(workdir))
             print('old_workdir = {0}'.format(old_workdir))
 
-        # Add links to the new wkrdir that use the expected file names (existing climos have dates, the NCL do not like dates)
+        # Add links to the new wkdir that use the expected file names (existing climos have dates, the NCL do not like dates)
         if (scomm.is_manager()):
             climo_files = glob.glob(old_workdir+'/*.nc') 
             for climo_file in climo_files:
                 name_split = climo_file.split('.') # Split on '.'
                 if ('-' in name_split[-3]):
                     fn = str.join('.',name_split[:len(name_split)-3] + name_split[-2:]) #Piece together w/o the date, but still has old path 
-                    if (scomm.is_manager()):
-                        print('0. fn = {0}'.format(fn))
+##                    if (scomm.is_manager()):
+##                        print('0. fn = {0}'.format(fn))
                     path_split = fn.split('/') # Remove the path
                     if ('jfm_climo' in path_split[-1]):
                         s = 'jfm'
@@ -95,17 +98,16 @@ class IceDiagnostic(object):
                         s = None
                     if s is not None:
                         new_fn = workdir + '/' + s + '_avg_' + str(avg_BEGYR).zfill(4) + '-' + env['ENDYR_'+t].zfill(4) + '.nc' 
-                        if (scomm.is_manager()):
-                            print('1. ice_diags_bc.py s = {0}: new_fn = {1}'.format(s, new_fn))
+##                        if (scomm.is_manager()):
+##                            print('1. ice_diags_bc.py s = {0}: new_fn = {1}'.format(s, new_fn))
                     else:
                         new_fn = workdir + '/' +path_split[-1] # Take file name and add it to new path
-                        if (scomm.is_manager()):
-                            print('2. ice_diags_bc.py: new_fn = {0}'.format(new_fn))
+##                        if (scomm.is_manager()):
+##                            print('2. ice_diags_bc.py: new_fn = {0}'.format(new_fn))
                 else:
                     new_fn = workdir + '/' + os.path.basename(climo_file)
-                    if (scomm.is_manager()):
-                        print('3. ice_diags_bc.py: new_fn = {0}'.format(new_fn))
-
+##                    if (scomm.is_manager()):
+##                        print('3. ice_diags_bc.py: new_fn = {0}'.format(new_fn))
 
                 rc1, err_msg1 = cesmEnvLib.checkFile(new_fn, 'read')
                 if not rc1:

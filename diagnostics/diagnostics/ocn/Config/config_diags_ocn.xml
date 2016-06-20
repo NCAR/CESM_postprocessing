@@ -134,7 +134,7 @@
 	     desc="True or false to control if model vs. control ecosystem diagnostics are generated.	If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly."
 	     ></entry>
 
-      <entry id="OCNDIAG_TIMESERIES"
+      <entry id="OCNDIAG_MODEL_TIMESERIES"
 	     type="logical"
 	     valid_values="TRUE/FALSE"
 	     value="TRUE"
@@ -142,7 +142,7 @@
 	     desc="True or false to control if model timeseries diagnostics are generated."
 	     ></entry>
 
-      <entry id="OCNDIAG_TIMESERIES_ECOSYS"
+      <entry id="OCNDIAG_MODEL_TIMESERIES_ECOSYS"
 	     type="logical"
 	     valid_values="TRUE/FALSE"
 	     value="TRUE"

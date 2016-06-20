@@ -334,9 +334,6 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-##  the readXML method doesn't work with the new ESMCI/CIME
-##    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_ocn.xml']
-##    if standalone:
     env_file_list =  ['./env_postprocess.xml', './env_diags_ocn.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
@@ -410,10 +407,10 @@ def main(options, main_comm, debugMsg):
     main_comm.sync()
 
 
-    # TIMESERIES denotes the plotting diagnostic type requested and whether or
+    # MODEL_TIMESERIES denotes the plotting diagnostic type requested and whether or
     # not to generate the necessary climo files for those plot sets
     tseries = False
-    if envDict['TIMESERIES'].upper() == 'TRUE':
+    if envDict['MODEL_TIMESERIES'].lower() in ['t','true']:
         if main_comm.is_manager():
             debugMsg('timeseries years before checkHistoryFiles {0} - {1}'.format(envDict['TSERIES_YEAR0'], envDict['TSERIES_YEAR1']), header=True)
             tseries_start_year, tseries_stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
@@ -484,7 +481,6 @@ def main(options, main_comm, debugMsg):
             print(str(error))
             traceback.print_exc()
             sys.exit(1)
-
 
 #===================================
 

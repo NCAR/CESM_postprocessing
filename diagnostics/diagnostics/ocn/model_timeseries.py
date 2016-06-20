@@ -114,7 +114,7 @@ class modelTimeseries(OceanDiagnostic):
                         os.remove('{0}/{1}'.format(env['WORKDIR'],cplLogFile))
                     else:
                         # append the original gunzipped cpl log file to the cplLogs list
-                        cplLogs.append('{0}/{1}'.format(env['WORKDIR'],cplLog))
+                        cplLogs.append('{0}/{1}'.format(env['WORKDIR'],cplLogFile))
 
                 # parse the cpllog depending on the coupler version - default to 7b
                 print('model_timeseries: setting up heat and freshwater awk calls with cplLogs = {0}'.format(cplLogs))
@@ -340,7 +340,7 @@ class modelTimeseries(OceanDiagnostic):
 
             except RuntimeError as e:
                 # unrecoverable error, bail!
-                print("model timeseries - Skipped '{0}' and continuing!".format(request_plot))
+                print("model timeseries - Skipped '{0}' and continuing!".format(requested_plot))
                 print(e)
 
         scomm.sync()

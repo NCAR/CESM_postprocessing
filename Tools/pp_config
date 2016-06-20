@@ -48,7 +48,7 @@ else:
 # check if virtualenv is activated
 if hasattr(sys, 'real_prefix'):
     try:
-        import jinja2
+        import cesm_utils
     except:
         #
         # activate the virtual environment that was created by create_python_env.sh

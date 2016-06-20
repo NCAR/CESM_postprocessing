@@ -27,10 +27,10 @@ def oceanDiagnosticsFactory(diag_type):
     elif diag_type == 'MODEL_VS_CONTROL_ECOSYS':
         diag = model_vs_control_ecosys.modelVsControlEcosys()
 
-    elif diag_type == 'TIMESERIES':
+    elif diag_type == 'MODEL_TIMESERIES':
         diag = model_timeseries.modelTimeseries()
 
-    elif diag_type == 'TIMESERIES_ECOSYS':
+    elif diag_type == 'MODEL_TIMESERIES_ECOSYS':
         diag = modelts_ecosys.modelTSEcosys()
 
     else:

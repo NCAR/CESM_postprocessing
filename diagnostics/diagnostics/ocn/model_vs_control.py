@@ -53,7 +53,7 @@ class modelVsControl(OceanDiagnostic):
         """ check prerequisites
         """
         print('  Checking prerequisites for : {0}'.format(self.__class__.__name__))
-        ##self._name = '{0}_{1}'.format(self._name, env['CNTRLCASE'])
+        self._name = '{0}_{1}'.format(self._name, env['CNTRLCASE'])
         super(modelVsControl, self).check_prerequisites(env)
 
         # clean out the old working plot files from the workdir

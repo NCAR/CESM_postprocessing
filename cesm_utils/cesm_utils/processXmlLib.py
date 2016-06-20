@@ -71,14 +71,6 @@ class PostProcessingXML_v1(PostProcessingXML):
         """
         for entry_tag in xml_tree.findall('entry'):
             envDict[entry_tag.get('id')] = entry_tag.get('value')
-
-        # expand nested environment variables
-##        for k, v in envDict.iteritems():
-##            envDict[k] = cesmEnvLib.expand(v, envDict)
-
-        # remove () in output dictionary values
-##        for k, v in envDict.iteritems():
-##            envDict[k] = re.sub('[()]', '', v)
     
     def write(self, envDict, comp, new_entry_id, new_entry_value):
         
@@ -180,7 +172,7 @@ class PostProcessingXML_v1(PostProcessingXML):
                 xml_obs = XmlEntry('{0}DIAG_DIAGOBSROOT'.format(comp.upper()), 
                                    orig_env['{0}DIAG_DIAGOBSROOT'.format(comp.upper())],
                                    'Machine dependent diagnostics observation files root path')
-                xml_list.append(xml_obs)
+            xml_list.append(xml_obs)
 
         # the xml_list now contains a list of XmlEntry classes that
         # can be written to the template
