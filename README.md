@@ -24,4 +24,4 @@ Be sure to follow these steps when updating you local CESM postprocessing sandbo
 
 > ./create_python_env -cimeroot $CIMEROOT -machine yellowstone
 
-The Github issue will add instructions if ./create_postprocess needs to be rerun for existing postprocessing caseroots.
+
