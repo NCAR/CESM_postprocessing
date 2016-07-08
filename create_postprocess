@@ -579,17 +579,18 @@ def main(options):
                      machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
 
     # copy some tools to the PP_CASE_PATH
-    files_to_copy = ['copy_html', 'pp_config', 'create_env_script']
+    files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd']
     for file_to_copy in files_to_copy:
         shutil.copy2('{0}/Tools/{1}'.format(envDict['POSTPROCESS_PATH'], file_to_copy), 
                      '{0}/{1}'.format(envDict['PP_CASE_PATH'], file_to_copy))
 
     print('*****************************************************************************************')
     print('')
+    print('SUCCESS!')
     print(' The CASEROOT postprocess directory {0}'.format(envDict['PP_CASE_PATH']))
     print(' now contains all the necessary post-processing submit scripts and associated')
     print(' XML configuration files. Please review the on-line documentation at')
-    print(' http://www2.cesm.ucar.edu for a complete description of how')
+    print(' http://github.com/NCAR/CESM_postprocessing/wiki for a complete description of how')
     print(' to configure and use the CESM post-processing tools.')
     if standalone:
         print(' NOTICE: The env_postprocess.xml file in the new CASEROOT postprocess directory will need to be updated.')

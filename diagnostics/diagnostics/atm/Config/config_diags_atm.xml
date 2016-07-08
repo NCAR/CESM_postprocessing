@@ -82,7 +82,7 @@
          valid_values="True/False"
          value="False"
          group="diags_atm"
-         desc="Use tseries files to compute test climos."
+         desc="Use variable time series files to compute test climos instead of history time slice input files."
          ></entry>
 
   <entry id="ATMDIAG_test_path_history"
@@ -90,7 +90,7 @@
          valid_values=""
          value="$DOUT_S_ROOT"
          group="diags_atm"
-         desc="Path to test case"
+         desc="Path to root of test case archive."
          ></entry>
 
   <entry id="ATMDIAG_test_path_climo"
@@ -138,7 +138,7 @@
          valid_values="True/False"
          value="False"
          group="diags_atm"
-         desc="Use tseries files to compute cntl climos."
+         desc="Use variable time series files to compute cntl climos instead of history time slice input files."
          ></entry>
 
   <entry id="ATMDIAG_cntl_path_history"
@@ -146,7 +146,7 @@
          valid_values=""
          value=""
          group="diags_atm"
-         desc="Path to cntl case"
+         desc="Path to root of cntl case archive."
          ></entry>
 
   <entry id="ATMDIAG_cntl_path_climo"

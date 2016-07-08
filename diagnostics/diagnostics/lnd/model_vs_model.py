@@ -20,14 +20,19 @@ import shutil
 import traceback
 import subprocess
 
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
+
 # import the helper utility module
-from cesm_utils import cesmEnvLib
+from cesm_utils import cesmEnvLib, processXmlLib
 from diag_utils import diagUtilsLib
 
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
-# import the diag baseclass module
+# import the diag base class module
 from lnd_diags_bc import LandDiagnostic
 
 # import the plot classes
@@ -252,10 +257,43 @@ class modelVsModel(LandDiagnostic):
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
+            # move all the plots to the diag_path with the years appended to the path
+            endYr = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1  
+            diag_path = '{0}/diag/{1}.{2}_{3}'.format(env['DIAG_BASE'], env['caseid_1'],
+                                                      env['clim_first_yr_1'], str(endYr))
+            move_files = True
+            try:
+                os.makedirs(diag_path)
+            except OSError as exception:
+                if exception.errno != errno.EEXIST:
+                    err_msg = 'ERROR: {0} problem accessing directory {1}'.format(self.__class__.__name__, diag_path)
+                    raise OSError(err_msg)
+                    copy_files = False
+
+                elif env['CLEANUP_FILES'].lower() in ['t','true']:
+                    # delete all the files in the diag_path directory
+                    for root, dirs, files in os.walk('diag_path'):
+                        for f in files:
+                            os.unlink(os.path.join(root, f))
+                        for d in dirs:
+                            shutil.rmtree(os.path.join(root, d))
+                elif env['CLEANUP_FILES'].lower() in ['f','false']:
+                    print('WARNING: {0} exists and is not empty and LNDDIAG_CLEANUP_FILES = False. Leaving new diagnostics files in {1}'.format(diag_path, web_dir))
+                    diag_path = web_dir
+                    move_files = False
+
+            # move the files to the new diag_path 
+            if move_files:
+                try:
+                    shutil.move(web_dir, diag_path)
+                except (OSError, IOError, Error), e:
+                    print ('WARNING: Error moving %s to %s: %s' % (web_dir, diag_path, e))
+                    diag_path = web_dir
+                    
             # set the LNDDIAG_WEBDIR_MODEL_VS_MODEL XML variable
             env_file = '{0}/env_diags_lnd.xml'.format(env['PP_CASE_PATH'])
             key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
-            value = web_dir
+            value = diag_path
             try:
                 xml_tree = etree.ElementTree()
                 xml_tree.parse(env_file)

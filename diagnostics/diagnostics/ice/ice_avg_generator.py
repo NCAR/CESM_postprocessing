@@ -361,10 +361,13 @@ def main(options, main_comm, debugMsg):
         cont_time_series, envDict['PATH_CONT'], envDict['CASE_TO_CONT'], envDict['BEGYR_CONT'], envDict['ENDYR_CONT'],
         'ice',suffix,filep)
     
-    if envDict['COMPUTE_CLIMO_CONT'] == 'True':
+    if envDict['COMPUTE_CLIMO_CONT'].lower() == 'true':
         try:
             split_size = None
-            if cont_time_series == 'True':
+            if cont_time_series.lower() == 'true':
+                if main_comm.is_manager():
+                    debugMsg('Computing averages for model vs. obs',header=True)
+
                 h_path = envDict['PATH_CONT']+'/ice/proc/tseries/monthly/'
                 # Check to see if tseries is split into hemispheres
                 split = checkIceSplit(envDict['ICE_NY_CONT'], envDict['cont_key_infile'])
@@ -383,7 +386,7 @@ def main(options, main_comm, debugMsg):
             traceback.print_exc()
             sys.exit(1)
 
-    if (envDict['MODEL_VS_MODEL'] == 'True' and envDict['COMPUTE_CLIMO_DIFF'] == 'True'):
+    if envDict['MODEL_VS_MODEL'].lower() == 'true' and envDict['COMPUTE_CLIMO_DIFF'].lower() == 'true':
         try:
             diff_time_series = envDict['DIFF_TIMESERIES']
             split_size = None
@@ -393,7 +396,10 @@ def main(options, main_comm, debugMsg):
             diff_time_series, envDict['PATH_DIFF'], envDict['CASE_TO_DIFF'], envDict['BEGYR_DIFF'], envDict['ENDYR_DIFF'],
             'ice',suffix,filep)
 
-            if diff_time_series == 'True':
+            if diff_time_series.lower() == 'true':
+                if main_comm.is_manager():
+                    debugMsg('Computing averages for model vs. model',header=True)
+
                 h_path = envDict['PATH_DIFF']+'/ice/proc/tseries/monthly/'
                 # Check to see if tseries is split into hemispheres
                 split = checkIceSplit(envDict['ICE_NY_DIFF'], envDict['diff_key_infile'])

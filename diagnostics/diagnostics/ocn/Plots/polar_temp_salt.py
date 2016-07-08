@@ -126,4 +126,7 @@ class PolarTempSalt_obs(PolarTempSalt):
         self._ncl = ['tempz_arctic.ncl', 'saltz_arctic.ncl', 'tempz_antarctic.ncl', 'saltz_antarctic.ncl']
 
 class PolarTempSalt_control(PolarTempSalt):
-    pass
+    def __init__(self):
+        super(PolarTempSalt_control, self).__init__()
+        self._ncl = ['tempz_arctic_diff.ncl', 'saltz_arctic_diff.ncl', 'tempz_antarctic_diff.ncl', 'saltz_antarctic_diff.ncl']
+

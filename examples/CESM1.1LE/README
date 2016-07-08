@@ -1,0 +1,71 @@
+Notes for running diagnostics for the LE experiments:
+
+The examples in this directory are configured for the following settings:
+
+1. Prep'ing the input files
+
+Some of the variable time series files are on glade in
+   /glade/p/cesmLE/CESM-CAM5-BGC-LE 
+but the files are separated out into variable subdirs. The postprocessing tools
+expect all the variable time-series files to be in one directory. So, you need to edit
+and run the $POSTPROCESS_PATH/Tools/gather_var_files.py in order to 
+create symbolic links.
+
+----------
+
+2. Variable time-series files year ranges
+
+The variable time-series files were split along year boundaries. For example:
+
+b.e11.BRCP85C5CNBDRD.f09_g16.002.pop.h.QSW_HBL.200601-210012.nc
+b.e11.BRCP85C5CNBDRD.f09_g16.002.pop.h.QSW_HBL.208101-210012.nc
+
+This can be a problem for the averager if the diagnostics years requested 
+spans the break. You will need to concatenate the files into one long 
+file using nccat or generate averages and diagnostics for years that
+are inclusive to the existing ranges. 
+
+----------
+
+3. Download some missing variable files from HPSS for ocean diagnostics. 
+
+Because of space constraints on glade, only key variable files were kept on disk. 
+However, all the variable time series files are on HPSS. The ocean diagnostics
+require 6 missing variable files that includes KAPPA_THIC, KAPPA_ISOP, SV,
+UISOP, VISOP, and WISOP. These variable files need to be downloaded prior to
+running the postprocessing tools. Here is a helper script to download
+these files in this examples directory:
+
+get_LE_ocn_files.py
+files_to_get_model.txt
+files_to_get_control.txt
+
+Edit the get_LE_ocn_files.csh to update the paths appropriately then
+run using:
+./get_LE_ocn_files.py
+
+----------
+
+4. For the ice dianostics, the averages can be run in parallel
+but not the diagnostic plotting types. Follow these steps
+in the postprocess caseroot:
+
+pp_config -set ICEDIAG_MODEL_VS_OBS=True
+pp_config -set ICEDIAG_MODEL_VS_MODEL=True
+
+bsub < ice_averages
+
+pp_config -set ICEDIAG_MODEL_VS_MODEL=False
+
+bsub < ice_diagnostics
+
+pp_config -set ICEDIAG_MODEL_VS_OBS=False
+pp_config -set ICEDIAG_MODEL_VS_MODEL=True
+
+bsub < ice_diagnostics
+
+----------
+
+
+
+

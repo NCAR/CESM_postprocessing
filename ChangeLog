@@ -6,6 +6,41 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: aliceb
+Date: 08 July 2016
+Model: postprocessing
+Version: not tagged yet
+One-line: Lots of bugfixes and enhancements for LENS post-processing, added
+examples, updates to lnd diags, and polar T&S projection plots model vs. model.
+
+M       diag_utils/diag_utils/diagUtilsLib.py
+A       Tools/env_file.xsd
+A       Tools/gather_var_files.py
+D       Config/env_file.xsd
+M       diagnostics/diagnostics/ocn/Plots/polar_temp_salt.py
+M       diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
+M       diagnostics/diagnostics/ocn/ocn_avg_generator.py
+M       diagnostics/diagnostics/ice/Config/config_diags_ice.xml
+M       diagnostics/diagnostics/ice/ice_avg_generator.py
+M       diagnostics/diagnostics/atm/create_atm_html.py
+M       diagnostics/diagnostics/atm/model_vs_model.py
+M       diagnostics/diagnostics/atm/model_vs_obs.py
+M       diagnostics/diagnostics/atm/Config/config_diags_atm.xml
+M       diagnostics/diagnostics/lnd/model_vs_model.py
+M       diagnostics/diagnostics/lnd/model_vs_obs.py
+M       diagnostics/diagnostics/lnd/lnd_avg_generator.py
+M       create_postprocess
+A       examples
+A       examples/CESM1.1LE
+A       examples/CESM1.1LE/files_to_get_model.txt
+A       examples/CESM1.1LE/files_to_get_control.txt
+A       examples/CESM1.1LE/var_list.txt
+A       examples/CESM1.1LE/get_LE_ocn_files.py
+A       examples/CESM1.1LE/README
+A       examples/CESM2.0-PI-Control
+
+================================================================================
+
+Originator: aliceb
 Date: 20 June 2016
 Model: postprocessing
 Version: postprocessing_20160620

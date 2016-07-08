@@ -346,7 +346,9 @@ def main(options, main_comm, debugMsg):
 
     models = ['lnd', 'atm', 'rtm']
     for model in models:
-        if envDict['climo_'+model+'_1'] == 'True' or envDict['trends_'+model+'_1'] == 'True':
+        if envDict['climo_'+model+'_1'].lower() == 'true' or envDict['trends_'+model+'_1'].lower() == 'true':
+            if main_comm.is_manager():
+                debugMsg('Computing averages for model vs. obs',header=True)
             m_dir = model
             if 'rtm' in model:
                 m_dir = 'rof'
@@ -380,10 +382,13 @@ def main(options, main_comm, debugMsg):
                 sys.exit(1)
 
             try:
-                if case1_time_series == 'True':
+                if case1_time_series.lower() == 'true':
+                    if main_comm.is_manager():
+                        debugMsg('Computing averages for model vs. obs using variable time series',header=True)
                     h_path = envDict['SOURCE_1']+'/'+m_dir+'/proc/tseries/monthly/'
                 else:
                     h_path = envDict['SOURCE_1']+'/'+m_dir+'/hist/'
+
                 case1_climo_dir =  envDict['PTMPDIR_1']+'/climo/'+ envDict['caseid_1']+'/' 
  
                 createClimFiles(envDict['clim_first_yr_1'], envDict['clim_last_yr_1'], h_path, 
@@ -395,9 +400,11 @@ def main(options, main_comm, debugMsg):
                 traceback.print_exc()
                 sys.exit(1)
 
-    if (envDict['MODEL_VS_MODEL']) == 'True':
+    if envDict['MODEL_VS_MODEL'].lower() == 'true':
         for model in models:
-            if envDict['climo_'+model+'_2'] == 'True' or envDict['trends_'+model+'_2'] == 'True':
+            if envDict['climo_'+model+'_2'].lower() == 'true' or envDict['trends_'+model+'_2'].lower() == 'true':
+                if main_comm.is_manager():
+                    debugMsg('Computing averages for model vs. model',header=True)
                 m_dir = model
                 if 'rtm' in model:
                     m_dir = 'rof'
@@ -427,10 +434,13 @@ def main(options, main_comm, debugMsg):
                         diff_time_series, envDict['SOURCE_2'], envDict['caseid_2'], envDict['trends_first_yr_2'], envDict['trends_last_yr_2'],
                         m_dir,suffix,filep)
 
-                    if diff_time_series == 'True':
+                    if diff_time_series.lower() == 'true':
+                        if main_comm.is_manager():
+                            debugMsg('Computing averages for model vs.model using variable time series',header=True)
                         h_path = envDict['SOURCE_2']+'/'+m_dir+'/proc/tseries/monthly/'
                     else:
                         h_path = envDict['SOURCE_2']+'/'+m_dir+'/hist/'
+
                     case2_climo_dir =  envDict['PTMPDIR_2']+'/climo/'+ envDict['caseid_2']+'/'
 
                     createClimFiles(envDict['clim_first_yr_2'], envDict['clim_last_yr_2'], h_path,

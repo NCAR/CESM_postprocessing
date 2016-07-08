@@ -289,6 +289,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
+        inVarList = ['TEMP','SALT','PD','MOC','N_HEAT','N_SALT','UVEL','VVEL','WVEL','SU','SV','IAGE','KAPPA_ISOP','KAPPA_THIC','TAUX','TAUY','SSH','UISOP','VISOP','WISOP','HMXL','HBLT','BSF','TLT','INT_DEPTH','DIA_DEPTH','SFWF','PREC_F','MELT_F','MELTH_F','SHF','SHF_QSW','SENH_F','QFLUX','SNOW_F','SALT_F','EVAP_F','ROFF_F','LWUP_F','LWDN_F']
         if main_comm.is_manager():
             debugMsg('Calling callPyAverager with averageList = {0}'.format(averageList), header=True, verbosity=1)
         callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, ppDir, main_comm, debugMsg)

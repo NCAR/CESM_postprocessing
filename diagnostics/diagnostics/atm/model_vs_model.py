@@ -258,7 +258,7 @@ class modelVsModel(AtmosphereDiagnostic):
                      orig_html = env['HTML_HOME']+'/'+plot_set 
                  else:
                      orig_html = env['HTML_HOME']+'/'+plot_set+'/'+plot_set 
-                 create_atm_html.create_plotset_html(orig_html,set_dir,plot_set,env)
+                 create_atm_html.create_plotset_html(orig_html,set_dir,plot_set,env,'model_vs_model')
 
             # Remove any plotvar netcdf files that exists in the diag directory
             if env['save_ncdfs'] == 'False':

@@ -928,7 +928,7 @@
       <entry id="OCNDIAG_MVC_PLOT_ORDER"
 	     type="char"
 	     valid_values=""
-	     value="PM_SFC2D PM_FLD2D PM_FLD3DZA PM_MOC PM_WBC PM_SEAS PM_MLD PM_TSZ PM_PASSIVEZ PM_VELZ PM_VELISOPZ PM_KAPPAZ PM_UOEQ PM_VECV PM_POLARTS PM_BASINAVGTS PM_REGIONALTS"
+	     value="PM_SFC2D PM_FLD2D PM_FLD3DZA PM_MOC PM_SEAS PM_MLD PM_TSZ PM_PASSIVEZ PM_VELZ PM_VELISOPZ PM_KAPPAZ PM_UOEQ PM_POLARTS"
 	     group="model_vs_control_plots"
 	     desc="Model vs. control plot order for displaying html plots on main index.html page. This is a space delimited ordered list."></entry>
 
@@ -1015,6 +1015,14 @@
 	     value="TRUE"
 	     group="model_vs_control_plots"
 	     desc="Model vs. control (equatorial_upperocean_control) Logical to control whether to create upperocean at the equator; compared to PHC2, TOGA-TAO plots (TRUE) or not (FALSE)."></entry>
+
+      <entry id="OCNDIAG_MVC_PM_POLARTS"
+	     type="logical"
+	     valid_values="TRUE,FALSE"
+	     value="TRUE"
+	     group="model_vs_control_plots"
+	     desc="Model vs. control (polar_temp_salt) Logical to control whether to create polar TEMP and SALT on depth surfaces, contour plots (TRUE) or not (FALSE)."></entry>
+
     </group>
 
     <group name="model_timeseries_plots">

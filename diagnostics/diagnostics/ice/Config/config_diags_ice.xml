@@ -20,7 +20,8 @@
   <group name="global">
   <order>0</order>
   <comment>Environmental variables that control which Ice Model diagnostics to produce.
-Note: the MODEL_VS_OBS and MODEL_VS_MODEL diagnostic types can not be run in parallel. 
+Note: the MODEL_VS_OBS and MODEL_VS_MODEL averages can be run in parallel. 
+The MODEL_VS_OBS and MODEL_VS_MODEL diagnostic types can not be run in parallel. 
 See documentation for details.</comment>
 
   <entry id="ICEDIAG_DIAG_VERSION"

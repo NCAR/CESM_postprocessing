@@ -72,9 +72,6 @@ def generate_ncl_plots(env, nclPlotFile):
                 time.sleep(0.5)
         except OSError as e:
             print('WARNING',e.errno,e.strerror)
-            # The below warnings are giving runtime tuple errors.  Commented them out for now.
-            #print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclFile))
-            #print('    {0} - {1}'.format(e.errno, e.strerror))
     else:
         print('{0}... continuing with additional NCL calls.'.format(err_msg))
     return 0
@@ -218,21 +215,26 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     if htype == 'slice':
         # get the first and last years from the first and last monthly history files
         allHfiles = sorted(glob.glob(fformat))
-        pattern = re.compile(filep)
-        hfiles = filter_pick(allHfiles, pattern)
+        if len(allHfiles) > 0:
+            pattern = re.compile(filep)
+            hfiles = filter_pick(allHfiles, pattern)
 
-        # TO-DO open a history time-slice file and make sure it's monthly data
-        # the first element of the hfiles list has the start year
-        tlist = hfiles[0].split('.')
-        slist = tlist[-2].split('-')
-        hfstart_year = slist[0]
-        hfstart_month = slist[1]
+            # TO-DO open a history time-slice file and make sure it's monthly data
+            # the first element of the hfiles list has the start year
+            tlist = hfiles[0].split('.')
+            slist = tlist[-2].split('-')
+            hfstart_year = slist[0]
+            hfstart_month = slist[1]
 
-        # the last element of the hfiles list has the stop year
-        tlist = hfiles[-1].split('.')
-        slist = tlist[-2].split('-')
-        hfstop_year = slist[0]
-        hfstop_month = slist[1]
+            # the last element of the hfiles list has the stop year
+            tlist = hfiles[-1].split('.')
+            slist = tlist[-2].split('-')
+            hfstop_year = slist[0]
+            hfstop_month = slist[1]
+        else:
+            print('ERROR diagUtilsLib.checkHistoryFiles: tseries = {0}, dout_s_root = {1}, case = {2}, rstart_year = {3}, rstop_year = {4}, comp = {5}, suffix = {6}, filep = {7}'.format(tseries, dout_s_root, case, rstart_year, rstop_year, comp, suffix, filep))
+            print('...exiting')
+            sys.exit(1)
 
     elif htype == 'series':
         hfiles = sorted(glob.glob(fformat))
@@ -240,16 +242,21 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
         # TO-DO open a history time-series file and make sure it's monthly data
 
         # the first variable time series file has the stop and start years
-        tlist = hfiles[0].split('.')
-        slist = tlist[-2].split('-')
-        hfstart_year = slist[0][:4]
-        hfstart_month = slist[0][4:6]
-        hfstop_year = slist[1][:4]
-        hfstop_month = slist[1][4:6]
+        if len(hfiles) > 0:
+            tlist = hfiles[0].split('.')
+            slist = tlist[-2].split('-')
+            hfstart_year = slist[0][:4]
+            hfstart_month = slist[0][4:6]
+            hfstop_year = slist[1][:4]
+            hfstop_month = slist[1][4:6]
 
-        if not check_series_years(hfstart_year, hfstart_month, hfstop_year, hfstop_month, hfiles[0]):
-            err_msg = 'ERROR: diagUtilsLib.checkHistoryFiles Time series filename does not match file time slice count.'
-            raise OSError(err_msg)
+            if not check_series_years(hfstart_year, hfstart_month, hfstop_year, hfstop_month, hfiles[0]):
+                err_msg = 'ERROR: diagUtilsLib.checkHistoryFiles Time series filename does not match file time slice count.'
+                raise OSError(err_msg)
+        else:
+            print('ERROR diagUtilsLib.checkHistoryFiles: tseries = {0}, dout_s_root = {1}, case = {2}, rstart_year = {3}, rstop_year = {4}, comp = {5}, suffix = {6}, filep = {7}'.format(tseries, dout_s_root, case, rstart_year, rstop_year, comp, suffix, filep))
+            print('...exiting')
+            sys.exit(1)
 
     # check if the XML YEAR0 and YEAR1 are within the actual start_year and stop_year bounds 
     # defined by the actual history files
@@ -365,7 +372,6 @@ def create_za(workdir, tavgfile, gridfile, toolpath, env):
         if not rc:
             print('ERROR: create_za failed to verify executable za command = {0}'.format(zaCommand))
             print('    {0}'.format(err_msg))
-            sys.exit(1)
         
         # call the za fortran code from within the workdir
         cwd = os.getcwd()
@@ -375,13 +381,11 @@ def create_za(workdir, tavgfile, gridfile, toolpath, env):
         try:
             subprocess.check_call(['{0}'.format(zaCommand), '-O', '-time_const', '-grid_file', '{0}'.format(gridfile), '{0}'.format(tavgfile)])
         except subprocess.CalledProcessError as e:
-            print('ERROR: create_za subprocess call to {1} failed with error:'.format(e.cmd))
+            print('ERROR: create_za subprocess call to {0} failed with error:'.format(e.cmd))
             print('    {0} - {1}'.format(e.returncode, e.output))
-            sys.exit(1)
 
         print('zonal average created')
         os.chdir(cwd)
-
 
 
 #==========================================================
