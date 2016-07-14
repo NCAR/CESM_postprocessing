@@ -465,16 +465,16 @@
 	     ></entry>
     </group>
 
-    <group name="model_case_options_averager - OPTIONS NOT YET IMPLIMENTED">
+    <group name="model_case_options_averager">
       <order>4</order>
       <comment>Environment variable settings for model case option for the pyAverager tool.</comment>
 
       <entry id="OCNDIAG_PYAVG_MODELCASE_VARLIST"
 	     type="char"
-	     valid_values=""
-	     value=""
+	     valid_values="[]"
+	     value="TEMP,SALT,PD,MOC,N_HEAT,N_SALT,UVEL,VVEL,WVEL,SU,SV,IAGE,KAPPA_ISOP,KAPPA_THIC,TAUX,TAUY,SSH,UISOP,VISOP,WISOP,HMXL,HBLT,BSF,TLT,INT_DEPTH,DIA_DEPTH,SFWF,PREC_F,MELT_F,MELTH_F,SHF,SHF_QSW,SENH_F,QFLUX,SNOW_F,SALT_F,EVAP_F,ROFF_F,LWUP_F,LWDN_F"
 	     group="model_case_options_averager"
-	     desc="Case pyAverager variable list to include in climatology files."
+	     desc="Model case pyAverager comma separated variable list to include in climatology files. An empty string defaults to all variables."
 	     ></entry>
 
     </group>
@@ -581,16 +581,16 @@
     </group>
 
 
-    <group name="control_case_options_averager  - OPTIONS NOT YET IMPLIMENTED">
+    <group name="control_case_options_averager">
       <order>6</order>
       <comment>Environment variable settings for control case option for the pyAverager tool.</comment>
 
       <entry id="OCNDIAG_PYAVG_CNTRLCASE_VARLIST"
 	     type="char"
-	     valid_values=""
-	     value=""
-	     group="model_case_options_averager"
-	     desc="Case pyAverager variable list to include in climatology files."
+	     valid_values="[]"
+	     value="$OCNDIAG_PYAVG_MODELCASE_VARLIST"
+	     group="control_case_options_averager"
+	     desc="Control case pyAverager comma separated variable list to include in climatology files. An empty string defaults to all variables."
 	     ></entry>
 
     </group>

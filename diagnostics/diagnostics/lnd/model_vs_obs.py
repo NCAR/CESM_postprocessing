@@ -100,7 +100,6 @@ class modelVsObs(LandDiagnostic):
         requested_plot_sets = list()
         local_requested_plots = list()
         local_html_list = list()
-        web_path = dict()
 
         # all the plot module XML vars start with 'set_' 
         for key, value in env.iteritems():
@@ -215,7 +214,7 @@ class modelVsObs(LandDiagnostic):
 
             # move all the plots to the diag_path with the years appended to the path
             endYr = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1  
-            diag_path = '{0}/diag/{1}.{2}_{3}'.format(env['DIAG_BASE'], env['caseid_1'],
+            diag_path = '{0}/{1}-obs.{2}_{3}'.format(env['OUTPUT_ROOT_PATH'], env['caseid_1'],
                                                       env['clim_first_yr_1'], str(endYr))
             move_files = True
             try:
@@ -224,7 +223,7 @@ class modelVsObs(LandDiagnostic):
                 if exception.errno != errno.EEXIST:
                     err_msg = 'ERROR: {0} problem accessing directory {1}'.format(self.__class__.__name__, diag_path)
                     raise OSError(err_msg)
-                    copy_files = False
+                    move_files = False
 
                 elif env['CLEANUP_FILES'].lower() in ['t','true']:
                     # delete all the files in the diag_path directory
@@ -233,23 +232,28 @@ class modelVsObs(LandDiagnostic):
                             os.unlink(os.path.join(root, f))
                         for d in dirs:
                             shutil.rmtree(os.path.join(root, d))
+
                 elif env['CLEANUP_FILES'].lower() in ['f','false']:
                     print('WARNING: {0} exists and is not empty and LNDDIAG_CLEANUP_FILES = False. Leaving new diagnostics files in {1}'.format(diag_path, web_dir))
                     diag_path = web_dir
                     move_files = False
 
+            print('DEBUG: model vs. obs web_dir = {0}'.format(web_dir))
+            print('DEBUG: model vs. obs diag_path = {0}'.format(diag_path))
+
             # move the files to the new diag_path 
             if move_files:
                 try:
-                    shutil.move(web_dir, diag_path)
-                except (OSError, IOError, Error), e:
-                    print ('WARNING: Error moving %s to %s: %s' % (web_dir, diag_path, e))
+                    print('DEBUG: model_vs_obs renaming web files')
+                    os.rename(web_dir, diag_path)
+                except OSError as e:
+                    print ('WARNING: Error renaming %s to %s: %s' % (web_dir, diag_path, e))
                     diag_path = web_dir
 
             # set the LNDDIAG_WEBDIR_MODEL_VS_OBS XML variable
             env_file = '{0}/env_diags_lnd.xml'.format(env['PP_CASE_PATH'])
             key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
-            value = web_dir
+            value = diag_path
             try:
                 xml_tree = etree.ElementTree()
                 xml_tree.parse(env_file)

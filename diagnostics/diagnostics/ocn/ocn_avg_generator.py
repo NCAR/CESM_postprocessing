@@ -289,7 +289,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
-        inVarList = ['TEMP','SALT','PD','MOC','N_HEAT','N_SALT','UVEL','VVEL','WVEL','SU','SV','IAGE','KAPPA_ISOP','KAPPA_THIC','TAUX','TAUY','SSH','UISOP','VISOP','WISOP','HMXL','HBLT','BSF','TLT','INT_DEPTH','DIA_DEPTH','SFWF','PREC_F','MELT_F','MELTH_F','SHF','SHF_QSW','SENH_F','QFLUX','SNOW_F','SALT_F','EVAP_F','ROFF_F','LWUP_F','LWDN_F']
+#        inVarList = ['TEMP','SALT','PD','MOC','N_HEAT','N_SALT','UVEL','VVEL','WVEL','SU','SV','IAGE','KAPPA_ISOP','KAPPA_THIC','TAUX','TAUY','SSH','UISOP','VISOP','WISOP','HMXL','HBLT','BSF','TLT','INT_DEPTH','DIA_DEPTH','SFWF','PREC_F','MELT_F','MELTH_F','SHF','SHF_QSW','SENH_F','QFLUX','SNOW_F','SALT_F','EVAP_F','ROFF_F','LWUP_F','LWDN_F']
         if main_comm.is_manager():
             debugMsg('Calling callPyAverager with averageList = {0}'.format(averageList), header=True, verbosity=1)
         callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, ppDir, main_comm, debugMsg)
@@ -349,6 +349,15 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     # add the os.environ['PATH'] to the envDict['PATH']
     envDict['OCNDIAG_PATH'] += os.pathsep + os.environ['PATH']
 
+    # initialize varLists
+    envDict['MODEL_VARLIST'] = []
+    if len(envDict['OCNDIAG_PYAVG_MODELCASE_VARLIST']) > 0:
+        envDict['MODEL_VARLIST'] = envDict['OCNDIAG_PYAVG_MODELCASE_VARLIST'].split(',')
+
+    envDict['CNTRL_VARLIST'] = []
+    if len(envDict['OCNDIAG_PYAVG_CNTRLCASE_VARLIST']) > 0:
+        envDict['CNTRL_VARLIST'] = envDict['OCNDIAG_PYAVG_CNTRLCASE_VARLIST'].split(',')
+    
     # strip the OCNDIAG_ prefix from the envDict entries before setting the 
     # enviroment to allow for compatibility with all the diag routine calls
     envDict = diagUtilsLib.strip_prefix(envDict, 'OCNDIAG_')
@@ -385,9 +394,6 @@ def main(options, main_comm, debugMsg):
     envDict = main_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
     sys.path.append(envDict['PATH'])
     main_comm.sync()
-
-    # specify variables to include in the averages, empty list implies get them all
-    varList = []
 
     # generate the climatology files used for all plotting types using the pyAverager
     if main_comm.is_manager():
@@ -432,7 +438,7 @@ def main(options, main_comm, debugMsg):
 
         createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
                         envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], 
-                        tseries, varList, envDict['POSTPROCESS_PATH'], 
+                        tseries, envDict['MODEL_VARLIST'], envDict['POSTPROCESS_PATH'], 
                         envDict['TSERIES_YEAR0'], envDict['TSERIES_YEAR1'], main_comm, debugMsg)
     except Exception as error:
         print(str(error))
@@ -469,7 +475,7 @@ def main(options, main_comm, debugMsg):
             debugMsg('...CNTRLTAVGDIR = {0}'.format(envDict['CNTRLTAVGDIR']), header=True)
             debugMsg('...CNTRLCASE = {0}'.format(envDict['CNTRLCASE']), header=True)
             debugMsg('...CNTRLCASE_INPUT_TSERIES = {0}'.format(envDict['CNTRLCASE_INPUT_TSERIES']), header=True)
-            debugMsg('...varlist = {0}'.format(varList), header=True)
+            debugMsg('...varlist = {0}'.format(envDict['CNTRL_VARLIST']), header=True)
             debugMsg('calling createClimFiles for control', header=True)
         
         # don't create timeseries averages for the control case so set to False and set the
@@ -477,7 +483,8 @@ def main(options, main_comm, debugMsg):
         try:
             createClimFiles(envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], envDict['cntrl_in_dir'],
                             envDict['cntrl_htype'], envDict['CNTRLTAVGDIR'], envDict['CNTRLCASE'], 
-                            False, varList, envDict['POSTPROCESS_PATH'], 0, 0, main_comm, debugMsg)
+                            False, envDict['CNTRL_VARLIST'], envDict['POSTPROCESS_PATH'], 
+                            0, 0, main_comm, debugMsg)
         except Exception as error:
             print(str(error))
             traceback.print_exc()

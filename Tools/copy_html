@@ -26,7 +26,10 @@ import shutil
 import subprocess
 import traceback
 
-import xml.etree.ElementTree as etree
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
 
 # get the postprocess virtualenv path from the env_postprocess.xml file
 env_file = './env_postprocess.xml'
@@ -41,41 +44,41 @@ if os.path.isfile(env_file):
         if entry_tag.get('id') == 'STANDALONE':
             standalone = entry_tag.get('value')
 else:
-    err_msg = ('pp_config ERROR: env_postprocess.xml does not exist in this directory.')
+    err_msg = ('copy_html ERROR: env_postprocess.xml does not exist in this directory.')
     raise OSError(err_msg)
 
 # check if virtualenv is activated
 if hasattr(sys, 'real_prefix'):
     try:
-        import jinja2
+        import cesm_utils
     except:
         #
         # activate the virtual environment that was created by create_python_env.sh
         #
         activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
         if not os.path.isfile(activate_file):
-            err_msg = ('pp_config ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
+            err_msg = ('copy_html ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
                           + 'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(postprocess_path))
             raise OSError(err_msg)
 
         try:
             execfile(activate_file, dict(__file__=activate_file))
         except:
-            raise OSError('pp_config ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
+            raise OSError('copy_html ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
 else:
     #
     # activate the virtual environment that was created by create_python_env.sh
     #
     activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
     if not os.path.isfile(activate_file):
-             err_msg = ('pp_config ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
+             err_msg = ('copy_html ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
                            + 'Please run {0}/create_python_env.sh -cimeroot [cimeroot] -machine [machine name]'.format(postprocess_path))
              raise OSError(err_msg)
 
     try:
         execfile(activate_file, dict(__file__=activate_file))
     except:
-        raise OSError('pp_config ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
+        raise OSError('copy_html ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
 
 if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser as config_parser
@@ -133,11 +136,11 @@ def get_years(env, comp):
                    'ocn' : {'start_year':'OCNDIAG_MODEL_YEAR0', 'stop_year':'OCNDIAG_MODEL_YEAR1'}}
     
     comp_data = comp_lookup[comp]
-    start_year = "{0}".format(env[comp_data['start_year']])
+    start_year = '{0}'.format(env[comp_data['start_year']])
     if comp_data.has_key('num_years'):
-        stop_year = "{0}".format(int(start_year) + int(env[comp_data['num_years']]))
+        stop_year = '{0}'.format(int(start_year) + int(env[comp_data['num_years']]))
     else:
-        stop_year = "{0}".format(env[comp_data['stop_year']])
+        stop_year = '{0}'.format(env[comp_data['stop_year']])
     
     return start_year, stop_year
 
@@ -199,18 +202,21 @@ def copy_html_files(env, comp, start_year, stop_year):
     start_year (string) - model case start year
     stop_year (string) - model case stop year
     """
+
     # define workdir mapping
-    comp_lookup = {'atm' : {'workdir':'ATMDIAG_test_path_diag'},
-                   'ice' : {'workdir':'ICEDIAG_WKDIR'},
-                   'lnd' : {'workdir':'LNDIAG_WKDIR'},
-                   'ocn' : {'workdir':'OCNDIAG_WORKDIR'}}
+    comp_lookup = {'atm' : {'model_vs_obs':'ATMDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'ATMDIAG_WEBDIR_MODEL_VS_MODEL'},
+                   'ice' : {'model_vs_obs':'ICEDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'ICEDIAG_WEBDIR_MODEL_VS_MODEL'},
+                   'lnd' : {'model_vs_obs':'LNDDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'LNDDIAG_WEBDIR_MODEL_VS_MODEL'},
+                   'ocn' : {'model_webdir':'OCNDIAG_WEBDIR'}}
     comp_data = comp_lookup[comp]
-    localdir = env[comp_data['workdir']]
 
-    remoteConnect = '{0}@{1}:{2}/{3}'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'], comp)
-    print('Secure copying HTML and graphics files from {0} to {1}'.format(workdir, remoteConnect))
+    remote = '{0}@{1}:{2}/{3}'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'], comp)
+    
+    if comp != 'ocn':
+        for diag_type, key in comp_data.iteritems():
+# start here....
+            pass
 
-#START HERE ... need to know what files to copy for each component
 
     # copy the logos and style sheet to the top level
     localFiles = '{0}/logos'.format(localdir)
@@ -307,12 +313,10 @@ def main(options):
 
         if env[key].upper in ['T','TRUE'] :
             start_year, stop_year = get_years(env, comp)
-
             copy_html_files(env, comp, start_year, stop_year)
-
             activeList.append((comp, start_year, stop_year))    
 
-    # build or append to a single web page to link to all the different components
+    # build a single web page to link to all the different components
     create_index(env, compList, activeList)
 
 #===================================

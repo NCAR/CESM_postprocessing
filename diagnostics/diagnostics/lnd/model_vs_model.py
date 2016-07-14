@@ -258,17 +258,20 @@ class modelVsModel(LandDiagnostic):
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
             # move all the plots to the diag_path with the years appended to the path
-            endYr = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1  
-            diag_path = '{0}/diag/{1}.{2}_{3}'.format(env['DIAG_BASE'], env['caseid_1'],
-                                                      env['clim_first_yr_1'], str(endYr))
+            endYr1 = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1 
+            endYr2 = (int(env['clim_first_yr_2']) + int(env['clim_num_yrs_2'])) - 1 
+            diag_path = '{0}/{1}.{2}_{3}-{4}.{5}_{6}'.format(env['OUTPUT_ROOT_PATH'], 
+                          env['caseid_1'], env['clim_first_yr_1'], str(endYr1),
+                          env['caseid_2'], env['clim_first_yr_2'], str(endYr2))
             move_files = True
+
             try:
                 os.makedirs(diag_path)
             except OSError as exception:
                 if exception.errno != errno.EEXIST:
                     err_msg = 'ERROR: {0} problem accessing directory {1}'.format(self.__class__.__name__, diag_path)
                     raise OSError(err_msg)
-                    copy_files = False
+                    move_files = False
 
                 elif env['CLEANUP_FILES'].lower() in ['t','true']:
                     # delete all the files in the diag_path directory
@@ -277,6 +280,7 @@ class modelVsModel(LandDiagnostic):
                             os.unlink(os.path.join(root, f))
                         for d in dirs:
                             shutil.rmtree(os.path.join(root, d))
+
                 elif env['CLEANUP_FILES'].lower() in ['f','false']:
                     print('WARNING: {0} exists and is not empty and LNDDIAG_CLEANUP_FILES = False. Leaving new diagnostics files in {1}'.format(diag_path, web_dir))
                     diag_path = web_dir
@@ -285,11 +289,15 @@ class modelVsModel(LandDiagnostic):
             # move the files to the new diag_path 
             if move_files:
                 try:
-                    shutil.move(web_dir, diag_path)
-                except (OSError, IOError, Error), e:
-                    print ('WARNING: Error moving %s to %s: %s' % (web_dir, diag_path, e))
+                    print('DEBUG: model_vs_model renaming web files')
+                    os.rename(web_dir, diag_path)
+                except OSError as e:
+                    print ('WARNING: Error renaming %s to %s: %s' % (web_dir, diag_path, e))
                     diag_path = web_dir
                     
+            print('DEBUG: model vs. model web_dir = {0}'.format(web_dir))
+            print('DEBUG: model vs. model diag_path = {0}'.format(diag_path))
+
             # set the LNDDIAG_WEBDIR_MODEL_VS_MODEL XML variable
             env_file = '{0}/env_diags_lnd.xml'.format(env['PP_CASE_PATH'])
             key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)

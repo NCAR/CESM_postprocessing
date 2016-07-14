@@ -3,7 +3,7 @@
 #BSUB -q {{ queue }}
 #BSUB -N
 #BSUB -a poe
-#BSUB -J CESM_postprocessing
+#BSUB -J {{ processName }}
 #BSUB -W {{ wallclock }}
 #BSUB -P {{ project }} 
 

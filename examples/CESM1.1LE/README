@@ -2,6 +2,14 @@ Notes for running diagnostics for the LE experiments:
 
 The examples in this directory are configured for the following settings:
 
+Model - b.e11.BRCP85C5CNBDRD.f09_g16.002 years 2056-2080
+Control - b.e11.B20TRC5CNBDRD.f09_g16.002 years 2081-2005
+
+The env_*.xml files contain the settings that were used to generate the 
+diagnostics plots. 
+
+---------
+
 1. Prep'ing the input files
 
 Some of the variable time series files are on glade in

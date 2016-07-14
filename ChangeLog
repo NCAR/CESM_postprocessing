@@ -6,6 +6,32 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: aliceb
+Date: 14 July 2016
+Model: postprocessing_20160714
+Version: bug fixes, add lnd diags WEBDIR settings with years, add XML examples
+from LE 002 run. Separate WACCM and Chem sets into their own group in 
+config_diags_atm.xml.
+
+M       Templates/batch_yellowstone.tmpl
+M       Tools/copy_html
+M       diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
+M       diagnostics/diagnostics/ocn/ocn_avg_generator.py
+M       diagnostics/diagnostics/atm/Config/config_diags_atm.xml
+M       diagnostics/diagnostics/lnd/model_vs_model.py
+M       diagnostics/diagnostics/lnd/model_vs_obs.py
+M       diagnostics/diagnostics/lnd/Config/config_diags_lnd.xml
+A       examples/CESM1.1LE/env_diags_atm.xml
+M       examples/CESM1.1LE/files_to_get_model.txt
+M       examples/CESM1.1LE/files_to_get_control.txt
+A       examples/CESM1.1LE/env_diags_lnd.xml
+A       examples/CESM1.1LE/env_postprocess.xml
+M       examples/CESM1.1LE/README
+A       examples/CESM1.1LE/env_diags_ocn.xml
+A       examples/CESM1.1LE/env_diags_ice.xml
+
+================================================================================
+
+Originator: aliceb
 Date: 08 July 2016
 Model: postprocessing
 Version: not tagged yet
