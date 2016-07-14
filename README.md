@@ -9,7 +9,9 @@ working group diagnostics packages to github. It's best to always use the
 latest trunk tag as that code has been tested. Here is the link to the 
 SVN repository:
 
-https://svn-ccsm-models.cgd.ucar.edu/postprocessing/
+https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk 
+-- or --
+https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk_tag/postprocess_[date]
 
 Be sure to follow these steps when updating you local CESM postprocessing sandbox. 
 > cd $postprocess_sandbox
