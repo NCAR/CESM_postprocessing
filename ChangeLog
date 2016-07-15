@@ -4,6 +4,17 @@ SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
 ================================================================================
 This file describes what tags were created and why
 ================================================================================
+
+Originator: aliceb
+Date: 15 July 2016
+Model: postprocessing
+Version: postprocessing_20160715a
+One-line: minor update in create_postprocess for ICE_NX and ICE_NY for stand-alone cases
+
+M       create_postprocess
+
+================================================================================
+
 Originator: aliceb
 Date: 15 July 2016
 Model: postprocessing

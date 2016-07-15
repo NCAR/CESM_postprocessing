@@ -442,7 +442,7 @@ def initialize_main(envDict, options, standalone):
     else:
         caseList = caseroot.split('/')
         envDict['CASE'] = caseList[-1]
-        var_names = ['DOUT_S_ROOT', 'ATM_GRID', 'ICE_GRID', 'LND_GRID', 'OCN_GRID']
+        var_names = ['DOUT_S_ROOT', 'ATM_GRID', 'ICE_GRID', 'LND_GRID', 'OCN_GRID', 'ICE_NX', 'ICE_NY']
         for var_name in var_names:
             envDict[var_name] = 'undefined'
 
