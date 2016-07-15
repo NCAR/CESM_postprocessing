@@ -7,7 +7,7 @@ Please refer to the Wiki for documentation.
 The CESM post-processing code is still maintained in Subversion until we migrate all the 
 working group diagnostics packages to github. It's best to always use the
 latest trunk tag as that code has been tested. Here is the link to the 
-SVN repository:
+SVN repository trunk:
 
 https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk 
 
@@ -16,11 +16,16 @@ https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk
 https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk_tag/postprocess_[date]
 
 Be sure to follow these steps when updating you local CESM postprocessing sandbox. 
+
+> module load python
+
 > cd $postprocess_sandbox
 
 > make clobber
 
 > make clobber-env
+
+> svn update
 
 > svn propset svn:externals -F SVN_EXTERNAL_DIRECTORIES .
 
