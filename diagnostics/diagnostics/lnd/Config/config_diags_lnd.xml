@@ -76,7 +76,7 @@
              valid_values=""
              value="$DOUT_S_ROOT/lnd/proc/diag"
              group="data_path"
-             desc="Diagnostics output root path. Final path will be of the form $LNDDIAG_OUTPUT_ROOT_PATH/model1.startyr1_endyr1-obs or $LNDDIAG_OUTPUT_ROOT_PATH/model.startyr1_endyr1-model2.startyr2_endyr2"
+             desc="Diagnostics output root path. Final path will be of the form $LNDDIAG_OUTPUT_ROOT_PATH/model1-obs.startyr1_endyr1 or $LNDDIAG_OUTPUT_ROOT_PATH/model1.startyr1_endyr1-model2.startyr2_endyr2"
              ></entry>
 
     </group>

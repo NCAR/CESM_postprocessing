@@ -67,6 +67,22 @@
 	     desc="Sea-Ice model grid"
 	     ></entry> 
 
+      <entry id="ICE_NX"
+	     type="string"
+	     valid_values=""  
+	     value="inherit"
+	     group="case_info"
+	     desc="Sea-Ice model grid - default 320 for 1-degree ocean grid"
+	     ></entry> 
+
+      <entry id="ICE_NY"
+	     type="string"
+	     valid_values=""  
+	     value="inherit"
+	     group="case_info"
+	     desc="Sea-Ice model grid - default 384 for 1-degree ocean grid"
+	     ></entry> 
+
       <entry id="LND_GRID"
 	     type="string"
 	     valid_values=""  

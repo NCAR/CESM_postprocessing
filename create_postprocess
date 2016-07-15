@@ -429,7 +429,7 @@ def initialize_main(envDict, options, standalone):
     if not standalone:
         # run xmlquery to get the variables needed for postprocessing
         os.chdir(caseroot)
-        var_names = ['CASE', 'DOUT_S_ROOT', 'ATM_GRID', 'ICE_GRID', 'LND_GRID', 'OCN_GRID']
+        var_names = ['CASE', 'DOUT_S_ROOT', 'ATM_GRID', 'ICE_GRID', 'LND_GRID', 'OCN_GRID', 'ICE_NX', 'ICE_NY']
         for var_name in var_names:
             cmd = ['./xmlquery {0} -value'.format(var_name)]
             try:

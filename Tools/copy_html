@@ -192,30 +192,26 @@ def scp_files(localFiles, remoteDir):
 #=======================================================================
 # copy_html_files - scp files from workdir to remote directory 
 #=======================================================================
-def copy_html_files(env, comp, start_year, stop_year):
+def copy_html_files(env, comp, comp_lookup):
     """ copy html files from workdir to remote dir.
         Will prompt user if ssh keys are not set.
 
     Arguments:
     env (dictionary) - environment dictionary
-    comp (string) - sub-directory
-    start_year (string) - model case start year
-    stop_year (string) - model case stop year
+    comp (string) - component 
+    comp_lookup (map) - component diag dir mapping
     """
-
-    # define workdir mapping
-    comp_lookup = {'atm' : {'model_vs_obs':'ATMDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'ATMDIAG_WEBDIR_MODEL_VS_MODEL'},
-                   'ice' : {'model_vs_obs':'ICEDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'ICEDIAG_WEBDIR_MODEL_VS_MODEL'},
-                   'lnd' : {'model_vs_obs':'LNDDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'LNDDIAG_WEBDIR_MODEL_VS_MODEL'},
-                   'ocn' : {'model_webdir':'OCNDIAG_WEBDIR'}}
     comp_data = comp_lookup[comp]
 
     remote = '{0}@{1}:{2}/{3}'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'], comp)
     
     if comp != 'ocn':
         for diag_type, key in comp_data.iteritems():
-# start here....
-            pass
+            # check if the diag_type string is empty or not
+            
+
+
+
 
 
     # copy the logos and style sheet to the top level
@@ -289,6 +285,12 @@ def main(options):
     compList = ['atm','ice','lnd','ocn']
     activeList = list()
 
+    # define diag dir mapping
+    comp_lookup = {'atm' : {'model_vs_obs':'ATMDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'ATMDIAG_WEBDIR_MODEL_VS_MODEL'},
+                   'ice' : {'model_vs_obs':'ICEDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'ICEDIAG_WEBDIR_MODEL_VS_MODEL'},
+                   'lnd' : {'model_vs_obs':'LNDDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'LNDDIAG_WEBDIR_MODEL_VS_MODEL'},
+                   'ocn' : {'model_webdir':'OCNDIAG_WEBDIR'}}
+
     # this script always run from the postprocessing caseroot 
     pp_caseroot = os.getcwd()
 
@@ -312,9 +314,8 @@ def main(options):
         key = 'GENERATE_DIAGS_{0}'.format(comp)
 
         if env[key].upper in ['T','TRUE'] :
-            start_year, stop_year = get_years(env, comp)
-            copy_html_files(env, comp, start_year, stop_year)
-            activeList.append((comp, start_year, stop_year))    
+            diag_types = copy_html_files(env, comp, comp_lookup)
+            activeList.append((comp, diag_types))    
 
     # build a single web page to link to all the different components
     create_index(env, compList, activeList)

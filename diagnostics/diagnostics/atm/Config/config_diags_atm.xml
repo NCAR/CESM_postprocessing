@@ -51,6 +51,15 @@
              group="global"
              desc="Remove any existing diagnostic files."
              ></entry>
+
+      <entry id="ATMDIAG_OUTPUT_ROOT_PATH"
+             type="char"
+             valid_values=""
+             value="$DOUT_S_ROOT/atm/proc/diag"
+             group="global"
+             desc="Diagnostics output root path. Final path will be of the form $ATMDIAG_OUTPUT_ROOT_PATH/test_casename-obs.firstyr1_lastyr1 or $ATMDIAG_OUTPUT_ROOT_PATH/test_casename.firstyr1_lastyr1-cntl_casename.firstyr2_lastyr2"
+             ></entry>
+
     </group>
 
     <!-- ============================================================================================== -->
