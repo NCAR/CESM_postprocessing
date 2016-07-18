@@ -210,7 +210,7 @@ class modelVsModel(IceDiagnostic):
             # set the ICEDIAG_WEBDIR_MODEL_VS_MODEL XML variable
             env_file = '{0}/env_diags_ice.xml'.format(env['PP_CASE_PATH'])
             key = 'ICEDIAG_WEBDIR_{0}'.format(self._name)
-            value = web_dir
+            value = env['WKDIR']
             try:
                 xml_tree = etree.ElementTree()
                 xml_tree.parse(env_file)

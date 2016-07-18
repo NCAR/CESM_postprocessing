@@ -125,25 +125,64 @@ def get_years(env, comp):
     comp (string) - component name
 
     Return:
-    start_year (string) - model start year for diagnostics
-    stop_year (string) - model stop year for diagnostics
+    model_start_year (string) - model start year for diagnostics
+    model_stop_year (string) - model stop year for diagnostics
+    control_start_year (string) - control start year for diagnostics
+    control_stop_year (string) - control stop year for diagnostics
+    trends_start_year1 (string) - model trends start year for diagnostics
+    trends_stop_year1 (string) - model trends stop year for diagnostics
+    trends_start_year2 (string) - control trends start year for diagnostics
+    trends_stop_year2 (string) - control trends stop year for diagnostics
     """
 
-    # define component-year mapping 
+    # define component-year mapping for model
     comp_lookup = {'atm' : {'start_year':'ATMDIAG_test_first_yr', 'num_years':'ATMDIAG_test_nyrs'},
                    'ice' : {'start_year':'ICEDIAG_BEGYR_CONT', 'stop_year':'ICEDIAG_ENDYR_CONT'},
-                   'lnd' : {'start_year':'LNDDIAG__clim_first_yr_1', 'num_years':'LNDDIAG_clim_num_yrs_1'},
+                   'lnd' : {'start_year':'LNDDIAG_clim_first_yr_1', 'num_years':'LNDDIAG_clim_num_yrs_1'},
                    'ocn' : {'start_year':'OCNDIAG_MODEL_YEAR0', 'stop_year':'OCNDIAG_MODEL_YEAR1'}}
-    
-    comp_data = comp_lookup[comp]
-    start_year = '{0}'.format(env[comp_data['start_year']])
-    if comp_data.has_key('num_years'):
-        stop_year = '{0}'.format(int(start_year) + int(env[comp_data['num_years']]))
-    else:
-        stop_year = '{0}'.format(env[comp_data['stop_year']])
-    
-    return start_year, stop_year
 
+    # define component-year mapping for control
+    comp_lookup_control = {'atm' : {'start_year':'ATMDIAG_cntl_first_yr', 'num_years':'ATMDIAG_cntl_nyrs'},
+                           'ice' : {'start_year':'ICEDIAG_BEGYR_DIFF', 'stop_year':'ICEDIAG_ENDYR_DIFF'},
+                           'lnd' : {'start_year':'LNDDIAG_clim_first_yr_2', 'num_years':'LNDDIAG_clim_num_yrs_2'},
+                           'ocn' : {'start_year':'OCNDIAG_CNTRL_YEAR0', 'stop_year':'OCNDIAG_CNTRL_YEAR1'}}
+
+    # define component-year mapping for trends and timeseries
+    comp_lookup_trends = {'atm' : {},
+                          'ice' : {},
+                          'lnd' : {'start_year1':'LNDDIAG_trends_first_yr_1', 'num_years1':'LNDIAG_trends_num_yrs_1',
+                                   'start_year2':'LNDDIAG_trends_first_yr_2', 'num_years2':'LNDIAG_trends_num_yrs_2'},
+                          'ocn' : {'start_year':'OCNDIAG_TSERIES_YEAR0', 'end_year':'OCNDIAG_TSERIES_YEAR1'}}
+
+    # get the model years
+    comp_data = comp_lookup[comp]
+    model_start_year = '{0}'.format(env[comp_data['start_year']])
+    if comp_data.has_key('num_years'):
+        model_stop_year = '{0}'.format(int(model_start_year) + int(env[comp_data['num_years']]))
+    else:
+        model_stop_year = '{0}'.format(env[comp_data['stop_year']])
+
+    # get the control years
+    comp_data = comp_lookup_control[comp]
+    control_start_year = '{0}'.format(env[comp_data['start_year']])
+    if comp_data.has_key('num_years'):
+        control_stop_year = '{0}'.format(int(control_start_year) + int(env[comp_data['num_years']]))
+    else:
+        control_stop_year = '{0}'.format(env[comp_data['stop_year']])
+
+    # get the trends years
+    comp_data = comp_lookup_trends[comp]
+    trends_start_year1 = trends_stop_year1 = trends_start_year2 = trends_stop_year2 = None
+    if comp == 'ocn':
+        trends_start_year1 = '{0}'.format(env[comp_data['start_year']])
+        trends_stop_year1 = '{0}'.format(env[comp_data['stop_year']])
+    elif comp == 'lnd':
+        trends_start_year1 = '{0}'.format(env[comp_data['start_year1']])
+        trends_stop_year1 = '{0}'.format(int(trends_start_year1) + int(env[comp_data['num_years1']]))
+        trends_start_year2 = '{0}'.format(env[comp_data['start_year2']])
+        trends_stop_year2 = '{0}'.format(int(trends_start_year2) + int(env[comp_data['num_years2']]))
+
+    return model_start_year, model_stop_year, control_start_year, control_stop_year, trends_start_year1, trends_stop_year1, trends_start_year2, trends_stop_year2 
 
 
 #=======================================================================
@@ -164,14 +203,14 @@ def check_ssh_key(env):
 #=======================================================================
 # create_top_level
 #=======================================================================
-def create_top_level(env):
+def create_top_level(env, comp):
 
     # make sure top level remote directory exists
     try:
-        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'])], env=env, shell=True)
+        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}/{3}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp)], env=env, shell=True)
         pipe.wait()
     except OSEerror as e:
-        print('ERROR: unable to create remote directory {0}@{1}:{2}'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR']))
+        print('ERROR: unable to create remote directory {0}@{1}:{2}/{3}'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp))
         print('    {0} - {1}'.format(e.errno, e.strerror))
         sys.exit(1)
 
@@ -179,40 +218,90 @@ def create_top_level(env):
 #=======================================================================
 # scp_files - scp files to a remote server
 #=======================================================================
-def scp_files(localFiles, remoteDir):
+def scp_files(env, local, remote):
 
     try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteDir)], env=env, shell=True)
+        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(local, remote)], env=env, shell=True)
         pipe.wait()
+        return True
     except OSError as e:
-        print('WARNING: scp command failed with error::')
+        print('copy_html WARNING: scp command failed with error:')
         print('    {0} - {1}'.format(e.errno, e.strerror))
-
+        return False
 
 #=======================================================================
-# copy_html_files - scp files from workdir to remote directory 
+# copy_files - scp files from workdir to remote directory 
 #=======================================================================
-def copy_html_files(env, comp, comp_lookup):
+def copy_files(env, comp, comp_data):
     """ copy html files from workdir to remote dir.
         Will prompt user if ssh keys are not set.
 
     Arguments:
     env (dictionary) - environment dictionary
     comp (string) - component 
-    comp_lookup (map) - component diag dir mapping
+    comp_data (map) - component diag dir mapping
     """
-    comp_data = comp_lookup[comp]
-
     remote = '{0}@{1}:{2}/{3}'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'], comp)
     
     if comp != 'ocn':
         for diag_type, key in comp_data.iteritems():
-            # check if the diag_type string is empty or not
-            
+            # check if the diag_type key string that points to the local webdir is empty or not
+            if len(env[key]) > 0:
+                local = env[key]
+                if not os.path.isdir(local):
+                    print('copy_html WARNING: local directory = {0} does not exists.'.format(local))
+                else:
+                    # copy local to remote
+                    if not scp_files(env, local, remote):
+                        print('copy_html WARNING: unable to copy {0} to {1}'.format(local, remote))
+                        print('     You will need to copy the files manually')
+    else:
+        # ocean need to create a tar file first
+        if os.path.isdir(env['OCNDIAG_WEBDIR']):
+            ok_to_copy = True
+            rootdir, workdir = os.path.split(env['OCNDIAG_WEBDIR'])
+            tarfile = 'ocn{0}-{1}.tar.gz'.format(env['OCNDIAG_YEAR0'], env['OCNDIAG_YEAR1'])
+            cwd = os.getcwd()
+            os.chdir(rootdir)
+            if os.path.isfile(os.path.join(rootdir,tarfile)):
+                print('copy_html WARNING: ocean tar file = {0} already exists - please delete first.'.format(os.path.join(rootdir,tarfile)))
+                ok_to_copy = False
+            else:
+                tar_cmd = "tar cvfz {0} --exclude='*.nc' --exclude='*.nc_tmp' --exclude='*.log.*' --exclude='*.asc' --exclude='*.ncl' --exclude='*.dt.*' {1}".format(tarfile, workdir)
+                try:
+                    pipe = subprocess.Popen([tar_cmd], env=env, shell=True)
+                    pipe.wait()
+                except OSError as e:
+                    print('copy_html WARNING: unable to execute tar command {0}'.format(tar_cmd))
+                    print('    You will need to copy the files in {0} manually to a web server.'.format(env['OCNDIAG_WEBDIR']))
+                    print('    {0} - {1}'.format(e.returncode, e.output))
+                    ok_to_copy = False
+            if ok_to_copy:
+                if scp_files(env, tarfile, remote):
+                    # untar the file on remote server
+                    ok_to_remove = True
+                    try:
+                        pipe = subprocess.Popen(["ssh {0}@{1} 'cd {2}/{3} ; tar xvfz {4}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp,tarfile)], env=env, shell=True)
+                        pipe.wait()
+                    except OSError as e:
+                        print('copy_html WARNING: unable to untar file {0} on remote server {1}@{2}:{3}/{4}'.format(tarfile, env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp))
+                        print('   You will need to untar files manually')
+                        ok_to_remove = False
+                if ok_to_remove:
+                    # remove the tar file on the remote server
+                    try:
+                        pipe = subprocess.Popen(["ssh {0}@{1} 'cd {2}/{3} ; rm {4}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp,tarfile)], env=env, shell=True)
+                        pipe.wait()
+                    except OSError as e:
+                        print('copy_html WARNING: unable to remove tar file {0} on remote server {1}@{2}:{3}/{4}'.format(tarfile, env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp))
+            os.chdir(cwd)
 
 
-
-
+#=======================================================================
+# create a main index page and copy it over to the remote server top level
+#=======================================================================
+def create_index(env, compList, activeList):
+    """ create a main index.html page """
 
     # copy the logos and style sheet to the top level
     localFiles = '{0}/logos'.format(localdir)
@@ -240,36 +329,7 @@ def copy_html_files(env, comp, comp_lookup):
         print('WARNING: scp command failed with error::')
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
-    subdirs = ['model_timeseries', 'model_vs_control', 'model_vs_obs' ]
-    for subdir in subdirs:
-
-        # copy the html files
-        localFiles = '{0}/*.html'.format(localdir)
-        try:
-            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
-            pipe.wait()
-        except OSError as e:
-            print('WARNING: scp command failed with error::')
-            print('    {0} - {1}'.format(e.errno, e.strerror))
-
-        # copy the graphics files
-        localFiles = '{0}/*.{1}'.format(localdir, env['IMAGEFORMAT'])
-        try:
-            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
-            pipe.wait()
-        except OSError as e:
-            print('WARNING: scp command failed with error::')
-            print('    {0} - {1}'.format(e.errno, e.strerror))
-
-        # copy the asc files
-        localFiles = '{0}/*.asc'.format(localdir)
-        try:
-            pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
-            pipe.wait()
-        except OSError as e:
-            print('WARNING: scp command failed with error::')
-            print('    {0} - {1}'.format(e.errno, e.strerror))
-
+    return
 
 #=======================================================================
 # main
@@ -281,7 +341,7 @@ def main(options):
     options (list) - input options from command line
     """
     env = dict()
-    envFilelist = list()
+    envFileList = list()
     compList = ['atm','ice','lnd','ocn']
     activeList = list()
 
@@ -306,19 +366,19 @@ def main(options):
     # check if sshkey is set
     check_ssh_key(env)
 
-    # create the toplevel remote directory if it doesn't already exist
-    create_remote_top_level(env)
-
     # copy the different diag component web files
     for comp in compList:
-        key = 'GENERATE_DIAGS_{0}'.format(comp)
+        key = 'GENERATE_DIAGS_{0}'.format(comp).upper()
 
-        if env[key].upper in ['T','TRUE'] :
-            diag_types = copy_html_files(env, comp, comp_lookup)
-            activeList.append((comp, diag_types))    
+        if env[key].upper() in ['T','TRUE'] :
+            # create the toplevel remote directory if it doesn't already exist
+            create_top_level(env, comp)
+            comp_data = comp_lookup[comp]
+            copy_files(env, comp, comp_data)
+            activeList.append(comp)    
 
     # build a single web page to link to all the different components
-    create_index(env, compList, activeList)
+##    create_index(env, compList, activeList)
 
 #===================================
 

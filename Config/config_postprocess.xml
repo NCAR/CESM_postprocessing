@@ -229,14 +229,6 @@
 	     desc="Remote web host login name which can be used with ssh keys. If ssh key is not setup, then will prompt for login on remote web host machine."
 	     ></entry>
 
-      <entry id="GLOBAL_LOCAL_WEBDIR"
-	     type="char"
-	     valid_values=""
-	     value=""
-	     group="web_options"
-	     desc="Local machine path to toplevel diagnostics directory."
-	     ></entry>
-
       <entry id="GLOBAL_REMOTE_WEBDIR"
 	     type="char"
 	     valid_values=""
