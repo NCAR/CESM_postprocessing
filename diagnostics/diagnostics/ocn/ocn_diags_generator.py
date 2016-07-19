@@ -281,13 +281,13 @@ def main(options, main_comm, debugMsg):
             index.write(main_html)
 
         debugMsg('Ocean diagnostics - Copying stylesheet', header=True, verbosity=2)
-        shutil.copy2('{0}/diag_style.css'.format(templatePath), '{0}/diag_style.css'.format(envDict['WORKDIR']))
+        shutil.copy2('{0}/Templates/diag_style.css'.format(envDict['POSTPROCESS_PATH']), '{0}/diag_style.css'.format(envDict['WORKDIR']))
 
         debugMsg('Ocean diagnostics - Copying logo files', header=True, verbosity=2)
         if not os.path.exists('{0}/logos'.format(envDict['WORKDIR'])):
             os.mkdir('{0}/logos'.format(envDict['WORKDIR']))
 
-        for filename in glob.glob(os.path.join('{0}/logos'.format(templatePath), '*.*')):
+        for filename in glob.glob(os.path.join('{0}/Templates/logos'.format(envDict['POSTPROCESS_PATH']), '*.*')):
             shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
  
         # set the OCNDIAG_WEBDIR XML variable in the env_diags_ocn.xml file

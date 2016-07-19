@@ -18,6 +18,7 @@ if sys.hexversion < 0x02070000:
 #
 import argparse
 import collections
+import datetime
 import os
 import platform
 import pprint
@@ -139,20 +140,20 @@ def get_years(env, comp):
     comp_lookup = {'atm' : {'start_year':'ATMDIAG_test_first_yr', 'num_years':'ATMDIAG_test_nyrs'},
                    'ice' : {'start_year':'ICEDIAG_BEGYR_CONT', 'stop_year':'ICEDIAG_ENDYR_CONT'},
                    'lnd' : {'start_year':'LNDDIAG_clim_first_yr_1', 'num_years':'LNDDIAG_clim_num_yrs_1'},
-                   'ocn' : {'start_year':'OCNDIAG_MODEL_YEAR0', 'stop_year':'OCNDIAG_MODEL_YEAR1'}}
+                   'ocn' : {'start_year':'OCNDIAG_YEAR0', 'stop_year':'OCNDIAG_YEAR1'}}
 
     # define component-year mapping for control
     comp_lookup_control = {'atm' : {'start_year':'ATMDIAG_cntl_first_yr', 'num_years':'ATMDIAG_cntl_nyrs'},
                            'ice' : {'start_year':'ICEDIAG_BEGYR_DIFF', 'stop_year':'ICEDIAG_ENDYR_DIFF'},
                            'lnd' : {'start_year':'LNDDIAG_clim_first_yr_2', 'num_years':'LNDDIAG_clim_num_yrs_2'},
-                           'ocn' : {'start_year':'OCNDIAG_CNTRL_YEAR0', 'stop_year':'OCNDIAG_CNTRL_YEAR1'}}
+                           'ocn' : {'start_year':'OCNDIAG_CNTRLYEAR0', 'stop_year':'OCNDIAG_CNTRLYEAR1'}}
 
     # define component-year mapping for trends and timeseries
     comp_lookup_trends = {'atm' : {},
                           'ice' : {},
-                          'lnd' : {'start_year1':'LNDDIAG_trends_first_yr_1', 'num_years1':'LNDIAG_trends_num_yrs_1',
-                                   'start_year2':'LNDDIAG_trends_first_yr_2', 'num_years2':'LNDIAG_trends_num_yrs_2'},
-                          'ocn' : {'start_year':'OCNDIAG_TSERIES_YEAR0', 'end_year':'OCNDIAG_TSERIES_YEAR1'}}
+                          'lnd' : {'start_year1':'LNDDIAG_trends_first_yr_1', 'num_years1':'LNDDIAG_trends_num_yrs_1',
+                                   'start_year2':'LNDDIAG_trends_first_yr_2', 'num_years2':'LNDDIAG_trends_num_yrs_2'},
+                          'ocn' : {'start_year':'OCNDIAG_TSERIES_YEAR0', 'stop_year':'OCNDIAG_TSERIES_YEAR1'}}
 
     # get the model years
     comp_data = comp_lookup[comp]
@@ -182,7 +183,8 @@ def get_years(env, comp):
         trends_start_year2 = '{0}'.format(env[comp_data['start_year2']])
         trends_stop_year2 = '{0}'.format(int(trends_start_year2) + int(env[comp_data['num_years2']]))
 
-    return model_start_year, model_stop_year, control_start_year, control_stop_year, trends_start_year1, trends_stop_year1, trends_start_year2, trends_stop_year2 
+    return model_start_year, model_stop_year, control_start_year, control_stop_year, \
+        trends_start_year1, trends_stop_year1, trends_start_year2, trends_stop_year2 
 
 
 #=======================================================================
@@ -260,6 +262,11 @@ def copy_files(env, comp, comp_data):
         if os.path.isdir(env['OCNDIAG_WEBDIR']):
             ok_to_copy = True
             rootdir, workdir = os.path.split(env['OCNDIAG_WEBDIR'])
+
+            # fix for when there is a / at the end of the path
+            if len(workdir) == 0:
+                rootdir, workdir = os.path.split(rootdir)
+
             tarfile = 'ocn{0}-{1}.tar.gz'.format(env['OCNDIAG_YEAR0'], env['OCNDIAG_YEAR1'])
             cwd = os.getcwd()
             os.chdir(rootdir)
@@ -300,36 +307,149 @@ def copy_files(env, comp, comp_data):
 #=======================================================================
 # create a main index page and copy it over to the remote server top level
 #=======================================================================
-def create_index(env, compList, activeList):
+def create_index(env, compList, activeList, comp_lookup):
     """ create a main index.html page """
 
+    comp_casenames = {'atm' : {'model':'ATMDIAG_test_casename', 'control':'ATMDIAG_cntl_casename'},
+                      'ice' : {'model':'ICEDIAG_CASE_TO_CONT', 'control':'ICEDIAG_CASE_TO_DIFF'},
+                      'lnd' : {'model':'LNDDIAG_caseid_1', 'control':'LNDDIAG_caseid_2'},
+                      'ocn' : {'model':'CASE', 'control':'OCNDIAG_CNTRLCASE'}}
+
+    diag_dict = dict()
+    comp_data = dict()
+    link_dict = dict()
+
+    for comp in compList:
+        if comp in activeList:
+            # create a section for links to the active component
+            (model_start_year, model_stop_year, control_start_year, control_stop_year, \
+                trends_start_year1, trends_stop_year1, trends_start_year2, trends_stop_year2) = get_years(env, comp)
+            # load up the diag_dict to be passed to the template with the case names and years
+            comp_data = comp_casenames[comp]
+            model = env[comp_data['model']]
+            control = env[comp_data['control']]
+
+            # load the diag dict with template variables
+            diag_dict[comp] = {'model':model, 'model_start_year':model_start_year, 'model_stop_year':model_stop_year, \
+                                   'trends_start_year1':trends_start_year1, 'trends_stop_year1':trends_stop_year1, \
+                                   'control':control, 'control_start_year':control_start_year, 'control_stop_year':control_stop_year, \
+                                   'trends_start_year2':trends_start_year2, 'trends_stop_year2':trends_stop_year2}
+
+            # get the remote relative links
+            comp_data = comp_lookup[comp]
+            if comp in ['atm', 'lnd']:
+                for diag_type, key in comp_data.iteritems():
+                    if len(env[key]) > 0:
+                        root, diag_path = os.path.split(env[key])
+                        # fix for when there is a / at the end of the path
+                        if len(diag_path) == 0:
+                            root, diag_path = os.path.split(root)
+                        local_diag_path = diag_path
+                        if comp == 'lnd':
+                            local_diag_path = '{0}/setsIndex.html'.format(diag_path)
+                        link_dict[diag_type] = local_diag_path
+                    else:
+                        link_dict[diag_type] = None
+                    diag_dict[comp].update(link_dict)
+
+            elif comp == 'ice':
+                for diag_type, key in comp_data.iteritems():
+                    if len(env[key]) > 0:
+                        root, diag_path = os.path.split(env[key])
+                        # fix for when there is a / at the end of the path
+                        if len(diag_path) == 0:
+                            root, diag_path = os.path.split(root)
+                        local_diag_path = '{0}/yrs{1}-{2}/'.format(diag_path, env['ICEDIAG_BEGYR_CONT'], env['ICEDIAG_ENDYR_CONT'])
+                        link_dict[diag_type] = local_diag_path
+                    else:
+                        link_dict[diag_type] = None
+                    diag_dict[comp].update(link_dict)
+
+            elif comp == 'ocn':
+                ocn_link_dict = dict()
+                ocn_diag_types = {'OCNDIAG_MODEL_VS_OBS':('MODEL_VS_OBS','{0} (years {1}-{2}) - Observations'.format(model, model_start_year, model_stop_year)), \
+                                      'OCNDIAG_MODEL_VS_OBS_ECOSYS':('MODEL_VS_OBS_ECOSYS','{0} (years {1}-{2}) - Observations w/ ecosystem'.format(model, model_start_year, model_stop_year)), \
+                                      'OCNDIAG_MODEL_VS_CONTROL':('MODEL_VS_CONTROL_{0}'.format(control),'{0} (years {1}-{2}) - {3} (years {4}-{5})'.format(model, model_start_year, model_stop_year, control, control_start_year, control_stop_year)), \
+                                      'OCNDIAG_MODEL_VS_CONTROL_ECOSYS':('MODEL_VS_CONTROL_ECOSYS_{0}'.format(control),'{0} (years {1}-{2}) - {3} (years {4}-{5}) w/ ecosystem'.format(model, model_start_year, model_stop_year, control, control_start_year, control_stop_year)), \
+                                      'OCNDIAG_MODEL_TIMESERIES':('MODEL_TIMESERIES','{0} Timeseries (years {1}-{2})'.format(model, trends_start_year1, trends_stop_year1)), \
+                                      'OCNDIAG_MODEL_TIMESERIES_ECOSYS':('MODEL_TIMESERIES_ECOSYS','{0} Timeseries w/ ecosystem (years {1}-{2})'.format(model, trends_start_year1, trends_stop_year1))}
+
+                for diag_type, key in comp_data.iteritems():
+                    if len(env[key]) > 0:
+                        root, diag_path = os.path.split(env[key])
+                        # fix for when there is a / at the end of the path
+                        if len(diag_path) == 0:
+                            root, diag_path = os.path.split(root)
+                        for ocn_diag_type, link_list in ocn_diag_types.iteritems():
+                            if env[ocn_diag_type].upper() in ['T','TRUE']:
+                                local_diag_path = '{0}/{1}'.format(diag_path, link_list[0])
+                                ocn_link_dict[ocn_diag_type] = (local_diag_path, link_list[1])
+                            else:
+                                ocn_link_dict[ocn_diag_type] = None
+                    else:
+                        ocn_link_dict[ocn_diag_type] = None
+                    
+    # create the jinja template
+    templatePath = '{0}/Templates'.format(env['POSTPROCESS_PATH']) 
+
+    templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
+    templateEnv = jinja2.Environment( loader=templateLoader )
+    
+    template_file = 'diagnostics.tmpl'
+    template = templateEnv.get_template( template_file )
+    
+    # get the current datatime string for the template
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    # set the template variables
+    templateVars = { 'casename' : env['CASE'],
+                     'tagname' : env['CESM_TAG'],
+                     'diag_dict' : collections.OrderedDict(sorted(diag_dict.items())),
+                     'ocn_link_dict': ocn_link_dict,
+                     'today': now,
+                     }
+
+    # write the main index.html page to the top working directory
+    # TODO - check if an index page already exists and increment a count to create another one
+    main_html = template.render( templateVars )
+    workdir = '{0}/{1}'.format(env['PP_CASE_PATH'],'html_files')
+    try:
+        os.makedirs(workdir)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
+    with open( '{0}/index.html'.format(workdir), 'w') as index:
+        index.write(main_html)
+
     # copy the logos and style sheet to the top level
-    localFiles = '{0}/logos'.format(localdir)
+    remote = '{0}@{1}:{2}'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'])
+    localdir = '{0}/Templates/'.format(env['POSTPROCESS_PATH'])
+
+    local = '{0}/logos/*.*'.format(localdir)
     try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+        pipe = subprocess.Popen( ['scp {0} {1}'.format(local, remote)], env=env, shell=True)
         pipe.wait()
     except OSError as e:
-        print('WARNING: scp command failed with error::')
+        print('copy_html WARNING: scp command failed with error::')
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
-    localFiles = '{0}/*.css'.format(localdir)
+    local = '{0}/*.css'.format(localdir)
     try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+        pipe = subprocess.Popen( ['scp {0} {1}'.format(local, remote)], env=env, shell=True)
         pipe.wait()
     except OSError as e:
-        print('WARNING: scp command failed with error::')
+        print('copy_html WARNING: scp command failed with error::')
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
-    # copy the top-level html files
-    localFiles = '{0}/*.html'.format(localdir)
+    # copy the top-level index.html
+    local = '{0}/index.html'.format(workdir)
     try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(localFiles, remoteConnect)], env=env, shell=True)
+        pipe = subprocess.Popen( ['scp {0} {1}'.format(local, remote)], env=env, shell=True)
         pipe.wait()
     except OSError as e:
-        print('WARNING: scp command failed with error::')
+        print('copy_html WARNING: scp command failed with error:')
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
-    return
 
 #=======================================================================
 # main
@@ -378,7 +498,7 @@ def main(options):
             activeList.append(comp)    
 
     # build a single web page to link to all the different components
-##    create_index(env, compList, activeList)
+    create_index(env, compList, activeList, comp_lookup)
 
 #===================================
 
