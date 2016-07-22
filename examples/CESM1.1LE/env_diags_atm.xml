@@ -35,7 +35,10 @@
 <entry id="ATMDIAG_MODEL_VS_MODEL" value="True" />
        
 <!-- Remove any existing diagnostic files. -->
-<entry id="ATMDIAG_CLEANUP_FILES" value="False" />
+<entry id="ATMDIAG_CLEANUP_FILES" value="True" />
+       
+<!-- Diagnostics output root path. Final path will be of the form $ATMDIAG_OUTPUT_ROOT_PATH/test_casename-obs.firstyr1_lastyr1 or $ATMDIAG_OUTPUT_ROOT_PATH/test_casename.firstyr1_lastyr1-cntl_casename.firstyr2_lastyr2 -->
+<entry id="ATMDIAG_OUTPUT_ROOT_PATH" value="$DOUT_S_ROOT/atm/proc/diag" />
        
     
   
@@ -72,6 +75,9 @@
 <!-- Path to generated diags. -->
 <entry id="ATMDIAG_test_path_diag" value="$DOUT_S_ROOT/atm/proc/diag/$ATMDIAG_test_casename/" />
        
+<!-- Compute climatologies for the test case. -->
+<entry id="ATMDIAG_test_compute_climo" value="True" />
+       
     
   
     
@@ -95,19 +101,16 @@
 <!-- Identifying control model stream -->
 <entry id="ATMDIAG_cntl_modelstream" value="cam.h0" />
        
-<!-- Use variable time series files to compute cntl climos instead of history time slice input files. -->
+<!-- Use variable time series files to compute control climos instead of history time slice input files. -->
 <entry id="ATMDIAG_CNTL_TIMESERIES" value="True" />
        
-<!-- Path to root of cntl case archive. -->
+<!-- Path to root of control case archive. -->
 <entry id="ATMDIAG_cntl_path_history" value="/glade/scratch/aliceb/$ATMDIAG_cntl_casename" />
        
-<!-- Path to generated test climos -->
+<!-- Path to generated control climos -->
 <entry id="ATMDIAG_cntl_path_climo" value="/glade/scratch/aliceb/atm/proc/climo/$ATMDIAG_cntl_casename/" />
        
-<!-- Compute climatologies for the test case. -->
-<entry id="ATMDIAG_test_compute_climo" value="True" />
-       
-<!-- Compute climatologies for the cntl case. -->
+<!-- Compute climatologies for the control case. -->
 <entry id="ATMDIAG_cntl_compute_climo" value="True" />
        
     
@@ -133,10 +136,10 @@
 <!-- The number of years of test data to be used for the diagnostics. -->
 <entry id="ATMDIAG_test_nyrs" value="25" />
        
-<!-- Start year for cntl case for diagnostics. -->
+<!-- Start year for control case for diagnostics. -->
 <entry id="ATMDIAG_cntl_first_yr" value="1981" />
        
-<!-- The number of years of cntl data to be used for the diagnostics. -->
+<!-- The number of years of control data to be used for the diagnostics. -->
 <entry id="ATMDIAG_cntl_nyrs" value="25" />
        
     
@@ -205,7 +208,7 @@
 <!-- Select plot sets -->
 <!-- ======================================================================= -->
        
-<!-- Toggle to produce all std plotting sets. -->
+<!-- Toggle to produce all standard plotting sets. -->
 <entry id="ATMDIAG_all_sets" value="True" />
        
 <!-- Run plotting set 1 - tables of global,regional means -->
@@ -259,11 +262,48 @@
 <!-- Run plotting set 16 - Budget Terms for Select stations -->
 <entry id="ATMDIAG_set_16" value="False" />
        
+<!-- Cntl case to compare against for Taylor Diagrams -->
+<entry id="ATMDIAG_TAYLOR_BASECASE" value="ccsm3_5" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Select WACCM plot sets -->
+<!-- ======================================================================= -->
+       
 <!-- Run all the WACCM sets -->
 <entry id="ATMDIAG_all_waccm_sets" value="False" />
        
 <!-- Run WACCM set 1 - vertical zonal mean contour plots (log scale) -->
 <entry id="ATMDIAG_wset_1" value="False" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Select chemistry plot sets -->
+<!-- ======================================================================= -->
        
 <!-- Run all the CHEM sets -->
 <entry id="ATMDIAG_all_chem_sets" value="False" />
@@ -288,9 +328,6 @@
        
 <!-- Run CHEM set 7 - surface comparisons (ozone, co, improve) -->
 <entry id="ATMDIAG_cset_7" value="False" />
-       
-<!-- Cntl case to compare against for Taylor Diagrams -->
-<entry id="ATMDIAG_TAYLOR_BASECASE" value="ccsm3_5" />
        
     
   
@@ -404,10 +441,10 @@
 <entry id="ATMDIAG_NCLPATH" value="$ATMDIAG_DIAG_HOME" />
        
 <!-- Web directory path settings set automatically by atm_diags_generator.py for MODEL_VS_OBS diagnostics -->
-<entry id="ATMDIAG_WEBDIR_MODEL_VS_OBS" value="/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.002/atm/proc/diag/b.e11.BRCP85C5CNBDRD.f09_g16.002//b.e11.BRCP85C5CNBDRD.f09_g16.002-obs/" />
+<entry id="ATMDIAG_WEBDIR_MODEL_VS_OBS" value="/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.002/atm/proc/diag/b.e11.BRCP85C5CNBDRD.f09_g16.002-obs.2056_2080" />
        
 <!-- Web directory path settings set automatically by atm_diags_generator.py for MODEL_VS_MODEL diagnostics -->
-<entry id="ATMDIAG_WEBDIR_MODEL_VS_MODEL" value="/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.002/atm/proc/diag/b.e11.BRCP85C5CNBDRD.f09_g16.002//b.e11.BRCP85C5CNBDRD.f09_g16.002-b.e11.B20TRC5CNBDRD.f09_g16.002/" />
+<entry id="ATMDIAG_WEBDIR_MODEL_VS_MODEL" value="/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.002/atm/proc/diag/b.e11.BRCP85C5CNBDRD.f09_g16.002.2056_2080-b.e11.B20TRC5CNBDRD.f09_g16.002.1981_2005" />
        
     
   

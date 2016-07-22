@@ -5,10 +5,10 @@ import subprocess
 
 cwd = os.getcwd()
 
-path1 = '/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.002/ocn/proc/tseries/monthly'
+path1 = '/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.003/ocn/proc/tseries/monthly'
 file1 = cwd+'/files_to_get_model.txt'
 
-path2 = '/glade/scratch/aliceb/b.e11.B20TRC5CNBDRD.f09_g16.002/ocn/proc/tseries/monthly'
+path2 = '/glade/scratch/aliceb/b.e11.B20TRC5CNBDRD.f09_g16.003/ocn/proc/tseries/monthly'
 file2 = cwd+'/files_to_get_control.txt'
 
 os.chdir(path1)

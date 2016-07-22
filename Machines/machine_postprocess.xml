@@ -8,6 +8,10 @@
     <pythonpath></pythonpath>
     <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
     <project></project>
+    <reset_modules>
+      <module>module restore system</module>
+      <module>module load python/2.7.7</module>
+    </reset_modules>
     <modules>
       <module>module load python/2.7.7</module>
       <module>module load numpy/1.8.1</module>
@@ -53,6 +57,10 @@
     <pythonpath>/global/project/projectdirs/ccsm1/pythonlib/lib/python2.7/site-packages/PyNIO</pythonpath>
     <f2py fcompiler="intelem" f77exec="/opt/intel/composer_xe_2015.1.133/bin/intel64/ifort">f2py</f2py>
     <project></project>
+    <reset_modules>
+      <module>module restore system</module>
+      <module>module load python/2.7.7</module>
+    </reset_modules>
     <modules>
       <module>module load python/2.7.9</module>
       <module>module load virtualenv/12.1.1</module>

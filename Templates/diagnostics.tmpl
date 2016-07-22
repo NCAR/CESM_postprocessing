@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link rel="SHORTCUT ICON"
+      href="http://www.cgd.ucar.edu/Images/atmos/favicon.png">
+<title>CESM Diagnostics - {{ casename }}</title>
+
+<!-- STYLESHEET -->
+<link rel="stylesheet" type="text/css" href="./diag_style.css" />
+
+</head>
+
+<div id="wrap">
+
+<h2>CESM Diagnostics</h2>
+
+  <table class = "meta">
+    <tr>
+      <td>CESM Version:</td> 
+      <td>{{ tagname }}</td>
+    </tr>
+    <tr>
+      <td>Diagnostics Generated on:</td> 
+      <td>{{ today }}</td>
+    </tr>
+  </table>	
+
+
+
+<dl>
+  {% for key, value in diag_dict.iteritems() %}
+  <dt><b>{{ key }}</b></dt>
+  <dd>
+    {% if key == 'atm' and value['model_vs_obs']|length > 0 %}
+        <a href="./{{ key }}/{{ value['model_vs_obs'] }}">{{ value['model'] }} (years {{ value['model_start_year'] }}-{{ value['model_stop_year'] }}) - Observations</a><br/>
+    {% endif %}
+
+    {% if key == 'atm' and value['model_vs_model']|length > 0 %}
+        <a href="./{{ key }}/{{ value['model_vs_model'] }}">{{ value['model'] }} (years {{ value['model_start_year'] }}-{{ value['model_stop_year'] }}) - {{ value['control'] }} (years {{ value['control_start_year'] }}-{{ value['control_stop_year'] }})</a><br/> 
+    {% endif %}
+
+    {% if key == 'ice' and value['model_vs_obs']|length > 0 %}
+        <a href="./{{ key }}/{{ value['model_vs_obs'] }}">{{ value['model'] }} (years {{ value['model_start_year'] }}-{{ value['model_stop_year'] }}) - Observations</a><br/>
+    {% endif %}
+
+    {% if key == 'ice' and value['model_vs_model']|length > 0 %}
+        <a href="./{{ key }}/{{ value['model_vs_model'] }}">{{ value['model'] }} (years {{ value['model_start_year'] }}-{{ value['model_stop_year'] }}) - {{ value['control'] }} (years {{ value['control_start_year'] }}-{{ value['control_stop_year'] }})</a><br/> 
+    {% endif %}
+
+    {% if key == 'lnd' and value['model_vs_obs']|length > 0 %}
+        <a href="./{{ key }}/{{ value['model_vs_obs'] }}">{{ value['model'] }} (years {{ value['model_start_year'] }}-{{ value['model_stop_year'] }}) - Observations</a><br/>
+	Model Trend Years : {{ value['trends_start_year1'] }} - {{ value['trends_stop_year1'] }}<br/>
+    {% endif %}
+
+    {% if key == 'lnd' and value['model_vs_model']|length > 0 %}
+        <a href="./{{ key }}/{{ value['model_vs_model'] }}">{{ value['model'] }} (years {{ value['model_start_year'] }}-{{ value['model_stop_year'] }}) - {{ value['control'] }} (years {{ value['control_start_year'] }}-{{ value['control_stop_year'] }})</a><br/> 
+	Control Trend Years : {{ value['trends_start_year2'] }} - {{ value['trends_stop_year2'] }}<br/>
+    {% endif %}
+
+    {% if key == 'ocn' %}
+	{% for diag_type, link_list in ocn_link_dict.iteritems() %}
+	   {% if link_list is not none %}
+	      <a href="./{{ key }}/{{ link_list[0] }}">{{ link_list[1] }}</a><br/>
+           {% endif %}
+        {% endfor %}
+    {% endif %}
+  </dd>
+  {% endfor %}
+</dl>
+
+<hr>
+<br/>
+<br/>
+
+<div id="logos">
+  <img src="./logos/ncar-logo-sm.jpg"/>
+  <img src="./logos/nsf1sm.gif"/>
+  <span class="stretch"></span>
+</div>
+
+</div>
+
+</html>

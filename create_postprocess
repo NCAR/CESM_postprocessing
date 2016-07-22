@@ -276,6 +276,10 @@ def read_machine_xml(machineName, xmlFile):
             if os.getenv('PROJECT') is not None:
                 machine['project'] = os.getenv('PROJECT')
 
+            # loop through the reset_module list
+            for mod in xmlmachine.findall("rest_modules/module"):
+                machine['reset_modules'].append(mod.text)
+
             # loop through the module list
             for mod in xmlmachine.findall("modules/module"):
                 machine['modules'].append(mod.text)
@@ -316,7 +320,7 @@ def read_machine_xml(machineName, xmlFile):
 # create_batch - create the batch files for post processing submission
 # -------------------------------------------------------------------------------
 def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName,
-                 project, pythonpath, caseRoot, modules, queue, ppn, wallclock, options, standalone):
+                 project, pythonpath, caseRoot, reset_modules, modules, queue, ppn, wallclock, options, standalone):
     """create the batch submission files for post processing
 
     Arguments:
@@ -330,6 +334,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     processName (string) - post processing name for batch submission
     project (string) - project account number
     caseRoot (string) - case root directory path
+    reset_modules (string) - module commands
     modules (string) - module commands
     queue (string) - queue for batch submission
     options (object) - commandline options
@@ -380,6 +385,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     # get the postprocessing run template 
     template = templateEnv.get_template( runTmpl )
     templateVars = { 'batchdirectives' : batchdirectives,
+                     'reset_modules' : reset_modules,
                      'modules' : modules,
                      'pes' : pes,
                      'mpirun' : mpiCmd,
@@ -544,7 +550,7 @@ def main(options):
 
     create_batch(envDict['POSTPROCESS_PATH'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
                  machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                 envDict['PP_CASE_PATH'], machine['modules'], machine['timeseries_queue'], 
+                 envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'], machine['timeseries_queue'], 
                  machine['timeseries_ppn'], machine['timeseries_wallclock'], options, standalone)
 
     # generate the diagnostics batch submit scripts from template files
@@ -555,7 +561,7 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_averages_queue'.format(comp)], 
+                     envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'], machine['{0}_averages_queue'.format(comp)], 
                      machine['{0}_averages_ppn'.format(comp)], machine['{0}_averages_wallclock'.format(comp)], options, standalone)
 
         # generate the diagnostics batch submit script
@@ -564,7 +570,7 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_diagnostics_queue'.format(comp)],
+                     envDict['PP_CASE_PATH'],  machine['reset_modules'], machine['modules'], machine['{0}_diagnostics_queue'.format(comp)],
                      machine['{0}_diagnostics_ppn'.format(comp)], machine['{0}_diagnostics_wallclock'.format(comp)], options, standalone)
 
     # generate the regrid batch submit scripts from template files
@@ -575,7 +581,7 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_regrid_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
                      machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
+                     envDict['PP_CASE_PATH'],  machine['reset_modules'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
                      machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
 
     # copy some tools to the PP_CASE_PATH

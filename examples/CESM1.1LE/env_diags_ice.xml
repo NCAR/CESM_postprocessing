@@ -298,10 +298,10 @@ See documentation for details. -->
 <entry id="ICEDIAG_NCLPATH" value="$ICEDIAG_DIAG_HOME/code/" />
        
 <!-- Web directory path settings set automatically by ice_diags_generator.py for MODEL_VS_OBS diagnostics -->
-<entry id="ICEDIAG_WEBDIR_MODEL_VS_OBS" value="/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.002/ice/proc/diag/b.e11.BRCP85C5CNBDRD.f09_g16.002//b.e11.BRCP85C5CNBDRD.f09_g16.002-obs//yrs2056-2080" />
+<entry id="ICEDIAG_WEBDIR_MODEL_VS_OBS" value="/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.002/ice/proc/diag/b.e11.BRCP85C5CNBDRD.f09_g16.002//b.e11.BRCP85C5CNBDRD.f09_g16.002-obs//" />
        
 <!-- Web directory path settings set automatically by ice_diags_generator.py for MODEL_VS_MODEL diagnostics -->
-<entry id="ICEDIAG_WEBDIR_MODEL_VS_MODEL" value="/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.002/ice/proc/diag/b.e11.BRCP85C5CNBDRD.f09_g16.002//b.e11.BRCP85C5CNBDRD.f09_g16.002-b.e11.B20TRC5CNBDRD.f09_g16.002//yrs2056-2080" />
+<entry id="ICEDIAG_WEBDIR_MODEL_VS_MODEL" value="/glade/scratch/aliceb/b.e11.BRCP85C5CNBDRD.f09_g16.002/ice/proc/diag/b.e11.BRCP85C5CNBDRD.f09_g16.002//b.e11.BRCP85C5CNBDRD.f09_g16.002-b.e11.B20TRC5CNBDRD.f09_g16.002/" />
        
     
   

@@ -57,7 +57,7 @@
 <!-- Root location of history files for CASE2 -->
 <entry id="LNDDIAG_SOURCE_2" value="/glade/scratch/aliceb/b.e11.B20TRC5CNBDRD.f09_g16.002" />
        
-<!-- Diagnostics output root path. Final path will be of the form $LNDDIAG_OUTPUT_ROOT_PATH/model1.startyr1_endyr1-obs or $LNDDIAG_OUTPUT_ROOT_PATH/model.startyr1_endyr1-model2.startyr2_endyr2 -->
+<!-- Diagnostics output root path. Final path will be of the form $LNDDIAG_OUTPUT_ROOT_PATH/model1-obs.startyr1_endyr1 or $LNDDIAG_OUTPUT_ROOT_PATH/model1.startyr1_endyr1-model2.startyr2_endyr2 -->
 <entry id="LNDDIAG_OUTPUT_ROOT_PATH" value="$DOUT_S_ROOT/lnd/proc/diag" />
        
     
