@@ -243,6 +243,7 @@ def read_machine_xml(machineName, xmlFile):
     """
     machine = dict()
     machine['modules'] = []
+    machine['reset_modules'] = []
     found = False
     rc, err_msg = cesmEnvLib.checkFile(xmlFile, 'read')
     if not rc:    
@@ -277,7 +278,7 @@ def read_machine_xml(machineName, xmlFile):
                 machine['project'] = os.getenv('PROJECT')
 
             # loop through the reset_module list
-            for mod in xmlmachine.findall("rest_modules/module"):
+            for mod in xmlmachine.findall("reset_modules/module"):
                 machine['reset_modules'].append(mod.text)
 
             # loop through the module list
