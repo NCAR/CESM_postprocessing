@@ -290,17 +290,15 @@ def main(options, main_comm, debugMsg):
         for filename in glob.glob(os.path.join('{0}/Templates/logos'.format(envDict['POSTPROCESS_PATH']), '*.*')):
             shutil.copy(filename, '{0}/logos'.format(envDict['WORKDIR']))
  
-        # set the OCNDIAG_WEBDIR XML variable in the env_diags_ocn.xml file
+        # setup the unique OCNDIAG_WEBDIR output file
         env_file = '{0}/env_diags_ocn.xml'.format(envDict['PP_CASE_PATH'])
         key = 'OCNDIAG_WEBDIR'
         value = envDict['WORKDIR']
+        web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(envDict['PP_CASE_PATH'], key, main_comm.get_size(), main_comm.get_rank() )
         try:
-            xml_tree = etree.ElementTree()
-            xml_tree.parse(env_file)
-            xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
-            xml_processor.write(envDict, 'ocn', key, value)
+            diagUtilsLib.write_web_file(web_file, 'ocn', key, value)
         except:
-            print('WARNING ocn_diags_generator unable to write {0}={1} to {2}'.format(key, value, env_file))
+            print('WARNING ocn_diags_generator unable to write {0}={1} to {2}'.format(key, value, web_file))
 
     main_comm.sync()
 

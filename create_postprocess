@@ -488,9 +488,11 @@ def main(options):
         standalone = True
         pp_case_path = options.caseroot[0]
         log_path = '{0}/logs'.format(pp_case_path)
+        web_dirs = '{0}/web_dirs'.format(pp_case_path)
     else:
         pp_case_path = '{0}/postprocess'.format(options.caseroot[0])
         log_path = '{0}/logs'.format(pp_case_path)
+        web_dirs = '{0}/web_dirs'.format(pp_case_path)
 
     # make the appropriate dirs in the caseroot
     try:
@@ -501,6 +503,13 @@ def main(options):
         os.mkdir(log_path)
     except:
         raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(log_path))
+    try:
+        os.mkdir(web_dirs)
+        shutil.copy2('{0}/Config/README.web_dirs'.format(envDict['POSTPROCESS_PATH']), 
+                     '{0}/README.web_dirs'.format(web_dirs))
+    except:
+        raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(web_dirs))
+
 
     # initialize the environment dictionary
     envDict = initialize_main(envDict, options, standalone)

@@ -30,7 +30,7 @@
 	<averages_pes queue="regular" pes_per_node="4" wallclock="00:30">128</averages_pes>
 	<diagnostics_pes queue="geyser" pes_per_node="8" wallclock="02:00">16</diagnostics_pes>
 	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
-	<obs_root>/glade/p/cesm</obs_root>
+	<obs_root>/glade/p/cesm/amwg/amwg_data</obs_root>
       </component>
       <component name="ice">
 	<averages_pes queue="regular" pes_per_node="2" wallclock="00:30">128</averages_pes>

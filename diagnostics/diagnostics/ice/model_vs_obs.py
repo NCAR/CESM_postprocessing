@@ -194,21 +194,18 @@ class modelVsObs(IceDiagnostic):
             create_ice_html.create_plotset_html(html_dir+'/regional.html',web_dir+'/regional.html',env)
             create_ice_html.create_plotset_html(html_dir+'/vector.html',web_dir+'/vector.html',env)
 
-            # set the ICEDIAG_WEBDIR_MODEL_VS_OBS XML variable
+            # setup the unique ICEDIAG_WEBDIR_MODEL_VS_OBS output file
             env_file = '{0}/env_diags_ice.xml'.format(env['PP_CASE_PATH'])
             key = 'ICEDIAG_WEBDIR_{0}'.format(self._name)
             value = env['WKDIR']
+            web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(env['PP_CASE_PATH'], key, scomm.get_size(), scomm.get_rank() )
             try:
-                xml_tree = etree.ElementTree()
-                xml_tree.parse(env_file)
-                xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
-                xml_processor.write(env, 'ice', key, value)
+                diagUtilsLib.write_web_file(web_file, 'ice', key, value)
             except:
-                print('WARNING ice model_vs_model unable to write {0}={1} to {2}'.format(key, value, env_file))
+                print('WARNING ice model_vs_model unable to write {0}={1} to {2}'.format(key, value, web_file))
 
             print('*******************************************************************************')
             print('Successfully completed generating ice diagnostics model vs. observation plots')
             print('*******************************************************************************')
 
-        scomm.sync()
-        return env
+

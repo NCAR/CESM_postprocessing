@@ -236,24 +236,24 @@
 
       <entry id="ATMDIAG_OBS_DATA"
              type="char"
-             valid_values="$ATMDIAG_DIAGOBSROOT/amwg/obs_data"
-             value=""
+             valid_values=""
+             value="$ATMDIAG_DIAGOBSROOT/obs_data"
              group="input_data_paths"
              desc="Local machine fully qualified directory path to AMWG observational data."
              ></entry>
 
       <entry id="ATMDIAG_CAM35_DATA"
              type="char"
-             valid_values="$ATMDIAG_DIAGOBSROOT/amwg/cam35_data"
-             value=""
+             valid_values=""
+             value="$ATMDIAG_DIAGOBSROOT/cam35_data"
              group="input_data_paths"
              desc="Local machine fully qualified directory path to AMWG comparison data."
              ></entry>
 
       <entry id="ATMDIAG_MAP_DATA"
              type="char"
-             valid_values="$ATMDIAG_DIAGOBSROOT/amwg/map_files"
-             value=""
+             valid_values=""
+             value="$ATMDIAG_DIAGOBSROOT/map_files"
              group="input_data_paths"
              desc="Local machine fully qualified directory path to AMWG mapping data."
              ></entry>
@@ -724,7 +724,7 @@
              valid_values=""
              value="$POSTPROCESS_PATH/atm_diag"
              group="additional_settings"
-             desc="Diagnostic package location"
+             desc="Diagnostic package location. This must point to a parallel version of the AMWG diagnostics package"
              ></entry>
 
       <entry id="ATMDIAG_NCLPATH"
@@ -734,23 +734,6 @@
              group="additional_settings"
              desc="Local machine path to AMWG diagnostics package NCL library directory."
              ></entry>
-
-      <entry id="ATMDIAG_WEBDIR_MODEL_VS_OBS"
-             type="char"
-             valid_values=""
-             value=""
-             group="web_paths"
-             desc="Web directory path settings set automatically by atm_diags_generator.py for MODEL_VS_OBS diagnostics"
-             ></entry>
-
-      <entry id="ATMDIAG_WEBDIR_MODEL_VS_MODEL"
-             type="char"
-             valid_values=""
-             value=""
-             group="web_paths"
-             desc="Web directory path settings set automatically by atm_diags_generator.py for MODEL_VS_MODEL diagnostics"
-             ></entry>
-
     </group>
 
     <!-- ============================================================================================== -->

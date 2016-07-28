@@ -113,9 +113,9 @@
       <entry id="OCNDIAG_MODEL_VS_OBS_ECOSYS"
 	     type="logical"
 	     valid_values="TRUE/FALSE"
-	     value="TRUE"
+	     value="FALSE"
 	     group="diags_types"
-	     desc="True or false to control if model vs. observatsions ecosystem diagnostics are generated."
+	     desc="True or false to control if model vs. observatsions ecosystem diagnostics are generated. ** NOTE ** ecosystem diagnostics are not currently working."
 	     ></entry>
 
       <entry id="OCNDIAG_MODEL_VS_CONTROL"
@@ -129,9 +129,9 @@
       <entry id="OCNDIAG_MODEL_VS_CONTROL_ECOSYS"
 	     type="logical"
 	     valid_values="TRUE/FALSE"
-	     value="TRUE"
+	     value="FALSE"
 	     group="diags_types"
-	     desc="True or false to control if model vs. control ecosystem diagnostics are generated.	If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly."
+	     desc="True or false to control if model vs. control ecosystem diagnostics are generated.	If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly. ** NOTE ** ecosystem diagnostics are not currently working."
 	     ></entry>
 
       <entry id="OCNDIAG_MODEL_TIMESERIES"
@@ -145,9 +145,9 @@
       <entry id="OCNDIAG_MODEL_TIMESERIES_ECOSYS"
 	     type="logical"
 	     valid_values="TRUE/FALSE"
-	     value="TRUE"
+	     value="FALSE"
 	     group="diags_types"
-	     desc="True or false to control if model timeseries ecosystem diagnostics are generated."
+	     desc="True or false to control if model timeseries ecosystem diagnostics are generated. ** NOTE ** ecosystem diagnostics are not currently working."
 	     ></entry>
     </group>
 
@@ -502,7 +502,7 @@
       <entry id="OCNDIAG_CNTRLRESOLUTION"
 	     type="char"
 	     valid_values=""
-	     value=""
+	     value="gx1v6"
 	     group="control_case_options"
 	     desc="Control model resolution used with OMWG model vs. control diagnostics"
 	     ></entry>
@@ -1184,27 +1184,6 @@
 	     group="model_timeseries_ecosys_plots"
 	     desc="Logical to control whether to create time-series vertical profile ecosystem plots."></entry>
     </group>
-
-
-    <!-- ============================================================================================== -->
-    <!-- 17: Web directory paths - these are set in the code and are not read in the xml.               -->
-    <!-- These variables are read by the copy_html utility.                                             -->
-    <!-- ============================================================================================== -->
-
-    <group name="web_paths">
-      <order>15</order>
-      <comment>Web directory path set automatically by ocn_diags_generator.py.</comment>
-
-      <entry id="OCNDIAG_WEBDIR"
-             type="char"
-             valid_values=""
-             value=""
-             group="web_paths"
-             desc="Web directory path setting set automatically by ocn_diags_generator.py"
-             ></entry>
-
-    </group>
-
 
   </groups>
 

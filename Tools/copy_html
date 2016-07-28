@@ -19,6 +19,7 @@ if sys.hexversion < 0x02070000:
 import argparse
 import collections
 import datetime
+import glob
 import os
 import platform
 import pprint
@@ -216,6 +217,15 @@ def create_top_level(env, comp):
         print('    {0} - {1}'.format(e.errno, e.strerror))
         sys.exit(1)
 
+    # create the logos subdir
+    try:
+        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}/logos'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'])], env=env, shell=True)
+        pipe.wait()
+    except OSEerror as e:
+        print('ERROR: unable to create remote directory {0}@{1}:{2}/logos'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR']))
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+        sys.exit(1)
+
 
 #=======================================================================
 # scp_files - scp files to a remote server
@@ -230,6 +240,37 @@ def scp_files(env, local, remote):
         print('copy_html WARNING: scp command failed with error:')
         print('    {0} - {1}'.format(e.errno, e.strerror))
         return False
+
+
+#=======================================================================
+# read_paths - get the paths from the web_dirs files
+#=======================================================================
+def read_paths(env, comp_data):
+    """ read the $PP_CASE_PATH/web_dirs files specified in the comp_data dictionary
+        to get the path to the web directories."
+
+    Arguments:
+    env (dictionary) - environment dictionary
+    comp_data (map) - component diag dir mapping
+    """
+    for diag_type, key in comp_data.iteritems():
+        web_files = sorted(glob.glob('{0}/web_dirs/{1}.*'.format(env['PP_CASE_PATH'],key)))
+        for web_file in web_files:
+            newlines = list()
+            lines = [line.rstrip('\n') for line in open(web_file,'r')]
+            for line in lines:
+                newline = line
+                values = line.split(':')
+                if 'copied' not in values[-1].lower():
+                    env[values[-2]] = values[-1]
+                    newline = '{0}:copied'.format(line)
+                newlines.append(newline)
+
+            with open(web_file, 'w') as f:
+                f.write('\n'.join(newlines) + '\n')
+            f.close()
+
+    return env
 
 #=======================================================================
 # copy_files - scp files from workdir to remote directory 
@@ -421,17 +462,9 @@ def create_index(env, compList, activeList, comp_lookup):
     with open( '{0}/index.html'.format(workdir), 'w') as index:
         index.write(main_html)
 
-    # copy the logos and style sheet to the top level
+    # copy the and style sheet to the top level
     remote = '{0}@{1}:{2}'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'])
     localdir = '{0}/Templates/'.format(env['POSTPROCESS_PATH'])
-
-    local = '{0}/logos/*.*'.format(localdir)
-    try:
-        pipe = subprocess.Popen( ['scp {0} {1}'.format(local, remote)], env=env, shell=True)
-        pipe.wait()
-    except OSError as e:
-        print('copy_html WARNING: scp command failed with error::')
-        print('    {0} - {1}'.format(e.errno, e.strerror))
 
     local = '{0}/*.css'.format(localdir)
     try:
@@ -449,6 +482,17 @@ def create_index(env, compList, activeList, comp_lookup):
     except OSError as e:
         print('copy_html WARNING: scp command failed with error:')
         print('    {0} - {1}'.format(e.errno, e.strerror))
+
+    # copy the logos to the sub-dir
+    remote_logos = '{0}@{1}:{2}/logos'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'])
+    local = '{0}/logos/*.*'.format(localdir)
+    try:
+        pipe = subprocess.Popen( ['scp {0} {1}'.format(local, remote_logos)], env=env, shell=True)
+        pipe.wait()
+    except OSError as e:
+        print('copy_html WARNING: scp command failed with error::')
+        print('    {0} - {1}'.format(e.errno, e.strerror))
+
 
 
 #=======================================================================
@@ -494,6 +538,8 @@ def main(options):
             # create the toplevel remote directory if it doesn't already exist
             create_top_level(env, comp)
             comp_data = comp_lookup[comp]
+            # read the web_dirs files to get the paths
+            env = read_paths(env, comp_data)
             copy_files(env, comp, comp_data)
             activeList.append(comp)    
 

@@ -87,7 +87,7 @@ See documentation for details.</comment>
          valid_values="True/False"
          value="False"
          group="cont_dataset"
-         desc="Use tseries files to compute cont climos."
+         desc="Use input variable time series files to compute cont climos."
          ></entry>
 
   <entry id="ICEDIAG_GRID_CONT"
@@ -125,7 +125,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PATH_CLIMO_CONT"
          type="char"
          valid_values=""
-         value="$DOUT_S_ROOT/ice/proc/climo/$ICEDIAG_CASE_TO_CONT/"
+         value="$ICEDIAG_PATH_CONT/ice/proc/climo/$ICEDIAG_CASE_TO_CONT/"
          group="cont_dataset"
          desc="Path to generated cont climos"
          ></entry>
@@ -133,7 +133,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_DIAG_ROOT"
          type="char"
          valid_values=""
-         value="$DOUT_S_ROOT/ice/proc/diag/$ICEDIAG_CASE_TO_CONT/"
+         value="$ICEDIAG_PATH_CONT/ice/proc/diag/$ICEDIAG_CASE_TO_CONT/"
          group="cont_dataset"
          desc="Path to generated diags."
          ></entry>
@@ -141,7 +141,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PLOT_ROOT"
          type="char"
          valid_values=""
-         value="$DOUT_S_ROOT/ice/proc/diag/$ICEDIAG_CASE_TO_CONT/web_plots/"
+         value="$ICEDIAG_PATH_CONT/ice/proc/diag/$ICEDIAG_CASE_TO_CONT/web_plots/"
          group="cont_dataset"
          desc="Path to generated diag web plots (local)."
          ></entry>
@@ -185,7 +185,7 @@ See documentation for details.</comment>
          valid_values=""
          value=""
          group="diff_dataset"
-         desc="Difference plots will be of the form: CASE_TO_CONT - CASE_TO_DIFF"
+         desc="Diff case name. Difference plots will be of the form: CASE_TO_CONT - CASE_TO_DIFF"
          ></entry>
 
   <entry id="ICEDIAG_DIFF_TIMESERIES"
@@ -193,7 +193,7 @@ See documentation for details.</comment>
          valid_values="True/False"
          value="False"
          group="diff_dataset"
-         desc="Use tseries files to compute diff climos."
+         desc="Use input variable time series files to compute diff climos."
          ></entry>
 
   <entry id="ICEDIAG_GRID_DIFF"
@@ -225,7 +225,7 @@ See documentation for details.</comment>
          valid_values=""
          value=""
          group="diff_dataset"
-         desc="Path to cntl case"
+         desc="Path to input history data files for the diff case"
          ></entry>
 
   <entry id="ICEDIAG_FILE_VAR_TYPE_DIFF"
@@ -247,7 +247,7 @@ See documentation for details.</comment>
   <entry id="ICEDIAG_PATH_CLIMO_DIFF"
          type="char"
          valid_values=""
-         value="$DOUT_S_ROOT/ice/proc/climo/$ICEDIAG_CASE_TO_DIFF/"
+         value="$ICEDIAG_PATH_CONT/ice/proc/climo/$ICEDIAG_CASE_TO_DIFF/"
          group="diff_dataset"
          desc="Path to generated test climos"
          ></entry>
@@ -325,7 +325,7 @@ See documentation for details.</comment>
          valid_values=""
          value="/glade/p/cesm/omwg/grids/($ICEDIAG_GRID_CONT)_grid.nc"
          group="input_path"
-         desc="Grid file for control case."
+         desc="Grid file for control case. Note - this is an ocean grid file."
          ></entry>
 
   <entry id="ICEDIAG_GRIDFILEDIFF"
@@ -333,7 +333,7 @@ See documentation for details.</comment>
          valid_values=""
          value="/glade/p/cesm/omwg/grids/($ICEDIAG_GRID_CONT)_grid.nc"
          group="input_path"
-         desc="Grid file for diff case."
+         desc="Grid file for diff case. Note - this is an ocean grid file."
          ></entry>
 
   <entry id="ICEDIAG_SSMI_PATH"
@@ -476,7 +476,7 @@ See documentation for details.</comment>
 
   <group name="path_settings">
   <order>7</order>
-  <comment>Path settings. Web directory path set automatically by ice_diags_generator.py.</comment>
+  <comment>Path settings</comment>
 
   <entry id="ICEDIAG_DIAG_HOME"
          type="char"
@@ -492,22 +492,6 @@ See documentation for details.</comment>
          value="$ICEDIAG_DIAG_HOME/code/"
          group="path_settings"
          desc="Local machine path to ice diagnostics package NCL library directory."
-         ></entry>
-
-   <entry id="ICEDIAG_WEBDIR_MODEL_VS_OBS"
-         type="char"
-         valid_values=""
-         value=""
-         group="path_settings"
-         desc="Web directory path settings set automatically by ice_diags_generator.py for MODEL_VS_OBS diagnostics"
-         ></entry>
-
-   <entry id="ICEDIAG_WEBDIR_MODEL_VS_MODEL"
-         type="char"
-         valid_values=""
-         value=""
-         group="path_settings"
-         desc="Web directory path settings set automatically by ice_diags_generator.py for MODEL_VS_MODEL diagnostics"
          ></entry>
 
   </group>

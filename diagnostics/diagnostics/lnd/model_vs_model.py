@@ -298,21 +298,16 @@ class modelVsModel(LandDiagnostic):
             print('DEBUG: model vs. model web_dir = {0}'.format(web_dir))
             print('DEBUG: model vs. model diag_path = {0}'.format(diag_path))
 
-            # set the LNDDIAG_WEBDIR_MODEL_VS_MODEL XML variable
+            # setup the unique LNDDIAG_WEBDIR_MODEL_VS_MODEL output file
             env_file = '{0}/env_diags_lnd.xml'.format(env['PP_CASE_PATH'])
             key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
             value = diag_path
+            web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(env['PP_CASE_PATH'], key, scomm.get_size(), scomm.get_rank() )
             try:
-                xml_tree = etree.ElementTree()
-                xml_tree.parse(env_file)
-                xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
-                xml_processor.write(env, 'lnd', key, value)
+                diagUtilsLib.write_web_file(web_file, 'lnd', key, value)
             except:
-                print('WARNING lnd model_vs_model unable to write {0}={1} to {2}'.format(key, value, env_file))
+                print('WARNING lnd model_vs_model unable to write {0}={1} to {2}'.format(key, value, web_file))
 
-        scomm.sync()
-
-        if scomm.is_manager():
             print('*******************************************************************************')
             print('Successfully completed generating land diagnostics model vs. model plots')
             print('*******************************************************************************')

@@ -19,7 +19,7 @@
     
     <group name="global">
       <order>0</order>
-      <comment>Environmental variables that control which Land Model diagnostics to produce</comment>
+      <comment>Environment variables to control Land Model diagnostics</comment>
 
       <entry id="LNDDIAG_DIAG_VERSION"
              type="char"
@@ -44,7 +44,7 @@
              valid_values=""
              value="$DOUT_S_ROOT/lnd/proc/"
              group="data_path"
-             desc="Pre-process history file location for CASE1"
+             desc="Pre-process output history file location for CASE1"
              ></entry>
 
       <entry id="LNDDIAG_PTMPDIR_2"
@@ -52,7 +52,7 @@
              valid_values=""
              value=""
              group="data_path"
-             desc="Pre-process history file location for CASE2"
+             desc="Pre-process output history file location for CASE2"
              ></entry>
 
       <entry id="LNDDIAG_SOURCE_1"
@@ -60,7 +60,7 @@
              valid_values=""
              value="$DOUT_S_ROOT"
              group="data_path"
-             desc="Root location of history files for CASE1"
+             desc="Root location of source history files for CASE1"
              ></entry>
 
       <entry id="LNDDIAG_SOURCE_2"
@@ -68,7 +68,7 @@
              valid_values=""
              value=""
              group="data_path"
-             desc="Root location of history files for CASE2"
+             desc="Root location of source history files for CASE2"
              ></entry>
 
       <entry id="LNDDIAG_OUTPUT_ROOT_PATH"
@@ -1068,33 +1068,6 @@
              group="paleo_opt"
              desc="True: make difference plots for different continental outlines"
              ></entry>
-    </group>
-
-    <!-- ============================================================================================== -->
-    <!-- 17: Web directory paths - these are set in the code and are not read in the xml.               -->
-    <!-- These variables are read by the copy_html utility.                                             -->
-    <!-- ============================================================================================== -->
-
-    <group name="web_paths">
-      <order>17</order>
-      <comment>Web directory path set automatically by lnd_diags_generator.py.</comment>
-
-      <entry id="LNDDIAG_WEBDIR_MODEL_VS_OBS"
-             type="char"
-             valid_values=""
-             value=""
-             group="web_paths"
-             desc="Web directory path settings set automatically by lnd_diags_generator.py for MODEL_VS_OBS diagnostics"
-             ></entry>
-
-      <entry id="LNDDIAG_WEBDIR_MODEL_VS_MODEL"
-             type="char"
-             valid_values=""
-             value=""
-             group="web_paths"
-             desc="Web directory path settings set automatically by lnd_diags_generator.py for MODEL_VS_MODEL diagnostics"
-             ></entry>
-
     </group>
 
   </groups>

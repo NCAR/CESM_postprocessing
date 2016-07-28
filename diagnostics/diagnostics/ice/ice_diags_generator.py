@@ -270,8 +270,7 @@ def main(options, main_comm, debugMsg):
             if lmaster:
                 debugMsg('inter_comm size = {0}'.format(inter_comm.get_size()), header=True, verbosity=2)
 
-            envDict = diag.run_diagnostics(envDict, inter_comm)
-            inter_comm.sync()
+            diag.run_diagnostics(envDict, inter_comm)
             
         except ice_diags_bc.RecoverableError as e:
             # catch all recoverable errors, print a message and continue.
@@ -281,11 +280,6 @@ def main(options, main_comm, debugMsg):
             # unrecoverable error, bail!
             print(e)
             return 1
-
-    main_comm.sync()
-
-    # update the env_diags_ice.xml with ICEDIAG_WEBDIR settings to be used by the copy_html utility
-
 
 #===================================
 

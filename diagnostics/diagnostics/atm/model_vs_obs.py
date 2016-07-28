@@ -296,21 +296,19 @@ class modelVsObs(AtmosphereDiagnostic):
                     print ('WARNING: Error renaming %s to %s: %s' % (web_dir, diag_path, e))
                     diag_path = web_dir
 
-            # set the ATMDIAG_WEBDIR_MODEL_VS_OBS XML variable
+            # setup the unique ATMDIAG_WEBDIR_MODEL_VS_OBS output file
             env_file = '{0}/env_diags_atm.xml'.format(env['PP_CASE_PATH'])
             key = 'ATMDIAG_WEBDIR_{0}'.format(self._name)
             value = diag_path
+            web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(env['PP_CASE_PATH'], key, scomm.get_size(), scomm.get_rank() )
             try:
-                xml_tree = etree.ElementTree()
-                xml_tree.parse(env_file)
-                xml_processor = processXmlLib.post_processing_xml_factory(xml_tree)
-                xml_processor.write(env, 'atm', key, value)
+                diagUtilsLib.write_web_file(web_file, 'atm', key, value)
             except:
-                print('WARNING atm model_vs_obs unable to write {0}={1} to {2}'.format(key, value, env_file))
+                print('WARNING atm model_vs_obs unable to write {0}={1} to {2}'.format(key, value, web_file))
 
             print('*******************************************************************************')
             print('Successfully completed generating atmosphere diagnostics model vs. observation plots')
             print('*******************************************************************************')
 
-        scomm.sync()
+
 
