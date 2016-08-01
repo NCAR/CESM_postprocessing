@@ -22,34 +22,40 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from atm_diags_plot_bc import AtmosphereDiagnosticPlot
 
-class WSet1(AtmosphereDiagnosticPlot):
-    """WAWG SET 1 - TABLE OF REGIONAL MIN, MAX, MEANS 
+class WSet2(AtmosphereDiagnosticPlot):
+    """WACCM SET 2 - SEASONAL CYCLE LINE PLOTS 
     """
 
     def __init__(self, env):
-        super(WSet1, self).__init__()
+        super(WSet2, self).__init__()
 
         # Derive all of the plot names
-        suf = '.asc'
-        pref = 'wset1_'
-   
-        # Variable list
-        rgn_list = ['SP','EQ','NP']
+        suf = '_c.'+env['p_type']
+        pref = 'wset2_'
 
         # Put plot names together and add to expected plot list
+        # Different file lists for OBS and Model to Model
         self.expectedPlots = []
-
-        for rgn in rgn_list:
-            self.expectedPlots.append(pref + 'table' + rgn +'_obs' + suf)
-
-        for rgn in rgn_list:
-            self.expectedPlots.append(pref + 'table' + rgn + suf)
+   
+        # Variable list
+        if 'OBS' in env['CNTL']:
+            obs_list = ['ERAI', 'MLS', 'MERRA']
+        else:
+            obs_list = ['']
+            
+        var_list = ['H2O','T','T','T','U']
+        p_list   = ['85','85', 'TRP','MSP','10']
+        rgn_list = ['SP','SM','EQ','NM','NP']
+        for obs in obs_list:
+            for index, var in enumerate(var_list):
+              for rgn in rgn_list:
+                  self.expectedPlots.append(pref + obs + '_' + var + '_' + rgn + '_' + p_list[index] + '_obs'+suf)
 
         # Set plot class description variables
-        self._name = 'WAWG SET 1 - TABLE OF REGIONAL MIN, MAX, MEANS'
-        self._shortname = 'WSET1'
-        self._template_file = 'wset1.tmpl'
-        self.ncl_scripts = ['tables_waccm.ncl']
+        self._name = 'WACCM SET 2 - SEASONAL CYCLE LINE PLOTS '
+        self._shortname = 'WSET2'
+        self._template_file = 'wset2.tmpl'
+        self.ncl_scripts = ['plot_waccm_cycle.ncl']
         self.plot_env = env.copy() 
 
     def check_prerequisites(self, env):

@@ -468,8 +468,41 @@
              valid_values="True/False"
              value="False"
              group="waccm_plot_sets"
-             desc="Run WACCM set 1 - vertical zonal mean contour plots (log scale)"
+             desc="Run WACCM set 1 - tables of regional min, max, means"
              ></entry>
+ 
+      <entry id="ATMDIAG_wset_2"
+             type="locical"
+             valid_values="True/False"
+             value="False"
+             group="waccm_plot_sets"
+             desc="Run WACCM set 2 - vertical zonal mean contour plots (log scale)"
+             ></entry>
+ 
+      <entry id="ATMDIAG_wset_3"
+             type="locical"
+             valid_values="True/False"
+             value="False"
+             group="waccm_plot_sets"
+             desc="Run WACCM set 3 - vertical seasonal cycle contour plots (log scale)"
+             ></entry>
+ 
+      <entry id="ATMDIAG_wset_4"
+             type="locical"
+             valid_values="True/False"
+             value="False"
+             group="waccm_plot_sets"
+             desc="Run WACCM set 4 - vertical zonal mean contour plots (log scale)"
+             ></entry>
+
+      <entry id="ATMDIAG_wset_5"
+             type="locical"
+             valid_values="True/False"
+             value="False"
+             group="waccm_plot_sets"
+             desc="Run WACCM set 5 - horizontal contour plots"
+             ></entry>
+ 
     </group>
 
 

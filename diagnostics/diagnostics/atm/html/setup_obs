@@ -29,6 +29,10 @@ if (! -e set14) mkdir set14
 if (! -e set15) mkdir set15
 if (! -e set16) mkdir set16
 if (! -e wset1) mkdir wset1
+if (! -e wset2) mkdir wset2
+if (! -e wset3) mkdir wset3
+if (! -e wset4) mkdir wset4
+if (! -e wset5) mkdir wset5
 if (! -e cset1) mkdir cset1
 #if (! -e cset2) mkdir cset2
 if (! -e cset3) mkdir cset3
@@ -58,6 +62,10 @@ cp $HTML/set14/set14*.htm set14/
 cp $HTML/set15/set15*.htm set15/
 cp $HTML/set16/set16*.htm set16/
 cp $HTML/wset1/wset1*.htm wset1/
+cp $HTML/wset2/wset2*.htm wset2/
+cp $HTML/wset3/wset3*.htm wset3/
+cp $HTML/wset4/wset4*.htm wset4/
+cp $HTML/wset5/wset5*.htm wset5/
 cp $HTML/cset1/cset1*.htm cset1/
 #cp $HTML/cset2/cset2*.htm cset2/
 cp $HTML/cset3/cset3*.htm cset3/
@@ -206,6 +214,38 @@ endif
 cp wset1/wset1_1.htm wset1/wset1.htm
 echo $1 "<br>and<br>" OBS data "(<a href="http://climatedataguide.ucar.edu/category/data-set-variables/model-diagnostics/atmosdiagnostics">info</a>)" >> wset1/wset1.htm
 cat wset1/wset1_2.htm | sed -e s/xxx/$2/ >> wset1/wset1.htm
+
+# WSET2
+if (-e wset2/wset2.htm) then
+  rm wset2/wset2.htm
+endif
+cp wset2/wset2_1.htm wset2/wset2.htm
+echo $1 "<br>and<br>" OBS data "(<a href="http://climatedataguide.ucar.edu/category/data-set-variables/model-diagnostics/atmosdiagnostics">info</a>)" >> wset2/wset2.htm
+cat wset2/wset2_2.htm | sed -e s/xxx/$2/ >> wset2/wset2.htm
+
+# WSET3
+if (-e wset3/wset3.htm) then
+  rm wset3/wset3.htm
+endif
+cp wset3/wset3_1.htm wset3/wset3.htm
+echo $1 "<br>and<br>" OBS data "(<a href="http://climatedataguide.ucar.edu/category/data-set-variables/model-diagnostics/atmosdiagnostics">info</a>)" >> wset3/wset3.htm
+cat wset3/wset3_2.htm | sed -e s/xxx/$2/ >> wset3/wset3.htm
+
+# WSET4
+if (-e wset4/wset4.htm) then
+  rm wset4/wset4.htm
+endif
+cp wset4/wset4_1.htm wset4/wset4.htm
+echo $1 "<br>and<br>" OBS data "(<a href="http://climatedataguide.ucar.edu/category/data-set-variables/model-diagnostics/atmosdiagnostics">info</a>)" >> wset4/wset4.htm
+cat wset4/wset4_2.htm | sed -e s/xxx/$2/ >> wset4/wset4.htm
+
+# WSET5
+if (-e wset5/wset5.htm) then
+  rm wset5/wset5.htm
+endif
+cp wset5/wset5_1.htm wset5/wset5.htm
+echo $1 "<br>and<br>" OBS data "(<a href="http://climatedataguide.ucar.edu/category/data-set-variables/model-diagnostics/atmosdiagnostics">info</a>)" >> wset5/wset5.htm
+cat wset5/wset5_2.htm | sed -e s/xxx/$2/ >> wset5/wset5.htm
 
 # CSET1
 if (-e cset1/cset1.htm) then

@@ -22,6 +22,10 @@ import set14
 import set15
 import set16
 import wset1
+import wset2
+import wset3
+import wset4
+import wset5
 import cset1
 import cset2
 import cset3
@@ -78,9 +82,15 @@ def atmosphereDiagnosticPlotFactory(plot_type,env):
         for seas in env['seas']:
             plot_set[plot_type+seas] = set16.Set16(seas,env)
     elif plot_type == "wset_1":
-        if'OBS' not in env['CNTL']:
-            for seas in env['seas']:
-                plot_set[plot_type+seas] = wset1.WSet1(seas,env)
+        plot_set[plot_type] = wset1.WSet1(env)
+    elif plot_type == "wset_2":
+        plot_set[plot_type] = wset2.WSet2(env)
+    elif plot_type == "wset_3":
+        plot_set[plot_type] = wset3.WSet3(env)
+    elif plot_type == "wset_4":
+        plot_set[plot_type] = wset4.WSet4(env)
+    elif plot_type == "wset_5":
+        plot_set[plot_type] = wset5.WSet5(env)
     elif plot_type == "cset_1":
         for seas in env['seas']:
             plot_set[plot_type+seas] = cset1.CSet1(seas,env)

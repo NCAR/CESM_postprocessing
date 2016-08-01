@@ -22,41 +22,49 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from atm_diags_plot_bc import AtmosphereDiagnosticPlot
 
-class WSet1(AtmosphereDiagnosticPlot):
-    """WAWG SET 1 - TABLE OF REGIONAL MIN, MAX, MEANS 
+class WSet5(AtmosphereDiagnosticPlot):
+    """WAWG SET 5 - HORIZ CONTOUR PLOTS 
     """
 
     def __init__(self, env):
-        super(WSet1, self).__init__()
+        super(WSet5, self).__init__()
 
         # Derive all of the plot names
-        suf = '.asc'
-        pref = 'wset1_'
+        suf = 'c.'+env['p_type']
+        pref = 'wset5_'
    
-        # Variable list
-        rgn_list = ['SP','EQ','NP']
-
         # Put plot names together and add to expected plot list
+        # Different file lists for OBS and Model to Model
         self.expectedPlots = []
-
-        for rgn in rgn_list:
-            self.expectedPlots.append(pref + 'table' + rgn +'_obs' + suf)
-
-        for rgn in rgn_list:
-            self.expectedPlots.append(pref + 'table' + rgn + suf)
-
+        
+        if 'OBS' in env['CNTL']:
+            obs_list = ['ERAI', 'MLS', 'MERRA']
+        else:
+            obs_list = ['']
+            
+        var_list = ['H2O']
+        rgn_list = ['07','08','JJA','DJF','ANN']
+        p_list   = ['85','100','118']
+        for obs in obs_list:
+            for var in var_list:
+                for rgn in rgn_list:
+                    for p in p_list:
+                      self.expectedPlots.append(pref+obs+'_'+var+'_'+rgn+'_'+p+'_obs'+suf)
+        
         # Set plot class description variables
-        self._name = 'WAWG SET 1 - TABLE OF REGIONAL MIN, MAX, MEANS'
-        self._shortname = 'WSET1'
-        self._template_file = 'wset1.tmpl'
-        self.ncl_scripts = ['tables_waccm.ncl']
+        self._name = 'WAWG SET 5 - HORIZ CONTOUR PLOTS'
+        self._shortname = 'WSET5'
+        self._template_file = 'wset5.tmpl'
+        self.ncl_scripts = ['plot_waccm_map.ncl']
         self.plot_env = env.copy() 
 
     def check_prerequisites(self, env):
 
         # Set plot specific variables
         self.plot_env['TEST_INPUT'] = env['test_path_climo']+'/'+env['test_casename']+'.'+env['test_modelstream']+'.'
+
         if 'OBS' in env['CNTL']:
             self.plot_env['CNTL_INPUT'] = env['OBS_DATA']
         else:
             self.plot_env['CNTL_INPUT'] = env['cntl_path_climo']+'/'+env['cntl_casename']+'.'+env['cntl_modelstream']+'.'
+ 
