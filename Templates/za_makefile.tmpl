@@ -2,12 +2,10 @@
 #  FC, INCLUDE, LIBS obtained with command
 #  nc-config --fc --includedir --flibs
 
-include Macros
-
-#FC = {{ za_fc }}
-#FFLAGS = {{ za_fflags }}
-#INCLUDE = {{ za_include }}
-#LIBS = {{ za_libs }}
+FC = {{ za_fc }}
+FFLAGS = {{ za_fflags }}
+INCLUDE = {{ za_include }}
+LIBS = {{ za_libs }}
 
 .SUFFIXES:            # Delete the default suffixes
 .SUFFIXES: .F .F90 .o # Define our suffix list
@@ -21,7 +19,7 @@ include Macros
 OBJECTS = main.o kinds_mod.o constants.o arg_wrap.o nf_wrap.o nf_wrap_stubs.o msg_mod.o sphere_area_mod.o POP_grid_mod.o zonal_avg_mod.o
 
 za: $(OBJECTS)
-	$(SFC) $(OBJECTS) $(LIBS) -o za
+	$(FC) $(OBJECTS) $(LIBS) -o za
 
 kinds_mod.o: kinds_mod.F90
 arg_wrap.o: arg_wrap.F90 kinds_mod.o

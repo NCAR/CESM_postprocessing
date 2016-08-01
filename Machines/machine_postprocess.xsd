@@ -16,6 +16,10 @@
   <xs:element name="pythonpath" type="xs:string"/>
   <xs:element name="project" type="xs:string"/>
   <xs:element name="obs_root" type="xs:string"/>
+  <xs:element name="compiler" type="xs:string"/>
+  <xs:element name="flags" type="xs:string"/>
+  <xs:element name="include" type="xs:string"/>
+  <xs:element name="libs" type="xs:string"/>
 
   <!-- definition of complex elements -->
   <xs:element name="timeseries_pes">
@@ -77,6 +81,17 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="za">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="compiler" minOccurs="1" maxOccurs="1"/>
+	<xs:element name="flags" minOccurs="1" maxOccurs="1"/>
+	<xs:element name="include" minOccurs="1" maxOccurs="1"/>
+	<xs:element name="libs" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="reset_modules">
     <xs:complexType>
       <xs:sequence>
@@ -119,6 +134,7 @@
 	<xs:element ref="mpi_command" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="pythonpath" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="f2py" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="za" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="project" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="modules" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="components" minOccurs="0" maxOccurs="1"/>

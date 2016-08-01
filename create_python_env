@@ -4,6 +4,7 @@
 #
 #-----------------
 # Created on April 2, 2015
+# Updated on August 1, 2016 - no longer require cimeroot
 #
 # Author: CSEG <cseg@cgd.ucar.edu>
 #
@@ -27,8 +28,7 @@ function Usage {
     echo "     - deactivate env"
     echo ""
     echo "OPTIONS"
-    echo "     -cimeroot       specify the CESM / CIME root directory"
-    echo "     -machine        specify a CESM supported machine name."
+    echo "     -machine        specify a CESM supported machine name (MANDATORY)."
     echo "     -help           Print this help message and exit"
 }
 
@@ -81,10 +81,6 @@ machine=''
 #----------------------------------------------------------------------
 while [ $# -gt 0 ]; do
     case $1 in
-        -cimeroot )
-            cimeroot=$2
-            shift
-            ;;
         -machine )
             machine=$2
             shift
@@ -109,11 +105,6 @@ done
 #----------------------------------------------------------------------
 error=0  # no errors yet
 
-if [ -z $cimeroot ]; then
-    status="ERROR"
-    info="$progname: A valid CESM / CIME root must be specified." >&2
-    error=1
-fi
 if [ -z $machine ]; then
     status="ERROR"
     info="$progname: A valid, supported machine name must be provided." >&2
@@ -216,7 +207,7 @@ fi
 # compile and install ocn_diag remap shared object (remap.so) program
 #----------------------------------------------------------------------
 echo "---------------------------------------------------------"
-echo "$progname - Compiling ocn diagnostics create_f2py_remap."
+echo "$progname - Compiling ocn diagnostics remap.so"
 
 # reads XML and call subprocess f2py
 ./create_f2py_remap --machine $machine
@@ -225,23 +216,17 @@ if [ $? -ne 0 ]; then
 fi
 
 #----------------------------------------------------------------------
-# cleanup and deactivate the virtualenv. 
-#----------------------------------------------------------------------
-deactivate
-
-#----------------------------------------------------------------------
 # compile and install ocn_diag zonal average (za) program
 #----------------------------------------------------------------------
+
 echo "---------------------------------------------------------"
-echo "$progname - Compiling ocn diagnostics zonal average tool."
+echo "$progname - Compiling ocn diagnostics zonal average tool - za."
+./create_ocn_za --machine $machine
+
 cd $pp_dir/ocn_diag/tool_lib/zon_avg
 
 # run the make clean command
 make clean
-
-# generate the necessary Macros file
-echo "calling... $cimeroot/tools/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot"
-$cimeroot/tools/configure -mach $machine -mpi mpi-serial -cimeroot $cimeroot
 
 # run the make command
 make
@@ -252,15 +237,10 @@ fi
 # link the za compiled code to one level up for the NCL
 ln -sf $pp_dir/ocn_diag/tool_lib/zon_avg/za $pp_dir/ocn_diag/tool_lib/za
 
-echo "---------------------------------------------------------"
-
-cimefile="${pp_dir}/cimeroot"
-if [ -f "$cimefile" ]; then
-    rm "$cimefile"
-    echo "$cimeroot" > "$cimefile"
-else
-    echo "$cimeroot" > "$cimefile"
-fi
+#----------------------------------------------------------------------
+# cleanup and deactivate the virtualenv. 
+#----------------------------------------------------------------------
+deactivate
 
 cd $curdir
 

@@ -5,6 +5,24 @@ SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
 This file describes what tags were created and why
 ================================================================================
 
+Originator: aliceb
+Date: 1 August 2016
+Model: postprocessing
+Version: trunk - not yet tagged 
+One-line: removed cimeroot dependency to create_python_env. 
+
+A       create_ocn_za
+M       Machines/machine_postprocess.xsd
+M       Machines/machine_postprocess.xml
+M       Machines/yellowstone_modules
+M       Templates/za_makefile.tmpl
+M       Tools/create_env_script
+M       Tools/copy_html
+M       create_postprocess
+M       create_python_env
+
+================================================================================
+
 Originator: bardeenc
 Date: 31 July 2016
 Model: postprocessing

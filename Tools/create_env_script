@@ -175,6 +175,11 @@ def readXML(casedir, env_file_list):
   # remove () in output dictionary values
   for k,v in output.iteritems():
     output[k] = re.sub('[()]', '', v)
+
+    # wrap the value in quotes if it contains spaces or commas
+    if ',' in output[k] or ' ' in output[k]:
+        new_value = '"{0}"'.format(output[k])
+        output[k] = new_value
     
   return output
 

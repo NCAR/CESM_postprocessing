@@ -1,0 +1,196 @@
+#!/usr/bin/env python
+"""Read the necessary xml files from the postprocessing configuration system and
+create the makefile for the za tool.
+
+Arguments:
+machine (mandatory) - name of supported machine
+
+Creates files: 
+$POSTPROCESS_DIR/ocn_diag/tool_lib/zon_avg/makefile
+
+__________________________
+Created on August, 2016
+
+Author: CSEG <cseg@cgd.ucar.edu>
+"""
+
+from __future__ import print_function
+
+import sys
+
+# check the system python version and require 2.7.x or greater
+if sys.hexversion < 0x02070000:
+    print(70 * "*")
+    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("It appears that you are running python {0}".format(
+            ".".join(str(x) for x in sys.version_info[0:3])))
+    print(70 * "*")
+    sys.exit(1)
+
+#
+# built-in modules
+#
+import argparse
+import errno
+import os
+import subprocess
+import traceback
+
+#
+# installed dependencies
+#
+try:
+    import lxml.etree as etree
+except:
+    import xml.etree.ElementTree as etree
+
+if sys.version_info[0] == 2:
+    from ConfigParser import SafeConfigParser as config_parser
+else:
+    from configparser import ConfigParser as config_parser
+
+# STARTHERE to get the machine from the arglist...
+#
+# import modules installed in the virtual environment
+#
+from cesm_utils import cesmEnvLib
+import jinja2
+
+
+# -------------------------------------------------------------------------------
+# commandline_options - parse any command line options
+# -------------------------------------------------------------------------------
+
+def commandline_options():
+    """Process the command line arguments.
+
+    """
+    parser = argparse.ArgumentParser(
+        description='Read the machine_postprocess.xml file to determine the f2py options and call the f2py command to create the ocn_diag/eco_lib/remap.so shared library.')
+
+    parser.add_argument('--backtrace', action='store_true',
+                        help='show exception backtraces as extra debugging '
+                        'output')
+
+    parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
+                        help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
+
+    parser.add_argument('--machine', nargs=1, required=True,
+                        help='supported machine name is required.')
+
+    options = parser.parse_args()
+    
+    return options
+
+
+# -------------------------------------------------------------------------------
+# read_machine_xml
+# -------------------------------------------------------------------------------
+def read_machine_xml(machineName, xmlFile):
+    """ read_machine_xml - read the xmlFile for specified machine
+    to retrieve the f2py flags.
+
+    Arguments:
+    machine (string) - machine name
+    xmlFile (string) - XML file containing machine pe layout for postprocessing
+
+    Return:
+    """
+    xmlDict = dict()
+    found = False
+    rc, err_msg = cesmEnvLib.checkFile(xmlFile, 'read')
+    if rc:
+        xml_tree = etree.ElementTree()
+        xml_tree.parse(xmlFile)
+
+        # find the matching machine name
+        for xmlmachine in xml_tree.findall('machine'):
+            if machineName.lower() == xmlmachine.get('name').lower():
+
+                found = True
+                # get the za elements
+                compiler = xmlmachine.find('za/compiler')
+                xmlDict['za_fc'] = compiler.text
+
+                flags = xmlmachine.find('za/flags')
+                xmlDict['za_fflags'] = flags.text
+
+                include = xmlmachine.find('za/include')
+                xmlDict['za_include'] = include.text
+
+                libs = xmlmachine.find('za/libs')
+                xmlDict['za_libs'] = libs.text
+
+        if not found:
+            err_msg = ('create_ocn_za ERROR: Invalid machine "{0}" requested for postprocessing'.format(machineName))
+            raise OSError(err_msg)
+
+    return xmlDict
+
+# -------------------------------------------------------------------------------
+# main
+# -------------------------------------------------------------------------------
+def main(options):
+    """ main
+
+    Arguments:
+    none
+    """
+
+    # set some environment variables
+    ppDir = os.getcwd()
+    machine = options.machine[0]
+
+    # get the machine dependent za XML elements
+    zaDict = dict()
+    zaDict = read_machine_xml(machine, '{0}/Machines/machine_postprocess.xml'.format(ppDir))
+
+    # check if makefile template files exist and are readable
+    makefileTmpl = 'za_makefile.tmpl'
+    rc, err_msg = cesmEnvLib.checkFile('{0}/Templates/{1}'.format(ppDir, makefileTmpl), 'read')
+    if not rc:
+        raise OSError(err_msg)
+
+    templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(ppDir) )
+    templateEnv = jinja2.Environment( loader=templateLoader )
+    template = templateEnv.get_template( makefileTmpl )
+    templateVars = { 'za_fc' : zaDict['za_fc'],
+                     'za_fflags' : zaDict['za_fflags'],
+                     'za_include' : zaDict['za_include'],
+                     'za_libs' : zaDict['za_libs'] }
+                     
+    # render this template into the makefile string
+    makefile = template.render( templateVars )
+
+    outFile = '{0}/ocn_diag/tool_lib/zon_avg/makefile'.format(ppDir)
+
+    # remove the existing makefile if it exists
+    try:
+        os.remove(outFile)
+    except OSError as e:
+        print('ERROR create_ocn_za',e.errno,e.strerror)
+        sys.exit(1)
+
+    # write the makefile to the outFile
+    with open( outFile, 'w') as fh:
+        fh.write(makefile)
+
+    print('*****************************************************************************************')
+    print('')
+    print('SUCCESS: {0}/ocn_diag/tool_lib/zon_avg/makefile successfully created.'.format(ppDir))
+    print('')
+    print('*****************************************************************************************')
+    
+    
+#===================================
+
+if __name__ == "__main__":
+    options = commandline_options()
+    try:
+        status = main(options)
+        sys.exit(status)
+    except Exception as error:
+        print(str(error))
+        if options.backtrace:
+            traceback.print_exc()
+        sys.exit(1)
