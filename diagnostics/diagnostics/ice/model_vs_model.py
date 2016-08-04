@@ -128,7 +128,8 @@ class modelVsModel(IceDiagnostic):
         # all the plot module XML vars start with 'set_'  need to strip that off
         for key, value in env.iteritems():
             if   ("PLOT_"in key and value == 'True'):
-                if ("DIFF" in key or 'PLOT_REGIONS' in key):
+##                if ("DIFF" in key or 'PLOT_REGIONS' in key):
+                if ("DIFF" in key):
                     requested_plot_sets.append(key)        
         scomm.sync()
 

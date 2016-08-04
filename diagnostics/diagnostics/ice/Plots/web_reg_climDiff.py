@@ -22,22 +22,22 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ice_diags_plot_bc import IceDiagnosticPlot
 
-class Web_Hem_Clim(IceDiagnosticPlot):
-    """Web_Hem_Clim Plots
+class Web_Reg_ClimDiff(IceDiagnosticPlot):
+    """Web_Reg_ClimDiff Plots
     """
 
     def __init__(self, env):
-        super(Web_Hem_Clim, self).__init__()
+        super(Web_Reg_ClimDiff, self).__init__()
 
         # Derive all of the plot names
 
         # Set plot class description variables
-        self._name = 'Web_Hem_Clim Plots'
-        self._shortname = 'Web_Hem_Clim'
-        self._template_file = 'web_hem_clim.tmpl'
-        self.ncl_scripts = ['web_hem_clim.ncl']
+        self._name = 'Web_Reg_Clim Plots'
+        self._shortname = 'Web_Reg_Clim'
+        self._template_file = 'web_reg_clim.tmpl'
+        self.ncl_scripts = ['web_reg_clim.ncl']
         self.plot_env = env.copy()
-        self.plot_env['MODEL_VS_MODEL'] = False
+        self.plot_env['MODEL_VS_OBS'] = False
 
     def check_prerequisites(self, env):
         # Set plot specific variables

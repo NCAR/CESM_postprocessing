@@ -19,10 +19,7 @@
   
   <group name="global">
   <order>0</order>
-  <comment>Environmental variables that control which Ice Model diagnostics to produce.
-Note: the MODEL_VS_OBS and MODEL_VS_MODEL averages can be run in parallel. 
-The MODEL_VS_OBS and MODEL_VS_MODEL diagnostic types can not be run in parallel. 
-See documentation for details.</comment>
+  <comment>Environmental variables that control which Ice Model diagnostics to produce.</comment>
 
   <entry id="ICEDIAG_DIAG_VERSION"
          type="integer"
@@ -423,7 +420,15 @@ See documentation for details.</comment>
          valid_values="True/False"
          value="True"
          group="plot_sets"
-         desc="Make regional line plots."
+         desc="Make regional cont line plots."
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_REGIONS_DIFF"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="plot_sets"
+         desc="Make regional cont-diff line plots."
          ></entry>
 
   </group>

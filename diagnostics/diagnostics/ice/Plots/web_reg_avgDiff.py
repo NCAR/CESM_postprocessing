@@ -22,23 +22,25 @@ from diag_utils import diagUtilsLib
 # import the plot baseclass module
 from ice_diags_plot_bc import IceDiagnosticPlot
 
-class Web_Hem_Clim(IceDiagnosticPlot):
-    """Web_Hem_Clim Plots
+class Web_Reg_AvgDiff(IceDiagnosticPlot):
+    """Regional Line Difference Plots
     """
 
-    def __init__(self, env):
-        super(Web_Hem_Clim, self).__init__()
+    def __init__(self, reg_num, env):
+        super(Web_Reg_AvgDiff, self).__init__()
+        # Requires a region number 
+        self.reg_num = reg_num
 
         # Derive all of the plot names
 
         # Set plot class description variables
-        self._name = 'Web_Hem_Clim Plots'
-        self._shortname = 'Web_Hem_Clim'
-        self._template_file = 'web_hem_clim.tmpl'
-        self.ncl_scripts = ['web_hem_clim.ncl']
+        self._name = 'Regional Line Plots'
+        self._shortname = 'web_reg_avg'
+        self._template_file = 'web_reg_avg.tmpl'
+        self.ncl_scripts = ['web_reg_avg.ncl']
         self.plot_env = env.copy()
-        self.plot_env['MODEL_VS_MODEL'] = False
+        self.plot_env['MODEL_VS_OBS'] = False
 
     def check_prerequisites(self, env):
         # Set plot specific variables
-        preq = 'No variables to set'
+        self.plot_env['REGION_NUMBER'] = self.reg_num

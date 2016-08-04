@@ -37,6 +37,7 @@ class Web_Reg_Clim(IceDiagnosticPlot):
         self._template_file = 'web_reg_clim.tmpl'
         self.ncl_scripts = ['web_reg_clim.ncl']
         self.plot_env = env.copy()
+        self.plot_env['MODEL_VS_MODEL'] = False
 
     def check_prerequisites(self, env):
         # Set plot specific variables
