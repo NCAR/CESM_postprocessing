@@ -122,7 +122,11 @@ def buildAtmAvgList(start_year, stop_year, avgFileBaseName, out_dir, envDict, de
         rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
         if not rc:
             avgList.append('{0}:{1}:{2}'.format(m_names[m-1], start_year, stop_year))  
-        
+       
+    # add WACCM zonal averages
+    if envDict['test_compute_zonalAvg'] == 'True' or envDict['cntl_compute_zonalAvg'] == 'True':
+        avgList.append('zonalavg:{0}:{1}'.format(start_year, stop_year))
+
     debugMsg('exit buildAtmAvgList avgList = {0}'.format(avgList))
     return avgList
 
@@ -192,7 +196,7 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
                         'so4_a2SFWET','so4_a3SFWET','so4_a4SFWET','so4_a5SFWET','so4_a6SFWET','so4_a7SFWET','so4_c1DDF','so4_c2DDF',
                         'so4_c3DDF','so4_c4DDF','so4_c5DDF','so4_c6DDF','so4_c7DDF','so4_c1SFWET','so4_c2SFWET','so4_c3SFWET','so4_c4SFWET',
                         'so4_c5SFWET','so4_c6SFWET','so4_c7SFWET']
-
+    waccm_vars =       ['QRS_TOT', 'QRL_TOT']
 
     var_list = []
     fileVars = []
@@ -226,6 +230,10 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
         if var in fileVars:
             var_list.append(var) # Found in in_files, add to the var_list 
 
+    for var in waccm_vars:
+        if var in fileVars:
+            var_list.append(var) # Found in in_files, add to the var_list 
+
     return var_list
 
 
@@ -254,6 +262,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, ca
     ncfrmt = 'netcdf'
     serial = False
     clobber = True
+    collapse_dim = 'lon'
     if htype == 'series':
         date_pattern = 'yyyymm-yyyymm'
     else:
@@ -271,6 +280,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, ca
     debugMsg('... date_pattern = {0}'.format(date_pattern), header=True)
     debugMsg('... hist_type = {0}'.format(htype), header=True)
     debugMsg('... avg_list = {0}'.format(averageList), header=True)
+    debugMsg('... collapse_dim = {0}'.format(collapse_dim), header=True)
     debugMsg('... weighted = {0}'.format(wght), header=True)
     debugMsg('... ncformat = {0}'.format(ncfrmt), header=True)
     debugMsg('... varlist = {0}'.format(varList), header=True)
@@ -286,6 +296,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, ca
             date_pattern=date_pattern,
             hist_type = htype,
             avg_list = averageList,
+            collapse_dim = collapse_dim,
             weighted = wght,
             ncformat = ncfrmt,
             varlist = varList,

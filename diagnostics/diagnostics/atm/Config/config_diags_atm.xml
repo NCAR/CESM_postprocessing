@@ -55,9 +55,9 @@
       <entry id="ATMDIAG_OUTPUT_ROOT_PATH"
              type="char"
              valid_values=""
-             value="$DOUT_S_ROOT/atm/proc/diag"
+             value="$DOUT_S_ROOT/atm/proc"
              group="global"
-             desc="Diagnostics output root path. Final path will be of the form $ATMDIAG_OUTPUT_ROOT_PATH/test_casename-obs.firstyr1_lastyr1 or $ATMDIAG_OUTPUT_ROOT_PATH/test_casename.firstyr1_lastyr1-cntl_casename.firstyr2_lastyr2"
+             desc="Postprocessed files output root path."
              ></entry>
 
     </group>
@@ -105,7 +105,7 @@
       <entry id="ATMDIAG_test_path_climo"
              type="char"
              valid_values=""
-             value="$DOUT_S_ROOT/atm/proc/climo/$ATMDIAG_test_casename/"
+             value="$ATMDIAG_OUTPUT_ROOT_PATH/climo/$ATMDIAG_test_casename/"
              group="test_params"
              desc="Path to generated test climos"
              ></entry>
@@ -113,7 +113,7 @@
       <entry id="ATMDIAG_test_path_diag"
              type="char"
              valid_values=""
-             value="$DOUT_S_ROOT/atm/proc/diag/$ATMDIAG_test_casename/"
+             value="$ATMDIAG_OUTPUT_ROOT_PATH/diag/$ATMDIAG_test_casename/"
              group="test_params"
              desc="Path to generated diags."
              ></entry>
@@ -124,6 +124,14 @@
              value="True"
              group="test_params"
              desc="Compute climatologies for the test case."
+             ></entry>
+
+      <entry id="ATMDIAG_test_compute_zonalAvg"
+             type="logical"
+             valid_values="True/False"
+             value="True"
+             group="test_params"
+             desc="Compute zonal average climatologies for the test case (used with WACCM plots)."
              ></entry>
 
     </group>
@@ -170,7 +178,7 @@
       <entry id="ATMDIAG_cntl_path_climo"
              type="char"
              valid_values=""
-             value="$DOUT_S_ROOT/atm/proc/climo/$ATMDIAG_cntl_casename/"
+             value="$ATMDIAG_OUTPUT_ROOT_PATH/climo/$ATMDIAG_cntl_casename/"
              group="cntl_params"
              desc="Path to generated control climos"
              ></entry>
@@ -182,6 +190,15 @@
              group="cntl_params"
              desc="Compute climatologies for the control case."
              ></entry>
+
+      <entry id="ATMDIAG_cntl_compute_zonalAvg"
+             type="logical"
+             valid_values="True/False"
+             value="True"
+             group="cntl_params"
+             desc="Compute zonal average climatologies for the control case (used with WACCM plots)."
+             ></entry>
+
     </group>
 
     <!-- ============================================================================================== -->

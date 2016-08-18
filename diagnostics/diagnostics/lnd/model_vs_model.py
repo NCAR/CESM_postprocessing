@@ -260,7 +260,7 @@ class modelVsModel(LandDiagnostic):
             # move all the plots to the diag_path with the years appended to the path
             endYr1 = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1 
             endYr2 = (int(env['clim_first_yr_2']) + int(env['clim_num_yrs_2'])) - 1 
-            diag_path = '{0}/{1}.{2}_{3}-{4}.{5}_{6}'.format(env['OUTPUT_ROOT_PATH'], 
+            diag_path = '{0}/diag/{1}.{2}_{3}-{4}.{5}_{6}'.format(env['OUTPUT_ROOT_PATH'], 
                           env['caseid_1'], env['clim_first_yr_1'], str(endYr1),
                           env['caseid_2'], env['clim_first_yr_2'], str(endYr2))
             move_files = True

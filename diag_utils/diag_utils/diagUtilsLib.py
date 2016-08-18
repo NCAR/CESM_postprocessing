@@ -219,28 +219,27 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
             pattern = re.compile(filep)
             hfiles = filter_pick(allHfiles, pattern)
 
-            # TO-DO open a history time-slice file and make sure it's monthly data
-            # the first element of the hfiles list has the start year
-            tlist = hfiles[0].split('.')
-            slist = tlist[-2].split('-')
-            hfstart_year = slist[0]
-            hfstart_month = slist[1]
+            if hfiles:
+                # the first element of the hfiles list has the start year
+                tlist = hfiles[0].split('.')
+                slist = tlist[-2].split('-')
+                hfstart_year = slist[0]
+                hfstart_month = slist[1]
 
-            # the last element of the hfiles list has the stop year
-            tlist = hfiles[-1].split('.')
-            slist = tlist[-2].split('-')
-            hfstop_year = slist[0]
-            hfstop_month = slist[1]
+                # the last element of the hfiles list has the stop year
+                tlist = hfiles[-1].split('.')
+                slist = tlist[-2].split('-')
+                hfstop_year = slist[0]
+                hfstop_month = slist[1]
+            else:
+                print('ERROR diagUtilsLib.checkHistoryFiles: No history time slice files found matching pattern = {0}'.format(pattern))
+                sys.exit(1)
         else:
-            print('ERROR diagUtilsLib.checkHistoryFiles: tseries = {0}, dout_s_root = {1}, case = {2}, rstart_year = {3}, rstop_year = {4}, comp = {5}, suffix = {6}, filep = {7}'.format(tseries, dout_s_root, case, rstart_year, rstop_year, comp, suffix, filep))
-            print('...exiting')
+            print('ERROR diagUtilsLib.checkHistoryFiles: No history time slice files found matching format {0}'.format(fformat))
             sys.exit(1)
 
     elif htype == 'series':
         hfiles = sorted(glob.glob(fformat))
-
-        # TO-DO open a history time-series file and make sure it's monthly data
-
         # the first variable time series file has the stop and start years
         if len(hfiles) > 0:
             tlist = hfiles[0].split('.')
@@ -251,11 +250,10 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
             hfstop_month = slist[1][4:6]
 
             if not check_series_years(hfstart_year, hfstart_month, hfstop_year, hfstop_month, hfiles[0]):
-                err_msg = 'ERROR: diagUtilsLib.checkHistoryFiles Time series filename does not match file time slice count.'
-                raise OSError(err_msg)
+                print('ERROR: diagUtilsLib.checkHistoryFiles Time series filename does not match file time slice count.')
+                sys.exit(1)
         else:
-            print('ERROR diagUtilsLib.checkHistoryFiles: tseries = {0}, dout_s_root = {1}, case = {2}, rstart_year = {3}, rstop_year = {4}, comp = {5}, suffix = {6}, filep = {7}'.format(tseries, dout_s_root, case, rstart_year, rstop_year, comp, suffix, filep))
-            print('...exiting')
+            print('ERROR diagUtilsLib.checkHistoryFiles: No history time series files found matching format {0}'.format(fformat))
             sys.exit(1)
 
     # check if the XML YEAR0 and YEAR1 are within the actual start_year and stop_year bounds 
@@ -298,7 +296,7 @@ def create_za(workdir, tavgfile, gridfile, toolpath, env):
         cwd = os.getcwd()
         os.chdir(workdir)
         testCmd = '{0} -O -time_const -grid_file {1} {2}'.format(zaCommand,gridfile,tavgfile)
-        print('zonal average command = {0}'.format(testCmd))
+        print('Ocean zonal average command = {0}'.format(testCmd))
         try:
             subprocess.check_call(['{0}'.format(zaCommand), '-O', '-time_const', '-grid_file', '{0}'.format(gridfile), '{0}'.format(tavgfile)])
         except subprocess.CalledProcessError as e:
@@ -494,7 +492,6 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
     env['wgt_file'] = env['old_res_'+t]+'_to_'+env['new_res_'+t]+'.'+env['method_'+t]+'.nc'
     env['area_dir'] = env['area_dir_'+t]
     env['area_file']= env['new_res_'+t]+'_area.nc' 
-##    env['procDir']  = outdir
     env['procDir']  = tmp_outdir
     env['oldres']   = env['old_res_'+t]
     env['InFile']   = os.path.basename(climo_file)
@@ -502,7 +499,6 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
     env['newfn']    = env['old_res_'+t]+'_'+os.path.basename(climo_file)
 
     # store some directory state variables to allow for working in the tmp_outdir
-##    workdir = env['WORKDIR']
     env['WORKDIR'] = tmp_outdir
     current_dir = os.getcwd()
     os.chdir(tmp_outdir)
@@ -522,13 +518,11 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
 
     # restore the working dir
     os.chdir(current_dir)
-##    env['WORKDIR'] = workdir
 
     # add the area variable back into the regridded file
     try:
         print('DEBUG lnd_regrid: Adding area variable back to regridded file')
         print('DEBUG lnd_regrid: ncks command - ncks -A -v area {0}/{1} {2}/{3}'.format(env['area_dir'], env['area_file'], outdir, in_f))
-##        pipe = subprocess.Popen(['ncks -A -v area {0}/{1} {2}/{3}'.format(env['area_dir'], env['area_file'], outdir, in_f)], cwd=env['WORKDIR'], env=env_copy, shell=True, stdout=subprocess.PIPE)
         pipe = subprocess.Popen(['ncks -A -v area {0}/{1} {2}/{3}'.format(env['area_dir'], env['area_file'], outdir, in_f)], cwd=outdir, env=env_copy, shell=True, stdout=subprocess.PIPE)
         output = pipe.communicate()[0]
         while pipe.poll() is None:

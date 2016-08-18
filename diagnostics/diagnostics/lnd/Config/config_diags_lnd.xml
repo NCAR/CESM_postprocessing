@@ -39,20 +39,28 @@
       <order>1</order>
       <comment>Path to data</comment>
 
+      <entry id="LNDDIAG_OUTPUT_ROOT_PATH"
+             type="char"
+             valid_values=""
+             value="$DOUT_S_ROOT/lnd/proc"
+             group="data_path"
+             desc="Postprocessed files output root path."
+             ></entry>
+
       <entry id="LNDDIAG_PTMPDIR_1"
              type="char"
              valid_values=""
-             value="$DOUT_S_ROOT/lnd/proc/"
+             value="$LNDDIAG_OUTPUT_ROOT_PATH"
              group="data_path"
-             desc="Pre-process output history file location for CASE1"
+             desc="Postprocess output file location for CASE1"
              ></entry>
 
       <entry id="LNDDIAG_PTMPDIR_2"
              type="char"
              valid_values=""
-             value=""
+             value="$LNDDIAG_OUTPUT_ROOT_PATH"
              group="data_path"
-             desc="Pre-process output history file location for CASE2"
+             desc="Postprocess output file location for CASE2"
              ></entry>
 
       <entry id="LNDDIAG_SOURCE_1"
@@ -69,14 +77,6 @@
              value=""
              group="data_path"
              desc="Root location of source history files for CASE2"
-             ></entry>
-
-      <entry id="LNDDIAG_OUTPUT_ROOT_PATH"
-             type="char"
-             valid_values=""
-             value="$DOUT_S_ROOT/lnd/proc/diag"
-             group="data_path"
-             desc="Diagnostics output root path. Final path will be of the form $LNDDIAG_OUTPUT_ROOT_PATH/model1-obs.startyr1_endyr1 or $LNDDIAG_OUTPUT_ROOT_PATH/model1.startyr1_endyr1-model2.startyr2_endyr2"
              ></entry>
 
     </group>

@@ -51,7 +51,7 @@ setup(
     author_email="aliceb@ucar.edu",
     packages=['cesm_utils'],
     version=get_version(),
-    scripts=['cesm_utils/module_check.py'],
+    scripts=['cesm_utils/module_check', 'cesm_utils/create_postprocess','cesm_utils/create_ocn_za', 'cesm_utils/create_f2py_remap', 'cesm_utils/get_machine'],
     #install_requires=get_requires(),
     #dependency_links=get_dependencies(),
     include_package_data=True,

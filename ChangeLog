@@ -6,6 +6,42 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: aliceb
+Date: 18 August 2016
+Model: postprocessing
+Version: postprocessing_20160818
+One-line: Move stand-alone tools to cesm_utils so they are installed into virtualenv.
+Update to no longer require CIME for any scripts. Update to atm_avg_generator.py to
+add the zonalavg to the average list if test_compute_zonalAvg or cntl_compute_zonalAvg
+is set to True. atm Zonal averages used for WACCM plot sets. There is a bug in the
+pyAverager that won't allow zonal averages to be computed along with all the other 
+averages so pyAverager v0.9.9 is not quite ready.
+
+M       diag_utils/diag_utils/diagUtilsLib.py
+D       create_f2py_remap
+D       create_ocn_za
+D       get_machine
+M       Config/config_postprocess.xml
+M       diagnostics/diagnostics/atm/model_vs_model.py
+M       diagnostics/diagnostics/atm/model_vs_obs.py
+M       diagnostics/diagnostics/atm/Config/config_diags_atm.xml
+M       diagnostics/diagnostics/atm/atm_avg_generator.py
+M       diagnostics/diagnostics/lnd/model_vs_model.py
+M       diagnostics/diagnostics/lnd/model_vs_obs.py
+M       diagnostics/diagnostics/lnd/Config/config_diags_lnd.xml
+M       cesm_utils/VERSION
+A  +    cesm_utils/cesm_utils/module_check
+A  +    cesm_utils/cesm_utils/get_machine
+A  +    cesm_utils/cesm_utils/create_f2py_remap
+A  +    cesm_utils/cesm_utils/create_postprocess
+D       cesm_utils/cesm_utils/module_check.py
+A  +    cesm_utils/cesm_utils/create_ocn_za
+M       cesm_utils/setup.py
+D       create_postprocess
+M       create_python_env
+
+================================================================================
+
+Originator: aliceb
 Date: 9 August 2016
 Model: postprocessing
 Version: postprocessing_20160809

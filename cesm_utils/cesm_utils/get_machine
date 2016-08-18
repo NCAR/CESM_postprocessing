@@ -26,14 +26,26 @@ if sys.hexversion < 0x02070000:
 import os
 
 #
-# activate the virtual environment that was created by create_python_env.sh
+# check the POSTPROCESS_PATH which must be set
 #
-if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
-    err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
-               'Please run $POSTPROCESSING_PATH/create_python_env.sh [-machine_dir [machine directory]] -machine [machine name]')
+try:
+    os.environ["POSTPROCESS_PATH"]
+except KeyError:
+    err_msg = ('create_postprocess ERROR: please set the POSTPROCESS_PATH environment variable.' \
+               ' For example on yellowstone: setenv POSTPROCESS_PATH /glade/p/cesm/postprocessing')
     raise OSError(err_msg)
 
-execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
+cesm_pp_path = os.environ["POSTPROCESS_PATH"]
+
+#
+# activate the virtual environment that was created by create_python_env
+#
+if not os.path.isfile('{0}/cesm-env2/bin/activate_this.py'.format(cesm_pp_path)):
+    err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
+               ' Please run $POSTPROCESS_PATH/create_python_env -machine [machine name]')
+    raise OSError(err_msg)
+
+execfile('{0}/cesm-env2/bin/activate_this.py'.format(cesm_pp_path), dict(__file__='{0}/cesm-env2/bin/activate_this.py'.format(cesm_pp_path)))
 
 #
 # import modules installed in the virtual environment
@@ -48,12 +60,10 @@ def main():
     """ main
     """
     # set some variables
-    ppdir = os.getcwd()
-
     machine = None
     hostname = cesmEnvLib.get_hostname()
 
-    machine = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(ppdir))
+    machine = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(cesm_pp_path))
 
     if machine is None:
         message = "Could not identify machine from host name and machines_postprocess.xml config file.\n"

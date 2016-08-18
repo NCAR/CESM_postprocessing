@@ -260,7 +260,7 @@ class modelVsObs(AtmosphereDiagnostic):
 
             # move all the plots to the diag_path with the years appended to the path
             endYr = (int(env['test_first_yr']) + int(env['test_nyrs'])) - 1 
-            diag_path = '{0}/{1}-obs.{2}_{3}'.format(env['OUTPUT_ROOT_PATH'], env['test_casename'],
+            diag_path = '{0}/diag/{1}-obs.{2}_{3}'.format(env['OUTPUT_ROOT_PATH'], env['test_casename'],
                                                       env['test_first_yr'], str(endYr))
             move_files = True
             try:

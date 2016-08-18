@@ -49,7 +49,6 @@ import shutil
 import subprocess
 import traceback
 
-
 #
 # installed dependencies
 #
@@ -64,14 +63,26 @@ else:
     from configparser import ConfigParser as config_parser
 
 #
-# activate the virtual environment that was created by create_python_env
+# check the POSTPROCESS_PATH which must be set
 #
-if ( not os.path.isfile('./cesm-env2/bin/activate_this.py') ):
-    err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
-               ' Please run $POSTPROCESSING_PATH/create_python_env -cimeroot [path to CIME root directory] -machine [machine name]')
+try:
+    os.environ["POSTPROCESS_PATH"]
+except KeyError:
+    err_msg = ('create_postprocess ERROR: please set the POSTPROCESS_PATH environment variable.' \
+               ' For example on yellowstone: setenv POSTPROCESS_PATH /glade/p/cesm/postprocessing')
     raise OSError(err_msg)
 
-execfile('./cesm-env2/bin/activate_this.py', dict(__file__='./cesm-env2/bin/activate_this.py'))
+cesm_pp_path = os.environ["POSTPROCESS_PATH"]
+
+#
+# activate the virtual environment that was created by create_python_env
+#
+if not os.path.isfile('{0}/cesm-env2/bin/activate_this.py'.format(cesm_pp_path)):
+    err_msg = ('create_postprocess ERROR: the virtual environment cesm-env2 does not exist.' \
+               ' Please run $POSTPROCESS_PATH/create_python_env -machine [machine name]')
+    raise OSError(err_msg)
+
+execfile('{0}/cesm-env2/bin/activate_this.py'.format(cesm_pp_path), dict(__file__='{0}/cesm-env2/bin/activate_this.py'.format(cesm_pp_path)))
 
 #
 # import modules installed in the virtual environment
@@ -109,17 +120,16 @@ def commandline_options():
         description='Read the necessary XML files from the postprocessing configuration system and translate them into bash scripts for batch submission of postprocessing tasks. Runtime options can be set in the XML files in the caseroot.')
 
     parser.add_argument('-backtrace', '--backtrace', action='store_true',
-                        help='show exception backtraces as extra debugging '
-                        'output')
+                        help='show exception backtraces as extra debugging output')
 
     parser.add_argument('-debug', '--debug', nargs=1, required=False, type=int, default=0,
                         help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
     parser.add_argument('-caseroot', '--caseroot', nargs=1, required=True, 
-                        help='fully quailfied path to case root directory')
+                        help='fully quailfied path to case root directory (required)')
 
     parser.add_argument('-cesmtag', '--cesmtag', nargs=1, required=False,
-                        help='CESM repository tag')
+                        help='CESM repository tag (optional)')
 
     options = parser.parse_args()
         
@@ -478,7 +488,7 @@ def main(options):
     envDict = dict()
 
     # set the postprocessing dir in the envDict
-    envDict['POSTPROCESS_PATH'] = os.getcwd()
+    envDict['POSTPROCESS_PATH'] = cesm_pp_path
 
     # create the postprocess directories in the caseroot
     standalone = check_standalone(options.caseroot[0])

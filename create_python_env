@@ -197,9 +197,9 @@ echo "$progname - Testing post processing installation by listing the installed 
 #----------------------------------------------------------------------
 # is one of our installed executables in the path?
 #----------------------------------------------------------------------
-module_check.py
+module_check
 if [ $? -ne 0 ]; then
-    echo "ERROR: Problem with running program module_check_py in the virtual environment in ${pp_dir}/cesm-env2. Exiting..."
+    echo "ERROR: Problem with running program module_check in the virtual environment in ${pp_dir}/cesm-env2. Exiting..."
     exit 1
 fi
 
@@ -210,7 +210,7 @@ echo "---------------------------------------------------------"
 echo "$progname - Compiling ocn diagnostics remap.so"
 
 # reads XML and call subprocess f2py
-./create_f2py_remap --machine $machine
+create_f2py_remap --machine $machine
 if [ $? -ne 0 ]; then
     echo "WARNING: Problem the ocean diagnostics create_f2py_remap in $pp_dir"
 fi
@@ -221,7 +221,7 @@ fi
 
 echo "---------------------------------------------------------"
 echo "$progname - Compiling ocn diagnostics zonal average tool - za."
-./create_ocn_za --machine $machine
+create_ocn_za --machine $machine
 
 cd $pp_dir/ocn_diag/tool_lib/zon_avg
 
