@@ -316,6 +316,7 @@ def main(options, main_comm, debugMsg):
 
     Arguments:
     options (object) - command line options
+    main_comm (object) communicator object
     debugMsg (object) - vprinter object for printing debugging messages
 
     The env_diags_lnd.xml configuration file defines the way the diagnostics are generated. 
@@ -329,9 +330,8 @@ def main(options, main_comm, debugMsg):
     caseroot = options.caseroot[0]
     if main_comm.is_manager():
         debugMsg('caseroot = {0}'.format(caseroot), header=True)
-    
-    if main_comm.is_manager():
         debugMsg('calling initialize_envDict', header=True)
+
     envDict = initialize_envDict(envDict, caseroot, debugMsg, options.standalone)
 
     # specify variables to include in the averages, empty list implies get them all

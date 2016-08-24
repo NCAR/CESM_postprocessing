@@ -9,7 +9,7 @@
 <components>
   <comp_archive_spec name="cam">
     <rootdir>atm</rootdir>
-    <multi_instance>y</multi_instance>
+    <multi_instance>True</multi_instance>
     <files>
       <file_extension suffix=".h0\.+">      
 	<subdir>hist</subdir> 
@@ -105,7 +105,7 @@
 
   <comp_archive_spec name="clm[0-9]+">
     <rootdir>lnd</rootdir>
-    <multi_instance>y</multi_instance>
+    <multi_instance>True</multi_instance>
     <files>
       <file_extension suffix=".h0\.+">      
 	<subdir>hist</subdir> 
@@ -171,7 +171,7 @@
 
   <comp_archive_spec name="rtm">
     <rootdir>rof</rootdir>
-    <multi_instance>y</multi_instance>
+    <multi_instance>True</multi_instance>
     <files>
       <file_extension suffix=".h0\.+">      
 	<subdir>hist</subdir> 
@@ -221,7 +221,7 @@
 
   <comp_archive_spec name="cice">
     <rootdir>ice</rootdir>
-    <multi_instance>y</multi_instance>
+    <multi_instance>True</multi_instance>
     <files>
       <file_extension suffix=".h\.+">      
 	<subdir>hist</subdir> 
@@ -240,7 +240,7 @@
 
   <comp_archive_spec name="pop">
     <rootdir>ocn</rootdir>
-    <multi_instance>y</multi_instance>
+    <multi_instance>True</multi_instance>
     <files>
       <file_extension suffix=".h.\d{4}-\d{2}\.+">      
 	<subdir>hist</subdir> 
@@ -299,7 +299,7 @@
 
   <comp_archive_spec name="cism">
     <rootdir>glc</rootdir>
-    <multi_instance>y</multi_instance>
+    <multi_instance>True</multi_instance>
     <files>
       <file_extension suffix=".h*">      
 	<subdir>hist</subdir> 
@@ -314,7 +314,7 @@
 
   <comp_archive_spec name="ww3">
     <rootdir>wav</rootdir>
-    <multi_instance>y</multi_instance>
+    <multi_instance>True</multi_instance>
     <files>
       <file_extension suffix=".h\.+">      
 	<subdir>hist</subdir> 

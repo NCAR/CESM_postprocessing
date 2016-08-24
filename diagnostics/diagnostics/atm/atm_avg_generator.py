@@ -127,7 +127,9 @@ def buildAtmAvgList(start_year, stop_year, avgFileBaseName, out_dir, envDict, de
     if envDict['test_compute_zonalAvg'] == 'True' or envDict['cntl_compute_zonalAvg'] == 'True':
         avgList.append('zonalavg:{0}:{1}'.format(start_year, stop_year))
 
-    debugMsg('exit buildAtmAvgList avgList = {0}'.format(avgList))
+    if main_comm.is_manager():
+        debugMsg('exit buildAtmAvgList avgList = {0}'.format(avgList))
+
     return avgList
 
 #=========================================================================
@@ -240,7 +242,7 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
 #========================================================================
 # callPyAverager - create the climatology files by calling the pyAverager
 #========================================================================
-def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, case_prefix, averageList, varList, envDict, stream, debugMsg):
+def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, case_prefix, averageList, varList, envDict, stream, main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -259,7 +261,10 @@ def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, ca
        wght = True
     else:
        wght = False
+    valid_netcdf_formats = ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
     ncfrmt = 'netcdf'
+    if envDict['netcdf_format'] in valid_netcdf_formats:
+        ncfrmt = envDict['netcdf_format']
     serial = False
     clobber = True
     collapse_dim = 'lon'
@@ -269,23 +274,28 @@ def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, ca
         date_pattern = 'yyyy-mm'
     suffix = 'nc'
 
+    main_comm.sync()
+
     if envDict['strip_off_vars']:
         varList = get_variable_list(envDict,in_dir,case_prefix,key_infile,htype,stream)
 
-    debugMsg('calling specification.create_specifier with following args', header=True)
-    debugMsg('... in_directory = {0}'.format(in_dir), header=True)
-    debugMsg('... out_directory = {0}'.format(out_dir), header=True)
-    debugMsg('... prefix = {0}'.format(case_prefix), header=True)
-    debugMsg('... suffix = {0}'.format(suffix), header=True)
-    debugMsg('... date_pattern = {0}'.format(date_pattern), header=True)
-    debugMsg('... hist_type = {0}'.format(htype), header=True)
-    debugMsg('... avg_list = {0}'.format(averageList), header=True)
-    debugMsg('... collapse_dim = {0}'.format(collapse_dim), header=True)
-    debugMsg('... weighted = {0}'.format(wght), header=True)
-    debugMsg('... ncformat = {0}'.format(ncfrmt), header=True)
-    debugMsg('... varlist = {0}'.format(varList), header=True)
-    debugMsg('... serial = {0}'.format(serial), header=True)
-    debugMsg('... clobber = {0}'.format(clobber), header=True)
+    main_comm.sync()
+
+    if main_comm.is_manager():
+        debugMsg('calling specification.create_specifier with following args', header=True)
+        debugMsg('... in_directory = {0}'.format(in_dir), header=True)
+        debugMsg('... out_directory = {0}'.format(out_dir), header=True)
+        debugMsg('... prefix = {0}'.format(case_prefix), header=True)
+        debugMsg('... suffix = {0}'.format(suffix), header=True)
+        debugMsg('... date_pattern = {0}'.format(date_pattern), header=True)
+        debugMsg('... hist_type = {0}'.format(htype), header=True)
+        debugMsg('... avg_list = {0}'.format(averageList), header=True)
+        debugMsg('... collapse_dim = {0}'.format(collapse_dim), header=True)
+        debugMsg('... weighted = {0}'.format(wght), header=True)
+        debugMsg('... ncformat = {0}'.format(ncfrmt), header=True)
+        debugMsg('... varlist = {0}'.format(varList), header=True)
+        debugMsg('... serial = {0}'.format(serial), header=True)
+        debugMsg('... clobber = {0}'.format(clobber), header=True)
 
     try: 
         pyAveSpecifier = specification.create_specifier(
@@ -301,14 +311,16 @@ def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, ca
             ncformat = ncfrmt,
             varlist = varList,
             serial = serial,
-            clobber = clobber)
+            clobber = clobber,
+            main_comm = main_comm)
     except Exception as error:
         print(str(error))
         traceback.print_exc()
         sys.exit(1)
 
     try:
-        debugMsg("calling run_pyAverager")
+        if main_comm.is_manager():
+            debugMsg("calling run_pyAverager", header=True)
         PyAverager.run_pyAverager(pyAveSpecifier)
     except Exception as error:
         print(str(error))
@@ -318,7 +330,7 @@ def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, ca
 #=========================================================================
 # createClimFiles - create the climatology files by calling the pyAverager
 #=========================================================================
-def createClimFiles(start_year, stop_year, in_dir, htype, key_infile, out_dir, case, stream, inVarList, envDict, debugMsg):
+def createClimFiles(start_year, stop_year, in_dir, htype, key_infile, out_dir, case, stream, inVarList, envDict, main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -340,10 +352,12 @@ def createClimFiles(start_year, stop_year, in_dir, htype, key_infile, out_dir, c
     # create the list of averages to be computed by the pyAverager
     averageList = buildAtmAvgList(start_year, stop_year, avgFileBaseName, out_dir, envDict, debugMsg)
 
+    main_comm.sync()
+
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
-        callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, case_prefix, averageList, inVarList, envDict, stream, debugMsg)
+        callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, case_prefix, averageList, inVarList, envDict, stream, main_comm, debugMsg)
 
 
 #============================================
@@ -361,9 +375,6 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    # TODO put this file list into the config_postprocess definition
-##    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_atm.xml']
-##    if standalone:
     env_file_list =  ['./env_postprocess.xml', './env_diags_atm.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
@@ -400,11 +411,12 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
 # main
 #======
 
-def main(options, debugMsg):
+def main(options, main_comm, debugMsg):
     """setup the environment for running the pyAverager in parallel. 
 
     Arguments:
     options (object) - command line options
+    main_comm (object) communicator object
     debugMsg (object) - vprinter object for printing debugging messages
 
     The env_diags_atm.xml configuration file defines the way the diagnostics are generated. 
@@ -416,20 +428,20 @@ def main(options, debugMsg):
 
     # CASEROOT is given on the command line as required option --caseroot
     caseroot = options.caseroot[0]
-    debugMsg('caseroot = {0}'.format(caseroot), header=True)
-    
+    if main_comm.is_manager():
+        debugMsg('caseroot = {0}'.format(caseroot), header=True)
+        debugMsg('calling initialize_envDict', header=True)
 
-    debugMsg('calling initialize_envDict', header=True)
     envDict = initialize_envDict(envDict, caseroot, debugMsg, options.standalone)
 
+    main_comm.sync()
     # specify variables to include in the averages, empty list implies get them all
     varList = []
 
-    # generate the climatology files used for all plotting types using the pyAverager
-    debugMsg('calling createClimFiles', header=True)
-
     # get model history file information from the DOUT_S_ROOT archive location
-    debugMsg('calling checkHistoryFiles for control run', header=True)
+    if main_comm.is_manager():
+        debugMsg('calling checkHistoryFiles for control run', header=True)
+
     test_time_series = envDict['TEST_TIMESERIES']
 
     test_end_year = (int(envDict['test_first_yr']) + int(envDict['test_nyrs'])) - 1
@@ -446,9 +458,13 @@ def main(options, debugMsg):
             else:
                 h_path = envDict['test_path_history']+'/atm/hist/'
 
+            # generate the climatology files used for all plotting types using the pyAverager
+            if main_comm.is_manager():
+                debugMsg('calling createClimFiles', header=True)
+
             createClimFiles(envDict['test_first_yr'], test_end_year, h_path,
                             envDict['test_htype'], envDict['test_key_infile'], envDict['test_path_climo'], envDict['test_casename'], 
-                            envDict['test_modelstream'], varList, envDict, debugMsg)
+                            envDict['test_modelstream'], varList, envDict, main_comm, debugMsg)
         except Exception as error:
             print(str(error))
             traceback.print_exc()
@@ -469,9 +485,12 @@ def main(options, debugMsg):
             else:
                 h_path = envDict['cntl_path_history']+'/atm/hist/'
  
+            # generate the climatology files used for all plotting types using the pyAverager
+            debugMsg('calling createClimFiles', header=True)
+
             createClimFiles(envDict['cntl_first_yr'], cntl_end_year, h_path,
                             envDict['cntl_htype'], envDict['cntl_key_infile'], envDict['cntl_path_climo'], envDict['cntl_casename'], 
-                            envDict['cntl_modelstream'], varList, envDict, debugMsg)
+                            envDict['cntl_modelstream'], varList, envDict, main_comm, debugMsg)
         except Exception as error:
             print(str(error))
             traceback.print_exc()
@@ -481,6 +500,9 @@ def main(options, debugMsg):
 #===================================
 
 if __name__ == "__main__":
+    # initialize simplecomm object
+    main_comm = simplecomm.create_comm(serial=False)
+
     # get commandline options
     options = commandline_options()
 
@@ -491,8 +513,9 @@ if __name__ == "__main__":
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
     
     try:
-        status = main(options, debugMsg)
-        debugMsg('*** Successfully completed generating atmosphere climatology averages ***', header=False)
+        status = main(options, main_comm, debugMsg)
+        if main_comm.is_manager():
+            debugMsg('*** Successfully completed generating atmosphere climatology averages ***', header=False)
         sys.exit(status)
 
 ##    except RunTimeError as error:
