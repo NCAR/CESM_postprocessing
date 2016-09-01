@@ -213,7 +213,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, debug):
                                 last_time_parts = last_file_time.split( "-" )
                                 tseries_output_suffix = "."+start_time_parts[0]+start_time_parts[1]+start_time_parts[2]+"-"+last_time_parts[0]+last_time_parts[1]+last_time_parts[2]+".nc"
 
-                            # get a reshpaer specification object
+                            # get a reshaper specification object
                             spec = specification.create_specifier()
 
                             # populate the spec object with data for this history stream

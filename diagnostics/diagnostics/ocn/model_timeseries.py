@@ -363,7 +363,7 @@ class modelTimeseries(OceanDiagnostic):
                 plot_html += v
 
             print('model timeseries - Adding footer html')
-            with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
+            with open('{0}/footer.tmpl'.format(templatePath), 'r') as tmpl:
                 plot_html += tmpl.read()
 
             print('model timeseries - Writing plot index.html')

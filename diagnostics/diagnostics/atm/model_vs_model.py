@@ -11,6 +11,7 @@ if sys.hexversion < 0x02070000:
     sys.exit(1)
 
 # import core python modules
+import datetime
 import errno
 import glob
 import itertools
@@ -307,7 +308,8 @@ class modelVsModel(AtmosphereDiagnostic):
             env_file = '{0}/env_diags_atm.xml'.format(env['PP_CASE_PATH'])
             key = 'ATMDIAG_WEBDIR_{0}'.format(self._name)
             value = diag_path
-            web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(env['PP_CASE_PATH'], key, scomm.get_size(), scomm.get_rank() )
+            ##web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(env['PP_CASE_PATH'], key, scomm.get_size(), scomm.get_rank() )
+            web_file = '{0}/web_dirs/{1}.{2}'.format(env['PP_CASE_PATH'], key, datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S'))
             try:
                 diagUtilsLib.write_web_file(web_file, 'atm', key, value)
             except:

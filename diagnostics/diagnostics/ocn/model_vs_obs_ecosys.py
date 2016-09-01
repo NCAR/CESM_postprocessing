@@ -215,7 +215,7 @@ class modelVsObsEcosys(OceanDiagnostic):
                 plot_html += each_html
 
             print('model vs. obs ecosys - Adding footer html')
-            with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
+            with open('{0}/footer.tmpl'.format(templatePath), 'r') as tmpl:
                 plot_html += tmpl.read()
 
             print('model vs. obs ecosys - Writing plot index.html')

@@ -294,7 +294,8 @@ def main(options, main_comm, debugMsg):
         env_file = '{0}/env_diags_ocn.xml'.format(envDict['PP_CASE_PATH'])
         key = 'OCNDIAG_WEBDIR'
         value = envDict['WORKDIR']
-        web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(envDict['PP_CASE_PATH'], key, main_comm.get_size(), main_comm.get_rank() )
+        ##web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(envDict['PP_CASE_PATH'], key, main_comm.get_size(), main_comm.get_rank() )
+        web_file = '{0}/web_dirs/{1}.{2}'.format(env['PP_CASE_PATH'], key, datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S'))
         try:
             diagUtilsLib.write_web_file(web_file, 'ocn', key, value)
         except:

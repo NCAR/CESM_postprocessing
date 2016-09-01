@@ -183,7 +183,7 @@ class modelVsObs(OceanDiagnostic):
                 plot_html += v
 
             print('model vs. obs - Adding footer html')
-            with open('{0}/footer.tmpl'.format(templatePath), 'r+') as tmpl:
+            with open('{0}/footer.tmpl'.format(templatePath), 'r') as tmpl:
                 plot_html += tmpl.read()
 
             print('model vs. obs - Writing plot index.html')
