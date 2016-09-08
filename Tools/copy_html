@@ -257,19 +257,42 @@ def read_paths(env, comp_data):
     for diag_type, key in comp_data.iteritems():
         web_files = sorted(glob.glob('{0}/web_dirs/{1}.*'.format(env['PP_CASE_PATH'],key)))
         for web_file in web_files:
-            newlines = list()
-            lines = [line.rstrip('\n') for line in open(web_file,'r')]
-            for line in lines:
-                newline = line
-                values = line.split(':')
-                if 'copied' not in values[-1].lower():
-                    env[values[-2]] = values[-1]
-                    newline = '{0}:copied'.format(line)
-                newlines.append(newline)
+            if not web_file.endswith('~'):
+                lines = [line.rstrip('\n') for line in open(web_file,'r')]
+                for line in lines:
+                    values = line.split(':')
+                    if 'copied' not in values[-1].lower():
+                        env[values[-2]] = values[-1]
+    return env
 
-            with open(web_file, 'w') as f:
-                f.write('\n'.join(newlines) + '\n')
-            f.close()
+
+#=======================================================================
+# update_web_dirs - update the web_dirs with the copied status
+#=======================================================================
+def update_web_dirs(env, comp_data):
+    """ update the $PP_CASE_PATH/web_dirs files specified in the comp_data dictionary
+        to add the :copied string.
+
+    Arguments:
+    env (dictionary) - environment dictionary
+    comp_data (map) - component diag dir mapping
+    """
+    for diag_type, key in comp_data.iteritems():
+        web_files = sorted(glob.glob('{0}/web_dirs/{1}.*'.format(env['PP_CASE_PATH'],key)))
+        for web_file in web_files:
+            if not web_file.endswith('~'):
+                newlines = list()
+                lines = [line.rstrip('\n') for line in open(web_file,'r')]
+                for line in lines:
+                    newline = line
+                    values = line.split(':')
+                    if 'copied' not in values[-1].lower():
+                        newline = '{0}:copied'.format(line)
+                    newlines.append(newline)
+
+                with open(web_file, 'w') as f:
+                    f.write('\n'.join(newlines) + '\n')
+                f.close()
 
     return env
 
@@ -290,15 +313,16 @@ def copy_files(env, comp, comp_data):
     if comp != 'ocn':
         for diag_type, key in comp_data.iteritems():
             # check if the diag_type key string that points to the local webdir is empty or not
-            if len(env[key]) > 0:
-                local = env[key]
-                if not os.path.isdir(local):
-                    print('copy_html WARNING: local directory = {0} does not exists.'.format(local))
-                else:
-                    # copy local to remote
-                    if not scp_files(env, local, remote):
-                        print('copy_html WARNING: unable to copy {0} to {1}'.format(local, remote))
-                        print('     You will need to copy the files manually')
+            if key in env:
+                if len(env[key]) > 0:
+                    local = env[key]
+                    if not os.path.isdir(local):
+                        print('copy_html WARNING: local directory = {0} does not exists.'.format(local))
+                    else:
+                        # copy local to remote
+                        if not scp_files(env, local, remote):
+                            print('copy_html WARNING: unable to copy {0} to {1}'.format(local, remote))
+                            print('     You will need to copy the files manually')
     else:
         # ocean need to create a tar file first
         if os.path.isdir(env['OCNDIAG_WEBDIR']):
@@ -360,6 +384,7 @@ def create_index(env, compList, activeList, comp_lookup):
     diag_dict = dict()
     comp_data = dict()
     link_dict = dict()
+    ocn_link_dict = dict()
 
     for comp in compList:
         if comp in activeList:
@@ -381,34 +406,35 @@ def create_index(env, compList, activeList, comp_lookup):
             comp_data = comp_lookup[comp]
             if comp in ['atm', 'lnd']:
                 for diag_type, key in comp_data.iteritems():
-                    if len(env[key]) > 0:
-                        root, diag_path = os.path.split(env[key])
-                        # fix for when there is a / at the end of the path
-                        if len(diag_path) == 0:
-                            root, diag_path = os.path.split(root)
-                        local_diag_path = diag_path
-                        if comp == 'lnd':
-                            local_diag_path = '{0}/setsIndex.html'.format(diag_path)
-                        link_dict[diag_type] = local_diag_path
-                    else:
-                        link_dict[diag_type] = None
-                    diag_dict[comp].update(link_dict)
+                    if key in env:
+                        if len(env[key]) > 0:
+                            root, diag_path = os.path.split(env[key])
+                            # fix for when there is a / at the end of the path
+                            if len(diag_path) == 0:
+                                root, diag_path = os.path.split(root)
+                            local_diag_path = diag_path
+                            if comp == 'lnd':
+                                local_diag_path = '{0}/setsIndex.html'.format(diag_path)
+                            link_dict[diag_type] = local_diag_path
+                        else:
+                            link_dict[diag_type] = None
+                        diag_dict[comp].update(link_dict)
 
             elif comp == 'ice':
                 for diag_type, key in comp_data.iteritems():
-                    if len(env[key]) > 0:
-                        root, diag_path = os.path.split(env[key])
-                        # fix for when there is a / at the end of the path
-                        if len(diag_path) == 0:
-                            root, diag_path = os.path.split(root)
-                        local_diag_path = '{0}/yrs{1}-{2}/'.format(diag_path, env['ICEDIAG_BEGYR_CONT'], env['ICEDIAG_ENDYR_CONT'])
-                        link_dict[diag_type] = local_diag_path
-                    else:
-                        link_dict[diag_type] = None
-                    diag_dict[comp].update(link_dict)
+                    if key in env:
+                        if len(env[key]) > 0:
+                            root, diag_path = os.path.split(env[key])
+                            # fix for when there is a / at the end of the path
+                            if len(diag_path) == 0:
+                                root, diag_path = os.path.split(root)
+                            local_diag_path = '{0}/yrs{1}-{2}/'.format(diag_path, env['ICEDIAG_BEGYR_CONT'], env['ICEDIAG_ENDYR_CONT'])
+                            link_dict[diag_type] = local_diag_path
+                        else:
+                            link_dict[diag_type] = None
+                        diag_dict[comp].update(link_dict)
 
             elif comp == 'ocn':
-                ocn_link_dict = dict()
                 ocn_diag_types = {'OCNDIAG_MODEL_VS_OBS':('MODEL_VS_OBS','{0} (years {1}-{2}) - Observations'.format(model, model_start_year, model_stop_year)), \
                                       'OCNDIAG_MODEL_VS_OBS_ECOSYS':('MODEL_VS_OBS_ECOSYS','{0} (years {1}-{2}) - Observations w/ ecosystem'.format(model, model_start_year, model_stop_year)), \
                                       'OCNDIAG_MODEL_VS_CONTROL':('MODEL_VS_CONTROL_{0}'.format(control),'{0} (years {1}-{2}) - {3} (years {4}-{5})'.format(model, model_start_year, model_stop_year, control, control_start_year, control_stop_year)), \
@@ -417,19 +443,20 @@ def create_index(env, compList, activeList, comp_lookup):
                                       'OCNDIAG_MODEL_TIMESERIES_ECOSYS':('MODEL_TIMESERIES_ECOSYS','{0} Timeseries w/ ecosystem (years {1}-{2})'.format(model, trends_start_year1, trends_stop_year1))}
 
                 for diag_type, key in comp_data.iteritems():
-                    if len(env[key]) > 0:
-                        root, diag_path = os.path.split(env[key])
-                        # fix for when there is a / at the end of the path
-                        if len(diag_path) == 0:
-                            root, diag_path = os.path.split(root)
-                        for ocn_diag_type, link_list in ocn_diag_types.iteritems():
-                            if env[ocn_diag_type].upper() in ['T','TRUE']:
-                                local_diag_path = '{0}/{1}'.format(diag_path, link_list[0])
-                                ocn_link_dict[ocn_diag_type] = (local_diag_path, link_list[1])
-                            else:
-                                ocn_link_dict[ocn_diag_type] = None
-                    else:
-                        ocn_link_dict[ocn_diag_type] = None
+                    if key in env:
+                        if len(env[key]) > 0:
+                            root, diag_path = os.path.split(env[key])
+                            # fix for when there is a / at the end of the path
+                            if len(diag_path) == 0:
+                                root, diag_path = os.path.split(root)
+                            for ocn_diag_type, link_list in ocn_diag_types.iteritems():
+                                if env[ocn_diag_type].upper() in ['T','TRUE']:
+                                    local_diag_path = '{0}/{1}'.format(diag_path, link_list[0])
+                                    ocn_link_dict[ocn_diag_type] = (local_diag_path, link_list[1])
+                                else:
+                                    ocn_link_dict[ocn_diag_type] = None
+                        else:
+                            ocn_link_dict[ocn_diag_type] = None
                     
     # create the jinja template
     templatePath = '{0}/Templates'.format(env['POSTPROCESS_PATH']) 
@@ -543,6 +570,7 @@ def main(options):
             env = read_paths(env, comp_data)
             copy_files(env, comp, comp_data)
             activeList.append(comp)    
+            update_web_dirs(env, comp_data)
 
     # build a single web page to link to all the different components
     create_index(env, compList, activeList, comp_lookup)

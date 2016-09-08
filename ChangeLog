@@ -6,6 +6,21 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: aliceb
+Date: 08 September 2016
+Model: postprocessing
+Version: postprocessing_20160908
+One-line: Fix to copy_html. Added branch tags to SVN to all comp_diags in
+preparation for moving to github. The manageSymLinks.py is not yet fully 
+functional.      
+
+A       diag_utils/diag_utils/manageSymLinks.py
+M       ChangeLog
+M       Tools/copy_html
+M       SVN_EXTERNAL_DIRECTORIES
+
+================================================================================
+
+Originator: aliceb
 Date: 1 September 2016
 Model: postprocessing
 Version: not yet tagged
