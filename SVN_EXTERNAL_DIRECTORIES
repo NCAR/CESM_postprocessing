@@ -2,6 +2,6 @@ averager/pyAverager        https://github.com/NCAR/pyAverager/tags/v0.9.10
 reshaper/pyReshaper        https://github.com/NCAR/PyReshaper/tags/v0.9.7
 mpi_utils/pyTools          https://github.com/NCAR/ASAPPyTools/tags/v0.5.5
 ocn_diag                   https://svn-ccsm-models.cgd.ucar.edu/tools/proc_ocn/pop_diag/branch_tags/popdiag_cesm_postprocessing_20160908
-atm_diag		   https://svn-ccsm-models.cgd.ucar.edu/tools/proc_atm/amwg_diagnostics/branch_tags/parallel_amwg_diag_20160731
+atm_diag		   https://svn-ccsm-models.cgd.ucar.edu/tools/proc_atm/amwg_diagnostics/branch_tags/parallel_amwg_diag_20160909
 ice_diag		   https://svn-ccsm-models.cgd.ucar.edu/tools/proc_ice/branch_tags/parallel_ice_diag_20160908
 lnd_diag                   https://svn-ccsm-models.cgd.ucar.edu/tools/proc_lnd/lnd_diag/branch_tags/parallel_land_diag_20160906
