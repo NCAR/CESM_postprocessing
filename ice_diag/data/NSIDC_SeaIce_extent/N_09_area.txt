@@ -1,0 +1,42 @@
+year mo    data_type region extent   area
+1979  9      Goddard      N   7.20   4.53
+1980  9      Goddard      N   7.85   4.83
+1981  9      Goddard      N   7.25   4.38
+1982  9      Goddard      N   7.45   4.38
+1983  9      Goddard      N   7.52   4.64
+1984  9      Goddard      N   7.17   4.05
+1985  9      Goddard      N   6.93   4.17
+1986  9      Goddard      N   7.54   4.66
+1987  9      Goddard      N   7.48   5.60
+1988  9      Goddard      N   7.49   5.31
+1989  9      Goddard      N   7.04   4.81
+1990  9      Goddard      N   6.24   4.50
+1991  9      Goddard      N   6.55   4.46
+1992  9      Goddard      N   7.55   5.37
+1993  9      Goddard      N   6.50   4.52
+1994  9      Goddard      N   7.18   5.08
+1995  9      Goddard      N   6.13   4.38
+1996  9      Goddard      N   7.88   5.58
+1997  9      Goddard      N   6.74   4.84
+1998  9      Goddard      N   6.56   4.24
+1999  9      Goddard      N   6.24   4.22
+2000  9      Goddard      N   6.32   4.31
+2001  9      Goddard      N   6.75   4.55
+2002  9      Goddard      N   5.96   3.98
+2003  9      Goddard      N   6.15   4.01
+2004  9      Goddard      N   6.05   4.35
+2005  9      Goddard      N   5.57   4.03
+2006  9      Goddard      N   5.92   3.97
+2007  9      Goddard      N   4.30   2.78
+2008  9       PRELIM      N   4.68   2.93
+2009  9      NRTSI-G      N   5.36   3.42
+2010  9      NRTSI-G      N   4.90   3.02
+
+ Important Note: The "extent" column includes the area near the pole not
+ imaged by the sensor. It is assumed to be entirely ice covered with at
+ least 15% concentration. However, the "area" column excludes the area not
+ imaged by the sensor. This area is 1.19 million square kilometers for SMMR
+ (from the beginning of the series through June 1987) and 0.31 million
+ square kilometers for SSM/I (from July 1987 to present). Therefore, there
+ is a discontinuity in the "area" data values in this file at the June/July
+ 1987 boundary.

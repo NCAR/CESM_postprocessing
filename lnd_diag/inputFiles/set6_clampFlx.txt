@@ -1,0 +1,6 @@
+globalMeanDay   NEE
+globalMeanDay   GPP
+globalMeanDay   NPP
+globalMeanDay   AR
+globalMeanDay   HR
+globalMeanDay   NEP

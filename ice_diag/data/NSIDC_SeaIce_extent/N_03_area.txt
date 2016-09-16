@@ -1,0 +1,48 @@
+year mo    data_type region extent   area
+1979  3      Goddard      N  16.44  13.13
+1980  3      Goddard      N  16.13  12.92
+1981  3      Goddard      N  15.61  12.62
+1982  3      Goddard      N  16.15  12.99
+1983  3      Goddard      N  16.10  12.84
+1984  3      Goddard      N  15.62  12.48
+1985  3      Goddard      N  16.06  12.66
+1986  3      Goddard      N  16.08  12.65
+1987  3      Goddard      N  15.95  12.75
+1988  3      Goddard      N  16.13  13.84
+1989  3      Goddard      N  15.52  13.14
+1990  3      Goddard      N  15.88  13.44
+1991  3      Goddard      N  15.50  13.35
+1992  3      Goddard      N  15.47  13.41
+1993  3      Goddard      N  15.88  13.71
+1994  3      Goddard      N  15.58  13.47
+1995  3      Goddard      N  15.32  13.27
+1996  3      Goddard      N  15.12  12.83
+1997  3      Goddard      N  15.58  13.24
+1998  3      Goddard      N  15.66  13.50
+1999  3      Goddard      N  15.40  13.47
+2000  3      Goddard      N  15.27  13.10
+2001  3      Goddard      N  15.61  13.57
+2002  3      Goddard      N  15.44  13.36
+2003  3      Goddard      N  15.49  13.36
+2004  3      Goddard      N  15.05  12.93
+2005  3      Goddard      N  14.74  12.67
+2006  3      Goddard      N  14.43  12.44
+2007  3      Goddard      N  14.65  12.49
+2008  3       PRELIM      N  15.23  13.17
+2009  3      NRTSI-G      N  15.16  13.04
+2010  3      NRTSI-G      N  15.10  13.11
+
+
+
+
+Important Notes: 1) The "extent" column includes the area near the pole not
+imaged by the sensor. It is assumed to be entirely ice covered with at	least
+15% concentration. However, the "area" column excludes the area not  imaged by
+the sensor. This area is 1.19 million square kilometers for SMMR  (from the
+beginning of the series through June 1987) and 0.31 million  square kilometers
+for SSM/I (from July 1987 to present). Therefore, there  is a discontinuity in
+the "area" data values in this file at the June/July  1987 boundary. 2) When
+insufficient satellite data is available to process the area and extent values,
+the data is flagged as -9999. For more information see Processing Steps,
+Monthly Mean Ice Concentration in the documentation -
+http://nsidc.org/data/docs/noaa/g02135_seaice_index/index.html#processingstep.

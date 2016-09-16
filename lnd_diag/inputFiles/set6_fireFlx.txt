@@ -1,0 +1,6 @@
+globalMeanDay   COL_FIRE_CLOSS
+globalMeanDay   COL_FIRE_NLOSS
+globalMeanDay   PFT_FIRE_CLOSS
+globalMeanDay   PFT_FIRE_NLOSS
+globalMeanAnn   FAREA_BURNED
+globalMeanAnn   BAF_CROP

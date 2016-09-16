@@ -1,0 +1,8 @@
+The ship-based sea ice and snow thickness data were provided by the SCAR 
+Antarctic Sea Ice Processes and Climate (ASPeCt) program (www.aspect.aq).
+A full description of the data quality control and processing can be found in 
+Worby et al (2008).
+
+Worby, A. P., C. Geiger, M. J. Paget, M. van Woert, S. F Ackley, T. DeLiberty, 
+(2008). Thickness distribution of Antarctic sea ice. J. Geophys. Res., 113, 
+C05S92, doi:10.1029/2007JC004254.

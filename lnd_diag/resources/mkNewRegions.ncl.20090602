@@ -1,0 +1,208 @@
+; ***********************************************
+; mkdelPlio.ncl
+; ***********************************************
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+;************************************************
+begin
+;************************************************
+; read in data
+;************************************************
+
+ dd = systemfunc("date -u +%y%m%d")
+
+ print("date = " + dd)
+
+ ifile1 = "landArea.nc"
+ ifile2 = "region_definitions.ORIGINAL.nc"		; 090220
+ ofile  = "region_definitions."+dd+".nc"
+
+ in1   = addfile(ifile1,"r")				
+ in2   = addfile(ifile2,"r")			
+ system("rm -f " + ofile)
+ fout = addfile(ofile,"c")		
+
+ fland1 = in1->landfrac
+ area1  = in1->area
+ lon1   = in1->lon
+
+ if (lon1(0) .ge. 0) then
+	area1 = lonFlip(area1)
+	fland1 = lonFlip(fland1)
+ end if
+
+ box_s = in2->BOX_S
+ box_n = in2->BOX_N
+ box_w = in2->BOX_W
+ box_e = in2->BOX_E
+ ps_id = in2->PS_ID
+ ptitstr = in2->PTITSTR
+ boxstr = in2->BOXSTR
+ oregion = in2->region
+
+ delete(in1)
+ delete(in2)
+
+ new_S = (/30/)
+ new_N = (/40/)
+ new_E = (/37/)
+ new_W = (/50/)
+ new_id = (/"Tigris_Euphrates"/)
+ new_tit = (/"Tigris Euphrates"/)
+
+ new_box = (/"(30-40N,37-50E)"/)
+
+ new_region = ispan(0,42,1)
+ nreg = dimsizes(new_region)
+
+ nboxS  = new((/nreg/),"float",-9999)
+ nboxW  = new((/nreg/),"float",-9999)
+ nboxN  = new((/nreg/),"float",-9999)
+ nboxE  = new((/nreg/),"float",-9999)
+ nps_id = new((/nreg/),"string")
+ nptitstr = new((/nreg/),"string")
+ nboxstr  = new((/nreg/),"string")
+
+ nor = 38				; last old region, minus NH,SH,global(last3)
+ nboxS(0:nor) = box_s(0:nor)		; fill in the old regions
+ nboxW(0:nor) = box_w(0:nor)		; fill in the old regions
+ nboxN(0:nor) = box_n(0:nor)		; fill in the old regions
+ nboxE(0:nor) = box_e(0:nor)		; fill in the old regions
+
+  nps_id(0:nor) = charactertostring(  ps_id(0:nor,:))	; fill in the old regions
+nptitstr(0:nor) = charactertostring(ptitstr(0:nor,:))	; fill in the old regions
+ nboxstr(0:nor) = charactertostring( boxstr(0:nor,:))	; fill in the old regions
+
+ nns = 40				; new start of last 3 slots
+ nne = 42				; new end of last 3 slot
+ ons = 39				; old start of last 3 slots
+ one = 41				; old end of last 3 slot
+ nboxS(nns:nne) = box_s(ons:one)		; NH, SH and global in last 3 slots
+ nboxW(nns:nne) = box_w(ons:one)		; NH, SH and global in last 3 slots
+ nboxN(nns:nne) = box_n(ons:one)		; NH, SH and global in last 3 slots
+ nboxE(nns:nne) = box_e(ons:one)		; NH, SH and global in last 3 slots
+   nps_id(nns:nne) =   charactertostring(ps_id(ons:one,:))	; NH, SH and global in last 3 slots
+ nptitstr(nns:nne) = charactertostring(ptitstr(ons:one,:))	; NH, SH and global in last 3 slots
+  nboxstr(nns:nne) =  charactertostring(boxstr(ons:one,:))	; NH, SH and global in last 3 slots
+
+ add_index = 39				; index of new region
+ nboxS(add_index) = (/new_S/)		; add new regions
+ nboxW(add_index) = (/new_W/)		; add new regions
+ nboxN(add_index) = (/new_N/)		; add new regions
+ nboxE(add_index) = (/new_E/)		; add new regions
+   
+   nps_id(add_index) = (/new_id/)	; add new regions
+ nptitstr(add_index) = (/new_tit/)	; add new regions
+  nboxstr(add_index) = (/new_box/)	; add new regions
+
+   alaska1 = 0
+   alaska2 = 5
+   nps_id(alaska1) = (/"Alaskan_Arctic"/)	; correct Alaska title
+ nptitstr(alaska1) = (/"Alaskan Arctic"/)	; correct Alaska title
+
+   nps_id(alaska2) = (/"Alaska"/)	; correct Alaska title
+ nptitstr(alaska2) = (/"Alaska"/)	; correct Alaska title
+
+
+  nboxS!0 = "region"
+  nboxN!0 = "region"
+  nboxE!0 = "region"
+  nboxW!0 = "region"
+  nboxS&region = new_region
+  nboxN&region = new_region
+  nboxE&region = new_region
+  nboxW&region = new_region
+
+ ; create netcdf file
+
+  fileAtt             = True
+  fileAtt@create_date = systemfunc("date")
+  fileAtt@creator     = "Nan Rosenbloom (nanr@ucar.edu)"
+  fileAtt@srcCode     = "mkNewRegions.ncl"
+  fileAtt@project     = "new Sub-Regions:Asia(Liya;Tigress/Euphrates(RNeale))"
+  fileattdef(fout, fileAtt)
+
+  dimNames = (/"region","ncl1","ncl2","ncl3"/)
+  dimSizes = (/nreg,18,20,20/)
+  dimUnlim = (/False,False,False,False/)
+        
+  filedimdef(fout,dimNames,dimSizes,dimUnlim)
+  filevardef(fout,"region",typeof(oregion),getvardims(oregion))
+  filevardef(fout,"BOX_S",typeof(box_s),getvardims(nboxS))
+  filevardef(fout,"BOX_N",typeof(box_n),getvardims(nboxN))
+  filevardef(fout,"BOX_W",typeof(box_w),getvardims(nboxW))
+  filevardef(fout,"BOX_E",typeof(box_e),getvardims(nboxE))
+  filevardef(fout,"PS_ID",typeof(ps_id),getvardims(ps_id))
+  filevardef(fout,"PTITSTR",typeof(ptitstr),getvardims(ptitstr))
+  filevardef(fout,"BOXSTR",typeof(boxstr),getvardims(boxstr))
+        
+  filevarattdef(fout,"BOX_S",box_s)
+  filevarattdef(fout,"BOX_N",box_n)
+  filevarattdef(fout,"BOX_E",box_e)
+  filevarattdef(fout,"BOX_W",box_w)
+  filevarattdef(fout,"PS_ID",ps_id)
+  filevarattdef(fout,"PTITSTR",ptitstr)
+  filevarattdef(fout,"BOXSTR",boxstr)
+        
+  fout->region = (/new_region/)
+  fout->BOX_S  = (/nboxS/)
+  fout->BOX_W  = (/nboxW/)
+  fout->BOX_E  = (/nboxE/)
+  fout->BOX_N  = (/nboxN/)
+  fout->PS_ID  = (/stringtocharacter(nps_id)/)
+  fout->PTITSTR = (/stringtocharacter(nptitstr)/)
+  fout->BOXSTR  = (/stringtocharacter(nboxstr)/)
+  delete(fout)
+
+ ; map regions
+
+  res = True
+  res@cnFillOn = True
+  res@cnLineLabelsOn = False
+  res@lbLabelBarOn = False
+  res@cnLinesOn =  False
+  res@mpGridLonSpacingF   = 60.0            ; Set lon grid spacing
+  res@mpGridLatSpacingF    = 30.0           ; Set lat grid spacing
+  res@mpFillOn             =  False
+  res@mpOutlineOn          =  True
+  res@mpGridAndLimbOn      =  True
+  res@mpGridLineDashPattern =  2            ; Set grid line dash pattern (dash)
+  res@mpGridLineThicknessF   = 0.5          ; Set grid line thickness
+  sstr=(/" "/)
+  res@gsnMaximize = True
+  res@cnLevelSelectionMode =  "ExplicitLevels"
+  wks = gsn_open_wks("ps","set3_reg_all")
+  cmap = (/"(/1.00, 1.00, 1.00/)", "(/0.00, 0.00, 0.00/)", \
+           "(/1.00, 1.00, 1.00/)", "Blue" /)
+  gsn_define_colormap(wks, cmap )
+  res@gsnLeftString = " "
+  res@gsnRightString = " "
+  res@cnLevels = (/0./)
+
+  flag1 = area1
+  flag1 = -0.1
+
+  do ar = 0, nreg-4  ; don't include northern and southern hemisphere and global
+    flag1({nboxS(ar):nboxN(ar)},{nboxW(ar):nboxE(ar)}) = 0.1*fland1({nboxS(ar):nboxN(ar)},{nboxW(ar):nboxE(ar)})-1.e-36
+  end do
+
+  res@gsnCenterString = "Model Data Regions - All"
+  plot = gsn_csm_contour_map_ce(wks, flag1, res)
+
+  do ar = 0, nreg-1
+;----------------------------------------------
+; Open file for plots 
+;----------------------------------------------
+    wks = gsn_open_wks("ps","map_reg_"+nps_id(ar))
+    cmap = (/"(/1.00, 1.00, 1.00/)", "(/0.00, 0.00, 0.00/)", \
+             "(/1.00, 1.00, 1.00/)", "Blue" /)
+    gsn_define_colormap(wks, cmap )
+    flag1 = -0.1
+    flag1 ({nboxS(ar):nboxN(ar)},{nboxW(ar):nboxE(ar)}) = \
+        0.1*fland1 ({nboxS(ar):nboxN(ar)},{nboxW(ar):nboxE(ar)}) - 1.e-36
+    res@gsnCenterString = "Model Data Regions - " + nptitstr(ar) + nboxstr(ar)
+    plot = gsn_csm_contour_map_ce(wks, flag1, res)
+  end do
+
+end

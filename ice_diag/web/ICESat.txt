@@ -1,0 +1,6 @@
+Documentation of the satellite based (ICESat) derived sea ice thickness is found in:
+
+Kwok, R., G. F. Cunningham, M. Wensnahan, I. Rigor, H. J. Zwally,
+and D. Yi, 2009: Thinning and volume loss of the Arctic Ocean
+sea ice cover: 2003?~@~S2008. J. Geophys. Res., 114, C07005,
+doi:10.1029/2009JC005312.

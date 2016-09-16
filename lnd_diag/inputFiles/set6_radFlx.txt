@@ -1,0 +1,7 @@
+globalMeanNat   FSDS
+globalMeanNat   ALBEDO
+globalMeanNat   FSA
+globalMeanNat   FLDS
+globalMeanNat   FIRE
+globalMeanNat   FIRA
+globalMeanNat   RNET

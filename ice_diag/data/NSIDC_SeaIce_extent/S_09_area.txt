@@ -1,0 +1,41 @@
+year mo    data_type region extent   area
+1979  9      Goddard      S  18.40  14.18
+1980  9      Goddard      S  19.06  14.77
+1981  9      Goddard      S  18.90  14.68
+1982  9      Goddard      S  18.63  14.44
+1983  9      Goddard      S  18.84  14.59
+1984  9      Goddard      S  18.66  14.15
+1985  9      Goddard      S  19.02  14.62
+1986  9      Goddard      S  17.97  13.78
+1987  9      Goddard      S  18.65  14.18
+1988  9      Goddard      S  18.64  14.10
+1989  9      Goddard      S  18.27  14.39
+1990  9      Goddard      S  18.44  14.30
+1991  9      Goddard      S  18.56  14.38
+1992  9      Goddard      S  18.41  14.04
+1993  9      Goddard      S  18.67  14.62
+1994  9      Goddard      S  18.96  14.52
+1995  9      Goddard      S  18.73  14.42
+1996  9      Goddard      S  18.86  14.45
+1997  9      Goddard      S  19.15  14.49
+1998  9      Goddard      S  19.14  14.76
+1999  9      Goddard      S  19.02  14.53
+2000  9      Goddard      S  19.12  14.98
+2001  9      Goddard      S  18.40  14.27
+2002  9      Goddard      S  18.18  14.00
+2003  9      Goddard      S  18.57  14.05
+2004  9      Goddard      S  19.13  14.51
+2005  9      Goddard      S  19.14  14.76
+2006  9      Goddard      S  19.36  15.09
+2007  9      Goddard      S  19.25  15.29
+2008  9      Goddard      S  18.50  14.31
+2009  9      Goddard      S  19.20  14.99
+2010  9      Goddard      S  19.22  14.32
+2011  9      NRTSI-G      S  18.90  14.38
+
+ Important Note: 
+
+ When insufficient satellite data is available to process the area and extent
+ values, the data is flagged as -9999. For more information see Processing
+ Steps, Monthly Mean Ice Concentration in the documentation -
+ http://nsidc.org/data/docs/noaa/g02135_seaice_index/index.html#processingstep.

@@ -1,0 +1,8 @@
+globalMeanNat0  CO2
+globalMeanNat0  CO2_LND
+globalMeanNat0  CO2_OCN
+globalMeanNat0  CO2_FFF
+globalMeanDay0  SFCO2
+globalMeanDay0  SFCO2_FFF
+globalMeanDay0  SFCO2_OCN
+globalMeanDay0  SFCO2_LND

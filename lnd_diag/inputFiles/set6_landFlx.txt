@@ -1,0 +1,4 @@
+globalMeanNat   TSA
+globalMeanDay   PREC
+globalMeanDay   TOTRUNOFF
+globalMeanNat   SNOWDP
