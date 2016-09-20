@@ -9,6 +9,16 @@ Originator: aliceb
 Date: 09 September 2016
 Model: postprocessing
 Version: postprocessing_20160909
+One-line: minor bug fix
+
+M       diagnostics/diagnostics/ocn/ocn_diags_generator.py
+
+================================================================================
+
+Originator: aliceb
+Date: 09 September 2016
+Model: postprocessing
+Version: postprocessing_20160909
 One-line: update atm_diag external to latest branch tag
 
 M       SVN_EXTERNAL_DIRECTORIES
