@@ -1,14 +1,29 @@
-#########
-cesm-env2
-#########
-*.egg-info
-*.pyo
+# Ignore python bytecode files
 *.pyc
+*.egg-info
+
+# Ignore emacs backup files
 *~
-#########
-.svn*
-#########
+
+# Ignore python egg-info files
+*.egg-info/
+
+# Ignore python build and dist dirs
+averager/pyAverager/build/
+mpi_utils/pyTools/build/
+mpi_utils/pyTools/dist/
+
+# Ignore cesm-env2
+cesm-env2/
+
+# Ignore za binary, fortran object and mod files
 *.o
-za
 *.mod
 *.so
+
+# Ignore zonal average binary and link
+ocn_diag/tool_lib/za
+ocn_diag/tool_lib/zon_avg/za
+
+# ignore any .svn files
+.svn*
