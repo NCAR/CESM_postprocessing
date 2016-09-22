@@ -1,0 +1,105 @@
+#!/usr/bin/env python
+"""
+This script provides the command-line interface (CLI) to the PyReshaper
+
+This script is used to generate Specifier object files ("specfiles") that
+can then be run directly from the command-line with the corresponding
+"runs2sspec" tool.
+
+Copyright 2015, University Corporation for Atmospheric Research
+See the LICENSE.rst file for details
+"""
+
+# Builtin Modules
+import optparse
+import glob
+import cPickle as pickle
+
+# Package Modules
+from pyreshaper import specification
+
+
+#==============================================================================
+# Command-Line Interface
+#==============================================================================
+def cli(argv=None):
+    desc = """Create a PyReshaper Specifier object from command-line
+              options and write the Specifier to a named file."""
+
+    parser = optparse.OptionParser(prog='s2smake', description=desc)
+    parser.add_option('-c', '--compression_level', type='int', default=1,
+                      help=('NetCDF compression level, when using the '
+                            'netcdf4 format. [Default: 1]'))
+    parser.add_option('-f', '--netcdf_format', default='netcdf4', type="string",
+                      help=('NetCDF file format to be used for all output '
+                            'files. [Default: "netcdf4"]'))
+    parser.add_option('-m', '--metadata', action='append', default=[],
+                      help=('Names of a variable to be included in all '
+                            'output files.  There may be more than one '
+                            '--metadata (-m) option given, and each one is '
+                            'appended to a list.  [Default: []]'))
+    parser.add_option('-o', '--specfile', default='input.s2s', type="string",
+                      help=('The name of the Pickled Specifier (specfile) '
+                            'to be output [Default: "input.spec"]'))
+    parser.add_option('-p', '--output_prefix', default='tseries.', type='string',
+                      help=('String prefix for all output files.  The output '
+                            'file will be named according to the rule: '
+                            'output_prefix + variable_name + output_suffix '
+                            '[Default: "tseries."]'))
+    parser.add_option('-s', '--output_suffix', default='.nc', type='string',
+                      help=('String suffix for all output files.  The output '
+                            'file will be named according to the rule: '
+                            'output_prefix + variable_name + output_suffix '
+                            '[Default: ".nc"]'))
+    opts, args = parser.parse_args(argv)
+
+    # Check that input files are given
+    if len(args) == 0:
+        raise ValueError("No input files given.")
+
+    # Check range of compression levels
+    if opts.compression_level < 0 or opts.compression_level > 9:
+        raise ValueError(("Unacceptable compression level of "
+                          "{0}".format(opts.compression_level)))
+
+    # Check for valid format types
+    if opts.netcdf_format not in ['netcdf', 'netcdf4', 'netcdf4c']:
+        raise ValueError(("Unacceptable NetCDF format "
+                          "{0}".format(opts.netcdf_format)))
+
+    return opts, args
+
+#==============================================================================
+# Main Script Function
+#==============================================================================
+def main(argv=None):
+    opts, args = cli(argv)
+
+    # Create the input object for the Reshaper
+    spec = specification.create_specifier()
+
+    # Generate the input file list from (potentially) globs/wildcards
+    full_input_file_list = []
+    for infile in args:
+        full_input_file_list.extend(glob.glob(infile))
+
+    # Add input to the specifier
+    spec.input_file_list = full_input_file_list
+    spec.compression_level = opts.compression_level
+    spec.netcdf_format = opts.netcdf_format
+    spec.output_file_prefix = opts.output_prefix
+    spec.output_file_suffix = opts.output_suffix
+    spec.time_variant_metadata = opts.metadata
+
+    # Validate before saving
+    spec.validate()
+
+    # Write the specfile
+    spec.write(opts.specfile)
+
+
+#==============================================================================
+# Command-line Operation
+#==============================================================================
+if __name__ == '__main__':
+    main()

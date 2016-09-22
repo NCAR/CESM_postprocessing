@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+"""
+This script provides the command-line interface (CLI) to the PyReshaper
+
+This script is designed to run a specfile (i.e., a Pickled Specifier object).
+The specfile itself should be constructed from a hand-written Python script,
+or from the makes2sspec tool that accompanies this script.
+
+Copyright 2015, University Corporation for Atmospheric Research
+See the LICENSE.rst file for details
+"""
+
+# Builtin Modules
+import optparse
+import glob
+import cPickle as pickle
+
+# Package Modules
+from pyreshaper import specification
+from pyreshaper import reshaper
+
+
+#==============================================================================
+# Command-line Interface
+#==============================================================================
+def cli(argv=None):
+    desc = """This tool is designed to run a PyReshaper Specifier as read
+              from a pickled Specifier object (specfile)"""
+
+    parser = optparse.OptionParser(prog='s2srun', description=desc)
+    parser.add_option('-1', '--once', default=False,
+                      action='store_true', dest='once',
+                      help=('Whether to write a "once" file with all '
+                            'metadata. [Default: False]'))
+    parser.add_option('-l', '--limit', default=0, type='int',
+                      help=('The limit on the number of time-series files per '
+                            'processor to write.  Useful when debugging.  A '
+                            'limit of 0 means write all output files.'
+                            '[Default: 0]'))
+    parser.add_option('-m', '--write_mode', default='w', type='str',
+                      help=("Determine the write mode to use for writing "
+                            "output files.  Can be 'w' for normal operation, "
+                            "'s' to skip generation of time-series files if "
+                            "the files already exist, 'o' to overwrite "
+                            "existing time-series files, or 'a' to append "
+                            "to existing time-series files [Default: 'w']"))
+    parser.add_option('-s', '--serial', default=False,
+                      action='store_true', dest='serial',
+                      help=('Whether to run in serial (True) or parallel '
+                            '(False). [Default: False]'))
+    parser.add_option('-v', '--verbosity', default=1, type='int',
+                      help=('Verbosity level for level of output.  A value '
+                            'of 0 means no output, and a value greater than '
+                            '0 means more output detail. [Default: 1]'))
+
+    opts, args = parser.parse_args(argv)
+    
+    if len(args) == 0:
+        raise ValueError('Must supply a specfile as input')
+    else:
+        specfile = args[0]
+    
+    return opts, specfile
+
+
+#==============================================================================
+# Main Script Function
+#==============================================================================
+def main(argv=None):
+    opts, specfile = cli(argv)
+
+    # Try importing the file
+    try:
+        spec = pickle.load(open(specfile, 'rb'))
+    except:
+        err_msg = ("Specifier File '{}' could not be "
+                   "opened and read").format(specfile)
+        raise RuntimeError(err_msg)
+
+    # Create the PyReshaper object
+    reshpr = reshaper.create_reshaper(spec,
+                                      serial=opts.serial,
+                                      verbosity=opts.verbosity,
+                                      wmode=opts.write_mode,
+                                      once=opts.once)
+
+    # Run the conversion (slice-to-series) process
+    reshpr.convert(output_limit=opts.limit)
+
+    # Print timing diagnostics
+    reshpr.print_diagnostics()
+
+
+#==============================================================================
+# Command-line Operation
+#==============================================================================
+if __name__ == '__main__':
+    main()

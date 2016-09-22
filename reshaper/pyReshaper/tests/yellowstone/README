@@ -1,0 +1,29 @@
+This directory contains the tests that should be run on NCAR's Yellowstone
+compute system.  The general order of operations is described below:
+
+0) Analyze Test Input:
+
+   mkstats.py: Generate statistics describing the test input files.  This
+                writes the test statistics to the 'teststats.json' file.
+                
+1) Run Tests
+
+   runtests.py: Run any number of selected tests in serial or in parallel,
+                submitted to a queue.  This can use a single Specifier,
+                or multiple Specifiers, for each PyReshaper job.
+                    
+2) Check Test Results
+
+   checkresults.py: Compare output from each test that has been run against
+                    accepted results (found in /glade/u/tdd/asap/bakeoff)
+                    
+3) Get Timing Data
+
+   mktimings.py: Read the PyReshaper output for each test that has been run
+                  and extract the timing data from the output logs.  Add this
+                  timing data to the 'timings.json' database.
+                  
+4) Make Plots
+
+   mkplots.py: Creates typical timing and throughput plots from information
+               found in the 'timings.json' database.
