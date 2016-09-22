@@ -1,0 +1,50 @@
+</b></font>
+<p>
+<a href="../sets.htm">
+<font color=red><b>Back to diagnostic sets</b></font></a>
+<br clear=left>
+<p>
+<b>DIAG Set 9 - Horizontal contour plots of DJF-JJA differences<br>
+<hr noshade size=2 size="100%">
+<TABLE>
+<TR>
+   <TH ALIGN=LEFT><font color=blue>Variable</font>
+   <TH ALIGN=LEFT><font color=blue>Description</font>
+   <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT
+  <TH ALIGN=LEFT>Total cloud cover 
+  <TH ALIGN=LEFT><A HREF="set9_CLDTOT_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>LWCF 
+  <TH ALIGN=LEFT>TOM longwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set9_LWCF_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>PRECT
+  <TH ALIGN=LEFT>Precipitation rate
+  <TH ALIGN=LEFT><A HREF="set9_PRECT_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>PREH2O
+  <TH ALIGN=LEFT>Total precipitable water
+  <TH ALIGN=LEFT><A HREF="set9_PREH2O_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>PSL *
+  <TH ALIGN=LEFT>Sea-level pressure
+  <TH ALIGN=LEFT><A HREF="set9_PSL_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>SWCF 
+  <TH ALIGN=LEFT>TOM shortwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set9_SWCF_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 850 *
+  <TH ALIGN=LEFT>850 mb temperature 
+  <TH ALIGN=LEFT><A HREF="set9_T_850_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>TREFHT *
+  <TH ALIGN=LEFT>2-meter air temperature
+  <TH ALIGN=LEFT><A HREF="set9_TREFHT_c.xxx">plot</a>
+</TABLE>
+<hr noshade size=1 size="100%">
+<em><SUP>*</SUP>WGNE diagnostic variable</em></b>
+</BODY>
+</HTML>

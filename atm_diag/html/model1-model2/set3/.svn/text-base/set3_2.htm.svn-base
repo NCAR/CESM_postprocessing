@@ -1,0 +1,1014 @@
+</b></font>
+<p>
+<a href="../sets.htm">
+<font color=red><b>Back to diagnostic sets</b></font></a>
+<br clear=left>
+<p>
+<b>DIAG Set 3 - Line plots of DJF, MAM, JJA, SON and ANN zonal means<br>
+<hr noshade size=2 size="100%">
+<TABLE>
+<TR>
+ <TH ALIGN=LEFT><BR>
+ <TH ALIGN=LEFT><font size=+1 color=blue>Surface Variables</font>
+ <TH ALIGN=LEFT>DJF
+ <TH ALIGN=LEFT>MAM
+ <TH ALIGN=LEFT>JJA
+ <TH ALIGN=LEFT>SON
+ <TH ALIGN=LEFT>ANN
+<TR>
+ <TH ALIGN=LEFT>PBLH
+ <TH ALIGN=LEFT>Planetary boundary layer height
+ <TH ALIGN=LEFT><A HREF="set3_DJF_PBLH_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_PBLH_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_PBLH_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_SON_PBLH_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_PBLH_c.xxx">plot</a>
+<TR>
+ <TH ALIGN=LEFT>PS
+ <TH ALIGN=LEFT>Surface pressure
+ <TH ALIGN=LEFT><A HREF="set3_DJF_PS_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_PS_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_PS_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_SON_PS_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_PS_c.xxx">plot</a>
+<TR>
+ <TH ALIGN=LEFT>PSL *
+ <TH ALIGN=LEFT>Sea level pressure
+ <TH ALIGN=LEFT><A HREF="set3_DJF_PSL_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_PSL_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_PSL_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_SON_PSL_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_PSL_c.xxx">plot</a>
+<TR>
+ <TH ALIGN=LEFT>TAUX OCEAN *
+ <TH ALIGN=LEFT>Zonal surface stress (ocean)
+ <TH ALIGN=LEFT><A HREF="set3_DJF_TAUX_OCEAN_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_TAUX_OCEAN_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_TAUX_OCEAN_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_SON_TAUX_OCEAN_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_TAUX_OCEAN_c.xxx">plot</a>
+<TR>
+ <TH ALIGN=LEFT>TREFHT *
+ <TH ALIGN=LEFT>2-meter air temperature
+ <TH ALIGN=LEFT><A HREF="set3_DJF_TREFHT_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_TREFHT_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_TREFHT_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_SON_TREFHT_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_TREFHT_c.xxx">plot</a>
+<TR>
+ <TH ALIGN=LEFT>TREFHT LAND *
+ <TH ALIGN=LEFT>2-meter air temperature (land)
+ <TH ALIGN=LEFT><A HREF="set3_DJF_TREFHT_LAND_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_TREFHT_LAND_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_TREFHT_LAND_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_SON_TREFHT_LAND_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_TREFHT_LAND_c.xxx">plot</a>
+<TR>
+ <TH ALIGN=LEFT>TS *
+ <TH ALIGN=LEFT>Surface temperature
+ <TH ALIGN=LEFT><A HREF="set3_DJF_TS_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_TS_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_TS_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_SON_TS_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_TS_c.xxx">plot</a>
+<TR>
+ <TH ALIGN=LEFT>TS LAND *
+ <TH ALIGN=LEFT>Surface temperature (land)
+ <TH ALIGN=LEFT><A HREF="set3_DJF_TS_LAND_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_TS_LAND_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_TS_LAND_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_SON_TS_LAND_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_TS_LAND_c.xxx">plot</a>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+ <TH ALIGN=LEFT><BR>
+ <TH ALIGN=LEFT><font size=+1 color=blue>Hydrologic Cycle</font>
+ <TH ALIGN=LEFT>DJF
+ <TH ALIGN=LEFT>MAM
+ <TH ALIGN=LEFT>JJA
+ <TH ALIGN=LEFT>SON
+ <TH ALIGN=LEFT>ANN
+<TR>
+ <TH ALIGN=LEFT>EP *
+ <TH ALIGN=LEFT>Evaporation - precipiation
+ <TH ALIGN=LEFT><A HREF="set3_DJF_EP_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_EP_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_EP_c.xxx">plot</A>
+ <TH ALIGN=LEFT><A HREF="set3_SON_EP_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_EP_c.xxx">plot</A>
+<TR>
+ <TH ALIGN=LEFT>PRECT *
+ <TH ALIGN=LEFT>Precipitation rate
+ <TH ALIGN=LEFT><A HREF="set3_DJF_PRECT_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_MAM_PRECT_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_JJA_PRECT_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_SON_PRECT_c.xxx">plot</a>
+ <TH ALIGN=LEFT><A HREF="set3_ANN_PRECT_c.xxx">plot</a>
+<TR>
+ <TH ALIGN=LEFT>PREH2O *
+ <TH ALIGN=LEFT>Total precipitable water
+  <TH ALIGN=LEFT><A HREF="set3_DJF_PREH2O_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_PREH2O_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_PREH2O_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_PREH2O_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_PREH2O_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>QFLX *
+  <TH ALIGN=LEFT>Surface water flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_QFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_QFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_QFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_QFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_QFLX_c.xxx">plot</a>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+ <TH ALIGN=LEFT><BR>
+ <TH ALIGN=LEFT><font size=+1 color=blue>Surface Energy Fluxes</font>
+ <TH ALIGN=LEFT>DJF
+ <TH ALIGN=LEFT>MAM
+ <TH ALIGN=LEFT>JJA
+ <TH ALIGN=LEFT>SON
+ <TH ALIGN=LEFT>ANN
+<TR>
+  <TH ALIGN=LEFT>FLDS
+  <TH ALIGN=LEFT>Longwave downwelling flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FLDS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FLDS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FLDS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FLDS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FLDS_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLDSC
+  <TH ALIGN=LEFT>Clearsky longwave downwelling flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FLDSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FLDSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FLDSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FLDSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FLDSC_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLNS *
+  <TH ALIGN=LEFT>Net longwave flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FLNS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FLNS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FLNS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FLNS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FLNS_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLNSC *
+  <TH ALIGN=LEFT>Clearsky net longwave flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FLNSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FLNSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FLNSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FLNSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FLNSC_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSDS
+  <TH ALIGN=LEFT>Shortwave downwelling flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FSDS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FSDS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FSDS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FSDS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FSDS_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSDSC
+  <TH ALIGN=LEFT>Clearsky SW downwelling flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FSDSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FSDSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FSDSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FSDSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FSDSC_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNS *
+  <TH ALIGN=LEFT>Net shortwave flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FSNS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FSNS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FSNS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FSNS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FSNS_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNSC *
+  <TH ALIGN=LEFT>Clearsky net shortwave flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FSNSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FSNSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FSNSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FSNSC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FSNSC_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>LHFLX *
+  <TH ALIGN=LEFT>Latent heat flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_LHFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_LHFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_LHFLX_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_LHFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_LHFLX_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>RESSURF *
+  <TH ALIGN=LEFT>Residual energy flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_RESSURF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_RESSURF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_RESSURF_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_RESSURF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_RESSURF_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>SHFLX *
+  <TH ALIGN=LEFT>Sensible heat flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_SHFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_SHFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_SHFLX_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_SHFLX_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_SHFLX_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+ <TH ALIGN=LEFT><BR>
+ <TH ALIGN=LEFT><font size=+1 color=blue>Top of Model Energy Fluxes</font>
+ <TH ALIGN=LEFT>DJF
+ <TH ALIGN=LEFT>MAM
+ <TH ALIGN=LEFT>JJA
+ <TH ALIGN=LEFT>SON
+ <TH ALIGN=LEFT>ANN
+<TR>
+  <TH ALIGN=LEFT>FLNT *
+  <TH ALIGN=LEFT>Net longwave flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FLNT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FLNT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FLNT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FLNT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FLNT_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLNTC *
+  <TH ALIGN=LEFT>Clearsky net longwave flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FLNTC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FLNTC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FLNTC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FLNTC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FLNTC_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNT *
+  <TH ALIGN=LEFT>Net shortwave flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FSNT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FSNT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FSNT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FSNT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FSNT_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNTC *
+  <TH ALIGN=LEFT>Clearsky net shortwave flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_FSNTC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_FSNTC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_FSNTC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_FSNTC_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_FSNTC_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>LWCF *
+  <TH ALIGN=LEFT>Longwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set3_DJF_LWCF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_LWCF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_LWCF_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_LWCF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_LWCF_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>RESTOM
+  <TH ALIGN=LEFT>Residual Flux at TOM (fsnt-flnt)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_RESTOM_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_RESTOM_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_RESTOM_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_RESTOM_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_RESTOM_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>SOLIN 
+  <TH ALIGN=LEFT>Incoming solar radiation
+  <TH ALIGN=LEFT><A HREF="set3_DJF_SOLIN_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_SOLIN_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_SOLIN_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_SOLIN_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_SOLIN_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>SWCF *
+  <TH ALIGN=LEFT>Shortwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set3_DJF_SWCF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_SWCF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_SWCF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_SWCF_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_SWCF_c.xxx">plot</a>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+ <TH ALIGN=LEFT><BR>
+ <TH ALIGN=LEFT><font size=+1 color=blue>Cloud Variables</font>
+ <TH ALIGN=LEFT>DJF
+ <TH ALIGN=LEFT>MAM
+ <TH ALIGN=LEFT>JJA
+ <TH ALIGN=LEFT>SON
+ <TH ALIGN=LEFT>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDHGH
+  <TH ALIGN=LEFT>High-level cloud cover
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDHGH_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDHGH_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDHGH_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDHGH_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDHGH_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW
+  <TH ALIGN=LEFT>Low-level cloud cover
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDLOW_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDLOW_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDLOW_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDLOW_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDLOW_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED
+  <TH ALIGN=LEFT>Mid-level cloud cover
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDMED_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDMED_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDMED_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDMED_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDMED_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT *
+  <TH ALIGN=LEFT>Total cloud cover
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TGCLDIWP
+  <TH ALIGN=LEFT>Total grid-box cloud liquid water path (ice)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TGCLDIWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TGCLDIWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TGCLDIWP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_TGCLDIWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TGCLDIWP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TGCLDLWP
+  <TH ALIGN=LEFT>Total grid-box cloud liquid water path (liquid)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TGCLDLWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TGCLDLWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TGCLDLWP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_TGCLDLWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TGCLDLWP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TICLDIWP
+  <TH ALIGN=LEFT>Total integrated in-cloud ice WP
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TICLDIWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TICLDIWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TICLDIWP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_TICLDIWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TICLDIWP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TICLDLIQWP
+  <TH ALIGN=LEFT>Total integrated in-cloud liquid WP
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TICLDLIQWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TICLDLIQWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TICLDLIQWP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_TICLDLIQWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TICLDLIQWP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TICLDLWP
+  <TH ALIGN=LEFT>Total integrated in-cloud liquid+ice WP
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TICLDLWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TICLDLWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TICLDLWP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_TICLDLWP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TICLDLWP_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+ <TH ALIGN=LEFT><BR>
+ <TH ALIGN=LEFT><font size=+1 color=blue>Meridional Eddy Fluxes</font>
+ <TH ALIGN=LEFT>DJF
+ <TH ALIGN=LEFT>MAM
+ <TH ALIGN=LEFT>JJA
+ <TH ALIGN=LEFT>SON
+ <TH ALIGN=LEFT>ANN
+<TR>
+  <TH ALIGN=LEFT>VBSTAR_TBSTAR
+  <TH ALIGN=LEFT>Stationary Heat Flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_VBSTAR_TBSTAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_VBSTAR_TBSTAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_VBSTAR_TBSTAR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_VBSTAR_TBSTAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_VBSTAR_TBSTAR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>VPTP_BAR
+  <TH ALIGN=LEFT>Transient Heat Flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_VPTP_BAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_VPTP_BAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_VPTP_BAR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_VPTP_BAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_VPTP_BAR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>VBSTAR_QBSTAR
+  <TH ALIGN=LEFT>Stationary Moisture Flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_VBSTAR_QBSTAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_VBSTAR_QBSTAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_VBSTAR_QBSTAR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_VBSTAR_QBSTAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_VBSTAR_QBSTAR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>VPQP_BAR
+  <TH ALIGN=LEFT>Transient Moisture Flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_VPQP_BAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_VPQP_BAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_VPQP_BAR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_VPQP_BAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_VPQP_BAR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>VBSTAR_UBSTAR
+  <TH ALIGN=LEFT>Stationary Momentum Flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_VBSTAR_UBSTAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_VBSTAR_UBSTAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_VBSTAR_UBSTAR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_VBSTAR_UBSTAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_VBSTAR_UBSTAR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>VPUP_BAR
+  <TH ALIGN=LEFT>Transient Momentum Flux
+  <TH ALIGN=LEFT><A HREF="set3_DJF_VPUP_BAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_VPUP_BAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_VPUP_BAR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_VPUP_BAR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_VPUP_BAR_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+  <TH ALIGN=LEFT><BR>
+  <TH ALIGN=LEFT><font size=+1 color=blue>Aerosols</font>
+  <TH ALIGN=LEFT>DJF
+  <TH ALIGN=LEFT>MAM
+  <TH ALIGN=LEFT>JJA
+  <TH ALIGN=LEFT>SON
+  <TH ALIGN=LEFT>ANN
+<TR>
+  <TH ALIGN=LEFT>AODVIS
+  <TH ALIGN=LEFT>Aerosol Optical Depth
+  <TH ALIGN=LEFT><A HREF="set3_DJF_AODVIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_AODVIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_AODVIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_AODVIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_AODVIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>AODDUST
+  <TH ALIGN=LEFT>Dust Optical Depth
+  <TH ALIGN=LEFT><A HREF="set3_DJF_AODDUST_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_AODDUST_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_AODDUST_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_AODDUST_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_AODDUST_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=red size=+2>CFMIP Observation Simulator Package <A HREF="http://www.cgd.ucar.edu/staff/jenkay/cosp/cosp.htm">(COSP)</A> Primary Diagnostics</font>
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>CALIPSO GOCCP 2007-2010</font>
+ <TH>DJF
+ <TH>MAM
+ <TH>JJA
+ <TH>SON
+ <TH>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_CAL
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_CAL
+  <TH ALIGN=LEFT>Low-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDLOW_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDLOW_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDLOW_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDLOW_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDLOW_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_CAL
+  <TH ALIGN=LEFT>Mid-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDMED_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDMED_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDMED_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDMED_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDMED_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_CAL
+  <TH ALIGN=LEFT>High-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDHGH_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDHGH_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDHGH_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDHGH_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDHGH_CAL_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>ISCCP-COSP From D1 Daytime Jul1983-Sep2008</font>
+ <TH>DJF
+ <TH>MAM
+ <TH>JJA
+ <TH>SON
+ <TH>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_ISCCPCOSP
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_ISCCPCOSP
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTHICK_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTHICK_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTHICK_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTHICK_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTHICK_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MISR L3 CTH-OD V5 Mar2000-Nov2009</font>
+  <TH>DJF
+  <TH>MAM
+  <TH>JJA
+  <TH>SON
+  <TH>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MISR   
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MISR
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTHICK_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTHICK_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTHICK_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTHICK_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTHICK_MISR_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MODIS-COSP 2003-2010</font>
+  <TH>DJF
+  <TH>MAM
+  <TH>JJA
+  <TH>SON
+  <TH>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MODIS   
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MODIS
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTHICK_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTHICK_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTHICK_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTHICK_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTHICK_MODIS_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=red size=+2>Additional COSP Diagnostics</font>
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>CALIPSO GOCCP 2007-2010</font>
+ <TH>DJF
+ <TH>MAM
+ <TH>JJA
+ <TH>SON
+ <TH>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_CAL
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_CAL
+  <TH ALIGN=LEFT>Low-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDLOW_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDLOW_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDLOW_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDLOW_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDLOW_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_CAL
+  <TH ALIGN=LEFT>Mid-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDMED_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDMED_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDMED_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDMED_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDMED_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_CAL
+  <TH ALIGN=LEFT>High-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDHGH_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDHGH_CAL_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDHGH_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDHGH_CAL_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDHGH_CAL_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>CLOUDSAT-COSP From Level 2 GEOPROF Jun2006-Nov2010</font>
+ <TH>DJF
+ <TH>MAM
+ <TH>JJA
+ <TH>SON
+ <TH>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_CS2
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_CS2_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_CS2_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_CS2_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_CS2_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_CS2_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>ISCCP-COSP From D1 Daytime Jul1983-Sep2008</font>
+ <TH>DJF
+ <TH>MAM
+ <TH>JJA
+ <TH>SON
+ <TH>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_ISCCPCOSP
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_ISCCPCOSP
+  <TH ALIGN=LEFT>Low-topped cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDLOW_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDLOW_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDLOW_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDLOW_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDLOW_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_ISCCPCOSP
+  <TH ALIGN=LEFT>Mid-topped cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDMED_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDMED_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDMED_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDMED_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDMED_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_ISCCPCOSP
+  <TH ALIGN=LEFT>High-topped cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDHGH_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDHGH_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDHGH_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDHGH_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDHGH_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_ISCCPCOSP
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTHICK_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTHICK_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTHICK_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTHICK_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTHICK_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>MEANPTOP_ISCCPCOSP
+  <TH ALIGN=LEFT>Mean cloud top pressure 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_MEANPTOP_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_MEANPTOP_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_MEANPTOP_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_MEANPTOP_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_MEANPTOP_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>MEANCLDALB_ISCCPCOSP
+  <TH ALIGN=LEFT>Mean cloud albedo 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_MEANCLDALB_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_MEANCLDALB_ISCCPCOSP_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_SON_MEANCLDALB_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_MEANCLDALB_ISCCPCOSP_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_MEANCLDALB_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MISR L3 CTH-OD V5 Mar2000-Nov2009</font>
+  <TH>DJF
+  <TH>MAM
+  <TH>JJA
+  <TH>SON
+  <TH>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MISR   
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_MISR  
+  <TH ALIGN=LEFT>Low-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDLOW_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDLOW_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDLOW_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDLOW_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDLOW_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_MISR 
+  <TH ALIGN=LEFT>Mid-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDMED_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDMED_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDMED_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDMED_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDMED_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_MISR  
+  <TH ALIGN=LEFT>High-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDHGH_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDHGH_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDHGH_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDHGH_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDHGH_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MISR
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTHICK_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTHICK_MISR_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTHICK_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTHICK_MISR_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTHICK_MISR_c.xxx">plot</A>
+<TR>
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+ <TH><BR> 
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MODIS-COSP 2003-2010</font>
+  <TH>DJF
+  <TH>MAM
+  <TH>JJA
+  <TH>SON
+  <TH>ANN
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MODIS
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTOT_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTOT_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTOT_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTOT_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTOT_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_MODIS 
+  <TH ALIGN=LEFT>Low-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDLOW_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDLOW_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDLOW_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDLOW_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDLOW_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_MODIS  
+  <TH ALIGN=LEFT>Mid-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDMED_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDMED_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDMED_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDMED_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDMED_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_MODIS   
+  <TH ALIGN=LEFT>High-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDHGH_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDHGH_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDHGH_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDHGH_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDHGH_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MODIS 
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLDTHICK_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLDTHICK_MODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLDTHICK_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLDTHICK_MODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLDTHICK_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLIMODIS
+  <TH ALIGN=LEFT>Total ice cloud amount 
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLIMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLIMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLIMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLIMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLIMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLWMODIS
+  <TH ALIGN=LEFT>Total liquid cloud amount  
+  <TH ALIGN=LEFT><A HREF="set3_DJF_CLWMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_CLWMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_CLWMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_CLWMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_CLWMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>IWPMODIS 
+  <TH ALIGN=LEFT>Mean ice water path  
+  <TH ALIGN=LEFT><A HREF="set3_DJF_IWPMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_IWPMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_IWPMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_IWPMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_IWPMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>LWPMODIS 
+  <TH ALIGN=LEFT>Mean liquid water path  
+  <TH ALIGN=LEFT><A HREF="set3_DJF_LWPMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_LWPMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_LWPMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_LWPMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_LWPMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>PCTMODIS 
+  <TH ALIGN=LEFT>Mean cloud top pressure  
+  <TH ALIGN=LEFT><A HREF="set3_DJF_PCTMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_PCTMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_PCTMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_PCTMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_PCTMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>REFFCLIMODIS 
+  <TH ALIGN=LEFT>Mean effective radius (ice clouds)  
+  <TH ALIGN=LEFT><A HREF="set3_DJF_REFFCLIMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_REFFCLIMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_REFFCLIMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_REFFCLIMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_REFFCLIMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>REFFCLWMODIS 
+  <TH ALIGN=LEFT>Mean effective radius (liquid clouds)  
+  <TH ALIGN=LEFT><A HREF="set3_DJF_REFFCLWMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_REFFCLWMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_REFFCLWMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_REFFCLWMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_REFFCLWMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TAUILOGMODIS 
+  <TH ALIGN=LEFT>Log-weighted mean optical thickness (ice clouds)  
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TAUILOGMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TAUILOGMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TAUILOGMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_TAUILOGMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TAUILOGMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TAUWLOGMODIS 
+  <TH ALIGN=LEFT>Log-weighted mean optical thickness (liquid clouds)  
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TAUWLOGMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TAUWLOGMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TAUWLOGMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_TAUWLOGMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TAUWLOGMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TAUTLOGMODIS 
+  <TH ALIGN=LEFT>Log-weighted mean optical thickness (all clouds)  
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TAUTLOGMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TAUTLOGMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TAUTLOGMODIS_c.xxx">plot</A>
+  <TH ALIGN=LEFT><A HREF="set3_SON_TAUTLOGMODIS_c.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TAUTLOGMODIS_c.xxx">plot</A>
+<TR> 
+  <TH ALIGN=LEFT>TAUIMODIS  
+  <TH ALIGN=LEFT>Mean optical thickness (ice clouds)   
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TAUIMODIS_c.xxx">plot</a> 
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TAUIMODIS_c.xxx">plot</a> 
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TAUIMODIS_c.xxx">plot</A> 
+  <TH ALIGN=LEFT><A HREF="set3_SON_TAUIMODIS_c.xxx">plot</a> 
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TAUIMODIS_c.xxx">plot</A> 
+<TR> 
+  <TH ALIGN=LEFT>TAUWMODIS  
+  <TH ALIGN=LEFT>Mean optical thickness (liquid clouds)   
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TAUWMODIS_c.xxx">plot</a> 
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TAUWMODIS_c.xxx">plot</a> 
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TAUWMODIS_c.xxx">plot</A> 
+  <TH ALIGN=LEFT><A HREF="set3_SON_TAUWMODIS_c.xxx">plot</a> 
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TAUWMODIS_c.xxx">plot</A> 
+<TR> 
+  <TH ALIGN=LEFT>TAUTMODIS  
+  <TH ALIGN=LEFT>Mean optical thickness (all clouds)   
+  <TH ALIGN=LEFT><A HREF="set3_DJF_TAUTMODIS_c.xxx">plot</a> 
+  <TH ALIGN=LEFT><A HREF="set3_MAM_TAUTMODIS_c.xxx">plot</a> 
+  <TH ALIGN=LEFT><A HREF="set3_JJA_TAUTMODIS_c.xxx">plot</A> 
+  <TH ALIGN=LEFT><A HREF="set3_SON_TAUTMODIS_c.xxx">plot</a> 
+  <TH ALIGN=LEFT><A HREF="set3_ANN_TAUTMODIS_c.xxx">plot</A> 
+
+</TABLE>
+<HR SIZE=2 ALIGN="LEFT" WIDTH="100%" NOSHADE>
+<em><SUP>*</SUP> WGNE diagnostic variable</em></b>
+</BODY>
+</HTML>

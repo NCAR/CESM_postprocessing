@@ -1,0 +1,8 @@
+globalTotlNat   TOTECOSYSC
+globalTotlNat   TOTSOMC_1m
+globalTotlNat   TOTVEGC
+globalTotlNat   TOTLITC_1m
+globalTotlNat   CWDC
+globalTotlAnn   LAND_USE_FLUX
+globalMeanNat   LEAFCN
+globalMeanNat   TOTVEGCN

@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+<TITLE>CICE Output</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+<p>
+<font size=+2><b>CICE Output for  CASENAME<br>
+<hr noshade size=2 size="90%">
+
+<font size=+1 color=blue>Hemisphere time series.</font>
+
+<TABLE border>
+<TR>
+   <TH ALIGN=LEFT><font color=purple>Time Series of Ice Volume, Snow Volume and Ice Area
+</font>
+   <TH>NH 
+   <TH>SH 
+<TR> 
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_NH.png">plot</a>
+  <TH ALIGN=LEFT><A HREF="line/line_mo_SH.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_NH.png">plot</a>
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_SH.png">plot</a>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_NH.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_NH.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_NH.png">JAS</a>
+                 <A HREF="line/line_avg_OND_NH.png">OND</a>
+                 <A HREF="line/line_avg_ANN_NH.png">ANN</a>
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_SH.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_SH.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_SH.png">JAS</a>
+                 <A HREF="line/line_avg_OND_SH.png">OND</a>
+                 <A HREF="line/line_avg_ANN_SH.png">ANN</a>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_NH.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_NH.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_NH.png">JAS</a>
+                 <A HREF="line/line_var_OND_NH.png">OND</a>
+                 <A HREF="line/line_var_ANN_NH.png">ANN</a>
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_SH.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_SH.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_SH.png">JAS</a>
+                 <A HREF="line/line_var_OND_SH.png">OND</a>
+                 <A HREF="line/line_var_ANN_SH.png">ANN</a>
+</TABLE> 
+
+<hr noshade size=2 size="90%">
+</BODY>
+</HTML>

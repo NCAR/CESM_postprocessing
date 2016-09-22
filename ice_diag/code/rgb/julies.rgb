@@ -1,0 +1,18 @@
+;R   G   B
+255 255 255  ; white background
+0   0   0    ; black foreground
+230 112 219  ; red-purple   
+147 112 219  ; blue-purple  
+120 155 242  ; light blue   
+60  100 230  ; blue         
+0   0   200  ; dark blue    
+0 100 0      ; dark green   
+34  139 34   ; forest green 
+150 190 50   ; light green  
+255 225 0    ; yellow       
+255 195 0    ; yellow orange      
+255 150 0    ; dark yellow orange      
+255 100 0    ; oranage yellow
+255 50  0    ; orange        
+220 40  15   ; dark orange   
+139 0  0     ;  red  

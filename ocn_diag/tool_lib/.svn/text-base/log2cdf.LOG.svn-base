@@ -1,0 +1,13 @@
+v0.1
+   first version
+
+v0.2
+   handles .gz files, processing gunzip -c output through a pipe
+   handles date overlap
+   examines 'CCSM modification tag' to detect change of units in SFWF & RESID_S
+   handle additional blank lines in read_tavg_names (stay backwards compatible)
+   handle date format change in 'Global Time Averages' line (stay backwards compatible)
+   change some units and put in corresponding scale factors
+
+v0.3
+   make compatible with POP2.0 log files

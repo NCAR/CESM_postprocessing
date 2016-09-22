@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<TITLE>CICE Output</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+
+<br>
+<h2>CICE Output for  CASENAME</h2>
+<hr noshade size=2 size="90%">
+
+<table border=0 width=700 cellspacing=20>
+
+<tr>
+<td align=center>
+<table border=0>
+<th colspan=2><a href="timeseries.html">Set 1: Time Series of Ice Volume, Snow Volume and Ice Area</a></th>
+<tr><td align=center><a HREF="line/line_avg_ANN_NH_diff.png"><img src="line/line_avg_ANN_NH_diff.png" width=150 border=1></a>
+<td align=center><a HREF="line/line_avg_ANN_SH_diff.png"><img src="line/line_avg_ANN_SH_diff.png" width=150 border=1></a>
+</table>
+</td>
+
+<td align=center>
+<table border=0>
+<th colspan=2><a href="regional.html">Set 3: Regional Timeseries</a></th>
+<tr><td align=center><A HREF="line/line_avg_ANN_Lab_diff.png"><img src="line/line_avg_ANN_Lab_diff.png" width=150 border=1></a>
+<td align=center><A HREF="line/line_avg_ANN_Wed_diff.png"><img src="line/line_avg_ANN_Wed_diff.png" width=150 border=1></a>
+</table>
+</td>
+</tr>
+
+<tr>
+<td align=center>
+<table border=0>
+<th colspan=2><a href="contour.html">Set 2: NH and SH Contour Plots</a></th>
+<tr><td align=center><A HREF="contour/diff_con_ann_hi_cice_NH.png"><img src="contour/diff_con_ann_hi_cice_NH.png"   width=150 border=1></a>
+<td align=center><A HREF="contour/diff_con_ann_aice_cice_NH.png"><img src="contour/diff_con_ann_aice_cice_NH.png"   width=150 border=1></a>
+<tr><td align=center><A HREF="contour/diff_con_ann_hi_cice_SH.png"><img src="contour/diff_con_ann_hi_cice_SH.png"   width=150 border=1></a>
+<td align=center><A HREF="contour/diff_con_ann_aice_cice_SH.png"><img src="contour/diff_con_ann_aice_cice_SH.png"   width=150 border=1></a>
+</table>
+</td>
+
+<td align=center>
+<table border=0>
+<th colspan=2><a href="vector.html">Set 4: NH and SH Vector Plots</a></th>
+<tr><td align=center><A HREF="vector/diff_vec_ann_uvel_cice_NH.png"><img src="vector/diff_vec_ann_uvel_cice_NH.png" width=150 border=1></a>
+<td align=center><A HREF="vector/diff_vec_ann_uvel_cice_SH.png"><img src="vector/diff_vec_ann_uvel_cice_SH.png" width=150 border=1></a>
+</table>
+</td>
+</tr>
+
+</table>
+
+<hr noshade size=2 size="90%">
+</BODY>
+</HTML>

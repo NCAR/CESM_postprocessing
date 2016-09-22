@@ -1,0 +1,445 @@
+<HTML>
+<HEAD>
+<TITLE>CICE Output</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+<p>
+<font size=+2><b>CICE Output for  CASENAME<br>
+<hr noshade size=2 size="90%">
+
+<font size=+1 color=blue>Regional Time Series</font>
+<TABLE border>
+<TR>
+   <TH ALIGN=LEFT><font color=purple>NH Regional Time Series<br>
+                  Ice Volume, Snow Volume and Ice Area <br>
+</font>
+   <TH> <A HREF="NH_regions.png">NH Regions</a> 
+   <TH ALIGN=LEFT><font color=purple>SH Regional Time Series<br>
+                  Ice Volume, Snow Volume and Ice Area <br>
+</font>
+   <TH> <A HREF="SH_regions.png">SH Regions</a> 
+<TR>
+   <TH ALIGN=LEFT><font color=green>Labrador Sea: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Labrador.png">map</a>
+   <TH ALIGN=LEFT><font color=green>Weddell Sea: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Weddell.png">map</a>
+<TR> 
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Lab.png">plot</a>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Wed.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Lab.png">plot</a>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Wed.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Lab.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Lab.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Lab.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Lab.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Lab.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Wed.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Wed.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Wed.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Wed.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Wed.png">ANN</a>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Lab.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Lab.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Lab.png">JAS</a>
+                 <A HREF="line/line_var_OND_Lab.png">OND</a>
+                 <A HREF="line/line_var_ANN_Lab.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Wed.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Wed.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Wed.png">JAS</a>
+                 <A HREF="line/line_var_OND_Wed.png">OND</a>
+                 <A HREF="line/line_var_ANN_Wed.png">ANN</a>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Greenland Sea: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Greenland.png">map</a>
+   <TH ALIGN=LEFT><font color=green>Ross Sea: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Ross.png">map</a>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_GIN.png">plot</a>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Ross.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_GIN.png">plot</a>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Ross.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_GIN.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_GIN.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_GIN.png">JAS</a>
+                 <A HREF="line/line_avg_OND_GIN.png">OND</a>
+                 <A HREF="line/line_avg_ANN_GIN.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Ross.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Ross.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Ross.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Ross.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Ross.png">ANN</a>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_GIN.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_GIN.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_GIN.png">JAS</a>
+                 <A HREF="line/line_var_OND_GIN.png">OND</a>
+                 <A HREF="line/line_var_ANN_GIN.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Ross.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Ross.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Ross.png">JAS</a>
+                 <A HREF="line/line_var_OND_Ross.png">OND</a>
+                 <A HREF="line/line_var_ANN_Ross.png">ANN</a>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Kara and Barents Sea: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Barents.png">map</a>
+   <TH ALIGN=LEFT><font color=green>Indian Sector: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Indian.png">map</a>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Bar.png">plot</a>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Ind.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Bar.png">plot</a>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Ind.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Bar.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Bar.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Bar.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Bar.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Bar.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Ind.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Ind.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Ind.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Ind.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Ind.png">ANN</a>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Bar.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Bar.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Bar.png">JAS</a>
+                 <A HREF="line/line_var_OND_Bar.png">OND</a>
+                 <A HREF="line/line_var_ANN_Bar.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Ind.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Ind.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Ind.png">JAS</a>
+                 <A HREF="line/line_var_OND_Ind.png">OND</a>
+                 <A HREF="line/line_var_ANN_Ind.png">ANN</a>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Arctic Ocean: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Arctic.png">map</a>
+   <TH ALIGN=LEFT><font color=green>Pacific Sector: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Pacific.png">map</a>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_ArcOC.png">plot</a>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Pac.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_ArcOC.png">plot</a>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Pac.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_ArcOC.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_ArcOC.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_ArcOC.png">JAS</a>
+                 <A HREF="line/line_avg_OND_ArcOC.png">OND</a>
+                 <A HREF="line/line_avg_ANN_ArcOC.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Pac.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Pac.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Pac.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Pac.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Pac.png">ANN</a>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_ArcOC.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_ArcOC.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_ArcOC.png">JAS</a>
+                 <A HREF="line/line_var_OND_ArcOC.png">OND</a>
+                 <A HREF="line/line_var_ANN_ArcOC.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Pac.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Pac.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Pac.png">JAS</a>
+                 <A HREF="line/line_var_OND_Pac.png">OND</a>
+                 <A HREF="line/line_var_ANN_Pac.png">ANN</a>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Siberian Sector: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Siberian.png">map</a>
+   <TH ALIGN=LEFT><font color=green>Bellingshausen-Amundsen Sea: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Bellingshausen.png">map</a>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Sib.png">plot</a>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_BAm.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Sib.png">plot</a>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_BAm.png">plot</a>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Sib.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Sib.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Sib.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Sib.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Sib.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_BAm.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_BAm.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_BAm.png">JAS</a>
+                 <A HREF="line/line_avg_OND_BAm.png">OND</a>
+                 <A HREF="line/line_avg_ANN_BAm.png">ANN</a>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Sib.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Sib.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Sib.png">JAS</a>
+                 <A HREF="line/line_var_OND_Sib.png">OND</a>
+                 <A HREF="line/line_var_ANN_Sib.png">ANN</a>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_BAm.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_BAm.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_BAm.png">JAS</a>
+                 <A HREF="line/line_var_OND_BAm.png">OND</a>
+                 <A HREF="line/line_var_ANN_BAm.png">ANN</a>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Beaufort Sea: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Beaufort.png">map</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Beau.png">plot</a>
+  <TH>
+  <TH>
+<TR> 
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Beau.png">plot</a>
+  <TH>
+  <TH>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Beau.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Beau.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Beau.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Beau.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Beau.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Beau.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Beau.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Beau.png">JAS</a>
+                 <A HREF="line/line_var_OND_Beau.png">OND</a>
+                 <A HREF="line/line_var_ANN_Beau.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Central Arctic Ocean: 
+</font>
+  <TH ALIGN=LEFT><A HREF="CentralArctic.png">map</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_CArc.png">plot</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_CArc.png">plot</a>
+  <TH> 
+  <TH>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_CArc.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_CArc.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_CArc.png">JAS</a>
+                 <A HREF="line/line_avg_OND_CArc.png">OND</a>
+                 <A HREF="line/line_avg_ANN_CArc.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_CArc.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_CArc.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_CArc.png">JAS</a>
+                 <A HREF="line/line_var_OND_CArc.png">OND</a>
+                 <A HREF="line/line_var_ANN_CArc.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Bering Sea: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Bering.png">map</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Bering.png">plot</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Bering.png">plot</a>
+  <TH> 
+  <TH>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Bering.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Bering.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Bering.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Bering.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Bering.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Bering.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Bering.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Bering.png">JAS</a>
+                 <A HREF="line/line_var_OND_Bering.png">OND</a>
+                 <A HREF="line/line_var_ANN_Bering.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Sea of Okhotsk: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Okhotsk.png">map</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Okhotsk.png">plot</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Okhotsk.png">plot</a>
+  <TH> 
+  <TH>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Okhotsk.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Okhotsk.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Okhotsk.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Okhotsk.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Okhotsk.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Okhotsk.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Okhotsk.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Okhotsk.png">JAS</a>
+                 <A HREF="line/line_var_OND_Okhotsk.png">OND</a>
+                 <A HREF="line/line_var_ANN_Okhotsk.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Canadian Archipelago: 
+</font>
+  <TH ALIGN=LEFT><A HREF="CAArch.png">map</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_CAArch.png">plot</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_CAArch.png">plot</a>
+  <TH> 
+  <TH>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_CAArch.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_CAArch.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_CAArch.png">JAS</a>
+                 <A HREF="line/line_avg_OND_CAArch.png">OND</a>
+                 <A HREF="line/line_avg_ANN_CAArch.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_CAArch.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_CAArch.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_CAArch.png">JAS</a>
+                 <A HREF="line/line_var_OND_CAArch.png">OND</a>
+                 <A HREF="line/line_var_ANN_CAArch.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+   <TH ALIGN=LEFT><font color=green>Hudson Bay: 
+</font>
+  <TH ALIGN=LEFT><A HREF="Hudson.png">map</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Monthly Means
+  <TH ALIGN=LEFT><A HREF="line/line_mo_Hudson.png">plot</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT>Climatological Monthly Mean Extent vs Obs
+  <TH ALIGN=LEFT><A HREF="line/clim_mo_Hudson.png">plot</a>
+  <TH> 
+  <TH>
+<TR> 
+  <TH ALIGN=LEFT> Annual and Seasonal Means
+  <TH ALIGN=LEFT><A HREF="line/line_avg_JFM_Hudson.png">JFM</a>
+                 <A HREF="line/line_avg_AMJ_Hudson.png">AMJ</a>
+                 <A HREF="line/line_avg_JAS_Hudson.png">JAS</a>
+                 <A HREF="line/line_avg_OND_Hudson.png">OND</a>
+                 <A HREF="line/line_avg_ANN_Hudson.png">ANN</a>
+  <TH>
+  <TH>
+<TR>
+  <TH ALIGN=LEFT> Annual and Seasonal Anomalies
+  <TH ALIGN=LEFT><A HREF="line/line_var_JFM_Hudson.png">JFM</a>
+                 <A HREF="line/line_var_AMJ_Hudson.png">AMJ</a>
+                 <A HREF="line/line_var_JAS_Hudson.png">JAS</a>
+                 <A HREF="line/line_var_OND_Hudson.png">OND</a>
+                 <A HREF="line/line_var_ANN_Hudson.png">ANN</a>
+  <TH>
+  <TH>
+
+</TABLE> 
+
+<hr noshade size=2 size="90%">
+</BODY>
+</HTML>

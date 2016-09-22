@@ -1,0 +1,4 @@
+v0.1
+   first version, based on transports2cdf_x1.csh
+   goal is to make it able to appendable to an existing record
+

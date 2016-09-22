@@ -1,0 +1,102 @@
+</b></font>
+<p>
+<a href="../sets.htm">
+<font color=red><b>Back to diagnostic sets</b></font></a>
+<br clear=left>
+<p>
+<b>Set 12 - Vertical Profiles at 17 selected raobs stations</b>
+<hr noshade size=2 size="100%">
+<TABLE>
+<TR>
+   <TH ALIGN=LEFT><font color=blue>Station Name</font>
+   <TH>T
+   <TH>Q
+   <TH>H
+<TR>
+  <TH ALIGN=LEFT>Thule Greenland
+  <TH ALIGN=LEFT><A HREF="set12_Thule_Greenland_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Thule_Greenland_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Thule_Greenland_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Resolute NWT Canada
+  <TH ALIGN=LEFT><A HREF="set12_Resolute_Canada_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Resolute_Canada_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Resolute_Canada_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Ship P Gulf of Alaska
+  <TH ALIGN=LEFT><A HREF="set12_ShipP_GulfofAlaska_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_ShipP_GulfofAlaska_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_ShipP_GulfofAlaska_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Midway Island (N Pacific)
+  <TH ALIGN=LEFT><A HREF="set12_Midway_Island_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Midway_Island_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Midway_Island_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Northern Great Plains USA
+  <TH ALIGN=LEFT><A HREF="set12_Great_Plains_USA_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Great_Plains_USA_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Great_Plains_USA_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>San Francisco Calif USA
+  <TH ALIGN=LEFT><A HREF="set12_SanFrancisco_CA_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_SanFrancisco_CA_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_SanFrancisco_CA_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Western Europe
+  <TH ALIGN=LEFT><A HREF="set12_Western_Europe_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Western_Europe_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Western_Europe_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Miami Florida USA
+  <TH ALIGN=LEFT><A HREF="set12_Miami_FL_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Miami_FL_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Miami_FL_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Panama Central America
+  <TH ALIGN=LEFT><A HREF="set12_Panama_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Panama_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Panama_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Hawaii (Eq Pacific) 
+  <TH ALIGN=LEFT><A HREF="set12_Hawaii_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Hawaii_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Hawaii_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Marshall Islands (Eq Pacific) 
+  <TH ALIGN=LEFT><A HREF="set12_Marshall_Islands_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Marshall_Islands_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Marshall_Islands_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Yap Island (Eq Pacific) 
+  <TH ALIGN=LEFT><A HREF="set12_Yap_Island_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Yap_Island_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Yap_Island_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Truk Island (Eq Pacific) 
+  <TH ALIGN=LEFT><A HREF="set12_Truk_Island_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Truk_Island_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Truk_Island_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Diego Garcia (Eq Indian) 
+  <TH ALIGN=LEFT><A HREF="set12_Diego_Garcia_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Diego_Garcia_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Diego_Garcia_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Ascension Island (Eq Atlantic) 
+  <TH ALIGN=LEFT><A HREF="set12_Ascension_Island_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Ascension_Island_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Ascension_Island_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Easter Island (S Pacific) 
+  <TH ALIGN=LEFT><A HREF="set12_Easter_Island_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Easter_Island_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_Easter_Island_H.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>McMurdo Antarctica
+  <TH ALIGN=LEFT><A HREF="set12_McMurdo_Antarctica_T.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_McMurdo_Antarctica_Q.xxx">plot</a>
+  <TH ALIGN=LEFT><A HREF="set12_McMurdo_Antarctica_H.xxx">plot</a>
+</TABLE>
+</BODY>
+</HTML>

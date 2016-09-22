@@ -1,0 +1,40 @@
+</b></font>
+<p>
+<a href="../sets.htm">
+<font color=red><b>Back to diagnostic sets</b></font></a>
+<br clear=left>
+<p>
+<b>DIAG Set 11 - Miscellaneous plot types</b>
+<hr noshade size=2 size="100%">
+
+<H2>Warm Pool Scatter Plot</H2>
+<TABLE>
+<TR>
+  <TH ALIGN=LEFT>SW/LW Cloud Forcing
+  <TH ALIGN=LEFT><A HREF="set11_SWCF_LWCF.xxx">plot</A>
+</TABLE>
+
+<H2>Annual Cycle on the Equatorial Pacific</H2>
+<TABLE>
+<TR>
+  <TH ALIGN=LEFT>Latent Heat Flux
+  <TH ALIGN=LEFT><A HREF="set11_LHFLX_OCEAN_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>Precipitation Rate
+  <TH ALIGN=LEFT><A HREF="set11_PRECT_OCEAN_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>Sea Surface Temperature
+  <TH ALIGN=LEFT><A HREF="set11_SST_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>Shortwave Cloud Forcing
+  <TH ALIGN=LEFT><A HREF="set11_SWCF_OCEAN_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>Surface Zonal Stress
+  <TH ALIGN=LEFT><A HREF="set11_TAUX_OCEAN_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>Surface Meridional Stress
+  <TH ALIGN=LEFT><A HREF="set11_TAUY_OCEAN_c.xxx">plot</a>
+</TABLE>
+<hr noshade size=2 size="100%">
+</BODY>
+</HTML>

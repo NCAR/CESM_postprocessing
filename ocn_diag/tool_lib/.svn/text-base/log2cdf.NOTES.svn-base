@@ -1,0 +1,34 @@
+
+foreach command line argument
+
+   open argument as file for reading
+
+   read header
+      starts w/ "Parallel Ocean Program"
+      Info obtained
+         Version
+         CCSM modification tag (if present)
+         vertical level information
+         Run id
+         simulation start date
+         check for diagnostics on every level
+         transport file name & transports computed
+         passive tracer names (if present)
+         TAVG variable names
+      ends w/ "End of initialization"
+
+   if (first logfile)
+      create netcdf file
+   else
+      open netcdf file
+
+   do {
+      read lines until EOF or match on "Step number" or "Global Time Averages:"
+      if EOF break;
+      if (Step number) process diagnostics
+      if (Global Time Averages) process TAVG
+   } while (1);
+
+   close netcdf file
+
+endfor

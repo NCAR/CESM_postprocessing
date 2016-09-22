@@ -1,0 +1,24 @@
+In this directory you will find the file .hluresfile
+Put this file in your $HOME directory. You can customize
+some aspects of the NCL graphics look by editing this file.
+
+Put a copy of diag*.csh in a directory of your choice 
+and modify it as needed. This is all you need to do if
+you are using this package on one of the NCAR systems:
+dataproc, DAVE, cgd SUNs, babyblue, or your own Linux system
+which has /fs/cgd/data0/ nsf mounted. 
+
+If you are installing the package on your own system offsite
+(not at NCAR) then you need to change the home directory DIAG_HOME
+in the diag*.csh code to point to the directory containing all the code.
+
+In the directory ../rgb is the amwg.rgb file used in the
+diagnostics plots. If you wish to you can create your own color
+map by using the amwg.rgb as a template. You can try out
+different colors using the show_colors.ncl script. A list of
+RGB colors is in ../rgb/rgb.txt. There must be 16 colors defined
+to work with the contour levels.
+
+Mark Stevens
+stevens@ucar.edu
+July 4, 2002

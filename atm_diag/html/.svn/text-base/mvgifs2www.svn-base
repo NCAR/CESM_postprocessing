@@ -1,0 +1,104 @@
+#!/bin/csh -f
+# file: mvgifs2www
+# move gif files created by diag script to www
+# written by Mark Stevens 07/24/01
+#********************************************************************
+# Set to the directory where your GIF files are:
+
+set WKDIR = /export/data/_aux0_/work/
+
+# Set this to the location where your GIF files will be,
+# this should be where the directories /set1, /set2, set3,
+# etc with the html files have been created for this model run:
+
+set TARGET = /data/southern/d2/stevens/coupled/f20.001-f202.20.0/
+
+#********************************************************************
+# DON'T CHANGE ANYTHING BELOW HERE
+#********************************************************************
+
+if ($#argv != 1) then
+  echo " "
+  echo "ERROR: gif2www accepts only one argument"
+  echo "usage: gif2www <set1,set2,set3,set4,set5,set6,set7,set8,set9,set10,set11,all,wset1,wset2,wset3,wset4,wset5>"
+  exit
+else
+  if ($1 != all && $1 != set1 && $1 != set2 && $1 != set3 && $1 != set4 \
+    && $1 != set5 && $1 != set6 && $1 != set7 && $1 != set8 && $1 != set9 \
+    && $1 != set10 && $1 != set11 && $1 != wset1 && $1 != wset2 && $1 != wset3 \
+    && $1 != wset4 && $1 != wset5 && $1 != cset1) then
+    echo " "
+    echo "ERROR: incorrect argument"
+    echo "usage: gif2www <set1,set2,set3,set4,set5,set6,set7,set8,set9,set10,set11,all,wset1,wset2,wset3,wset4,wset5>" 
+    exit
+  endif
+endif
+
+if ($1 == set1 || $1 == all) then
+  echo MOVING SET1 TABLES TO {$TARGET}set1
+  mv {$WKDIR}table*.asc {$TARGET}set1
+endif
+if ($1 == set2 || $1 == all) then
+  echo MOVING SET2 GIF FILES TO {$TARGET}set2
+  mv {$WKDIR}set2*.gif {$TARGET}set2
+endif
+if ($1 == set3 || $1 == all) then
+  echo MOVING SET3 GIF FILES to {$TARGET}set3 
+  mv {$WKDIR}set3*.gif {$TARGET}set3
+endif
+if ($1 == set4 || $1 == all) then
+  echo MOVING SET4 GIF FILES to {$TARGET}set4 
+  mv {$WKDIR}set4*.gif {$TARGET}set4
+endif
+if ($1 == set5 || $1 == all) then
+  echo MOVING SET5 GIF FILES TO {$TARGET}set5_6
+  mv {$WKDIR}set5*.gif {$TARGET}set5_6
+endif
+if ($1 == set6 || $1 == all) then
+  echo MOVING SET6 GIF FILES to {$TARGET}set5_6 
+  mv {$WKDIR}set6*.gif {$TARGET}set5_6
+endif
+if ($1 == set7 || $1 == all) then
+  echo MOVING SET7 GIF FILES to {$TARGET}set7 
+  mv {$WKDIR}set7*.gif {$TARGET}set7
+endif
+if ($1 == set8 || $1 == all) then
+  echo MOVING SET8 GIF FILES to {$TARGET}set8 
+  mv {$WKDIR}set8*.gif {$TARGET}set8
+endif
+if ($1 == set9 || $1 == all) then
+  echo MOVING SET9 GIF FILES to {$TARGET}set9 
+  mv {$WKDIR}set9*.gif {$TARGET}set9
+endif
+if ($1 == set10 || $1 == all) then
+  echo MOVING SET10 GIF FILES to {$TARGET}set10
+  mv {$WKDIR}set10*.gif {$TARGET}set10
+endif
+if ($1 == set11 || $1 == all) then
+  echo MOVING SET11 GIF FILES to {$TARGET}set11
+  mv {$WKDIR}set11*.gif {$TARGET}set11
+endif
+if ($1 == wset1 || $1 == all) then
+  echo MOVING WSET1 GIF FILES to {$TARGET}wset1 
+  mv {$WKDIR}wset1*.gif {$TARGET}wset1
+endif
+if ($1 == wset2 || $1 == all) then
+  echo MOVING WSET2 GIF FILES to {$TARGET}wset1 
+  mv {$WKDIR}wset2*.gif {$TARGET}wset1
+endif
+if ($1 == wset3 || $1 == all) then
+  echo MOVING WSET3 GIF FILES to {$TARGET}wset3 
+  mv {$WKDIR}wset3*.gif {$TARGET}wset3
+endif
+if ($1 == wset4 || $1 == all) then
+  echo MOVING WSET4 GIF FILES to {$TARGET}wset4 
+  mv {$WKDIR}wset4*.gif {$TARGET}wset4
+if ($1 == wset5 || $1 == all) then
+  echo MOVING WSET5 GIF FILES to {$TARGET}wset5 
+  mv {$WKDIR}wset5*.gif {$TARGET}wset5
+endif
+if ($1 == cset1 || $1 == all) then
+  echo MOVING SET1CHEM TABLES TO {$TARGET}cset1
+  mv {$WKDIR}table*.asc {$TARGET}cset1
+endif
+

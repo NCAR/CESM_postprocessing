@@ -1,0 +1,246 @@
+program zon_avg
+
+  !-----------------------------------------------------------------------------
+  !   program to compute basin zonal averages from CCSM POP NetCDF output
+  !
+  !   usage : za [OPTION]... filename.nc
+  !   see subroutine print_usage for list of options
+  !
+  !   CVS:$Id: main.F90,v 1.4 2002/04/02 18:57:53 klindsay Exp $
+  !   CVS:$Name:  $
+  !   CVS:$Log: main.F90,v $
+  !   CVS:Revision 1.4  2002/04/02 18:57:53  klindsay
+  !   CVS:correct rmask default info in print_usage
+  !   CVS:
+  !   CVS:Revision 1.3  2002/02/11 05:04:40  klindsay
+  !   CVS:add options -v and -x
+  !   CVS:
+  !   CVS:Revision 1.2  2002/02/11 03:18:12  klindsay
+  !   CVS:add -N option, which produces area-weighted sums, as opposed to averages
+  !   CVS:   together with running sums on latitude, is useful for
+  !   CVS:   making inferred transports from fluxes
+  !   CVS:use NF_FILL_DOUBLE for missing_value and _FillValue if variable doesn't
+  !   CVS:   already have one
+  !   CVS:
+  !   CVS:Revision 1.1  2001/10/15 17:37:54  klindsay
+  !   CVS:initial checkin
+  !   CVS:
+  !-----------------------------------------------------------------------------
+
+  use kinds_mod
+  use constants
+  use msg_mod
+  use arg_wrap
+  use sphere_area_mod
+  use POP_grid_mod
+  use zonal_avg_mod
+
+  implicit none
+
+  !-----------------------------------------------------------------------------
+
+  character(len=char_len) :: progname, argstr
+  character(len=long_char_len) :: varlist
+  integer(kind=i4) :: argcnt, argind
+
+  character(len=char_len) :: &
+       rmask_name        = 'REGION_MASK', &
+       rmask_filename    = 'default', &
+       grid_filename     = 'default', &
+       kmt_filename      = 'default', &
+       outfilename       = 'default', &
+       infilename        = 'none'
+
+  logical(kind=log_kind) :: &
+       time_const        = .false., &
+       file_append       = .false., &
+       file_overwrite    = .false., &
+       normalizing       = .true., &
+       outfile_exists
+
+  real(kind=r8) :: &
+       latmin            =  -90.0_r8, &
+       latmax            =   90.0_r8, &
+       lonmin            = -720.0_r8, &
+       lonmax            =  720.0_r8
+
+  type(POP_grid) :: &
+       src_grid
+
+  integer(kind=int_kind), dimension(:,:), allocatable :: &
+       rmask
+
+  !-----------------------------------------------------------------------------
+
+  call init_constants
+  call msg_set_iunit(stdout)
+  call getarg_wrap(0, progname)
+
+  !-----------------------------------------------------------------------------
+  !   process command line arguments
+  !-----------------------------------------------------------------------------
+
+  argcnt = iargc_wrap()
+
+  argind = 1
+  do while (argind <= argcnt)
+     call getarg_wrap(argind, argstr)
+     select case (argstr)
+        case ('-h', '-help')
+           call print_usage(progname)
+           stop
+        case ('-o')
+           argind = argind + 1
+           call getarg_wrap(argind, outfilename)
+        case ('-time_const')
+           time_const = .true.
+        case ('-A')
+           file_append = .true.
+        case ('-O')
+           file_overwrite = .true.
+        case ('-N')
+           normalizing = .false.
+        case ('-v')
+           argind = argind + 1
+           call getarg_wrap(argind, varlist)
+           call parse_varlist(varlist)
+        case ('-x')
+           varlist_include = .false.
+        case ('-rmask_file')
+           argind = argind + 1
+           call getarg_wrap(argind, rmask_filename)
+        case ('-rmask_name')
+           argind = argind + 1
+           call getarg_wrap(argind, rmask_name)
+        case ('-grid_file')
+           argind = argind + 1
+           call getarg_wrap(argind, grid_filename)
+        case ('-kmt_file')
+           argind = argind + 1
+           call getarg_wrap(argind, kmt_filename)
+        case ('-lonmin')
+           argind = argind + 1
+           call getarg_wrap(argind, argstr)
+           read(argstr,*) lonmin
+        case ('-lonmax')
+           argind = argind + 1
+           call getarg_wrap(argind, argstr)
+           read(argstr,*) lonmax
+        case ('-latmin')
+           argind = argind + 1
+           call getarg_wrap(argind, argstr)
+           read(argstr,*) latmin
+        case ('-latmax')
+           argind = argind + 1
+           call getarg_wrap(argind, argstr)
+           read(argstr,*) latmax
+        case ('-test')
+           call test_contains_np
+           call test_clip_sphere_area
+           stop
+        case default
+           if (argind /= argcnt) then
+              write(stdout,fmt='(A)') 'ERROR : unrecognized argument ' // trim(argstr)
+              call print_usage(progname)
+              stop
+           end if
+           infilename = argstr
+     end select
+     argind = argind + 1
+  enddo
+
+  if (infilename == 'none') then
+     write(stdout,fmt='(A)') 'ERROR : no infilename'
+     call print_usage(progname)
+     stop
+  end if
+
+  !-----------------------------------------------------------------------------
+  !   set defaults that depend on infilename
+  !-----------------------------------------------------------------------------
+
+  if (outfilename == 'default') outfilename = 'za_' // trim(infilename)
+  if (rmask_filename == 'default') rmask_filename = trim(infilename)
+  if (grid_filename == 'default') grid_filename = trim(infilename)
+  if (kmt_filename == 'default') kmt_filename = trim(infilename)
+
+  !-----------------------------------------------------------------------------
+
+  inquire(file=outfilename, exist=outfile_exists)
+  if (outfile_exists) then
+     if (.not. file_append .and. .not. file_overwrite) then
+        write(stdout,fmt='(A)') 'ERROR : outfile (' // trim(outfilename) // &
+             ') exists but neither append (-A) or overwrite (-O) was specified'
+        stop
+     end if
+     if (file_append .and. file_overwrite) then
+        write(stdout,fmt='(A)') 'ERROR : outfile (' // trim(outfilename) // &
+             ') exists and both append (-A) and overwrite (-O) were specified'
+        stop
+     end if
+  end if
+
+  !-----------------------------------------------------------------------------
+
+  call read_POP_grid_NetCDF(grid_filename, kmt_filename, src_grid)
+
+  latmin = max(latmin, src_grid%tvert_latmin)
+  latmax = min(latmax, src_grid%tvert_latmax)
+  lonmin = max(lonmin, src_grid%tvert_lonmin)
+  lonmax = min(lonmax, src_grid%tvert_lonmax)
+
+  allocate(rmask(src_grid%nlon, src_grid%nlat))
+  call read_rmask(rmask_filename, rmask_name, rmask)
+
+  ! replace potentially missing_value values over land with zero
+  rmask = merge(rmask, 0, src_grid%kmt > 0)
+
+  call gen_dest_lat_axis(src_grid, latmin, latmax)
+
+  call def_dest_dimsnvars(outfilename, infilename, maxval(abs(rmask)) + 1, &
+       time_const, outfile_exists .and. file_append)
+  call put_dest_dim_vars(outfilename, infilename)
+  call gen_weights(src_grid, normalizing, rmask, latmin, latmax, lonmin, lonmax)
+  call compute_zon_avg(outfilename, src_grid, infilename, normalizing, rmask, &
+       time_const)
+
+  !-----------------------------------------------------------------------------
+  !   free the resources that the program has dynamically allocated
+  !-----------------------------------------------------------------------------
+
+  1000 continue
+  deallocate(rmask)
+  call free_zon_avg
+  call free_POP_grid(src_grid)
+
+end program zon_avg
+
+!-------------------------------------------------------------------------------
+
+subroutine print_usage(progname)
+
+  use constants
+
+  character(len=char_len) :: progname
+
+  write(stdout,fmt='(A)') 'USAGE : ' // trim(progname) // ' [OPTION]... infilename.nc'
+  write(stdout,fmt='(A)') 'options : '
+  write(stdout,fmt='(A)') '   -h|-help (print this help message)'
+  write(stdout,fmt='(A)') '   -o outfilename [default: za_infilename.nc]'
+  write(stdout,fmt='(A)') '   -time_const (apply averaging to time constant fields)'
+  write(stdout,fmt='(A)') '   -A (if outfilename exists, append to it)'
+  write(stdout,fmt='(A)') '   -O (if outfilename exists, overwrite it)'
+  write(stdout,fmt='(A)') '   -N (no normalization, i.e. compute area sums as opposed to area averages)'
+  write(stdout,fmt='(A)') '   -v var1[,var2[...]] variables to process'
+  write(stdout,fmt='(A)') '   -x process all variables EXCEPT those specified with -v'
+  write(stdout,fmt='(A)') '   -grid_file filename [default: infilename.nc]'
+  write(stdout,fmt='(A)') '   -kmt_file filename [default: infilename.nc]'
+  write(stdout,fmt='(A)') '   -rmask_file filename [default: infilename.nc]'
+  write(stdout,fmt='(A)') '   -rmask_name varname [default: REGION_MASK]'
+  write(stdout,fmt='(A)') '   -lonmin value'
+  write(stdout,fmt='(A)') '   -lonmax value'
+  write(stdout,fmt='(A)') '   -latmin value'
+  write(stdout,fmt='(A)') '   -latmax value'
+  write(stdout,fmt='(A)') '   -test (call internal test routines)'
+
+end subroutine print_usage

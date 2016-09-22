@@ -1,0 +1,834 @@
+</b></font>
+<p>
+<a href="../sets.htm">
+<font color=red><b>Back to diagnostic sets</b></font></a>
+<br clear=left>
+<p>
+<b>DIAG Set 10 - Annual cycle line plots of global means</b>
+<hr noshade size=2 size="100%">
+<TABLE>
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>HadISST/OI.v2 1982-2001</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>ICEFRAC
+  <TH ALIGN=LEFT>Sea-ice area (Northern) 
+  <TH ALIGN=LEFT><A HREF="set10_ICEFRAC_HADISST_NP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>ICEFRAC
+  <TH ALIGN=LEFT>Sea-ice area (Southern) 
+  <TH ALIGN=LEFT><A HREF="set10_ICEFRAC_HADISST_SP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>SST
+  <TH ALIGN=LEFT>Sea surface temperature
+  <TH ALIGN=LEFT><A HREF="set10_SST_HADISST_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>SMMR & SSM/I 1979-1999</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>ICEFRAC
+  <TH ALIGN=LEFT>Sea-ice area (Northern) 
+  <TH ALIGN=LEFT><A HREF="set10_ICEFRAC_SSMI_NP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>ICEFRAC
+  <TH ALIGN=LEFT>Sea-ice area (Southern) 
+  <TH ALIGN=LEFT><A HREF="set10_ICEFRAC_SSMI_SP_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>Legates & Willmott 1920-80</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>PRECT
+  <TH ALIGN=LEFT>Precipitation rate
+  <TH ALIGN=LEFT><A HREF="set10_PRECT_LEGATES_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>TREFHT
+  <TH ALIGN=LEFT>2-meter air temperature
+  <TH ALIGN=LEFT><A HREF="set10_TREFHT_LEGATES_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>Willmott & Matsuura 1950-99</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>TREFHT 
+  <TH ALIGN=LEFT>2-meter air temperature (land)
+  <TH ALIGN=LEFT><A HREF="set10_TREFHT_WILLMOTT_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MERRA Analysis 1979-2013 (NASA)</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>PREH2O 
+  <TH ALIGN=LEFT>Total precipitable water
+  <TH ALIGN=LEFT><A HREF="set10_PREH2O_MERRA_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>PSL
+  <TH ALIGN=LEFT>Sea-level pressure
+  <TH ALIGN=LEFT><A HREF="set10_PSL_MERRA_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 850
+  <TH ALIGN=LEFT>850 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_850_MERRA_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 200
+  <TH ALIGN=LEFT>200 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_200_MERRA_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>TS
+  <TH ALIGN=LEFT>Surface temperature
+  <TH ALIGN=LEFT><A HREF="set10_TS_MERRA_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>U 200
+  <TH ALIGN=LEFT>200 mb zonal wind
+  <TH ALIGN=LEFT><A HREF="set10_U_200_MERRA_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Z 500
+  <TH ALIGN=LEFT>500 mb geopotential height
+  <TH ALIGN=LEFT><A HREF="set10_Z3_500_MERRA_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Z 300
+  <TH ALIGN=LEFT>300 mb geopotential height
+  <TH ALIGN=LEFT><A HREF="set10_Z3_300_MERRA_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>ERA40 Reanalysis 1980-2001</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>EP
+  <TH ALIGN=LEFT>Evaporation - precipitation
+  <TH ALIGN=LEFT><A HREF="set10_EP_ERA40_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>LHFLX
+  <TH ALIGN=LEFT>Surface latent heat flux
+  <TH ALIGN=LEFT><A HREF="set10_LHFLX_ERA40_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>PREH2O
+  <TH ALIGN=LEFT>Precipitable water
+  <TH ALIGN=LEFT><A HREF="set10_PREH2O_ERA40_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>QFLX
+  <TH ALIGN=LEFT>Surface water flux
+  <TH ALIGN=LEFT><A HREF="set10_QFLX_ERA40_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 850
+  <TH ALIGN=LEFT>850 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_850_ERA40_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 200
+  <TH ALIGN=LEFT>200 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_200_ERA40_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>U 200
+  <TH ALIGN=LEFT>200 mb zonal wind
+  <TH ALIGN=LEFT><A HREF="set10_U_200_ERA40_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Z 500
+  <TH ALIGN=LEFT>500 mb geopotential height
+  <TH ALIGN=LEFT><A HREF="set10_Z3_500_ERA40_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Z 300
+  <TH ALIGN=LEFT>300 mb geopotential height
+  <TH ALIGN=LEFT><A HREF="set10_Z3_300_ERA40_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>ERA-Interim Reanalysis 1989-2005</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>PREH2O
+  <TH ALIGN=LEFT>Precipitable water
+  <TH ALIGN=LEFT><A HREF="set10_PREH2O_ERAI_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 850
+  <TH ALIGN=LEFT>850 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_850_ERAI_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 200
+  <TH ALIGN=LEFT>200 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_200_ERAI_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>U 200
+  <TH ALIGN=LEFT>200 mb zonal wind
+  <TH ALIGN=LEFT><A HREF="set10_U_200_ERAI_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Z 500
+  <TH ALIGN=LEFT>500 mb geopotential height
+  <TH ALIGN=LEFT><A HREF="set10_Z3_500_ERAI_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Z 300
+  <TH ALIGN=LEFT>300 mb geopotential height
+  <TH ALIGN=LEFT><A HREF="set10_Z3_300_ERAI_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>JRA25 Reanalysis 1979-04</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>PREH2O 
+  <TH ALIGN=LEFT>Total precipitable water
+  <TH ALIGN=LEFT><A HREF="set10_PREH2O_JRA25_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>PSL
+  <TH ALIGN=LEFT>Sea-level pressure
+  <TH ALIGN=LEFT><A HREF="set10_PSL_JRA25_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>SHFLX
+  <TH ALIGN=LEFT>Surface sensible heat flux
+  <TH ALIGN=LEFT><A HREF="set10_SHFLX_JRA25_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 850
+  <TH ALIGN=LEFT>850 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_850_JRA25_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 200
+  <TH ALIGN=LEFT>200 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_200_JRA25_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>TREFHT
+  <TH ALIGN=LEFT>2-meter surface air temperature
+  <TH ALIGN=LEFT><A HREF="set10_TREFHT_JRA25_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>U 200
+  <TH ALIGN=LEFT>200 mb zonal wind
+  <TH ALIGN=LEFT><A HREF="set10_U_200_JRA25_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Z 500
+  <TH ALIGN=LEFT>500 mb geopotential height
+  <TH ALIGN=LEFT><A HREF="set10_Z3_500_JRA25_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>Z 300
+  <TH ALIGN=LEFT>300 mb geopotential height
+  <TH ALIGN=LEFT><A HREF="set10_Z3_300_JRA25_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>AIRS IR Sounder 2002-06</font>
+<TR>
+  <TH ALIGN=LEFT>T 850 *
+  <TH ALIGN=LEFT>850 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_850_AIRS_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>T 200
+  <TH ALIGN=LEFT>200 mb temperature
+  <TH ALIGN=LEFT><A HREF="set10_T_200_AIRS_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+ <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>Large-Yeager 1984-2004</font>
+<TR>
+  <TH ALIGN=LEFT>SHFLX
+  <TH ALIGN=LEFT>Surface sensible heat flux
+  <TH ALIGN=LEFT><A HREF="set10_SHFLX_LARYEA_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>QFLX
+  <TH ALIGN=LEFT>Surface water flux 
+  <TH ALIGN=LEFT><A HREF="set10_QFLX_LARYEA_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLNS
+  <TH ALIGN=LEFT>Surf Net LW flux
+  <TH ALIGN=LEFT><A HREF="set10_FLNS_LARYEA_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>FSNS
+  <TH ALIGN=LEFT>Surf Net SW flux
+  <TH ALIGN=LEFT><A HREF="set10_FSNS_LARYEA_obsc.xxx">plot</A>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>NVAP 1988-1999</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>PREH2O
+  <TH ALIGN=LEFT>Total precipitable water
+  <TH ALIGN=LEFT><A HREF="set10_PREH2O_NVAP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>TGCLDLWP
+  <TH ALIGN=LEFT>Cloud liquid water (ocean)
+  <TH ALIGN=LEFT><A HREF="set10_TGCLDLWP_NVAP_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>Woods Hole OAFLUX 1958-2006</font>
+<TR>
+  <TH ALIGN=LEFT>LHFLX 
+  <TH ALIGN=LEFT>Latent Heat Flux
+  <TH ALIGN=LEFT><A HREF="set10_LHFLX_WHOI_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>QFLX 
+  <TH ALIGN=LEFT>Surface Water Flux
+  <TH ALIGN=LEFT><A HREF="set10_QFLX_WHOI_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>GPCP 1979-2009</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>PRECT
+  <TH ALIGN=LEFT>Precipitation rate
+  <TH ALIGN=LEFT><A HREF="set10_PRECT_GPCP_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>CMAP (Xie-Arkin) 1979-98</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>PRECT
+  <TH ALIGN=LEFT>Precipitation rate
+  <TH ALIGN=LEFT><A HREF="set10_PRECT_XA_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>UWisc (v3) 1988-2008</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>TGCLDLWP
+  <TH ALIGN=LEFT>cloud liquid water (ocean)
+  <TH ALIGN=LEFT><A HREF="set10_TGCLDLWP_UWISC_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>SSM/I (Wentz) 1987-2000</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>PRECT
+  <TH ALIGN=LEFT>Precipitation rate (ocean)
+  <TH ALIGN=LEFT><A HREF="set10_PRECT_SSMI_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>PREH2O
+  <TH ALIGN=LEFT>Precipitable water (ocean)
+  <TH ALIGN=LEFT><A HREF="set10_PREH2O_SSMI_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>TRMM (3B43) 1998-2009</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>PRECT
+  <TH ALIGN=LEFT>Precipitation rate (38S-38N)
+  <TH ALIGN=LEFT><A HREF="set10_PRECT_TRMM_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>ERBE Feb1985-Apr1989</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>FLUT
+  <TH ALIGN=LEFT>TOA upward longwave flux
+  <TH ALIGN=LEFT><A HREF="set10_FLUT_ERBE_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLUTC
+  <TH ALIGN=LEFT>TOA clearsky upward longwave flux
+  <TH ALIGN=LEFT><A HREF="set10_FLUTC_ERBE_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNTOA
+  <TH ALIGN=LEFT>TOA net shortwave flux
+  <TH ALIGN=LEFT><A HREF="set10_FSNTOA_ERBE_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNTOAC
+  <TH ALIGN=LEFT>TOA clearsky net shortwave flux
+  <TH ALIGN=LEFT><A HREF="set10_FSNTOAC_ERBE_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>LWCF
+  <TH ALIGN=LEFT>TOA longwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set10_LWCF_ERBE_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>RESTOA
+  <TH ALIGN=LEFT>TOA residual energy flux 
+  <TH ALIGN=LEFT><A HREF="set10_RESTOA_ERBE_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>SWCF
+  <TH ALIGN=LEFT>TOA shortwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set10_SWCF_ERBE_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>CERES-EBAF March 2000-Feb 2013</font>
+<TR>
+  <TH ALIGN=LEFT>ALBEDO
+  <TH ALIGN=LEFT>TOA albedo 
+  <TH ALIGN=LEFT><A HREF="set10_ALBEDO_CERES-EBAF_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>ALBEDOC
+  <TH ALIGN=LEFT>TOA clearsky albedo 
+  <TH ALIGN=LEFT><A HREF="set10_ALBEDOC_CERES-EBAF_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLUT *
+  <TH ALIGN=LEFT>TOA upward LW flux
+  <TH ALIGN=LEFT><A HREF="set10_FLUT_CERES-EBAF_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLUTC
+  <TH ALIGN=LEFT>TOA clearsky upward LW flux
+  <TH ALIGN=LEFT><A HREF="set10_FLUTC_CERES-EBAF_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNTOA *
+  <TH ALIGN=LEFT>TOA net SW flux
+  <TH ALIGN=LEFT><A HREF="set10_FSNTOA_CERES-EBAF_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNTOAC
+  <TH ALIGN=LEFT>TOA clearsky net SW flux
+  <TH ALIGN=LEFT><A HREF="set10_FSNTOAC_CERES-EBAF_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>LWCF *
+  <TH ALIGN=LEFT>TOA longwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set10_LWCF_CERES-EBAF_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>SWCF *
+  <TH ALIGN=LEFT>TOA shortwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set10_SWCF_CERES-EBAF_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>CERES 2000-2003</font>
+<TR>
+  <TH ALIGN=LEFT>ALBEDO
+  <TH ALIGN=LEFT>TOA albedo 
+  <TH ALIGN=LEFT><A HREF="set10_ALBEDO_CERES_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>ALBEDOC
+  <TH ALIGN=LEFT>TOA clearsky albedo 
+  <TH ALIGN=LEFT><A HREF="set10_ALBEDOC_CERES_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLUT *
+  <TH ALIGN=LEFT>TOA upward LW flux
+  <TH ALIGN=LEFT><A HREF="set10_FLUT_CERES_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLUTC
+  <TH ALIGN=LEFT>TOA clearsky upward LW flux
+  <TH ALIGN=LEFT><A HREF="set10_FLUTC_CERES_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNTOA *
+  <TH ALIGN=LEFT>TOA net SW flux
+  <TH ALIGN=LEFT><A HREF="set10_FSNTOA_CERES_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNTOAC
+  <TH ALIGN=LEFT>TOA clearsky net SW flux
+  <TH ALIGN=LEFT><A HREF="set10_FSNTOAC_CERES_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>LWCF *
+  <TH ALIGN=LEFT>TOA longwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set10_LWCF_CERES_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>SWCF *
+  <TH ALIGN=LEFT>TOA shortwave cloud forcing
+  <TH ALIGN=LEFT><A HREF="set10_SWCF_CERES_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>ISCCP FD Jul1983-Dec2000</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>FLDS
+  <TH ALIGN=LEFT>Surface LW downwelling flux
+  <TH ALIGN=LEFT><A HREF="set10_FLDS_ISCCP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FLNS
+  <TH ALIGN=LEFT>Surface Net LW flux
+  <TH ALIGN=LEFT><A HREF="set10_FLNS_ISCCP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSDS
+  <TH ALIGN=LEFT>Surface SW downwelling flux
+  <TH ALIGN=LEFT><A HREF="set10_FSDS_ISCCP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>FSNS
+  <TH ALIGN=LEFT>Surface Net SW flux
+  <TH ALIGN=LEFT><A HREF="set10_FSNS_ISCCP_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>ISCCP D2 1983-2001</font>
+  <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH (IR clouds)
+  <TH ALIGN=LEFT>High-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDHGH_ISCCP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH (VIS/IR/NIR clouds)
+  <TH ALIGN=LEFT>High-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDHGH_VISIR_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW (IR clouds)
+  <TH ALIGN=LEFT>Low-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDLOW_ISCCP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW (VIS/IR/NIR clouds)
+  <TH ALIGN=LEFT>Low-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDLOW_VISIR_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>CLDMED (IR clouds)
+  <TH ALIGN=LEFT>Medium-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDMED_ISCCP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>CLDMED (VIS/IR/NIR clouds)
+  <TH ALIGN=LEFT>Medium-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDMED_VISIR_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT (IR clouds)
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_ISCCP_obsc.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT (VIS/IR/NIR clouds)
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_VISIR_obsc.xxx">plot</a>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=red size=+2>CFMIP Observation Simulator Package <A HREF="http://www.cgd.ucar.edu/staff/jenkay/cosp/cosp.htm">(COSP)</A> Primary Diagnostics</font>
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>ISCCP-COSP From D1 Daytime Jul1983-Jun2008</font>
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>CALIPSO GOCCP 2007-2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_CAL
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_CAL_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_CAL
+  <TH ALIGN=LEFT>Low-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDLOW_CAL_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_CAL
+  <TH ALIGN=LEFT>Mid-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDMED_CAL_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_CAL
+  <TH ALIGN=LEFT>High-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDHGH_CAL_obsc.xxx">plot</A>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>ISCCP-COSP From D1 Daytime Jul1983-Jun2008</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_ISCCPCOSP
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_ISCCPCOSP_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_ISCCPCOSP
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTHICK_ISCCPCOSP_obsc.xxx">plot</A>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MISR L3 CTH-OD V5 Mar2000-Nov2009</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MISR   
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_MISR_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MISR
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTHICK_MISR_obsc.xxx">plot</A>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MODIS-COSP 2003-2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MODIS   
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_MODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MODIS
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTHICK_MODIS_obsc.xxx">plot</A>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=red size=+2>Additional COSP Diagnostics</font>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>CALIPSO GOCCP 2007-2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_CAL
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_CAL_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_CAL
+  <TH ALIGN=LEFT>Low-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDLOW_CAL_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_CAL
+  <TH ALIGN=LEFT>Mid-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDMED_CAL_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_CAL
+  <TH ALIGN=LEFT>High-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDHGH_CAL_obsc.xxx">plot</A>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>CLOUDSAT-COSP From Level 2 GEOPROF Jun2006-Nov2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_CS2
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_CS2_obsc.xxx">plot</A>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>ISCCP-COSP From D1 Daytime Jul1983-Jun2008</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_ISCCPCOSP
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_ISCCPCOSP_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_ISCCPCOSP
+  <TH ALIGN=LEFT>Low-topped cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set10_CLDLOW_ISCCPCOSP_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_ISCCPCOSP
+  <TH ALIGN=LEFT>Mid-topped cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set10_CLDMED_ISCCPCOSP_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_ISCCPCOSP
+  <TH ALIGN=LEFT>High-topped cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set10_CLDHGH_ISCCPCOSP_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_ISCCPCOSP
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTHICK_ISCCPCOSP_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>MEANPTOP_ISCCPCOSP
+  <TH ALIGN=LEFT>Mean cloud top pressure 
+  <TH ALIGN=LEFT><A HREF="set10_MEANPTOP_ISCCPCOSP_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>MEANCLDALB_ISCCPCOSP
+  <TH ALIGN=LEFT>Mean cloud albedo 
+  <TH ALIGN=LEFT><A HREF="set10_MEANCLDALB_ISCCPCOSP_obsc.xxx">plot</A>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MISR L3 CTH-OD V5 Mar2000-Nov2009</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MISR   
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_MISR_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_MISR  
+  <TH ALIGN=LEFT>Low-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDLOW_MISR_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_MISR 
+  <TH ALIGN=LEFT>Mid-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDMED_MISR_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_MISR  
+  <TH ALIGN=LEFT>High-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDHGH_MISR_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MISR
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTHICK_MISR_obsc.xxx">plot</A>
+<TR>
+  <TH><BR>
+  <TH><BR>
+  <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MODIS-COSP 2003-2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MODIS
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set10_CLDTOT_MODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_MODIS 
+  <TH ALIGN=LEFT>Low-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDLOW_MODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_MODIS  
+  <TH ALIGN=LEFT>Mid-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDMED_MODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_MODIS   
+  <TH ALIGN=LEFT>High-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDHGH_MODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MODIS 
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set10_CLDTHICK_MODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLIMODIS
+  <TH ALIGN=LEFT>Total ice cloud amount 
+  <TH ALIGN=LEFT><A HREF="set10_CLIMODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLWMODIS
+  <TH ALIGN=LEFT>Total liquid cloud amount  
+  <TH ALIGN=LEFT><A HREF="set10_CLWMODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>IWPMODIS 
+  <TH ALIGN=LEFT>Mean ice water path  
+  <TH ALIGN=LEFT><A HREF="set10_IWPMODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>LWPMODIS 
+  <TH ALIGN=LEFT>Mean liquid water path  
+  <TH ALIGN=LEFT><A HREF="set10_LWPMODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>PCTMODIS 
+  <TH ALIGN=LEFT>Mean cloud top pressure  
+  <TH ALIGN=LEFT><A HREF="set10_PCTMODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>REFFCLIMODIS 
+  <TH ALIGN=LEFT>Mean effective radius (ice clouds)  
+  <TH ALIGN=LEFT><A HREF="set10_REFFCLIMODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>REFFCLWMODIS 
+  <TH ALIGN=LEFT>Mean effective radius (liquid clouds)  
+  <TH ALIGN=LEFT><A HREF="set10_REFFCLWMODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TAUILOGMODIS 
+  <TH ALIGN=LEFT>Log-weighted mean optical thickness (ice clouds)  
+  <TH ALIGN=LEFT><A HREF="set10_TAUILOGMODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TAUWLOGMODIS 
+  <TH ALIGN=LEFT>Log-weighted mean optical thickness (liquid clouds)  
+  <TH ALIGN=LEFT><A HREF="set10_TAUWLOGMODIS_obsc.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TAUTLOGMODIS 
+  <TH ALIGN=LEFT>Log-weighted mean optical thickness (all clouds)  
+  <TH ALIGN=LEFT><A HREF="set10_TAUTLOGMODIS_obsc.xxx">plot</A>
+<TR> 
+  <TH ALIGN=LEFT>TAUIMODIS  
+  <TH ALIGN=LEFT>Mean optical thickness (ice clouds)   
+  <TH ALIGN=LEFT><A HREF="set10_TAUIMODIS_obsc.xxx">plot</A> 
+<TR> 
+  <TH ALIGN=LEFT>TAUWMODIS  
+  <TH ALIGN=LEFT>Mean optical thickness (liquid clouds)   
+  <TH ALIGN=LEFT><A HREF="set10_TAUWMODIS_obsc.xxx">plot</A> 
+<TR> 
+  <TH ALIGN=LEFT>TAUTMODIS  
+  <TH ALIGN=LEFT>Mean optical thickness (all clouds)   
+  <TH ALIGN=LEFT><A HREF="set10_TAUTMODIS_obsc.xxx">plot</A> 
+</TABLE>
+<hr noshade size=2 size="100%">
+</BODY>
+</HTML>

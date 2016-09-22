@@ -1,0 +1,302 @@
+</b></font>
+<p>
+<a href="../sets.htm">
+<font color=red><b>Back to diagnostic sets</b></font></a>
+<br clear=left>
+<p>
+<b>DIAG Set 8 - Annual cycle contour plots of zonal means<br>
+<hr noshade size=2 size="100%">
+<TABLE>
+<TR>
+   <TH ALIGN=LEFT><font color=blue>Variable</font>
+   <TH ALIGN=LEFT><font color=blue>Description</font>
+   <TH><BR>
+<TR>
+  <TH ALIGN=LEFT>FLNT
+  <TH ALIGN=LEFT>TOM net longwave flux
+  <TH ALIGN=LEFT><A HREF="set8_FLNT_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>PRECT *
+  <TH ALIGN=LEFT>Precipitation rate
+  <TH ALIGN=LEFT><A HREF="set8_PRECT_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>PREH2O *
+  <TH ALIGN=LEFT>Total precipitable water
+  <TH ALIGN=LEFT><A HREF="set8_PREH2O_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>SOLIN
+  <TH ALIGN=LEFT>Incoming solar radiation
+  <TH ALIGN=LEFT><A HREF="set8_SOLIN_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>TAUX OCEAN *
+  <TH ALIGN=LEFT>Zonal surface stress (ocean)
+  <TH ALIGN=LEFT><A HREF="set8_TAUX_OCEAN_c.xxx">plot</a>
+<TR>
+  <TH ALIGN=LEFT>U 200 *
+  <TH ALIGN=LEFT>200 mb zonal wind
+  <TH ALIGN=LEFT><A HREF="set8_U_200_c.xxx">plot</a>
+<TR>
+   <TH><BR>
+   <TH><BR>
+   <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=red size=+2>CFMIP Observation Simulator Package <A HREF="http://www.cgd.ucar.edu/staff/jenkay/cosp/cosp.htm">(COSP)</A> Primary Diagnostics</font>
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>ISCCP-COSP From D1 Daytime Jul1983-Sep2008</font>
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>CALIPSO GOCCP 2007-2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_CAL
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLDTOT_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_CAL
+  <TH ALIGN=LEFT>Low-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLDLOW_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_CAL
+  <TH ALIGN=LEFT>Mid-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLDMED_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_CAL
+  <TH ALIGN=LEFT>High-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLDHGH_CAL_c.xxx">plot</A>
+<TR>
+   <TH><BR>
+   <TH><BR>
+   <TH><BR>
+
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>ISCCP-COSP From D1 Daytime Jul1983-Sep2008</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_ISCCPCOSP
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set8_CLDTOT_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_ISCCPCOSP
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDTHICK_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+   <TH><BR>
+   <TH><BR>
+   <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MISR L3 CTH-OD V5 Mar2000-Nov2009</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MISR   
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set8_CLDTOT_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MISR
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDTHICK_MISR_c.xxx">plot</A>
+<TR>
+   <TH><BR>
+   <TH><BR>
+   <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MODIS-COSP 2003-2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MODIS   
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set8_CLDTOT_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MODIS
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDTHICK_MODIS_c.xxx">plot</A>
+<TR>
+   <TH><BR>
+   <TH><BR>
+   <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=red size=+2>Additional COSP Diagnostics</font>
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>CALIPSO GOCCP 2007-2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_CAL
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLDTOT_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_CAL
+  <TH ALIGN=LEFT>Low-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLDLOW_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_CAL
+  <TH ALIGN=LEFT>Mid-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLDMED_CAL_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_CAL
+  <TH ALIGN=LEFT>High-level cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLDHGH_CAL_c.xxx">plot</A>
+<TR>
+   <TH><BR>
+   <TH><BR>
+   <TH><BR>
+
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>CLOUDSAT-COSP From Level 2 GEOPROF Jun2006-Nov2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_CS2
+  <TH ALIGN=LEFT>Total cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLDTOT_CS2_c.xxx">plot</A>
+<TR>
+   <TH><BR>
+   <TH><BR>
+   <TH><BR>
+<TR>
+ <TH><BR>
+ <TH ALIGN=LEFT><font color=blue size=+1>ISCCP-COSP From D1 Daytime Jul1983-Sep2008</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_ISCCPCOSP
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set8_CLDTOT_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_ISCCPCOSP
+  <TH ALIGN=LEFT>Low-topped cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set8_CLDLOW_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_ISCCPCOSP
+  <TH ALIGN=LEFT>Mid-topped cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set8_CLDMED_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_ISCCPCOSP
+  <TH ALIGN=LEFT>High-topped cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set8_CLDHGH_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_ISCCPCOSP
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDTHICK_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>MEANPTOP_ISCCPCOSP
+  <TH ALIGN=LEFT>Mean cloud top pressure 
+  <TH ALIGN=LEFT><A HREF="set8_MEANPTOP_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>MEANCLDALB_ISCCPCOSP
+  <TH ALIGN=LEFT>Mean cloud albedo 
+  <TH ALIGN=LEFT><A HREF="set8_MEANCLDALB_ISCCPCOSP_c.xxx">plot</A>
+<TR>
+   <TH><BR>
+   <TH><BR>
+   <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MISR L3 CTH-OD V5 Mar2000-Nov2009</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MISR   
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set8_CLDTOT_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_MISR  
+  <TH ALIGN=LEFT>Low-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDLOW_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_MISR 
+  <TH ALIGN=LEFT>Mid-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDMED_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_MISR  
+  <TH ALIGN=LEFT>High-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDHGH_MISR_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MISR
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDTHICK_MISR_c.xxx">plot</A>
+<TR>
+   <TH><BR>
+   <TH><BR>
+   <TH><BR>
+
+<TR>
+  <TH><BR>
+  <TH ALIGN=LEFT><font color=blue size=+1>MODIS-COSP 2003-2010</font>
+<TR>
+  <TH ALIGN=LEFT>CLDTOT_MODIS
+  <TH ALIGN=LEFT>Total cloud amount (tau &gt 0.3)
+  <TH ALIGN=LEFT><A HREF="set8_CLDTOT_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDLOW_MODIS 
+  <TH ALIGN=LEFT>Low-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDLOW_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDMED_MODIS  
+  <TH ALIGN=LEFT>Mid-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDMED_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDHGH_MODIS   
+  <TH ALIGN=LEFT>High-topped cloud amount (tau &gt 0.3) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDHGH_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLDTHICK_MODIS 
+  <TH ALIGN=LEFT>Optically thick cloud amount (tau &gt 23.0) 
+  <TH ALIGN=LEFT><A HREF="set8_CLDTHICK_MODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLIMODIS
+  <TH ALIGN=LEFT>Total ice cloud amount 
+  <TH ALIGN=LEFT><A HREF="set8_CLIMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>CLWMODIS
+  <TH ALIGN=LEFT>Total liquid cloud amount  
+  <TH ALIGN=LEFT><A HREF="set8_CLWMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>IWPMODIS 
+  <TH ALIGN=LEFT>Mean ice water path  
+  <TH ALIGN=LEFT><A HREF="set8_IWPMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>LWPMODIS 
+  <TH ALIGN=LEFT>Mean liquid water path  
+  <TH ALIGN=LEFT><A HREF="set8_LWPMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>PCTMODIS 
+  <TH ALIGN=LEFT>Mean cloud top pressure  
+  <TH ALIGN=LEFT><A HREF="set8_PCTMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>REFFCLIMODIS 
+  <TH ALIGN=LEFT>Mean effective radius (ice clouds)  
+  <TH ALIGN=LEFT><A HREF="set8_REFFCLIMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>REFFCLWMODIS 
+  <TH ALIGN=LEFT>Mean effective radius (liquid clouds)  
+  <TH ALIGN=LEFT><A HREF="set8_REFFCLWMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TAUILOGMODIS 
+  <TH ALIGN=LEFT>Log-weighted mean optical thickness (ice clouds)  
+  <TH ALIGN=LEFT><A HREF="set8_TAUILOGMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TAUWLOGMODIS 
+  <TH ALIGN=LEFT>Log-weighted mean optical thickness (liquid clouds)  
+  <TH ALIGN=LEFT><A HREF="set8_TAUWLOGMODIS_c.xxx">plot</A>
+<TR>
+  <TH ALIGN=LEFT>TAUTLOGMODIS 
+  <TH ALIGN=LEFT>Log-weighted mean optical thickness (all clouds)  
+  <TH ALIGN=LEFT><A HREF="set8_TAUTLOGMODIS_c.xxx">plot</A>
+<TR> 
+  <TH ALIGN=LEFT>TAUIMODIS  
+  <TH ALIGN=LEFT>Mean optical thickness (ice clouds)   
+  <TH ALIGN=LEFT><A HREF="set8_TAUIMODIS_c.xxx">plot</A> 
+<TR> 
+  <TH ALIGN=LEFT>TAUWMODIS  
+  <TH ALIGN=LEFT>Mean optical thickness (liquid clouds)   
+  <TH ALIGN=LEFT><A HREF="set8_TAUWMODIS_c.xxx">plot</A> 
+<TR> 
+  <TH ALIGN=LEFT>TAUTMODIS  
+  <TH ALIGN=LEFT>Mean optical thickness (all clouds)   
+  <TH ALIGN=LEFT><A HREF="set8_TAUTMODIS_c.xxx">plot</A> 
+</TABLE>
+<hr noshade size=2 size="100%">
+<em><SUP>*</SUP>WGNE diagnostic variable</em></b>
+</BODY>
+</HTML>
