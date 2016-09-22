@@ -1,0 +1,308 @@
+<?xml version="1.0"?>
+
+<config_definition>
+
+<!-- ======================================================================= -->
+<!-- env_diags_[component].xml                                               -->
+<!-- boolean (True / False) controls for enabling post processing tasks      -->
+<!-- ======================================================================= -->
+
+
+
+<!-- ======================================================================= -->
+<!-- Machine dependent diagnostics observation files root path -->
+<!-- ======================================================================= -->
+<entry id="ICEDIAG_DIAGOBSROOT" value="/glade/p/cesm/pcwg/ice/data" />
+
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environmental variables that control which Ice Model diagnostics to produce. -->
+<!-- ======================================================================= -->
+       
+<!-- Diagnostic package version -->
+<entry id="ICEDIAG_DIAG_VERSION" value="150626" />
+       
+<!-- Controls whether to generate model vs. observations diagnostics -->
+<entry id="ICEDIAG_MODEL_VS_OBS" value="True" />
+       
+<!-- Controls whether to generate model vs. model diagnostics -->
+<entry id="ICEDIAG_MODEL_VS_MODEL" value="True" />
+       
+<!-- Remove any existing diagnostic files. -->
+<entry id="ICEDIAG_CLEANUP_FILES" value="False" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Set CONT dataset -->
+<!-- ======================================================================= -->
+       
+<!-- Compute climatologies for the test case. -->
+<entry id="ICEDIAG_COMPUTE_CLIMO_CONT" value="True" />
+       
+<!-- For plotting a single case -->
+<entry id="ICEDIAG_CASE_TO_CONT" value="$CASE" />
+       
+<!-- Use input variable time series files to compute cont climos. -->
+<entry id="ICEDIAG_CONT_TIMESERIES" value="False" />
+       
+<!-- Grid type -->
+<entry id="ICEDIAG_GRID_CONT" value="$ICE_GRID" />
+       
+<!-- Number of ice cells in the i direction -->
+<entry id="ICEDIAG_ICE_NX_CONT" value="$ICE_NX" />
+       
+<!-- Number of ice cells in the j direction -->
+<entry id="ICEDIAG_ICE_NY_CONT" value="$ICE_NY" />
+       
+<!-- Path to cont case -->
+<entry id="ICEDIAG_PATH_CONT" value="$DOUT_S_ROOT" />
+       
+<!-- Path to generated cont climos -->
+<entry id="ICEDIAG_PATH_CLIMO_CONT" value="/glade/scratch/aliceb/$CASE/ice/proc/climo/$ICEDIAG_CASE_TO_CONT/" />
+       
+<!-- Path to generated diags. -->
+<entry id="ICEDIAG_DIAG_ROOT" value="/glade/scratch/aliceb/$CASE/ice/proc/diag/$ICEDIAG_CASE_TO_CONT/" />
+       
+<!-- Path to generated diag web plots (local). -->
+<entry id="ICEDIAG_PLOT_ROOT" value="/glade/scratch/aliceb/$CASE/ice/proc/diag/$ICEDIAG_CASE_TO_CONT/web_plots/" />
+       
+<!-- OLD for $CASE csim netCDF filenames. NEW for $CASE cice netCDF filenames. -->
+<entry id="ICEDIAG_FILE_VAR_TYPE_CONT" value="NEW" />
+       
+<!-- OLD for u, v var names. NEW for uvel, vvel var names. -->
+<entry id="ICEDIAG_VAR_NAME_TYPE_CONT" value="NEW" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Set DIFF datset -->
+<!-- ======================================================================= -->
+       
+<!-- Compute climatologies for the cntl case. -->
+<entry id="ICEDIAG_COMPUTE_CLIMO_DIFF" value="True" />
+       
+<!-- Diff case name. Difference plots will be of the form: CASE_TO_CONT - CASE_TO_DIFF -->
+<entry id="ICEDIAG_CASE_TO_DIFF" value="b.e15.B1850.f09_g16.pi_control.all.104" />
+       
+<!-- Use input variable time series files to compute diff climos. -->
+<entry id="ICEDIAG_DIFF_TIMESERIES" value="False" />
+       
+<!-- Grid type -->
+<entry id="ICEDIAG_GRID_DIFF" value="$ICE_GRID" />
+       
+<!-- Number of ice cells in the i direction -->
+<entry id="ICEDIAG_ICE_NX_DIFF" value="$ICE_NX" />
+       
+<!-- Number of ice cells in the j direction -->
+<entry id="ICEDIAG_ICE_NY_DIFF" value="$ICE_NY" />
+       
+<!-- Path to input history data files for the diff case -->
+<entry id="ICEDIAG_PATH_DIFF" value="/glade/p/cesm0005/archive/b.e15.B1850.f09_g16.pi_control.all.104" />
+       
+<!-- OLD for $CASE csim netCDF filenames. NEW for $CASE cice netCDF filenames. -->
+<entry id="ICEDIAG_FILE_VAR_TYPE_DIFF" value="NEW" />
+       
+<!-- OLD for u, v var names. NEW for uvel, vvel var names. -->
+<entry id="ICEDIAG_VAR_NAME_TYPE_DIFF" value="NEW" />
+       
+<!-- Path to generated test climos -->
+<entry id="ICEDIAG_PATH_CLIMO_DIFF" value="/glade/scratch/aliceb/$CASE/ice/proc/climo/$ICEDIAG_CASE_TO_DIFF/" />
+       
+<!-- Boolean for high resolution. -->
+<entry id="ICEDIAG_HIRES" value="False" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Set date ranges -->
+<!-- ======================================================================= -->
+       
+<!-- Start year for CONT case for diagnostics (for line plots). -->
+<entry id="ICEDIAG_BEGYR_CONT" value="1" />
+       
+<!-- End year for CONT case for diagnostics (for line plots). -->
+<entry id="ICEDIAG_ENDYR_CONT" value="22" />
+       
+<!-- Start year for DIFF case for diagnostics (for line plots). -->
+<entry id="ICEDIAG_BEGYR_DIFF" value="1" />
+       
+<!-- End year for DIFF case for diagnostics (for line plots). -->
+<entry id="ICEDIAG_ENDYR_DIFF" value="22" />
+       
+<!-- Number of years to avg (for contour plots). -->
+<entry id="ICEDIAG_YRS_TO_AVG" value="22" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Input data paths -->
+<!-- ======================================================================= -->
+       
+<!-- Grid file for control case. Note - this is an ocean grid file. -->
+<entry id="ICEDIAG_GRIDFILECONT" value="/glade/p/cesm/omwg/grids/($ICEDIAG_GRID_CONT)_grid.nc" />
+       
+<!-- Grid file for diff case. Note - this is an ocean grid file. -->
+<entry id="ICEDIAG_GRIDFILEDIFF" value="/glade/p/cesm/omwg/grids/($ICEDIAG_GRID_CONT)_grid.nc" />
+       
+<!-- 1981-2005 SSMI data. -->
+<entry id="ICEDIAG_SSMI_PATH" value="$ICEDIAG_DIAGOBSROOT/SSMI.ifrac.1979-2000monthlymean.gx1v5.nc" />
+       
+<!-- 1981-2005 SSMI data. -->
+<entry id="ICEDIAG_ASPeCt_PATH" value="$ICEDIAG_DIAGOBSROOT/ASPeCt_monthly_1x1.nc" />
+       
+<!-- Mask file that contains ice regions. -->
+<entry id="ICEDIAG_REGION_MASK_FILE" value="$ICEDIAG_DIAGOBSROOT/REGION_MASK.nc" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Select plot sets -->
+<!-- ======================================================================= -->
+       
+<!-- Make contour plots cont case. -->
+<entry id="ICEDIAG_PLOT_CONT" value="True" />
+       
+<!-- Make vector plots cont case. -->
+<entry id="ICEDIAG_PLOT_VECT" value="True" />
+       
+<!-- Make line plots cont case. -->
+<entry id="ICEDIAG_PLOT_LINE" value="True" />
+       
+<!-- Make contour plots cont-diff case. -->
+<entry id="ICEDIAG_PLOT_CONT_DIFF" value="True" />
+       
+<!-- Make vector plots cont-diff case. -->
+<entry id="ICEDIAG_PLOT_VECT_DIFF" value="True" />
+       
+<!-- Make line plots cont-diff case. -->
+<entry id="ICEDIAG_PLOT_LINE_DIFF" value="True" />
+       
+<!-- Make regional cont line plots. -->
+<entry id="ICEDIAG_PLOT_REGIONS" value="True" />
+       
+<!-- Make regional cont-diff line plots. -->
+<entry id="ICEDIAG_PLOT_REGIONS_DIFF" value="True" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Select plot options -->
+<!-- ======================================================================= -->
+       
+<!-- Offset -->
+<entry id="ICEDIAG_X1_OFF" value="0" />
+       
+<!-- Offset -->
+<entry id="ICEDIAG_X2_OFF" value="0" />
+       
+<!-- File type for plots -->
+<entry id="ICEDIAG_PLOT_FORMAT" value="png" />
+       
+<!-- Plot resolution -->
+<entry id="ICEDIAG_PLOT_RES" value="2500" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Path settings -->
+<!-- ======================================================================= -->
+       
+<!-- Diagnostic package location -->
+<entry id="ICEDIAG_DIAG_HOME" value="$POSTPROCESS_PATH/ice_diag/" />
+       
+<!-- Local machine path to ice diagnostics package NCL library directory. -->
+<entry id="ICEDIAG_NCLPATH" value="$ICEDIAG_DIAG_HOME/code/" />
+       
+    
+  
+    
+  
+    
+  
+
+
+</config_definition>

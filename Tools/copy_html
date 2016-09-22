@@ -467,8 +467,9 @@ def create_index(env, compList, activeList, comp_lookup):
     template_file = 'diagnostics.tmpl'
     template = templateEnv.get_template( template_file )
     
-    # get the current datatime string for the template
+    # get the current datatime string for the template and filename
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    index_now = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 
     # set the template variables
     templateVars = { 'casename' : env['CASE'],
@@ -479,15 +480,12 @@ def create_index(env, compList, activeList, comp_lookup):
                      }
 
     # write the main index.html page to the top working directory
-    # TODO - check if an index page already exists and increment a count to create another one
     main_html = template.render( templateVars )
     workdir = '{0}/{1}'.format(env['PP_CASE_PATH'],'html_files')
-    try:
+    if not os.path.exists(workdir):
         os.makedirs(workdir)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
-    with open( '{0}/index.html'.format(workdir), 'w') as index:
+
+    with open( '{0}/index.{1}.html'.format(workdir, index_now), 'w') as index:
         index.write(main_html)
 
     # copy the and style sheet to the top level
@@ -503,7 +501,7 @@ def create_index(env, compList, activeList, comp_lookup):
         print('    {0} - {1}'.format(e.errno, e.strerror))
 
     # copy the top-level index.html
-    local = '{0}/index.html'.format(workdir)
+    local = '{0}/index.{1}.html'.format(workdir, index_now)
     try:
         pipe = subprocess.Popen( ['scp {0} {1}'.format(local, remote)], env=env, shell=True)
         pipe.wait()

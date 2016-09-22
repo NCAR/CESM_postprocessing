@@ -270,7 +270,7 @@ def createClimFiles(avg_start_year, avg_stop_year, in_dir, htype, key_infile, ou
 #============================================
 # initialize_envDict - initialization envDict
 #============================================
-def initialize_envDict(envDict, caseroot, debugMsg, standalone):
+def initialize_envDict(envDict, caseroot, debugMsg, standalone, main_comm):
     """initialize_main - initialize settings on rank 0 
     
     Arguments:
@@ -289,7 +289,8 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
-    debugMsg('envDict after readXML = {0}'.format(envDict), header=True, verbosity=2)
+    if main_comm.is_manager():
+        debugMsg('envDict after readXML = {0}'.format(envDict), header=True, verbosity=1)
 
     # refer to the caseroot that was specified on the command line instead of what
     # is read in the environment as the caseroot may have changed from what is listed
@@ -332,7 +333,7 @@ def main(options, main_comm, debugMsg):
         debugMsg('caseroot = {0}'.format(caseroot), header=True)
         debugMsg('calling initialize_envDict', header=True)
 
-    envDict = initialize_envDict(envDict, caseroot, debugMsg, options.standalone)
+    envDict = initialize_envDict(envDict, caseroot, debugMsg, options.standalone, main_comm)
 
     # specify variables to include in the averages, empty list implies get them all
     varList = []
@@ -345,6 +346,7 @@ def main(options, main_comm, debugMsg):
     case1_time_series = envDict['CASE1_TIMESERIES']
 
     models = ['lnd', 'atm', 'rtm']
+
     for model in models:
         if envDict['climo_'+model+'_1'].lower() == 'true' or envDict['trends_'+model+'_1'].lower() == 'true':
             if main_comm.is_manager():

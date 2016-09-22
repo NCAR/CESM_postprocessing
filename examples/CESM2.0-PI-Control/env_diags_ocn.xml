@@ -1,0 +1,703 @@
+<?xml version="1.0"?>
+
+<config_definition>
+
+<!-- ======================================================================= -->
+<!-- env_diags_[component].xml                                               -->
+<!-- boolean (True / False) controls for enabling post processing tasks      -->
+<!-- ======================================================================= -->
+
+
+
+<!-- ======================================================================= -->
+<!-- Machine dependent diagnostics observation files root path -->
+<!-- ======================================================================= -->
+<entry id="OCNDIAG_DIAGOBSROOT" value="/glade/p/cesm" />
+
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Settings that are common to all diagnostic types. -->
+<!-- ======================================================================= -->
+       
+<!-- This value points to the local machine's fully qualified directory path location of the OMWG diagnostics package. The ocn_diags_generator.py script will error out if this directory is not available. -->
+<entry id="OCNDIAG_DIAGROOTPATH" value="$POSTPROCESS_PATH/ocn_diag" />
+       
+<!-- Local machine directory for climatology files created by the ocn_avg_generator.py. This directory must have write permissions for the user running the postprocessing. -->
+<entry id="OCNDIAG_TAVGDIR" value="/glade/scratch/aliceb/$CASE/ocn/proc/tavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1" />
+       
+<!-- Local machine path to OMWG diagnostics package source mods directory. -->
+<entry id="OCNDIAG_MODPATH" value="$OCNDIAG_DIAGROOTPATH/sourcemods" />
+       
+<!-- Local machine path to OMWG diagnostics package NCL library directory. -->
+<entry id="OCNDIAG_NCLPATH" value="$OCNDIAG_DIAGROOTPATH/ncl_lib" />
+       
+<!-- Local machine path to OMWG diagnostics package tool library directory. -->
+<entry id="OCNDIAG_TOOLPATH" value="$OCNDIAG_DIAGROOTPATH/tool_lib" />
+       
+<!-- Local machine path to OMWG diagnostics package ECO library directory. -->
+<entry id="OCNDIAG_ECOPATH" value="$OCNDIAG_DIAGROOTPATH/eco_lib" />
+       
+<!-- Local machine path to OMWG diagnostics working directory. -->
+<entry id="OCNDIAG_WORKDIR" value="/glade/scratch/aliceb/$CASE/ocn/proc/diag_work.$OCNDIAG_YEAR0-$OCNDIAG_YEAR1" />
+       
+<!-- Local machine path to all OMWG diagnostics tool directories. -->
+<entry id="OCNDIAG_LIBPATH" value="$OCNDIAG_MODPATH:$OCNDIAG_TOOLPATH:$OCNDIAG_NCLPATH:$OCNDIAG_HTMLPATH:$OCNDIAG_ECOPATH:$OCNDIAG_WORKPATH" />
+       
+<!-- local machine filename containing the list of ecosystem variables to be averaged. -->
+<entry id="OCNDIAG_ECOSYSVARSFILE" value="$OCNDIAG_ECOPATH/ecosys_vars.txt" />
+       
+<!-- Logical to control if working files are deleted (TRUE) or saved (FALSE) prior to generating a new set of diagnostics. -->
+<entry id="OCNDIAG_CLEANUP_FILES" value="TRUE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- True of false settings to select which model diagnostic types are generated. -->
+<!-- ======================================================================= -->
+       
+<!-- True or false to control if model vs. observations diagnostics are generated. -->
+<entry id="OCNDIAG_MODEL_VS_OBS" value="TRUE" />
+       
+<!-- True or false to control if model vs. observatsions ecosystem diagnostics are generated. ** NOTE ** ecosystem diagnostics are not currently working. -->
+<entry id="OCNDIAG_MODEL_VS_OBS_ECOSYS" value="FALSE" />
+       
+<!-- True or false to control if model vs. control diagnostics are generated. If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly. -->
+<entry id="OCNDIAG_MODEL_VS_CONTROL" value="TRUE" />
+       
+<!-- True or false to control if model vs. control ecosystem diagnostics are generated. If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly. ** NOTE ** ecosystem diagnostics are not currently working. -->
+<entry id="OCNDIAG_MODEL_VS_CONTROL_ECOSYS" value="FALSE" />
+       
+<!-- True or false to control if model timeseries diagnostics are generated. -->
+<entry id="OCNDIAG_MODEL_TIMESERIES" value="TRUE" />
+       
+<!-- True or false to control if model timeseries ecosystem diagnostics are generated. ** NOTE ** ecosystem diagnostics are not currently working. -->
+<entry id="OCNDIAG_MODEL_TIMESERIES_ECOSYS" value="FALSE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings related to observations. -->
+<!-- ======================================================================= -->
+       
+<!-- Specifies number of vertical levels used to calculate averages as follows: 62 if using tx0.1v2, 42 if using gx3v7, and 60 otherwise. NOTE: VERTICAL only matters if the vertical levels equals 42; otherwise, it's not used -->
+<entry id="OCNDIAG_VERTICAL" value="60" />
+       
+<!-- For model vs. observations, model vs. observations ecosystem, model vs. control, and model vs. control ecosystem options corresponds 7 for CCSM4.0 and greater or 6 for CCSM3. This setting determines which flux observation file to use. -->
+<entry id="OCNDIAG_CPL" value="7" />
+       
+<!-- For model timeseries and model timeseries ecosystem options correspond to the following CESM versions: 7b for CESM1.1 or higher, 7 for CCSM4 through CESM1.0.4, and 6 for CCSM3. This setting determines which flux observation file to use. -->
+<entry id="OCNDIAG_TS_CPL" value="7b" />
+       
+<!-- This value points to the local machine's fully qualified directory path location of the OMWG observational data. The ocn_diags_generator.py script will  error out if this directory is not available. -->
+<entry id="OCNDIAG_OBSROOTPATH" value="$OCNDIAG_DIAGOBSROOT/omwg/obs_data" />
+       
+<!-- This value points to the local machine's fully qualified directory path location of the BGCWG observational data. The ocn_diags_generator.py script will error out if this directory is not available. -->
+<entry id="OCNDIAG_ECODATADIR" value="$OCNDIAG_DIAGOBSROOT/bgcwg/obgc_diag" />
+       
+<!-- Local machine directory to observation fluxes when CPL value is set to 6 -->
+<entry id="OCNDIAG_FLUXOBSDIR_CPL6" value="$OCNDIAG_OBSROOTPATH/TN460" />
+       
+<!-- Local machine file to observation fluxes when CPL value is set to 6 -->
+<entry id="OCNDIAG_FLUXOBSFILE_CPL6" value="gx1v3.020.clim.1984-2000.nc" />
+       
+<!-- Local machine directory to observation fluxes when CPL value is set to 7 -->
+<entry id="OCNDIAG_FLUXOBSDIR_CPL7" value="$OCNDIAG_OBSROOTPATH/fluxes/Data/a.b27.03" />
+       
+<!-- Local machine file to observation fluxes when CPL value is set to 7 -->
+<entry id="OCNDIAG_FLUXOBSFILE_CPL7" value="a.b27.03.mean.1984-2006.nc" />
+       
+<!-- Local machine directory to surface wind and wind stress fields observations -->
+<entry id="OCNDIAG_WINDOBSDIR" value="$OCNDIAG_OBSROOTPATH/fluxes/QSCAT" />
+       
+<!-- Local machine file to surface wind and wind stress fields observations -->
+<entry id="OCNDIAG_WINDOBSFILE" value="gx1v3.022.clim.2000-2004.nc" />
+       
+<!-- Local machine directory to sea surface height directory observations -->
+<entry id="OCNDIAG_SSHOBSDIR" value="$OCNDIAG_OBSROOTPATH/ssh" />
+       
+<!-- Local machine file to sea surface height directory observations -->
+<entry id="OCNDIAG_SSHOBSFILE" value="1992-2002MDOT060401.$OCN_GRID.nc" />
+       
+<!-- Local machine directory to sea surface temperature observations -->
+<entry id="OCNDIAG_SSTOBSDIR" value="$OCNDIAG_OBSROOTPATH/sst" />
+       
+<!-- Local machine file to sea surface temperature observations -->
+<entry id="OCNDIAG_SSTOBSFILE" value="roisst.nc" />
+       
+<!-- Local machine path to density, temperature and salinity at depth observations -->
+<entry id="OCNDIAG_TSOBSDIR" value="$OCNDIAG_OBSROOTPATH/phc" />
+       
+<!-- Local machine file for temperature observations -->
+<entry id="OCNDIAG_TOBSFILE" value="PHC2_TEMP_($OCN_GRID)_ann_avg.nc" />
+       
+<!-- Local machine file for salinity observations -->
+<entry id="OCNDIAG_SOBSFILE" value="PHC2_SALT_($OCN_GRID)_ann_avg.nc" />
+       
+<!-- Local machine file to temperature observations at 42 vertical levels -->
+<entry id="OCNDIAG_TOBSFILE_V42" value="PHC2_TEMP_($OCN_GRID)_42lev_ann_avg.nc" />
+       
+<!-- Local machine file to salinity observations at 42 vertical levels -->
+<entry id="OCNDIAG_SOBSFILE_V42" value="PHC2_SALT_($OCN_GRID)_42lev_ann_avg.nc" />
+       
+<!-- Local machine directory to some mean observations -->
+<entry id="OCNDIAG_TOGATAODIR" value="$OCNDIAG_OBSROOTPATH/johnson_pmel" />
+       
+<!-- Local machine file to some mean observations -->
+<entry id="OCNDIAG_TOGATAOFILE" value="meanfit_m.nc" />
+       
+<!-- Local machine directory to density observations -->
+<entry id="OCNDIAG_RHOOBSDIR" value="$OCNDIAG_OBSROOTPATH/phc" />
+       
+<!-- Local machine file to density observations -->
+<entry id="OCNDIAG_RHOOBSFILE" value="PHC2_RHO0_($OCN_GRID).nc" />
+       
+<!-- Local machine path to OMWG diagnostics El Nino observations -->
+<entry id="OCNDIAG_NINOOBSDIR" value="$OCNDIAG_OBSROOTPATH/nino" />
+       
+<!-- Local machine file for OMWG diagnostics El Nino observations -->
+<entry id="OCNDIAG_NINOOBSFILE" value="ANOMS_1950-2000.nc" />
+       
+<!-- Local machine directory to OMWG diagnostics PHC2 files -->
+<entry id="OCNDIAG_TSCLIMDIR" value="$OCNDIAG_OBSROOTPATH/phc" />
+       
+<!-- Local machine file for OMWG diagnostics PHC2 temperature file -->
+<entry id="OCNDIAG_TCLIMFILE" value="PHC2_TEMP_($OCN_GRID)_ann_avg.nc" />
+       
+<!-- Local machine file for OMWG diagnostics PHC2 salinity file -->
+<entry id="OCNDIAG_SCLIMFILE" value="PHC2_SALT_($OCN_GRID)_ann_avg.nc" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for model case options. -->
+<!-- ======================================================================= -->
+       
+<!-- Model start year is used to match history time-slice or variable time-series year designations to begin accumulating averages and calculating diagnostic values. If value not set, then defaults to model run job start year as determined by the first monthly history file name. -->
+<entry id="OCNDIAG_YEAR0" value="1" />
+       
+<!-- Model end year is used to match history time-slice or variable time-series year designations to end accumulating averages and calculating diagnostic values. If value not set, then defaults to model run job end year as determined by the last monthly history file name. -->
+<entry id="OCNDIAG_YEAR1" value="22" />
+       
+<!-- Difference between model calendar and physical forcing calendar (for BGC) -->
+<entry id="OCNDIAG_YROFFSET" value="0" />
+       
+<!-- Local machine filename for seasonal monthly average temperatures over years specified. -->
+<entry id="OCNDIAG_SEASAVGTEMP" value="mavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1.nc" />
+       
+<!-- Local machine filename for model seasonal monthly averages over years specified -->
+<entry id="OCNDIAG_SEASAVGFILE" value="mavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1.nc" />
+       
+<!-- Local machine filename for seasonal monthly average salinity values over years specified. -->
+<entry id="OCNDIAG_SEASAVGSALT" value="mavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1.nc" />
+       
+<!-- This environment variable is set to null unless the plot_mod OCNDIAG_MVO_PM_MLD=TRUE (mixed layer depth plots) in which case, it is set to the same value as $CASE.pop.h.RHO.mavg_$OCNDIAG_YEAR0-$OCNDIAG_YEAR1.nc -->
+<entry id="OCNDIAG_SEASAVGRHO" value="$CASE.pop.h.RHO.mavg_($OCNDIAG_YEAR0)-($OCNDIAG_YEAR1).nc" />
+       
+<!-- Local machine filename for tavg file. -->
+<entry id="OCNDIAG_TAVGFILE" value="tavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1.nc" />
+       
+<!-- True or false to indicate if the model case history files are in variable time series format (TRUE) or history time slice format (FALSE) -->
+<entry id="OCNDIAG_MODELCASE_INPUT_TSERIES" value="FALSE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for model case option for the pyAverager tool. -->
+<!-- ======================================================================= -->
+       
+<!-- Model case pyAverager comma separated variable list to include in climatology files. An empty string defaults to all variables. -->
+<entry id="OCNDIAG_PYAVG_MODELCASE_VARLIST" value="TEMP,SALT,PD,MOC,N_HEAT,N_SALT,UVEL,VVEL,WVEL,SU,SV,IAGE,KAPPA_ISOP,KAPPA_THIC,TAUX,TAUY,SSH,UISOP,VISOP,WISOP,HMXL,HBLT,BSF,TLT,INT_DEPTH,DIA_DEPTH,SFWF,PREC_F,MELT_F,MELTH_F,SHF,SHF_QSW,SENH_F,QFLUX,SNOW_F,SALT_F,EVAP_F,ROFF_F,LWUP_F,LWDN_F" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for control case options. -->
+<!-- ======================================================================= -->
+       
+<!-- Local directory path to control model DOUT_S_ROOT path for OMWG model vs. control diagnostics. -->
+<entry id="OCNDIAG_CNTRLCASEDIR" value="/glade/p/cesm0005/archive/b.e15.B1850.f09_g16.pi_control.all.104/" />
+       
+<!-- Control model case name used with OMWG model vs. control diagnostics -->
+<entry id="OCNDIAG_CNTRLCASE" value="b.e15.B1850.f09_g16.pi_control.all.104" />
+       
+<!-- Control model resolution used with OMWG model vs. control diagnostics -->
+<entry id="OCNDIAG_CNTRLRESOLUTION" value="gx1v6" />
+       
+<!-- Control Model start year is used to match history time-slice or variable time-series year designations to begin accumulating averages and calculating diagnostic values. -->
+<entry id="OCNDIAG_CNTRLYEAR0" value="1" />
+       
+<!-- Control Model end year is used to match history time-slice or variable time-series year designations to end accumulating averages and calculating diagnostic values. -->
+<entry id="OCNDIAG_CNTRLYEAR1" value="22" />
+       
+<!-- Options correspond to the following CESM versions: 7b for CESM1.1 or higher, 7 for CCSM4 through CESM1.0.4, and 6 for CCSM3. This setting determines which flux observation file to use. -->
+<entry id="OCNDIAG_CNTRLCPL" value="7" />
+       
+<!-- Local directory path to control model climatology files for OMWG model vs. model diagnostics. This directory must have write permissions for the user running the postprocessing. -->
+<entry id="OCNDIAG_CNTRLTAVGDIR" value="/glade/scratch/aliceb/$CASE/ocn/proc/$OCNDIAG_CNTRLCASE/tavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1" />
+       
+<!-- Local machine filename for control model seasonal monthly average temperature file over years specified -->
+<entry id="OCNDIAG_CNTRLSEASAVGTEMP" value="mavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1.cntrl.nc" />
+       
+<!-- Local machine filename for control model seasonal monthly average over years specified -->
+<entry id="OCNDIAG_CNTRLSEASAVGFILE" value="mavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1.cntrl.nc" />
+       
+<!-- Local machine filename for control model seasonal monthly average salinity over years specified -->
+<entry id="OCNDIAG_CNTRLSEASAVGSALT" value="mavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1.cntrl.nc" />
+       
+<!-- This environment variable is set to null unless the plot_mod OCNDIAG_MVC_PM_MLD=TRUE (mixed layer depth plots) in which case, it is set to the same value as $CNTRLCASE.pop.h.RHO.mavg_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc -->
+<entry id="OCNDIAG_CNTRLSEASAVGRHO" value="$CNTRLCASE.pop.h.RHO.mavg_($OCNDIAG_CNTRLYEAR0)-($OCNDIAG_CNTRLYEAR1).nc" />
+       
+<!-- True or false to indicate if the control case history files are in variable time series format (TRUE) or history time slice format (FALSE) -->
+<entry id="OCNDIAG_CNTRLCASE_INPUT_TSERIES" value="FALSE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for control case option for the pyAverager tool. -->
+<!-- ======================================================================= -->
+       
+<!-- Control case pyAverager comma separated variable list to include in climatology files. An empty string defaults to all variables. -->
+<entry id="OCNDIAG_PYAVG_CNTRLCASE_VARLIST" value="$OCNDIAG_PYAVG_MODELCASE_VARLIST" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for timeseries options. -->
+<!-- ======================================================================= -->
+       
+<!-- Model start year for timeseries diagnostics. If not set, defaults to OCNDIAG_YEAR0. -->
+<entry id="OCNDIAG_TSERIES_YEAR0" value="1" />
+       
+<!-- Model end year for timeseries diagnostics. If not set, default to OCNDIAG_YEAR1. -->
+<entry id="OCNDIAG_TSERIES_YEAR1" value="22" />
+       
+<!-- y-bounds for MOC timeseries plots -->
+<entry id="OCNDIAG_MOC0" value="15." />
+       
+<!-- y-bounds for MOC timeseries plots -->
+<entry id="OCNDIAG_MOC1" value="35." />
+       
+<!-- basedate for timeseries -->
+<entry id="OCNDIAG_BASEDATE" value="" />
+       
+<!-- which month to skip in calculating the El Nino index timeseries?? -->
+<entry id="OCNDIAG_NINO_MON_SKIP" value="0" />
+       
+<!-- Local machine directory for cpl log files -->
+<entry id="OCNDIAG_CPLLOGFILEPATH" value="$DOUT_S_ROOT/cpl/logs" />
+       
+<!-- Local machine directory for ocn log files -->
+<entry id="OCNDIAG_OCNLOGFILEPATH" value="$DOUT_S_ROOT/ocn/logs" />
+       
+<!-- Local machine directory for ocn dt files -->
+<entry id="OCNDIAG_DTFILEPATH" value="$DOUT_S_ROOT/ocn/hist" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings related to NCL. -->
+<!-- ======================================================================= -->
+       
+<!-- contour level options (std, gokhan, gauss) -->
+<entry id="OCNDIAG_CNTRLVLS" value="std" />
+       
+<!-- Comma separated list of integers defining plot x and y ranges in degrees (x0,x1,y0,y1) -->
+<entry id="OCNDIAG_XYRANGE" value="30,390,-90,90" />
+       
+<!-- Comma separated list of depths in kilometers for plot averages. -->
+<entry id="OCNDIAG_DEPTHS" value="0,50,100,200,300,500,1000,1500,2000,2500,3000,3500,4000" />
+       
+<!-- Output image format supported by viewing in web browsers. Only ps will be converted to png for display on the web. -->
+<entry id="OCNDIAG_IMAGEFORMAT" value="png" />
+       
+<!-- General NCL settings for all plotting routines -->
+<entry id="OCNDIAG_NCARG_COLORMAP_PATH" value="$OCNDIAG_NCLPATH/colormaps:$NCARG_ROOT/lib/ncarg/colormaps" />
+       
+<!-- General NCL settings for all plotting routines -->
+<entry id="OCNDIAG_NCLCOLORTABLEFILE" value="$OCNDIAG_NCARG_COLORMAP_PATH/colors1.tbl" />
+       
+<!-- Specific NCL path for model vs. control and model vs. obs plotting routines -->
+<entry id="OCNDIAG_NCL_PATH" value="" />
+       
+<!-- Specific convert command for ps to gif plot conversion -->
+<entry id="OCNDIAG_CONVERT_CMD" value="/usr/bin/convert" />
+       
+<!-- Specific NCL path for model time series plotting routines -->
+<entry id="OCNDIAG_TS_NCL_PATH" value="" />
+       
+<!-- General path for all diagnostics routines -->
+<entry id="OCNDIAG_PATH" value="$OCNDIAG_NCL_PATH:$OCNDIAG_TS_NCL_PATH:$NCARG_ROOT/bin:$OCNDIAG_LIBPATH" />
+       
+<!-- General NCL color table settings for all plotting routines -->
+<entry id="OCNDIAG_NCLCOLORTABLE" value="42" />
+       
+<!-- General NCL minimum color setting for all plotting routines -->
+<entry id="OCNDIAG_NCLMINCOLOR" value="1" />
+       
+<!-- General NCL maximum color setting for all plotting routines -->
+<entry id="OCNDIAG_NCLMAXCOLOR" value="255" />
+       
+<!-- General NCL color setting for land for all plotting routines -->
+<entry id="OCNDIAG_NCLLNDCOLOR" value="255" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for turning on and off model vs. observations plot modules. -->
+<!-- ======================================================================= -->
+       
+<!-- Model vs. observations plot order for displaying html plots on main index.html page. This is a space delimited ordered list. -->
+<entry id="OCNDIAG_MVO_PLOT_ORDER" value="PM_SFC2D PM_FLD2D PM_FLD3DZA PM_MOC PM_WBC PM_SEAS PM_MLD PM_TSZ PM_PASSIVEZ PM_VELZ PM_VELISOPZ PM_KAPPAZ PM_UOEQ PM_VECV PM_POLARTS PM_BASINAVGTS PM_REGIONALTS" />
+       
+<!-- Model vs. observations (surface_flux_fields) Logical to control whether to create 2D surface flux plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_SFC2D" value="TRUE" />
+       
+<!-- Model vs. observations (surface_fields) Logical to control whether to create other 2D variable (HMXL, SSH, BSF, etc...)plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_FLD2D" value="TRUE" />
+       
+<!-- Model vs. observations (zonal_average_3d_fields) Logical to control whether to create 3D fields zonally averaged plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_FLD3DZA" value="TRUE" />
+       
+<!-- Model vs. observations (moc_fields) Logical to control whether to create MOC and Heat/Freshwater transport plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_MOC" value="TRUE" />
+       
+<!-- Model vs. observations (western_boundary) Logical to control whether to create Western Boundary Current and DWBC diagnostics plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_WBC" value="TRUE" />
+       
+<!-- Model vs. observations (seasonal_cycle) Logical to control whether to create seasonal cycle plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_SEAS" value="TRUE" />
+       
+<!-- Model vs. observations (mixed_layer_depth) Logical to control whether to create mixed layer depth plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_MLD" value="TRUE" />
+       
+<!-- Model vs. observations (temp_salt_depth) Logical to control whether to create temperature and salinity on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_TSZ" value="TRUE" />
+       
+<!-- Model vs. observations (passive_tracers_depth) Logical to control whether to create passive traces at depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_PASSIVEZ" value="TRUE" />
+       
+<!-- Model vs. observations (eulerian_velocity) Logical to control whether to create Eulerian velocity (UCEL, VVEL, WVEL) on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_VELZ" value="TRUE" />
+       
+<!-- Model vs. observations (bolus_velocity) Logical to control whether to create Bolus velocity components on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_VELISOPZ" value="TRUE" />
+       
+<!-- Model vs. observations (diffusion_depth) Logical to control whether to create diffusion coefficients on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_KAPPAZ" value="TRUE" />
+       
+<!-- Model vs. observations (equatorial_upperocean) Logical to control whether to create upperocean at the equator; compared to PHC2, TOGA-TAO plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_UOEQ" value="TRUE" />
+       
+<!-- Model vs. observations (horizontal_vector_fields) Logical to control whether to create horizontal vector/magnitude fields on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_VECV" value="TRUE" />
+       
+<!-- Model vs. observations (polar_temp_salt) Logical to control whether to create polar TEMP and SALT on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_POLARTS" value="TRUE" />
+       
+<!-- Model vs. observations (basin_averages) Logical to control whether to create depth profiles of Basin-average TEMP and SALT plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_BASINAVGTS" value="TRUE" />
+       
+<!-- Model vs. observations (regional_area) Logical to control whether to create depth profiles of Regional area-average TEMP and SALT bias and stddev plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVO_PM_REGIONALTS" value="TRUE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for turning on and off model vs. control plot modules. -->
+<!-- ======================================================================= -->
+       
+<!-- Model vs. control plot order for displaying html plots on main index.html page. This is a space delimited ordered list. -->
+<entry id="OCNDIAG_MVC_PLOT_ORDER" value="PM_SFC2D PM_FLD2D PM_FLD3DZA PM_MOC PM_SEAS PM_MLD PM_TSZ PM_PASSIVEZ PM_VELZ PM_VELISOPZ PM_KAPPAZ PM_UOEQ PM_POLARTS" />
+       
+<!-- Model vs. control (surface_flux_fields_control) Logical to control whether to create 2D surface flux plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_SFC2D" value="TRUE" />
+       
+<!-- Model vs. control (surface_fields_control) Logical to control whether to create other 2D variable (HMXL, SSH, BSF, etc...) plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_FLD2D" value="TRUE" />
+       
+<!-- Model vs. control (zonal_average_3d_fields_control) Logical to control whether to create 3D fields zonally averaged plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_FLD3DZA" value="TRUE" />
+       
+<!-- Model vs. control (moc_fields_control) Logical to control whether to create MOC and Heat/Freshwater transport plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_MOC" value="TRUE" />
+       
+<!-- Model vs. control (seasonal_cycle_control) Logical to control whether to create seasonal cycle plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_SEAS" value="TRUE" />
+       
+<!-- Model vs. control (mixed_layer_depth_control) Logical to control whether to create mixed layer depth plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_MLD" value="TRUE" />
+       
+<!-- Model vs. control (temp_salt_depth_control) Logical to control whether to create temperature and salinity on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_TSZ" value="TRUE" />
+       
+<!-- Model vs. control (passive_tracers_depth_control) Logical to control whether to create passive traces at depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_PASSIVEZ" value="TRUE" />
+       
+<!-- Model vs. control (eulerian_velocity_control) Logical to control whether to create Eulerian velocity (UCEL, VVEL, WVEL) on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_VELZ" value="TRUE" />
+       
+<!-- Model vs. control (bolus_velocity_control) Logical to control whether to create Bolus velocity components on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_VELISOPZ" value="TRUE" />
+       
+<!-- Model vs. control (diffusion_depth_control) Logical to control whether to create diffusion coefficients on depth surfaces, contours plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_KAPPAZ" value="TRUE" />
+       
+<!-- Model vs. control (equatorial_upperocean_control) Logical to control whether to create upperocean at the equator; compared to PHC2, TOGA-TAO plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_UOEQ" value="TRUE" />
+       
+<!-- Model vs. control (polar_temp_salt) Logical to control whether to create polar TEMP and SALT on depth surfaces, contour plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVC_PM_POLARTS" value="TRUE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for turning on and off model timeseries plot modules. -->
+<!-- ======================================================================= -->
+       
+<!-- Model timeseries plot order for displaying html plots on main index.html page. This is a space delimited ordered list. -->
+<entry id="OCNDIAG_MTS_PLOT_ORDER" value="PM_CPLLOG PM_YPOPLOG PM_HORZMN PM_ENSOWVLT PM_MOCANN PM_MOCMON" />
+       
+<!-- Logical to control whether to generate CPL log energy budget line plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MTS_PM_CPLLOG" value="TRUE" />
+       
+<!-- Logical to control whether to generate Yeager's POP log file line plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MTS_PM_YPOPLOG" value="TRUE" />
+       
+<!-- Logical to control whether to generate regional mean T,S (z,t) with diff and rms from obs (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MTS_PM_HORZMN" value="TRUE" />
+       
+<!-- Logical to control whether to generate ENSO wavelet plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MTS_PM_ENSOWVLT" value="TRUE" />
+       
+<!-- Logical to control whether to generate annual mean max MOC time series (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MTS_PM_MOCANN" value="TRUE" />
+       
+<!-- Logical to control whether to generate monthly mean max MOC time series (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MTS_PM_MOCMON" value="TRUE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for turning on and off model vs. observations ecosystem plot modules. -->
+<!-- ======================================================================= -->
+       
+<!-- Model timeseries plot order for displaying html plots on main index.html page. This is a space delimited ordered list. -->
+<entry id="OCNDIAG_MVOECOSYS_PLOT_ORDER" value="PM_E_MAPS PM_E_VERT PM_E_SEAS PM_E_O2" />
+       
+<!-- Model vs. observations ecosystem (ecosystem_maps) Logical to control whether to create 2D maps of ecosystem fields pots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVOECOSYS_PM_E_MAPS" value="TRUE" />
+       
+<!-- Model vs. observations ecosystem Logical to control whether to create vertical cross-sections (155W and 23W) and basin zonal averages plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVOECOSYS_PM_E_VERT" value="TRUE" />
+       
+<!-- Logical to control whether to create seasonal cycle zonally averaged (2D or Z-int) for the ecosystem variables plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVOECOSYS_PM_E_SEAS" value="TRUE" />
+       
+<!-- Logical to control whether to create plots of oxygen levels at beginning and end of period plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVOECOSYS_PM_E_O2" value="TRUE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for turning on and off model vs. control ecosystem plot modules. -->
+<!-- ======================================================================= -->
+       
+<!-- Model timeseries plot order for displaying html plots on main index.html page. This is a space delimited ordered list. -->
+<entry id="OCNDIAG_MVCECOSYS_PLOT_ORDER" value="PM_E_MAPS PM_E_VERT PM_E_SEAS" />
+       
+<!-- Logical to control whether to create 2D maps of ecosystem fields plots. -->
+<entry id="OCNDIAG_MVCECOSYS_PM_E_MAPS" value="TRUE" />
+       
+<!-- Model vs. observations ecosystem Logical to control whether to create vertical cross-sections (155W and 23W) and basin zonal averages plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVCECOSYS_PM_E_VERT" value="TRUE" />
+       
+<!-- Logical to control whether to create seasonal cycle zonally averaged (2D or Z-int) for the ecosystem variables plots (TRUE) or not (FALSE). -->
+<entry id="OCNDIAG_MVCECOSYS_PM_E_SEAS" value="TRUE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for turning on and off model ecosystem timeseries plot modules. -->
+<!-- ======================================================================= -->
+       
+<!-- Model timeseries plot order for displaying html plots on main index.html page. This is a space delimited ordered list. -->
+<entry id="OCNDIAG_MTSECOSYS_PLOT_ORDER" value="PM_E_GLOBL PM_E_TMSR PM_E_ZTMSR" />
+       
+<!-- Logical to control whether to create time-series global ecosystem plots (dependent on PM_YPOPLOG) -->
+<entry id="OCNDIAG_MTSECOSYS_PM_E_GLOBL" value="TRUE" />
+       
+<!-- Logical to control whether to create basin averaged ecosystem plots. -->
+<entry id="OCNDIAG_MTSECOSYS_PM_E_TMSR" value="TRUE" />
+       
+<!-- Logical to control whether to create time-series vertical profile ecosystem plots. -->
+<entry id="OCNDIAG_MTSECOSYS_PM_E_ZTMSR" value="TRUE" />
+       
+    
+  
+    
+  
+    
+  
+
+
+</config_definition>

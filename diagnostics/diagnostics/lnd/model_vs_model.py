@@ -66,7 +66,8 @@ class modelVsModel(LandDiagnostic):
         env['PLOTTYPE']       = env['p_type']
         env['OBS_DATA']       = env['OBS_HOME']
         env['INPUT_FILES']    = env['POSTPROCESS_PATH']+'/lnd_diag/inputFiles/'
-        env['DIAG_RESOURCES'] = env['POSTPROCESS_PATH']+'/lnd_diag/resources/'
+##        env['DIAG_RESOURCES'] = env['POSTPROCESS_PATH']+'/lnd_diag/resources/'
+        env['DIAG_RESOURCES'] = env['DIAGOBSROOT']+'/resources/'
         env['RUNTYPE'] = 'model1-model2'
 
         # Create variable files
