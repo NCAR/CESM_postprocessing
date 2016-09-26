@@ -54,26 +54,6 @@ run using:
 
 ----------
 
-4. For the ice dianostics, the averages can be run in parallel
-but not the diagnostic plotting types. Follow these steps
-in the postprocess caseroot:
-
-pp_config -set ICEDIAG_MODEL_VS_OBS=True
-pp_config -set ICEDIAG_MODEL_VS_MODEL=True
-
-bsub < ice_averages
-
-pp_config -set ICEDIAG_MODEL_VS_MODEL=False
-
-bsub < ice_diagnostics
-
-pp_config -set ICEDIAG_MODEL_VS_OBS=False
-pp_config -set ICEDIAG_MODEL_VS_MODEL=True
-
-bsub < ice_diagnostics
-
-----------
-
 
 
 
