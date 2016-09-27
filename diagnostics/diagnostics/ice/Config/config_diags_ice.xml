@@ -468,7 +468,7 @@
   <entry id="ICEDIAG_PLOT_RES"
          type="integer"
          valid_values=""
-         value="2500"
+         value="1500"
          group="plot_opts"
          desc="Plot resolution"
          ></entry>
