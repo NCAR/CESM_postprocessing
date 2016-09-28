@@ -372,7 +372,9 @@ begin
     var = var@_FillValue
     if(isfilevar(ptr,"PCT_NAT_PFT"))then
         pct_nat_pft = ptr ->PCT_NAT_PFT
-        var         = pct_nat_pft(:,15,:,:)+pct_nat_pft(:,16,:,:)
+        if (dimsizes(pct_nat_pft(0,:,0,0)) .gt. 15) then
+          var         = pct_nat_pft(:,15,:,:)+pct_nat_pft(:,16,:,:)
+        end if
     end if
     return(var)
   end if
