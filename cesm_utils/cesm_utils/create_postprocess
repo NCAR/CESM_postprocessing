@@ -530,12 +530,16 @@ def main(options):
     hostname = cesmEnvLib.get_hostname()
     envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
 
+    # check for undefined machine
+    if not envDict['MACH']:
+        raise OSError('create_postprocess ERROR: hostname "{0}" is not currently supported. Exiting...'.format(hostname))
+    
     # TODO - need to check the compset to see what is active 
     # and return the compList accordingly, for now create all options
 
     # set the list of components
     compList = ['atm','ice','lnd','ocn']
-#    regridList = ['atm','lnd']
+    regridList = ['atm','lnd']
     regridList = ['lnd']
 
     # get the machine dependent variables, modules and mpi run command in a dictionary

@@ -1,8 +1,32 @@
 ================================================================================
-SVN $Id: ChangeLog 66183 2015-03-09 00:00:15Z aliceb@ucar.edu $
-SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
-================================================================================
 This file describes what tags were created and why
+================================================================================
+
+Originator: aliceb
+Date: 11 October 2016
+Model: CESM_postprocessing
+Version: CESM_postprocessing_v0.1.2
+One-line: bug-fixes and code clean-up
+
+	modified:   Config/config_timeseries.xml
+	modified:   Tools/copy_html
+	modified:   atm_diag/plot_surfaces_cons.ncl
+	modified:   averager/Makefile
+	modified:   cesm_utils/cesm_utils/create_postprocess
+	modified:   diagnostics/diagnostics/atm/Config/config_diags_atm.xml
+	modified:   diagnostics/diagnostics/atm/atm_avg_generator.py
+	modified:   diagnostics/diagnostics/lnd/lnd_avg_generator.py
+	modified:   diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
+	modified:   diagnostics/diagnostics/ocn/Plots/cpllog_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/Plots/moc_annual_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/Plots/moc_monthly_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/Plots/poplog_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/Plots/regional_mean_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/ocn_avg_generator.py
+	modified:   mpi_utils/Makefile
+	modified:   reshaper/Makefile
+	modified:   timeseries/timeseries/cesm_tseries_generator.py
+
 ================================================================================
 
 Originator: aliceb

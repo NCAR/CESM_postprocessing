@@ -26,7 +26,8 @@ clean :
 #
 clobber : clean
 	-rm -f .Makedepend *.o *.mod *.il *.pyc
-	-rm -rf *.egg-info build
+	-rm -rf pyTools/*.egg-info 
+	-rm -rf pyTools/build
 
 #
 # FORCE - Null rule to force things to happen.
