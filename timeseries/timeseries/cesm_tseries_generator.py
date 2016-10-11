@@ -36,7 +36,7 @@ import xml.etree.ElementTree as ET
 from cesm_utils import cesmEnvLib
 
 # import the MPI related module
-from asaptools import partition, simplecomm
+from asaptools import partition, simplecomm, vprinter
 
 # load the pyreshaper modules
 from pyreshaper import specification, reshaper
@@ -88,9 +88,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, debug):
     xml_tree = ET.ElementTree()
 
     # get path to env_timeseries.xml file
-    env_timeseries = '{0}/postprocess/env_timeseries.xml'.format(caseroot)
-    if standalone:
-        env_timeseries = '{0}/env_timeseries.xml'.format(caseroot)
+    env_timeseries = '{0}/env_timeseries.xml'.format(caseroot)
 
     # check if the env_timeseries.xml file exists
     if ( not os.path.isfile(env_timeseries) ):
@@ -124,7 +122,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, debug):
                         # check if tseries_format is an element for this file_spec and if it is valid
                         if file_spec.find("tseries_output_format") is not None:
                             tseries_output_format = file_spec.find("tseries_output_format").text
-                            if tseries_output_format not in ["netcdf","netcdf4","netcdf4c"]:
+                            if tseries_output_format not in ["netcdf","netcdf4","netcdf4c","netcdfLarge"]:
                                 err_msg = "cesm_tseries_generator.py error: tseries_output_format invalid for data stream {0}.*.{1}".format(comp,file_extension)
                                 raise TypeError(err_msg)
                         else:
@@ -248,23 +246,12 @@ def main(options, scomm, rank, size):
     # CASEROOT is given on the command line as required option --caseroot
     caseroot = options.caseroot[0]
 
-    # set the caseroot based on standalone or not
-    pp_caseroot = caseroot
-    if not options.standalone:
-        caseroot, pp_subdir = os.path.split(caseroot)
-    if rank == 0:
-        print('cesm_tseries_generator: caseroot = {0}'.format(caseroot))
-
     # set the debug level 
     debug = options.debug[0]
 
-    # cesmEnv["id"] = "value" parsed from the CASEROOT/env_*.xml files
-    env_file_list = ['env_case.xml', 'env_run.xml', 'env_build.xml', 'env_mach_pes.xml']
-
-    # check if the standalone option is set
-    if options.standalone:
-        env_file_list = ['env_postprocess.xml']
-    cesmEnv = cesmEnvLib.readXML(caseroot, env_file_list)
+    # get the XML variables loaded into a hash
+    env_file_list = ['env_postprocess.xml']
+    cesmEnv = cesmEnvLib.readXML(caseroot, env_file_list);
 
     # initialize the specifiers list to contain the list of specifier classes
     specifiers = list()
@@ -286,9 +273,6 @@ def main(options, scomm, rank, size):
     # Print timing diagnostics
     reshpr.print_diagnostics()
 
-# TO-DO check if DOUT_S_SAVE_HISTORY_FILES is true or false and 
-# delete history files accordingly
-
     return 0
 
 #===================================
@@ -297,13 +281,15 @@ if __name__ == "__main__":
     # initialize simplecomm object
     scomm = simplecomm.create_comm(serial=False)
 
+    # get commandline options
+    options = commandline_options()
+
     rank = scomm.get_rank()
     size = scomm.get_size()
 
     if rank == 0:
-        print('...Running on {0} cores'.format(size))
+        print('cesm_tseries_generator INFO Running on {0} cores'.format(size))
 
-    options = commandline_options()
     try:
         status = main(options, scomm, rank, size)
         if rank == 0:

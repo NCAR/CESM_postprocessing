@@ -515,11 +515,11 @@ if __name__ == "__main__":
     try:
         status = main(options, main_comm, debugMsg)
         if main_comm.is_manager():
-            debugMsg('*** Successfully completed generating atmosphere climatology averages ***', header=False)
+            print('*****************************************************************')
+            debugMsg('Successfully completed generating atmosphere climatology averages', header=False)
+            print('*****************************************************************')
         sys.exit(status)
 
-##    except RunTimeError as error:
-        
     except Exception as error:
         print(str(error))
         if options.backtrace:

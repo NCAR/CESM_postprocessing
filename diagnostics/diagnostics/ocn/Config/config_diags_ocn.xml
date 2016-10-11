@@ -89,6 +89,16 @@
 	     desc="local machine filename containing the list of ecosystem variables to be averaged."
 	     ></entry>
 
+      <entry id="OCNDIAG_netcdf_format"
+             type="string"
+             valid_values="netcdf, netcdf4, netcdf4c, netcdfLarge"
+             value="netcdf"
+             group="global"
+             desc="Output NetCDF file format - either 'netcdf4c' (netcdf4 compressed (lev=1)), 
+'netcdf4' (netcdf classic), 'netcdf' (netcdf3 classic), or netcdfLarge for high-resolution data sets. DEFAULT = 'netcdf'. 
+Applies to both model and control cases."
+             ></entry>
+
       <entry id="OCNDIAG_CLEANUP_FILES"
 	     type="logical"
 	     valid_values="TRUE,FALSE"
@@ -651,7 +661,7 @@
       <entry id="OCNDIAG_CPLLOGFILEPATH"
 	     type="char"
 	     valid_values=""
-	     value="$DOUT_S_ROOT/cpl/logs"
+	     value="$DOUT_S_ROOT/logs"
 	     group="timeseries_options"
 	     desc="Local machine directory for cpl log files"
 	     ></entry>
@@ -659,7 +669,7 @@
       <entry id="OCNDIAG_OCNLOGFILEPATH"
 	     type="char"
 	     valid_values=""
-	     value="$DOUT_S_ROOT/ocn/logs"
+	     value="$DOUT_S_ROOT/logs"
 	     group="timeseries_options"
 	     desc="Local machine directory for ocn log files"
 	     ></entry>
