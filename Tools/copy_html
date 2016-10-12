@@ -168,8 +168,11 @@ def get_years(env, comp):
     # get the control years
     comp_data = comp_lookup_control[comp]
     control_start_year = '{0}'.format(env[comp_data['start_year']])
+    control_stop_year = None
     if comp_data.has_key('num_years'):
-        control_stop_year = '{0}'.format(int(control_start_year) + int(env[comp_data['num_years']]))
+        # check that the strings are not empty
+        if len(control_start_year) > 0 and len(env[comp_data['num_years']]) > 0:
+            control_stop_year = '{0}'.format(int(control_start_year) + int(env[comp_data['num_years']]))
     else:
         control_stop_year = '{0}'.format(env[comp_data['stop_year']])
 
@@ -181,9 +184,11 @@ def get_years(env, comp):
         trends_stop_year1 = '{0}'.format(env[comp_data['stop_year']])
     elif comp == 'lnd':
         trends_start_year1 = '{0}'.format(env[comp_data['start_year1']])
-        trends_stop_year1 = '{0}'.format(int(trends_start_year1) + int(env[comp_data['num_years1']]))
+        if len(trends_start_year1) > 0 and len(env[comp_data['num_years1']]) > 0:
+            trends_stop_year1 = '{0}'.format(int(trends_start_year1) + int(env[comp_data['num_years1']]))
         trends_start_year2 = '{0}'.format(env[comp_data['start_year2']])
-        trends_stop_year2 = '{0}'.format(int(trends_start_year2) + int(env[comp_data['num_years2']]))
+        if len(trends_start_year2) > 0 and len(env[comp_data['num_years2']]) > 0:
+            trends_stop_year2 = '{0}'.format(int(trends_start_year2) + int(env[comp_data['num_years2']]))
 
     return model_start_year, model_stop_year, control_start_year, control_stop_year, \
         trends_start_year1, trends_stop_year1, trends_start_year2, trends_stop_year2 
@@ -340,7 +345,7 @@ def copy_files(env, comp, comp_data):
                 print('copy_html WARNING: ocean tar file = {0} already exists - please delete first.'.format(os.path.join(rootdir,tarfile)))
                 ok_to_copy = False
             else:
-                tar_cmd = "tar cvfz {0} --exclude='*.nc' --exclude='*.nc_tmp' --exclude='*.log.*' --exclude='*.asc' --exclude='*.ncl' --exclude='*.dt.*' {1}".format(tarfile, workdir)
+                tar_cmd = "tar cvfz {0} --exclude='*.nc' --exclude='*.nc_tmp' --exclude='*.tmp' --exclude='*.log.*' --exclude='*.asc' --exclude='*.ncl' --exclude='*.dt.*' {1}".format(tarfile, workdir)
                 try:
                     pipe = subprocess.Popen([tar_cmd], env=env, shell=True)
                     pipe.wait()

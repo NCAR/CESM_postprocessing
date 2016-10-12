@@ -159,7 +159,7 @@ def buildOcnAvgList(start_year, stop_year, tavgdir, main_comm, debugMsg):
 #========================================================================
 # callPyAverager - create the climatology files by calling the pyAverager
 #========================================================================
-def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList, diag_obs_root, main_comm, debugMsg):
+def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList, diag_obs_root, netcdf_format, main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -172,22 +172,24 @@ def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList, di
        varList (list) - list of variables. Note: an empty list implies all variables.
        tseries (boolean) - TRUE if TIMESERIES plots are specified.
        diag_obs_root (string) - OCNDIAG_DIAGOBSROOT machine dependent path to input data root
+       netcdf_format (string) - OCNDIAG_netcdf_format one of ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
        main_comm (object) - simple MPI communicator object
 
     """
     # the following are used for timeseries averages and ignored otherwise
-##    mean_diff_rms_obs_dir = '{0}/ocn_diag/timeseries_obs'.format(ppDir
     mean_diff_rms_obs_dir = '{0}/omwg/timeseries_obs'.format(diag_obs_root)
     region_nc_var = 'REGION_MASK'
     regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
     region_wgt_var = 'TAREA'
-##    obs_dir = '{0}/ocn_diag/timeseries_obs'.format(ppDir)
     obs_dir = '{0}/omwg/timeseries_obs'.format(diag_obs_root)
     obs_file = 'obs.nc'
     reg_obs_file_suffix = '_hor_mean_obs.nc'
 
     wght = False
-    ncfrmt = 'netcdf4'
+    valid_netcdf_formats = ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
+    ncfrmt = 'netcdf'
+    if netcdf_format in valid_netcdf_formats:
+        ncfrmt = netcdf_format
     serial = False
     clobber = True
     date_pattern = 'yyyymm-yyyymm'
@@ -263,7 +265,7 @@ def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList, di
 # createClimFiles - create the climatology files by calling the pyAverager
 #=========================================================================
 def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries, inVarList,
-                    tseries_start_year, tseries_stop_year, diag_obs_root, main_comm, debugMsg):
+                    tseries_start_year, tseries_stop_year, diag_obs_root, netcdf_format, main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -279,6 +281,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
        tseries_start_year (integer) - starting year for timeseries diagnostics 
        tseries_stop_year (integer) - stop year for timeseries diagnostics
        diag_obs_root (string) - OCNDIAG_DIAGOBSROOT machine dependent path to input data root
+       netcdf_format (string) - OCNDIAG_netcdf_format one of ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
        main_comm (object) - simple MPI communicator object
 
     """
@@ -295,7 +298,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         # call the pyAverager with the inVarList
         if main_comm.is_manager():
             debugMsg('Calling callPyAverager with averageList = {0}'.format(averageList), header=True, verbosity=1)
-        callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, diag_obs_root, main_comm, debugMsg)
+        callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, diag_obs_root, netcdf_format, main_comm, debugMsg)
     main_comm.sync()
 
     # check if timeseries diagnostics is requested
@@ -307,10 +310,13 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         # generate the annual timeseries files and MOC file with TEMP, SALT, MOC variables
         if len(averageListMoc) > 0:
             # call the pyAverager with the inVarList
-            inVarList = ['SALT', 'TEMP', 'MOC']
+            if 'MOC' in inVarList:
+                inVarList = ['SALT', 'TEMP', 'MOC']
+            else:
+                inVarList = ['SALT', 'TEMP']
             if main_comm.is_manager():
                 debugMsg('Calling callPyAverager with averageListMoc = {0}'.format(averageListMoc), header=True, verbosity=1)
-            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageListMoc, inVarList, diag_obs_root, main_comm, debugMsg)
+            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageListMoc, inVarList, diag_obs_root, netcdf_format, main_comm, debugMsg)
         main_comm.sync()
 
         # generate the horizontal mean files with just SALT and TEMP
@@ -318,8 +324,8 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
             # call the pyAverager with the inVarList
             inVarList = ['SALT', 'TEMP']
             if main_comm.is_manager():
-                debugMsg('Calling callPyAverager with averageList = {0}'.format(averageListMoc), header=True, verbosity=1)
-            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, diag_obs_root, main_comm, debugMsg)
+                debugMsg('Calling callPyAverager with averageList = {0}'.format(averageList), header=True, verbosity=1)
+            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, diag_obs_root, netcdf_format,  main_comm, debugMsg)
         main_comm.sync()
 
 #============================================
@@ -332,7 +338,7 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     caseroot (string) - case root
     debugMsg (object) - vprinter object for printing debugging messages
-    standalong (boolean) - indicate stand-alone post processing caseroot
+    standalone (boolean) - indicate stand-alone post processing caseroot
 
     Return:
     envDict (dictionary) - environment dictionary
@@ -442,7 +448,8 @@ def main(options, main_comm, debugMsg):
         createClimFiles(envDict['YEAR0'], envDict['YEAR1'], envDict['in_dir'],
                         envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], 
                         tseries, envDict['MODEL_VARLIST'], envDict['TSERIES_YEAR0'], 
-                        envDict['TSERIES_YEAR1'], envDict['DIAGOBSROOT'], main_comm, debugMsg)
+                        envDict['TSERIES_YEAR1'], envDict['DIAGOBSROOT'], 
+                        envDict['netcdf_format'], main_comm, debugMsg)
     except Exception as error:
         print(str(error))
         traceback.print_exc()
@@ -487,7 +494,7 @@ def main(options, main_comm, debugMsg):
             createClimFiles(envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], envDict['cntrl_in_dir'],
                             envDict['cntrl_htype'], envDict['CNTRLTAVGDIR'], envDict['CNTRLCASE'], 
                             False, envDict['CNTRL_VARLIST'], 0, 0, envDict['DIAGOBSROOT'],
-                            main_comm, debugMsg)
+                            envDict['netcdf_format'], main_comm, debugMsg)
         except Exception as error:
             print(str(error))
             traceback.print_exc()

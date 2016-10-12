@@ -78,7 +78,7 @@ class MOCAnnual(OceanDiagnosticPlot):
                     print('      calling NCL plot routine {0}'.format(nclPlotFile))
                     subprocess.check_call(['ncl', '{0}'.format(nclFile)], env=env)
                 except subprocess.CalledProcessError as e:
-                    print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclfile))
+                    print('WARNING: {0} call to {1} failed with error:'.format(self.name(), nclFile))
                     print('    {0}'.format(e.cmd))
                     print('    rc = {0}'.format(e.returncode))
             else:
