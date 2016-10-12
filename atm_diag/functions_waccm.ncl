@@ -35,6 +35,8 @@ begin
     delete(tmp)
 
     tmp = vinth2p(ivar, hyam, hybm, lev, ps, interp, p0, 1, extrap)
+    tmp@long_name = ivar@long_name
+    tmp@units     = ivar@units
     
     ; This still allows extrapolation beyond the top of the model, so set those
     ; to the fill value.
@@ -62,6 +64,74 @@ begin
   delete(tmp)
   
   return(ovar)
+end
+
+
+; Scale mixing ratio and length variables.
+procedure waccm_scaleunits(varname, iunits, varmin, varmax, scale, ounits)
+
+begin
+
+  ; Adjust units
+  scale  = 1.
+  ounits = iunits
+
+  if ((iunits .eq. "mol/mol") .or. (iunits .eq. "kg/kg")) then
+    if (varmax .lt. 1e-12) then
+      scale   = 1e15
+      ounits   = "ppq"
+    else
+      if (varmax .lt. 1e-9) then
+        scale   = 1e12
+        ounits   = "ppt"
+      else
+        if (varmax .lt. 1e-6) then
+          scale   = 1e9
+          ounits   = "ppb"
+        else
+          if (varmax .lt. 1e-3) then
+            scale   = 1e6
+            ounits  = "ppm"
+          end if
+        end if
+      end if
+    end if
+    
+    ; For water vapor, always want ppm for WACCM
+    if (varname .eq. "H2O") then
+      scale   = 1e6
+      ounits  = "ppm"
+    end if
+
+    ; For carbon monoxide, always want ppm for WACCM
+    if (varname .eq. "CO") then
+      scale   = 1e6
+      ounits  = "ppm"
+    end if
+
+    if (scale .ne. 1.) then
+      if (iunits .eq. "mol/mol") then
+        ounits = ounits + "v"
+      end if
+    end if
+  end if
+  
+  if (iunits .eq. "m") then
+    if (varmax .gt. 1e3) then
+      scale   = 1e-3
+      ounits  = "km"
+    else
+      if (varmax .lt. 1e-2) then
+        scale   = 1e6
+        ounits  = "um"
+      else
+        if (varmax .lt. 1.) then
+          scale   = 1e2
+          ounits  = "cm"
+        end if
+      end if
+    end if
+  end if
 end
 
 
@@ -95,6 +165,8 @@ begin
     delete(tmp)
 
     tmp = vinth2p(ivar, hyam, hybm, lev, ps, interp, p0, 1, extrap)
+    tmp@long_name = ivar@long_name
+    tmp@units     = ivar@units
 
     ; This still allows extrapolation beyond the top of the model, so set those
     ; to the fill value.
@@ -145,8 +217,84 @@ begin
 end
 
 
+undef("nice_mnmxintvl_log")
+function nice_mnmxintvl_log(minval, maxval, numlevs, drange)
+
+local minabs, maxabs, nicelevs, epos, eneg 
+
+begin
+
+  ; Default drange to cover full range if nothing was provided.
+  if (drange .eq. 0) then
+    drange = abs(log10(max(abs(maxval))) - log10(max(abs(minval))))
+    
+    if (drange < 3) then
+      drange = 3
+    end if
+
+    if (drange > 15) then
+      drange = 15
+    end if
+  end if
+
+  
+  ; Does the range span 0?
+  if (minval * maxval .lt. 0.) then
+
+    ; Pick a spacing based upon the largest value.
+    maxabs = max((/ abs(minval), abs(maxval) /))
+    minabs = maxabs / (10^(drange))
+
+    maxmin = nice_mnmxintvl(log10(minabs), log10(maxabs), numlevs / 2, False)
+    
+    nicelevs = tointeger((maxmin(1) - maxmin(0)) / maxmin(2) + 1)
+
+    eneg = fspan(maxmin(1), maxmin(0), nicelevs)
+    eneg = -1 * (10.^eneg)
+
+    epos = -1 * eneg(::-1)
+    
+    elevels = array_append_record(eneg, epos, 0)
+    
+    delete(eneg)
+    delete(epos)
+  else
+    
+    ; One sided, so just take the log and build a scale.
+    if ((minval .eq. 0.) .or. (maxval .eq. 0.)) then
+    
+      ; Since we can't go to zero, use the drange.
+      ; Could look for largest non-zero value.
+      if (maxval .eq. 0.) then
+        maxval = minval / (10^(drange))
+      else
+        minval = maxval / (10^(drange))
+      end if
+    end if
+
+    if (minval .lt. 0.) then
+      maxmin = nice_mnmxintvl(log10(abs(maxval)), log10(abs(minval)), numlevs, False)
+    else
+      maxmin = nice_mnmxintvl(log10(abs(minval)), log10(abs(maxval)), numlevs, False)
+    end if
+
+    nicelevs = tointeger((maxmin(1) - maxmin(0)) / maxmin(2) + 1)
+
+    elevels = fspan(maxmin(0), maxmin(1), nicelevs)
+    elevels = 10.^elevels
+
+    if (minval .lt. 0.) then
+      elevels = elevels(::-1) * -1
+    end if
+  end if
+
+  return(elevels)
+end 
+
+
+
 ;***********************************************************************;
-; Procedure : gsn_set_pres_hgt_axes                                         ;
+; Procedure : set_pres_hgt_axes                                         ;
 ;               pres: numeric                                           ;
 ;                res: logical                                           ;
 ;            add_hgt: logical                                           ;
@@ -161,15 +309,14 @@ end
 ; values, and the right for height values. The pressure values are      ;
 ; assumed to be in millibars.                                           ;
 ;***********************************************************************;
-
 undef("set_pres_hgt_axes")
 procedure set_pres_hgt_axes(pres:numeric,res:logical,add_hgt:logical)
 local hgt, hnice, pnice, ptmp
 begin
   if(pres(0).lt.pres(dimsizes(pres)-1))
-    ptmp = tofloat(pres(::-1))    ; reverse values so descending order
+    ptmp = tofloat_wunits(pres(::-1))    ; reverse values so descending order
   else
-    ptmp = tofloat(pres)          ; Make sure values are floating point.
+    ptmp = tofloat_wunits(pres)          ; Make sure values are floating point.
   end if
 
   if(.not.(isatt(res,"sfYCStartV").and.isatt(res,"sfYCEndV")))

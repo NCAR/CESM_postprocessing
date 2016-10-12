@@ -106,7 +106,9 @@ begin
     cnlvls = 15
     diffcnlvls = 12
   end if
-  cres@mpCenterLonF = 180 
+  cres@mpCenterLonF = 180
+  
+  dres = cres 
 
   pan                       = True
   pan@gsnMaximize           = True
@@ -117,13 +119,33 @@ begin
   
   nvars = dimsizes(vars1)
   do i = 0, nvars-1
-  
+
     ; Do vertical interpolation first, since for hydrid coordinates,
     ; this should be done on lev x lat x lon data prior to averaging.
     ; Also calculate a zonal average.
-    var1 = inptr1->$vars1(i)$
+    if (isfilevar(inptr1, vars1(i))) then
+      var1 = inptr1->$vars1(i)$
+    else
     
-    ; If minP and MaxP don't match, then average the valure in the range
+      ; If it is missing water vapor, look for specific humidity and convert.
+      if (vars1(i) .eq. "H2O") then
+        if (isfilevar(inptr1, "SHUM")) then
+          var1 = inptr1->SHUM
+          var1 = (/ var1 * 28.89 / 18. / 1e3 /)     ; convert from g/kg to ppv
+        else
+          if (isfilevar(inptr1, "Q")) then
+            var1 = inptr1->Q
+            var1 = (/ var1 * 28.89 / 18. /)     ; convert from g/kg to ppv
+          else
+            continue
+          end if   
+        end if   
+      else
+        continue
+      end if
+    end if
+
+    ; If minP and MaxP don't match, then average the value in the range
     ; specified.
     if (minP(i) .ne. maxP(i)) then
       var1a = dim_avg_n_Wrap(var1(:, {minP(i):maxP(i)}, :, :), 1)
@@ -157,7 +179,7 @@ begin
       end if
     end if
 
-    ; If minP and MaxP don't match, then average the valure in the range
+    ; If minP and MaxP don't match, then average the value in the range
     ; specified.
     if (minP(i) .ne. maxP(i)) then
       var2a = dim_avg_n_Wrap(var2(:, {minP(i):maxP(i)}, :, :), 1)
@@ -196,6 +218,44 @@ begin
     end if 
     
     ; Assign the contour levels for different variables
+    varmax = max((/ max(var1a), max(var2a) /))
+    varmin = min((/ min(var1a), min(var2a) /))
+
+    
+    scale = 1.
+    units = var1a@units
+
+    waccm_scaleunits(vars1(i), var1a@units, varmin, varmax, scale, units)
+    
+    if (scale .ne. 1.) then
+      var1a@units = units
+      
+      var1a = (/ var1a * scale /)
+      var2a = (/ var2a * scale /)
+      var3a = (/ var3a * scale /)
+      diff  = (/ diff  * scale /)
+  
+      varmax = max((/ max(var1a), max(var2a) /))
+      varmin = min((/ min(var1a), min(var2a) /))
+    end if
+
+    maxmin  = nice_mnmxintvl(varmin, varmax, 15, False)
+    symMinMaxPlt(diff, 15, False, dres)
+
+    
+    if (vars1(i) .eq. "H2O") then
+      var1a@long_name = "Water Vapor"
+      con  = fspan(1, 8, 15)
+      dcon = (/ -1.8,-1.5,-1.2,-.9,-.6,-.3,-.1,0,.1,.3,.6,.9,1.2,1.5,1.8 /)
+    end if
+
+    if (vars1(i) .eq. "RELHUM") then
+     var1a@long_name = "Relative Humidity"
+     var1a@units     = "%"
+     con  = fspan(0., 140., 15)
+     dcon = (/ -18.,-15.,-12.,-9.,-6.,-3.,-1.,0.,1.,3.,6.,9.,12.,15.,18. /)
+    end if
+
     if (vars1(i) .eq. "T") then
       var1a@long_name = "Temperature"
       var1a@units     = "K"
@@ -209,24 +269,10 @@ begin
       end if
     end if
 
-    if (vars1(i) .eq. "U") then
-      var1a@long_name = "Zonal Wind"
-      var1a@units     = "m/s"
-      con  = fspan(-70., 70., 15)
-      dcon = (/ -18.,-15.,-12.,-9.,-6.,-3.,-1.,0.,1.,3.,6.,9.,12.,15.,18. /)
+    if (vars1(i) .eq. "Z3") then
+      var1a@long_name = "Geopotential Height"
     end if
 
-    if (vars1(i) .eq. "H2O") then
-      var1a = (/ var1a * 1e6 /)
-      var2a = (/ var2a * 1e6 /)
-      var3a = (/ var3a * 1e6 /)
-      diff  = (/ diff  * 1e6 /)
-
-      var1a@long_name = "Water Vapor"
-      var1a@units     = "ppmv"
-      con  = fspan(1, 8, 15)
-      dcon = (/ -1.8,-1.5,-1.2,-.9,-.6,-.3,-.1,0,.1,.3,.6,.9,1.2,1.5,1.8 /)
-    end if
 
     var2a@long_name = var1a@long_name
     var2a@units     = var1a@units
@@ -243,7 +289,16 @@ begin
     if (color_type .eq. "COLOR") then
       cres@lbLabelStride  = 2
       cres@lbOrientation = "Horizontal"
-      cres@cnLevels = con(:)
+      if (isvar("con")) then
+        cres@cnLevelSelectionMode = "ExplicitLevels" 
+        cres@cnLevels = con(:)
+        delete(con)
+      else
+        cres@cnLevelSelectionMode = "ManualLevels" 
+        cres@cnMinLevelValF  = maxmin(0)
+        cres@cnMaxLevelValF  = maxmin(1)
+        cres@cnLevelSpacingF = maxmin(2)
+      end if
       cres@cnFillPalette = cmap
       cres@cnLinesOn = False
       cres@cnLineLabelsOn = False
@@ -279,27 +334,33 @@ begin
     mind = min(diff)
     maxd = max(diff)
 
-    cres@tiMainString = case1 + " - " + case2
+    dres@tiMainString = case1 + " - " + case2
     if (color_type .eq. "COLOR") then
-      cres@lbLabelStride = 1
-      cres@lbOrientation = "Vertical"
-      cres@lbBoxMinorExtentF = 0.18
-      cres@cnLevels = dcon(:)
-      cres@cnFillPalette = cmapd
-      cres@lbTitleString = "MIN = " + sprintf("%6.2f",mind) + "  MAX = " + sprintf("%6.2f",maxd)
-;      cres@cnLinesOn = True
-;      cres@cnLineLabelsOn = True
-;      cres@cnLineLabelPlacementMode = "Constant"
+      dres@lbLabelStride = 1
+      dres@lbOrientation = "Vertical"
+      dres@lbBoxMinorExtentF = 0.18
+        if (isvar("dcon")) then
+          dres@cnLevelSelectionMode = "ExplicitLevels" 
+          dres@cnLevels = dcon(:)
+          delete(dcon)
+        else
+          dres@cnLevelSelectionMode = "ManualLevels" 
+        end if
+      dres@cnFillPalette = cmapd
+      dres@lbTitleString = "MIN = " + sprintf("%6.2f",mind) + "  MAX = " + sprintf("%6.2f",maxd)
+;      res@cnLinesOn = True
+;      res@cnLineLabelsOn = True
+;      res@cnLineLabelPlacementMode = "Constant"
     else
       mnmxint = nice_mnmxintvl (mind, maxd, diffcnlvls, False)
-      cres@cnMinLevelValF  = mnmxint(0)
-      cres@cnMaxLevelValF  = mnmxint(1)
-      cres@cnLevelSpacingF = mnmxint(2)
+      dres@cnMinLevelValF  = mnmxint(0)
+      dres@cnMaxLevelValF  = mnmxint(1)
+      dres@cnLevelSpacingF = mnmxint(2)
       delete(mnmxint)
     end if
     cres@pmLabelBarOrthogonalPosF = 0.02
 
-    cnplot(2) = gsn_csm_contour_map(wks, diff(0,:,:), cres)
+    cnplot(2) = gsn_csm_contour_map(wks, diff(0,:,:), dres)
 
     
     ; Create the panel.      
@@ -333,10 +394,10 @@ begin
   
   ; Define the model variables and the range of pressure levels over
   ; which to plot them.
-  vars  = (/ "H2O", "H2O", "H2O" /)
-  minP  = (/ 118.,   100.,   85. /)
-  maxP  = (/ 118.,   100.,   85. /)
-  pAbbr = (/ "118", "100",  "85" /)
+  vars  = (/ "H2O", "H2O", "H2O",  "Z3",   "T", "RELHUM" /)
+  minP  = (/  118.,  100.,   85.,  100.,  100.,     100. /)
+  maxP  = (/  118.,  100.,   85.,  100.,  100.,     100. /)
+  pAbbr = (/ "118", "100",  "85", "100", "100",    "100" /)
   
   do p = 0, nPeriods-1
 
@@ -357,9 +418,9 @@ begin
       ;
       ; NOTE: For WACCM, we need to make reanalysis data sets that go
       ; to higher altitudes (lower pressures).
-      obs     = (/ "MLS",         "ERAI",        "MERRAW_19x2" /)
+      obs     = (/ "mlsw",        "ERAI",        "MERRAW_19x2" /)
       obsName = (/ "MLS",         "ERAI",        "MERRA" /)
-      years      = (/ "(2004-2012)", "(1989-2005)", "(1975-2015)" /)
+      years   = (/ "(2004-2016)", "(1989-2005)", "(1975-2015)" /)
       nobs = dimsizes(obs)
     
       do r = 0, nobs-1
@@ -369,6 +430,10 @@ begin
           print(" plot_waccm_map : ERROR - Missing " + obs(r) + " data.")
         else
           inptr2 = addfile(files(0),"r")
+
+          if (isatt(inptr2,"yrs_averaged")) then
+            years(r) = "(" + inptr2@yrs_averaged + ")"
+          end if
         end if
         delete(files)
 
