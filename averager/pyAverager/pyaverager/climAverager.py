@@ -358,6 +358,8 @@ def weighted_hor_avg_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist
     weights = MA.expand_dims(slev_weights, axis=0)
     if var_val.ndim > 2:
         for lev in range(1,60):
+## for 62 level ocn testing
+##        for lev in range(1,62):
             new_region_mask = MA.expand_dims(slev_mask, axis=0)
             region_mask = np.vstack((region_mask,new_region_mask))
             new_weights = MA.expand_dims(slev_weights, axis=0)
@@ -449,6 +451,8 @@ def weighted_rms_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dic
     region_mask = MA.expand_dims(slev_mask, axis=0)
     weights = MA.expand_dims(slev_weights, axis=0)
     for lev in range(1,60):
+## for 62 level ocn testing
+##    for lev in range(1,62):
         new_region_mask = MA.expand_dims(slev_mask, axis=0)
         region_mask = np.vstack((region_mask,new_region_mask))
         new_weights = MA.expand_dims(slev_weights, axis=0)
