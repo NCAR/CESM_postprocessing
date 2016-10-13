@@ -198,7 +198,8 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
                         'so4_a2SFWET','so4_a3SFWET','so4_a4SFWET','so4_a5SFWET','so4_a6SFWET','so4_a7SFWET','so4_c1DDF','so4_c2DDF',
                         'so4_c3DDF','so4_c4DDF','so4_c5DDF','so4_c6DDF','so4_c7DDF','so4_c1SFWET','so4_c2SFWET','so4_c3SFWET','so4_c4SFWET',
                         'so4_c5SFWET','so4_c6SFWET','so4_c7SFWET']
-    waccm_vars =       ['QRS_TOT', 'QRL_TOT']
+    waccm_vars =       ['BRO','CH3CL','CLO','CO2','HCL','HO2','HOCL','QRL_TOT','QRS_TOT']
+    #waccm_vars =       ['QRS_TOT', 'QRL_TOT']
 
     var_list = []
     fileVars = []

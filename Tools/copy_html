@@ -206,7 +206,7 @@ def check_ssh_key(env):
                                  shell=True)
     except subprocess.CalledProcessError as e:
         print('WARNING: unable to connect to remote web host {0}@{1} without a password'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST']))
-        print('    You will be prompted for a password in order to copy the files')
+        print('    You will be prompted for a password multiple times in order to copy the files.')
 
 
 #=======================================================================

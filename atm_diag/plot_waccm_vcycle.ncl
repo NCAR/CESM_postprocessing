@@ -77,7 +77,6 @@ begin
   end if
   case1 = shorten_case_name(case1)
   
-
   if (isatt(inptr1[0],"yrs_averaged")) then
     yrs_ave1 = "(" + inptr1[0]@yrs_averaged + ")"
   else
@@ -120,6 +119,7 @@ begin
   cres@tmXBLabels = (/ "J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D" /)
   cycletime       = cres@tmXBValues
   
+  dres = cres 
 
   pan                       = True
   pan@gsnMaximize           = True
@@ -151,12 +151,34 @@ begin
 
   nvars = dimsizes(vars1)
   do i = 0, nvars-1
-  
+
     ; Do vertical interpolation first, since for hydrid coordinates,
     ; this should be done on lev x lat x lon data prior to averaging.
     ; Also calculate a zonal average.
-    var1 = dim_avg_Wrap(inptr1[:]->$vars1(i)$)
-
+    if (isfilevar(inptr1[0], vars1(i))) then
+      var1 = dim_avg_Wrap(inptr1[:]->$vars1(i)$)
+    else
+    
+      ; If it is missing water vapor, look for specific humidity and convert.
+      if (vars1(i) .eq. "H2O") then
+        if (isfilevar(inptr1[0], "SHUM")) then
+          var1 = dim_avg_Wrap(inptr1[:]->SHUM)
+          var1 = (/ var1 * 28.89 / 18. / 1e3 /)     ; convert from g/kg to ppv
+          var1@units = "mol/mol"
+        else
+          if (isfilevar(inptr1[0], "Q")) then
+            var1 = dim_avg_Wrap(inptr1[:]->Q)
+            var1 = (/ var1 * 28.89 / 18. /)     ; convert from g/kg to ppv
+            var1@units = "mol/mol"
+          else
+            continue
+          end if   
+        end if   
+      else
+        continue
+      end if
+    end if
+    
     ; If the OBS/Model2 don't have a corresponding field, then
     ; skip it.
     if (isfilevar(inptr2[0], vars2(i))) then
@@ -168,10 +190,12 @@ begin
         if (isfilevar(inptr2[0], "SHUM")) then
           var2 = dim_avg_Wrap(waccm_vintrps(inptr2, inptr2[:]->SHUM, var1&lev))
           var2 = (/ var2 * 28.89 / 18. / 1e3 /)     ; convert from g/kg to ppv
+          var2@units = "mol/mol"
         else
           if (isfilevar(inptr2[0], "Q")) then
             var2 = dim_avg_Wrap(waccm_vintrps(inptr2, inptr2[:]->Q, var1&lev))
             var2 = (/ var2 * 28.89 / 18. /)     ; convert from g/kg to ppv
+            var2@units = "mol/mol"
           else
             continue
           end if   
@@ -190,7 +214,7 @@ begin
       pan@txString              = sprintf("%5.1f", minLat(j)) + " to " + sprintf("%5.1f", maxLat(j))
       var1a = dim_avg_wgt_Wrap(var1(:,{minP(i):maxP(i)},{minLat(j):maxLat(j)}), gw1({minLat(j):maxLat(j)}), 1)
       var2a = dim_avg_wgt_Wrap(var2(:,{minP(i):maxP(i)},{minLat(j):maxLat(j)}), gw2({minLat(j):maxLat(j)}), 1)
-      
+
       ; Calculate the difference
       var1a&time = cycletime
       var2a&time = cycletime
@@ -216,7 +240,57 @@ begin
         end if
       end if 
       
+      ; Assign variables generically as 15 linear levels in the
+      ; range the data will be plotted. Also adjust scales for variables with
+      ; small numbers to ppm, ppb, ppt as appropriate.
+      varmax = max((/ max(var1a), max(var2a) /))
+      varmin = min((/ min(var1a), min(var2a) /))
+      
+      scale = 1.
+      units = var1a@units
+      waccm_scaleunits(vars1(i), var1a@units, varmin, varmax, scale, units)
+      
+      if (scale .ne. 1.) then
+        var1a@units = units
+        
+        var1a = (/ var1a * scale /)
+        var2a = (/ var2a * scale /)
+        diff  = (/ diff  * scale /)
+    
+        varmax = max((/ max(var1a), max(var2a) /))
+        varmin = min((/ min(var1a), min(var2a) /))
+      end if
+      
+      maxmin  = nice_mnmxintvl(varmin, varmax, 15, False)
+      symMinMaxPlt(diff, 15, False, dres)
+
       ; Assign the contour levels for different variables
+      if (vars1(i) .eq. "CO") then
+        con = (/ 0.01,0.02,0.04,0.08,0.1,0.2,0.4,0.8,1.,2.,4.,8.,10.,20.,40. /)
+        dcon = (/ -10.,-4.,-1.,-0.4,-0.1,-.04,-.01,0.,0.01,0.04,0.1,0.4,1.,4.,10. /)
+      end if
+
+      if (vars1(i) .eq. "H2O") then
+        var1a@long_name = "Water Vapor"
+        con  = fspan(1, 8, 15)
+        dcon = (/ -1.8,-1.5,-1.2,-.9,-.6,-.3,-.1,0,.1,.3,.6,.9,1.2,1.5,1.8 /)
+      end if
+
+      if (vars1(i) .eq. "QRL_TOT") then
+        var1a@long_name = "Merged LW Heating"
+      end if
+
+      if (vars1(i) .eq. "QRS_TOT") then
+        var1a@long_name = "Merged SW Heating"
+      end if
+
+      if (vars1(i) .eq. "RELHUM") then
+       var1a@long_name = "Relative Humidity"
+       var1a@units     = "%"
+       con  = fspan(0., 140., 15)
+       dcon = (/ -18.,-15.,-12.,-9.,-6.,-3.,-1.,0.,1.,3.,6.,9.,12.,15.,18. /)
+      end if
+
       if (vars1(i) .eq. "T") then
         var1a@long_name = "Temperature"
         var1a@units     = "K"
@@ -237,22 +311,22 @@ begin
         dcon = (/ -18.,-15.,-12.,-9.,-6.,-3.,-1.,0.,1.,3.,6.,9.,12.,15.,18. /)
       end if
 
-      if (vars1(i) .eq. "RELHUM") then
-       var1a@long_name = "Relative Humidity"
-       var1a@units     = "%"
-       con  = fspan(0., 140., 15)
-       dcon = (/ -18.,-15.,-12.,-9.,-6.,-3.,-1.,0.,1.,3.,6.,9.,12.,15.,18. /)
+      if (vars1(i) .eq. "V") then
+        var1a@long_name = "Meridional Wind"
+        var1a@units     = "m/s"
+
+        if (pAbbr(i) .eq. "_z") then
+          con  = fspan(-3.5, 3.5, 15)
+          con = (/ -3.5,-2.5,-1.5,-1.,-.75,-.5,-.25,0.,.25,.5,.75,1.,1.5,2.5,3.5 /)
+          dcon = (/ -1.8,-1.5,-1.2,-.9,-.6,-.3,-.1,0.,.1,.3,.6,.9,1.2,1.5,1.8 /)
+        else
+          con  = fspan(-14., 14., 15)
+          dcon = (/ -7.2,-6.,-4.8,-3.6,-2.4,-1.2,-.4,0.,.4,1.2,2.4,3.6,4.8,6.,7.2 /)
+        end if
       end if
-
-      if (vars1(i) .eq. "H2O") then
-        var1a = (/ var1a * 1e6 /)
-        var2a = (/ var2a * 1e6 /)
-        diff  = (/ diff  * 1e6 /)
-
-        var1a@long_name = "Water Vapor"
-        var1a@units     = "ppmv"
-        con  = fspan(1, 8, 15)
-        dcon = (/ -1.8,-1.5,-1.2,-.9,-.6,-.3,-.1,0,.1,.3,.6,.9,1.2,1.5,1.8 /)
+      
+      if (vars1(i) .eq. "Z3") then
+        var1a@long_name = "Geopotential Height"
       end if
 
       var2a@long_name = var1a@long_name
@@ -268,7 +342,16 @@ begin
       if (color_type .eq. "COLOR") then
         cres@lbLabelStride  = 2
         cres@lbOrientation = "Horizontal"
-        cres@cnLevels = con(:)
+        if (isvar("con")) then
+          cres@cnLevelSelectionMode = "ExplicitLevels" 
+          cres@cnLevels = con(:)
+          delete(con)
+        else
+          cres@cnLevelSelectionMode = "ManualLevels" 
+          cres@cnMinLevelValF  = maxmin(0)
+          cres@cnMaxLevelValF  = maxmin(1)
+          cres@cnLevelSpacingF = maxmin(2)
+        end if
         cres@cnFillPalette = cmap
         cres@cnLinesOn = False
         cres@cnLineLabelsOn = False
@@ -303,26 +386,32 @@ begin
       mind = min(diff)
       maxd = max(diff)
 
-      cres@tiMainString = case1 + " - " + case2
+      dres@tiMainString = case1 + " - " + case2
       if (color_type .eq. "COLOR") then
-        cres@lbLabelStride = 1
-        cres@lbOrientation = "Vertical"
-        cres@lbBoxMinorExtentF = 0.18
-        cres@cnLevels = dcon(:)
-        cres@cnFillPalette = cmapd
-        cres@lbTitleString = "MIN = " + sprintf("%6.2f",mind) + "  MAX = " + sprintf("%6.2f",maxd)
-        cres@cnLinesOn = True
-        cres@cnLineLabelsOn = True
-        cres@cnLineLabelPlacementMode = "Constant"
+        dres@lbLabelStride = 1
+        dres@lbOrientation = "Vertical"
+        dres@lbBoxMinorExtentF = 0.18
+        if (isvar("dcon")) then
+          dres@cnLevelSelectionMode = "ExplicitLevels" 
+          dres@cnLevels = dcon(:)
+          delete(dcon)
+        else
+          dres@cnLevelSelectionMode = "ManualLevels" 
+        end if
+        dres@cnFillPalette = cmapd
+        dres@lbTitleString = "MIN = " + sprintf("%6.2f",mind) + "  MAX = " + sprintf("%6.2f",maxd)
+        dres@cnLinesOn = True
+        dres@cnLineLabelsOn = True
+        dres@cnLineLabelPlacementMode = "Constant"
       else
         mnmxint = nice_mnmxintvl (mind, maxd, diffcnlvls, False)
-        cres@cnMinLevelValF  = mnmxint(0)
-        cres@cnMaxLevelValF  = mnmxint(1)
-        cres@cnLevelSpacingF = mnmxint(2)
+        dres@cnMinLevelValF  = mnmxint(0)
+        dres@cnMaxLevelValF  = mnmxint(1)
+        dres@cnLevelSpacingF = mnmxint(2)
         delete(mnmxint)
       end if
 
-      cnplot(2) = gsn_csm_pres_hgt(wks, diff(lev|:, time|:), cres)
+      cnplot(2) = gsn_csm_pres_hgt(wks, diff(lev|:, time|:), dres)
 
       
       ; Create the panel.      
@@ -336,7 +425,7 @@ begin
 
       frame (wks)
       delete(wks)
-      
+
       delete(diff)
       delete(var1a)
       delete(var2a)
@@ -352,16 +441,9 @@ end
 begin
 
   ; Define the latitude bands
-  minLat  = (/ -90., -65., -10,   55.,  60. /)
-  maxLat  = (/ -60., -55.,  10.,  65.,  90. /)
-  latAbbr = (/ "_SP", "_SM", "_EQ", "_NM", "_NP" /)
-  
-  ; Define the model variables and the range of pressure levels over
-  ; which to plot them.
-  vars  = (/  "U",  "T", "H2O",  "T", "H2O", "RELHUM" /)
-  minP  = (/ 1e-3, 1e-3,  1e-3,  10.,   10.,      10. /)
-  maxP  = (/ 500., 500.,  120., 200.,  120.,     500. /)
-  pAbbr = (/   "",   "",    "", "_z",  "_z",     "_z" /)
+  minLat  = (/ -90., -65., -40., -10,  20., 55.,  60. /)
+  maxLat  = (/ -60., -55., -20., 10.,  40., 65.,  90. /)
+  latAbbr = (/ "_SP", "_SM", "_ST", "_EQ", "_NT", "_NM", "_NP" /)
   
   ; Get the model data.
   files = systemfunc("ls " + infile1 + "_??_climo.nc")
@@ -372,35 +454,247 @@ begin
   end if
   delete(files)
   
-  
   ; Get data from the OBS or other model.
   if (compare .eq. "OBS") then
   
-    ; Reanalysis data sets.
-    ;
-    ; NOTE: For WACCM, we need to make reanalysis data sets that go
-    ; to higher altitudes (lower pressures).
-    obs     = (/ "MLS",         "ERAI",         "MERRAW_19x2" /)
-    obsName = (/ "MLS",         "ERAI",         "MERRA" /)
-    years   = (/ "(2004-2012)", "(1989-2005)",  "(1975-2015)" /)
-    nobs = dimsizes(obs)
-    
-    do r = 0, nobs-1
-    
-      files = systemfunc("ls " + infile2 + "/" + obs(r) + "_??_climo.nc")
-      if (any(ismissing(files))) then
-        print(" plot_waccm_vcycle : ERROR - Missing " + obs(r) + " data.")
-      else
-        inptr2 = addfiles(files,"r")
-      end if
-      delete(files)
+    ; ERAI
+    obs     = "ERAI"
+    obsName = "ERAI"
+    years   = "(1989-2005)"
 
-      ; Do model to obs plots.
-      plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName(r), years(r), minP, maxP, pAbbr, minLat, maxLat, latAbbr)
-      delete(inptr2)
-      
-    end do
+    files = systemfunc("ls " + infile2 + "/" + obs + "_??_climo.nc")
+    if (any(ismissing(files))) then
+      print(" plot_waccm_vcycle : ERROR - Missing " + obs + " data.")
+    else
+      inptr2 = addfiles(files,"r")
+
+        if (isatt(inptr2,"yrs_averaged")) then
+          years = "(" + inptr2@yrs_averaged + ")"
+        end if
+    end if
+    delete(files)
+
+    ; Stratosphere
+    vars    = (/  "H2O", "O3", "RELHUM", "T", "U", "V" /)
+    nvars    = dimsizes(vars)
+    minP     = new(nvars, float)
+    minP(:)  = 1.
+    maxP     = new(nvars, float)
+    maxP(:)  = 200.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = "_z"
+
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName, years, minP, maxP, pAbbr, minLat, maxLat, latAbbr)    
+    delete(inptr2)
     
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+    delete(vars)
+
+    
+    ; MERRA
+    obs     = "MERRAW_19x2"
+    obsName = "MERRA"
+    years   = "(1975-2015)"
+
+    files = systemfunc("ls " + infile2 + "/" + obs + "_??_climo.nc")
+    if (any(ismissing(files))) then
+      print(" plot_waccm_vcycle : ERROR - Missing " + obs + " data.")
+    else
+      inptr2 = addfiles(files,"r")
+
+        if (isatt(inptr2,"yrs_averaged")) then
+          years = "(" + inptr2@yrs_averaged + ")"
+        end if
+    end if
+    delete(files)
+
+    ; Middle Atmosphere
+    vars    = (/  "H2O",  "T", "U", "V" /)
+    nvars    = dimsizes(vars)
+    minP     = new(nvars, float)
+    minP(:)  = 1e-3
+    maxP     = new(nvars, float)
+    maxP(:)  = 500.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = ""
+      
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName, years, minP, maxP, pAbbr, minLat, maxLat, latAbbr)    
+
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+
+    ; Stratosphere
+    minP     = new(nvars, float)
+    minP(:)  = 1.
+    maxP     = new(nvars, float)
+    maxP(:)  = 200.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = "_z"
+
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName, years, minP, maxP, pAbbr, minLat, maxLat, latAbbr)    
+    delete(inptr2)
+    
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+    delete(vars)
+
+
+    ; MLSW - Temperature, Water vapor, ...
+    obs     = "mlsw"
+    obsName = "MLS"
+    years   = "(2004-2016)"
+
+    files = systemfunc("ls " + infile2 + "/" + obs + "_??_climo.nc")
+    if (any(ismissing(files))) then
+      print(" plot_waccm_vcycle : ERROR - Missing " + obs + " data.")
+    else
+      inptr2 = addfiles(files,"r")
+
+        if (isatt(inptr2,"yrs_averaged")) then
+          years = "(" + inptr2@yrs_averaged + ")"
+        end if
+    end if
+    delete(files)
+
+    ; Middle Atmosphere
+    vars    = (/  "H2O",  "O3", "RELHUM", "T", "Z3" /)
+    nvars    = dimsizes(vars)
+    minP     = new(nvars, float)
+    minP(:)  = 1e-3
+    maxP     = new(nvars, float)
+    maxP(:)  = 500.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = ""
+      
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName, years, minP, maxP, pAbbr, minLat, maxLat, latAbbr)    
+
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+
+    ; Stratosphere
+    minP     = new(nvars, float)
+    minP(:)  = 1.
+    maxP     = new(nvars, float)
+    maxP(:)  = 200.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = "_z"
+
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName, years, minP, maxP, pAbbr, minLat, maxLat, latAbbr)    
+    delete(inptr2)
+    
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+    delete(vars)
+
+
+    ; MLSG - Most Trace Gases
+    obs     = "mlsg"
+    obsName = "MLS"
+    years   = "(2004-2016)"
+
+    files = systemfunc("ls " + infile2 + "/" + obs + "_??_climo.nc")
+    if (any(ismissing(files))) then
+      print(" plot_waccm_vcycle : ERROR - Missing " + obs + " data.")
+    else
+      inptr2 = addfiles(files,"r")
+
+        if (isatt(inptr2,"yrs_averaged")) then
+          years = "(" + inptr2@yrs_averaged + ")"
+        end if
+    end if
+    delete(files)
+
+    ; Middle Atmosphere
+    vars    = (/  "CO", "HO2" /)
+    nvars    = dimsizes(vars)
+    minP     = new(nvars, float)
+    minP(:)  = 1e-3
+    maxP     = new(nvars, float)
+    maxP(:)  = 500.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = ""      
+
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName, years, minP, maxP, pAbbr, minLat, maxLat, latAbbr)    
+
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+    delete(vars)
+
+    ; Stratosphere
+    vars    = (/  "CH3CL", "CLO", "CO", "HCL", "HNO3", "HO2", "HOCL", "N2O" /)
+    nvars    = dimsizes(vars)
+    minP     = new(nvars, float)
+    minP(:)  = 1.
+    maxP     = new(nvars, float)
+    maxP(:)  = 200.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = "_z"
+
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName, years, minP, maxP, pAbbr, minLat, maxLat, latAbbr)
+    delete(inptr2)
+    
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+    delete(vars)
+
+
+    ; MLSO - Hydroxyl
+    obs     = "mlso"
+    obsName = "MLS"
+    years   = "(2004-2016)"
+
+    files = systemfunc("ls " + infile2 + "/" + obs + "_??_climo.nc")
+    if (any(ismissing(files))) then
+      print(" plot_waccm_vcycle : ERROR - Missing " + obs + " data.")
+    else
+      inptr2 = addfiles(files,"r")
+
+        if (isatt(inptr2,"yrs_averaged")) then
+          years = "(" + inptr2@yrs_averaged + ")"
+        end if
+    end if
+    delete(files)
+
+    ; Middle Atmosphere
+    vars    = (/  "OH" /)
+    nvars    = dimsizes(vars)
+    minP     = new(nvars, float)
+    minP(:)  = 1e-3
+    maxP     = new(nvars, float)
+    maxP(:)  = 500.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = ""
+
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName, years, minP, maxP, pAbbr, minLat, maxLat, latAbbr)    
+
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+
+    ; Stratosphere
+    minP     = new(nvars, float)
+    minP(:)  = 1.
+    maxP     = new(nvars, float)
+    maxP(:)  = 200.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = "_z"
+
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, obsName, years, minP, maxP, pAbbr, minLat, maxLat, latAbbr)
+    delete(inptr2)
+    
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+    delete(vars)
+      
   else
 
     files = systemfunc("ls " + infile2 + "_??_climo.nc")
@@ -429,9 +723,41 @@ begin
       yrs_ave2 = ""
     end if
 
-    ; Do model to model plots.
+    ; Middle Atmosphere
+    vars     = (/  "CH4", "CO", "CO2", "H2O", "O3", "OH", "QRS_TOT", "QRL_TOT", "RELHUM", "SO2", "T", "U", "V", "Z3" /)
+    nvars    = dimsizes(vars)
+    minP     = new(nvars, float)
+    minP(:)  = 1e-3
+    maxP     = new(nvars, float)
+    maxP(:)  = 500.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = ""
+    
     plot_waccm_vcycle(inptr1, vars, inptr2, vars, case2, yrs_ave2, minP, maxP, pAbbr, minLat, maxLat, latAbbr)
+
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+    delete(vars)      
+    
+    ; Stratosphere
+    vars     = (/ "CH4", "CO", "CO2", "H2O", "N2O", "O3", "OH", "RELHUM", "SO2", "T" /)
+    nvars    = dimsizes(vars)
+    minP     = new(nvars, float)
+    minP(:)  = 1.
+    maxP     = new(nvars, float)
+    maxP(:)  = 200.
+    pAbbr    = new(nvars, string)
+    pAbbr(:) = "_z"
+    
+    plot_waccm_vcycle(inptr1, vars, inptr2, vars, case2, yrs_ave2, minP, maxP, pAbbr, minLat, maxLat, latAbbr)
+    
     delete(inptr2)
+
+    delete(pAbbr)
+    delete(maxP)
+    delete(minP)
+    delete(vars)
 
   end if
 end
