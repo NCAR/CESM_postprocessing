@@ -569,7 +569,7 @@ def main(options):
     run_tmpl = 'postprocess.tmpl'
 
     # generate the timeseries batch submit script from template files
-    postProcessCmd = 'cesm_tseries_generator.py'
+    postProcessCmd = 'cesm_tseries_generator.py --completechunk 1 '
     processName = 'timeseries'
     outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
 
