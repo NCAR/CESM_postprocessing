@@ -331,8 +331,6 @@ def main(options, scomm, rank, size):
                     reshpr = reshaper.create_reshaper(specifiers[i], serial=False, verbosity=debug, simplecomm=inter_comm)
                     # Run the conversion (slice-to-series) process 
                     reshpr.convert()
-                    # Print timing diagnostics
-                    reshpr.print_diagnostics()
 
         # all subcomm ranks - recv the specifier to work on and call the reshaper
         else:
