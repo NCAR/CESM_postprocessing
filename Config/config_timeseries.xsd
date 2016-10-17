@@ -14,7 +14,8 @@
   <xs:element name="tseries_output_format" type="xs:string"/>
   <xs:element name="tseries_output_subdir" type="xs:string"/>
   <xs:element name="tseries_tper" type="xs:string"/>
-  <xs:element name="tseries_filecat_years" type="xs:string"/>
+  <xs:element name="tseries_filecat_tper" type="xs:string"/>
+  <xs:element name="tseries_filecat_n" type="xs:string"/>
   <xs:element name="variable" type="xs:string"/>
 
   <!-- definition of complex elements -->
@@ -26,7 +27,8 @@
 	<xs:element name="tseries_output_format"  minOccurs="1" maxOccurs="1" />
 	<xs:element name="tseries_output_subdir"  minOccurs="1" maxOccurs="1" />
 	<xs:element name="tseries_tper"  minOccurs="1" maxOccurs="1" />
-	<xs:element name="tseries_filecat_years"  minOccurs="1" maxOccurs="1" />
+        <xs:element name="tseries_filecat_tper"  minOccurs="1" maxOccurs="1" />
+	<xs:element name="tseries_filecat_n"  minOccurs="1" maxOccurs="1" />
       </xs:sequence>
       <xs:attribute name="suffix" />
     </xs:complexType>
