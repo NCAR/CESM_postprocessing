@@ -75,7 +75,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
             # call ncks to extract the UAREA variable
             try:
                 subprocess.check_output( ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['TOBSFILE']) ], env=env)
-            except CalledProcessError as e:
+            except subprocess.CalledProcessError as e:
                 print('ERROR: {0} call to ncks failed with error:'.format(self.name()))
                 print('    {0} - {1}'.format(e.cmd, e.output))
                 sys.exit(1)
@@ -88,7 +88,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
 
             try:
                 subprocess.check_output( [zaCommand,'-O','-time_const','-grid_file',env['GRIDFILE'],'{0}_tmp'.format(env['TOBSFILE']) ], env=env)
-            except CalledProcessError as e:
+            except subprocess.CalledProcessError as e:
                 print('ERROR: {0} call to {1} failed with error:'.format(self.name(), zaCommand))
                 print('    {0} - {1}'.format(e.cmd, e.output))
                 sys.exit(1)
@@ -118,7 +118,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
             # call ncks to extract the UAREA variable
             try:
                 subprocess.check_output( ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['SOBSFILE']) ], env=env)
-            except CalledProcessError as e:
+            except subprocess.CalledProcessError as e:
                 print('ERROR: {0} call to ncks failed with error:'.format(self.name()))
                 print('    {0} - {1}'.format(e.cmd, e.output))
                 sys.exit(1)
@@ -131,7 +131,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
 
             try:
                 subprocess.check_output( [zaCommand,'-O','-time_const','-grid_file',env['GRIDFILE'],'{0}_tmp'.format(env['SOBSFILE']) ], env=env)
-            except CalledProcessError as e:
+            except subprocess.CalledProcessError as e:
                 print('ERROR: {0} call to {1} failed with error:'.format(self.name(), zaCommand))
                 print('    {0} - {1}'.format(e.cmd, e.output))
                 sys.exit(1)

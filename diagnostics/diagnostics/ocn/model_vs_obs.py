@@ -67,13 +67,13 @@ class modelVsObs(OceanDiagnostic):
         # create the plot.dat file in the workdir used by all NCL plotting routines
         diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
-        # setup the gridfile based on the resolution
-##        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
+        # setup the gridfile based on the resolution and vertical levels
         os.environ['gridfile'] = '{0}/omwg/za_grids/{1}_grid_info.nc'.format(env['DIAGOBSROOT'],env['RESOLUTION'])
         if env['VERTICAL'] == '42':
-##            os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
-            ## this file doesn't exist! - not sure if this even works now or not
             os.environ['gridfile'] = '{0}/omwg/za_grids/{1}_42lev_grid_info.nc'.format(env['DIAGOBSROOT'],env['RESOLUTION'])
+
+        if env['VERTICAL'] == '62':
+            os.environ['gridfile'] = '{0}/omwg/za_grids/{1}_62lev_grid_info.nc'.format(env['DIAGOBSROOT'],env['RESOLUTION'])
 
         # check if gridfile exists and is readable
         rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
@@ -164,7 +164,7 @@ class modelVsObs(OceanDiagnostic):
 
             except RuntimeError as e:
                 print(e)
-                print("model vs. obs - Skipped '{0}' and continuing!".format(request_plot))
+                print("model vs. obs - Skipped '{0}' and continuing!".format(requested_plot))
 
         scomm.sync()
 
