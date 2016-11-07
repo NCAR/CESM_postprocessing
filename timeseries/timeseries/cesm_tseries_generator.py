@@ -96,7 +96,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
     env_timeseries = '{0}/env_timeseries.xml'.format(caseroot)
 
     # read tseries log file to see if we've already started converting files, if so, where did we leave off
-    log = chunking.read_log(caseroot+'/ts_status.log')
+    log = chunking.read_log('{0}/logs/ts_status.log'.format(caseroot))
 
     # check if the env_timeseries.xml file exists
     if ( not os.path.isfile(env_timeseries) ):
@@ -344,7 +344,8 @@ def main(options, scomm, rank, size):
                     reshpr.convert()
 
     if rank == 0:
-        chunking.write_log(caseroot+'/ts_status.log', log) # Update system log with the dates that were just converted 
+        # Update system log with the dates that were just converted 
+        chunking.write_log('{0}/logs/ts_status.log'.format(caseroot), log)
 
     scomm.sync()
 #===================================

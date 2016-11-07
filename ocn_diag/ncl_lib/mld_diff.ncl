@@ -9,6 +9,10 @@ begin
   file_netcdf = getenv("SEASAVGRHO")
   file_tavg   = getenv("TAVGFILE")
 
+  print("mld_diff file_cntrl = " + file_cntrl)
+  print("mld_diff file_netcdf = " + file_netcdf)
+  print("mld_diff file_tavg = " + file_tavg)
+
   winter_plot = 1 
 
 ; in sigma units

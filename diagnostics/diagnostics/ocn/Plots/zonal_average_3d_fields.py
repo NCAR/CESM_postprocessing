@@ -73,8 +73,12 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
             shutil.copy2('{0}/{1}'.format(env['TSOBSDIR'], env['TOBSFILE']), '{0}_tmp'.format(env['TOBSFILE']))
 
             # call ncks to extract the UAREA variable
+            za_args = ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['TOBSFILE']) ]
+            if env['netcdf_format'] in ['netcdfLarge']:
+                za_args = ['ncks','-6','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['TOBSFILE']) ]
             try:
-                subprocess.check_output( ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['TOBSFILE']) ], env=env)
+##                subprocess.check_output( ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['TOBSFILE']) ], env=env)
+                subprocess.check_output(za_args, env=env)
             except subprocess.CalledProcessError as e:
                 print('ERROR: {0} call to ncks failed with error:'.format(self.name()))
                 print('    {0} - {1}'.format(e.cmd, e.output))
@@ -116,8 +120,12 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
             shutil.copy2('{0}/{1}'.format(env['TSOBSDIR'], env['SOBSFILE']), '{0}_tmp'.format(env['SOBSFILE']))
 
             # call ncks to extract the UAREA variable
+            za_args = ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['SOBSFILE']) ]
+            if env['netcdf_format'] in ['netcdfLarge']:
+                za_args = ['ncks','-6','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['SOBSFILE']) ]
             try:
-                subprocess.check_output( ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['SOBSFILE']) ], env=env)
+##                subprocess.check_output( ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['SOBSFILE']) ], env=env)
+                subprocess.check_output(za_args, env=env)
             except subprocess.CalledProcessError as e:
                 print('ERROR: {0} call to ncks failed with error:'.format(self.name()))
                 print('    {0} - {1}'.format(e.cmd, e.output))

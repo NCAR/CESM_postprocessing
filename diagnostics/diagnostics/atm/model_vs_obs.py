@@ -274,7 +274,7 @@ class modelVsObs(AtmosphereDiagnostic):
 
                 elif env['CLEANUP_FILES'].lower() in ['t','true']:
                     # delete all the files in the diag_path directory
-                    for root, dirs, files in os.walk('diag_path'):
+                    for root, dirs, files in os.walk(diag_path):
                         for f in files:
                             os.unlink(os.path.join(root, f))
                         for d in dirs:
