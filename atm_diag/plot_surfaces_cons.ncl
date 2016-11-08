@@ -1007,7 +1007,7 @@ do i = 0,  nvars-1
   print("==================")  ; hannay
   print("====="+ i+"==="+ vars(i)) ; hannay
   print("====="+infile1)
-  print("====="+outfile1
+  print("====="+outfile1)
 
 ;----------------------------
 ; Test case: CASE 1 MODEL

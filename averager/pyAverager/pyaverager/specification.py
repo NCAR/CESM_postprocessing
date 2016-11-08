@@ -83,7 +83,8 @@ class pyAveragerSpecifier(Specifier):
                ncl_location='null',
                year0=-99,
                year1=-99,
-               collapse_dim=''):
+               collapse_dim='',
+               vertical_levels=60):
     '''
     Initializes the internal data with optional arguments
 
@@ -153,6 +154,8 @@ class pyAveragerSpecifier(Specifier):
     @param year1            The last year - only used to create the cice pre_proc file. 
 
     @param collapse_dims    Used to collapse/average over one dim.
+
+    @param vertical_levels  Number of ocean vertical levels
     '''
 
     # Where the input is located
@@ -266,3 +269,6 @@ class pyAveragerSpecifier(Specifier):
 
     # Used to collapse/average over one dim.
     self.collapse_dim = collapse_dim
+
+    # Used to specify the number of ocean vertical levels
+    self.vertical_levels = vertical_levels

@@ -89,6 +89,16 @@
 	     desc="local machine filename containing the list of ecosystem variables to be averaged."
 	     ></entry>
 
+      <entry id="OCNDIAG_netcdf_format"
+             type="string"
+             valid_values="netcdf, netcdf4, netcdf4c, netcdfLarge"
+             value="netcdf"
+             group="global"
+             desc="Output NetCDF file format - either 'netcdf4c' (netcdf4 compressed (lev=1)), 
+'netcdf4' (netcdf classic), 'netcdf' (netcdf3 classic), or netcdfLarge for high-resolution data sets. DEFAULT = 'netcdf'. 
+Applies to both model and control cases."
+             ></entry>
+
       <entry id="OCNDIAG_CLEANUP_FILES"
 	     type="logical"
 	     valid_values="TRUE,FALSE"
@@ -160,7 +170,7 @@
 	     valid_values="60,62,42"
 	     value="60"
 	     group="observations"
-	     desc="Specifies number of vertical levels used to calculate averages as follows: 62 if using tx0.1v2, 42 if using gx3v7, and 60 otherwise. NOTE: VERTICAL only matters if the vertical levels equals 42; otherwise, it's not used"
+	     desc="Specifies number of vertical levels used to calculate averages as follows: 62 if using tx0.1v2, 42 if using gx3v7, and 60 otherwise."
 	     ></entry>
 
       <entry id="OCNDIAG_CPL"
@@ -184,7 +194,15 @@
 	     valid_values=""
 	     value="$OCNDIAG_DIAGOBSROOT/omwg/obs_data"
 	     group="observations"
-	     desc="This value points to the local machine's fully qualified directory path location of the OMWG observational data. The ocn_diags_generator.py script will 	error out if this directory is not available."
+	     desc="This value points to the local machine's fully qualified directory path location of the OMWG observational data. The ocn_diags_generator.py script will error out if this directory is not available."
+	     ></entry>
+
+      <entry id="OCNDIAG_TIMESERIES_OBSPATH"
+	     type="char"
+	     valid_values=""
+	     value="$OCNDIAG_DIAGOBSROOT/omwg/timeseries_obs_($OCN_GRID)_($OCNDIAG_VERTICAL)"
+	     group="observations"
+	     desc="This value points to the local machine's fully qualified directory path location of the OMWG timeseries observational data. This path is used as the input mean_diff_rms_obs_dir to the averager specifier class to create the regional horizontal means averages for SALT and TEMP."
 	     ></entry>
 
       <entry id="OCNDIAG_ECODATADIR"
@@ -286,7 +304,7 @@
       <entry id="OCNDIAG_TOBSFILE"
 	     type="char"
 	     valid_values=""
-	     value="PHC2_TEMP_($OCN_GRID)_ann_avg.nc"
+	     value="PHC2_TEMP_($OCN_GRID)_($VERTICAL)lev_ann_avg.nc"
 	     group="observations"
 	     desc="Local machine file for temperature observations"
 	     ></entry>
@@ -294,7 +312,7 @@
       <entry id="OCNDIAG_SOBSFILE"
 	     type="char"
 	     valid_values=""
-	     value="PHC2_SALT_($OCN_GRID)_ann_avg.nc"
+	     value="PHC2_SALT_($OCN_GRID)_($VERTICAL)lev_ann_avg.nc"
 	     group="observations"
 	     desc="Local machine file for salinity observations"
 	     ></entry>
@@ -651,7 +669,7 @@
       <entry id="OCNDIAG_CPLLOGFILEPATH"
 	     type="char"
 	     valid_values=""
-	     value="$DOUT_S_ROOT/cpl/logs"
+	     value="$DOUT_S_ROOT/logs"
 	     group="timeseries_options"
 	     desc="Local machine directory for cpl log files"
 	     ></entry>
@@ -659,7 +677,7 @@
       <entry id="OCNDIAG_OCNLOGFILEPATH"
 	     type="char"
 	     valid_values=""
-	     value="$DOUT_S_ROOT/ocn/logs"
+	     value="$DOUT_S_ROOT/logs"
 	     group="timeseries_options"
 	     desc="Local machine directory for ocn log files"
 	     ></entry>

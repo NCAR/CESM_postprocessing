@@ -145,7 +145,27 @@ begin
     ; Do vertical interpolation first, since for hydrid coordinates,
     ; this should be done on lev x lat x lon data prior to averaging.
     ; Also calculate a zonal average.
-    var1 = dim_avg_Wrap(inptr1[:]->$vars1(i)$)
+    if (isfilevar(inptr1[0], vars1(i))) then
+      var1 = dim_avg_Wrap(inptr1[:]->$vars1(i)$)
+    else
+    
+      ; If it is missing water vapor, look for specific humidity and convert.
+      if (vars1(i) .eq. "H2O") then
+        if (isfilevar(inptr1[0], "SHUM")) then
+          var1 = dim_avg_Wrap(inptr1[:]->SHUM)
+          var1 = (/ var1 * 28.89 / 18. / 1e3 /)     ; convert from g/kg to ppv
+        else
+          if (isfilevar(inptr1[0], "Q")) then
+            var1 = dim_avg_Wrap(inptr1[:]->Q)
+            var1 = (/ var1 * 28.89 / 18. /)     ; convert from kg/kg to ppv
+          else
+            continue
+          end if   
+        end if   
+      else
+        continue
+      end if
+    end if
 
     ; If the OBS/Model2 don't have a corresponding field, then
     ; skip it.
@@ -174,7 +194,13 @@ begin
     
     ; iterate over the latitudes
     nlats = dimsizes(minLat)
+    lowP = min((/ min(var1&lev), minP(i) /))
     do j = 0, nlats-1
+     
+      ; Skip cases that are outside the range of the model data.
+      if (minP(i) .lt. min(var1&lev)) then
+        continue
+      end if
 
       ; Select the region of interest and do a latitude average.
       pan@txString              = sprintf("%5.1f", minLat(j)) + " to " + sprintf("%5.1f", maxLat(j))
@@ -336,9 +362,9 @@ begin
     ;
     ; NOTE: For WACCM, we need to make reanalysis data sets that go
     ; to higher altitudes (lower pressures).
-    obs     = (/ "MLS",         "ERAI",         "MERRAW_19x2" /)
+    obs     = (/ "mlsw",        "ERAI",         "MERRAW_19x2" /)
     obsName = (/ "MLS",         "ERAI",         "MERRA" /)
-    years   = (/ "(2004-2012)", "(1989-2005)",  "(1975-2015)" /)
+    years   = (/ "(2004-2016)", "(1989-2005)",  "(1975-2015)" /)
     nobs = dimsizes(obs)
     
     do r = 0, nobs-1
@@ -348,6 +374,10 @@ begin
         print(" plot_waccm_vcycle : ERROR - Missing " + obs(r) + " data.")
       else
         inptr2 = addfiles(files,"r")
+        
+        if (isatt(inptr2,"yrs_averaged")) then
+          years(r) = "(" + inptr2@yrs_averaged + ")"
+        end if
       end if
       delete(files)
 

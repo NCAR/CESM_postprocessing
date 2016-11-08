@@ -9,6 +9,10 @@ begin
   file_netcdf = getenv("SEASAVGRHO")
   file_tavg   = getenv("TAVGFILE")
 
+  print("mld file_obs = " + file_obs)
+  print("mld file_netcdf = " + file_netcdf)
+  print("mld file_tavg = " + file_tavg)
+
   winter_plot = 1 
 
 ; in sigma units
@@ -27,7 +31,6 @@ begin
   region_mask = fileid->REGION_MASK
   tarea = fileid->TAREA
   ht = fileid->HT
-
 
   fileid = addfile(file_netcdf,"r")
   field = fileid->PD
@@ -54,12 +57,23 @@ begin
   ny = size(2)
   nz = size(1)
   nt = size(0)
-  field@_FillValue = missing_value
+;;  field@_FillValue = missing_value
+  field@_FillValue = default_fillvalue(typeof(field))
   field = where(field .eq. field@missing_value,field@_FillValue,field)
-  PD = new((/nc,nt,nz,ny,nx/),double)
+  PD = new((/nz,ny,nx/),double)
 
-  PD(0,:,:,:,:) = field
+  MLD = new((/2,nc,nt,ny,nx/),double)
+
+  do n=0,nt-1
+    PD(:,:,:) = field(n,:,:,:)
+      do off = 0, noff - 1
+        MLD(off,0,n,:,:) = mixed_layer_depth(PD,kmt,ht,depth,pd_offset(off))
+      end do
+      MLD@long_name = "mixed layer depth"
+  end do
+
   delete(field)
+  delete(PD)
 
   fileid = addfile(file_obs,"r")
   if (isfilevar(fileid,"PD")) then
@@ -67,16 +81,22 @@ begin
   else
     field = fileid->POTENTIAL_DENSITY
   end if
+  field@missing_value = 0.
   if (.not.isatt(field,"_FillValue")) then
-    field@_FillValue = default_fillvalue("double")
+    field@_FillValue = default_fillvalue("float")
   end if
   field = where(field .eq. field@missing_value,field@_FillValue,field)
-  PD(1,:,:,:,:) = (/field/)
+  PD = new((/nz,ny,nx/),double)
+
+  do n=0,nt-1
+    PD(:,:,:) = (/field(n,:,:,:)/)
+    do off = 0, noff - 1
+      MLD(off,1,n,:,:) = mixed_layer_depth(PD,kmt,ht,depth,pd_offset(off))
+    end do
+  end do
+
   delete(field)
-
-  MLD = new((/nc,nt,ny,nx/),double)
-
-  MLD@long_name = "mixed layer depth"
+  delete(PD)
 
   lev_0 = (/ 0., 25., 50., 75., 100., 150., 200., 250., 500., 1000., 2000. /)
   lev_mod = (/ 0., 25., 50., 75., 100., 150., 200., 250., 500., 1000., 2000. /)
@@ -111,21 +131,19 @@ begin
   coltab_2(0) = 0
   delete(tmp)
 
-
   do off = 0, noff - 1
 
-    MLD = mixed_layer_depth(PD,kmt,ht,depth,pd_offset(off))
     opt = False
-    MLD = wgt_area_smooth(MLD,tarea,opt)
+    MLD(off,:,:,:,:) = wgt_area_smooth(MLD(off,:,:,:,:),tarea,opt)
 
     MLD_mean = new((/nc,ny,nx/),double)
     MLD_nw_mean = new((/nc,ny,nx/),double)
     MLD_sw_mean = new((/nc,ny,nx/),double)
     MLD_winter_mean = new((/nc,ny,nx/),double)
     do m = 0,nc-1
-      MLD_mean(m,:,:) = dim_avg_n_Wrap(MLD(m,:,:,:),0)
-      MLD_nw_mean(m,:,:) = dim_avg_n_Wrap(MLD(m,0:2,:,:),0)
-      MLD_sw_mean(m,:,:) = dim_avg_n_Wrap(MLD(m,6:8,:,:),0)
+      MLD_mean(m,:,:) = dim_avg_n_Wrap(MLD(off,m,:,:,:),0)
+      MLD_nw_mean(m,:,:) = dim_avg_n_Wrap(MLD(off,m,0:2,:,:),0)
+      MLD_sw_mean(m,:,:) = dim_avg_n_Wrap(MLD(off,m,6:8,:,:),0)
     end do
     tlat_c = conform(MLD_winter_mean,tlat,(/1,2/))
     MLD_winter_mean = where(tlat_c .ge. 0, MLD_nw_mean,MLD_sw_mean)
@@ -205,8 +223,7 @@ begin
     panel_res@pmLabelBarWidthF = .62
     panel_res@lbLabelFontHeightF = 0.012
     panel_res@gsnMaximize = True
-    panel_res@gsnPanelYWhiteSpacePercent = 3
-    panel_res@gsnPanelXWhiteSpacePercent = 1
+    panel_res@gsnPanelYWhiteSpacePercent = 1
     panel_res@gsnPanelScalePlotIndex = 1
     panel_res@gsnPanelTop = 1.
     panel_res@gsnPanelBottom = .385
@@ -217,6 +234,7 @@ begin
     opt@tmYLLabelsOn = True
     opt@tmXBLabelsOn = True
 
+;;    case_info =  case_number + "- OBS MEAN"
     case_info = "OBS MEAN"
     plot5 = contour_plot(wks, MLD_mean_diff(:,:), tlon, tlat, kmt, region_mask, tarea, case_info, \
     missing, units, dlev, lev_1, coltab_2, opt)
@@ -237,6 +255,7 @@ begin
 
     opt@tmYLLabelsOn = False
     opt@lbLabelBarOn = False
+;;    case_info =  case_number + "- WINTER OBS MEAN"
     case_info = "WINTER OBS MEAN"
     plot6 = contour_plot(wks, MLD_winter_mean_diff(:,:), tlon, tlat, kmt, region_mask, tarea, case_info, \
     missing, units, dlev, lev_1, coltab_2, opt)

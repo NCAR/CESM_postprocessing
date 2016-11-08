@@ -64,7 +64,27 @@ begin
     ; Do vertical interpolation first, since for hydrid coordinates,
     ; this should be done on lev x lat x lon data prior to averaging.
     ; Also calculate a zonal average.
-    var1 = inptr1[:]->$vars1(i)$
+    if (isfilevar(inptr1[0], vars1(i))) then
+      var1 = inptr1[:]->$vars1(i)$
+    else
+    
+      ; If it is missing water vapor, look for specific humidity and convert.
+      if (vars1(i) .eq. "H2O") then
+        if (isfilevar(inptr1[0], "SHUM")) then
+          var1 = inptr1[:]->SHUM
+          var1 = (/ var1 * 28.89 / 18. / 1e3 /)     ; convert from g/kg to ppv
+        else
+          if (isfilevar(inptr1[0], "Q")) then
+            var1 = inptr1[:]->Q
+            var1 = (/ var1 * 28.89 / 18. /)     ; convert from g/kg to ppv
+          else
+            continue
+          end if   
+        end if   
+      else
+        continue
+      end if
+    end if
     
     ; If the OBS/Model2 don't have a corresponding field, then
     ; skip it.
@@ -98,6 +118,11 @@ begin
     ; iterate over the latitudes (i.e. tables)
     nlats = dimsizes(minLat)
     do j = 0, nlats-1
+
+      ; Skip cases that are outside the range of the model data.
+      if (minP(i) .lt. min(var1&lev)) then
+        continue
+      end if
 
       ; Calculate the min/max/mean of the min values each month.
       rbase = r*nvars*3
@@ -216,8 +241,8 @@ begin
     ;
     ; NOTE: For WACCM, we need to make reanalysis data sets that go
     ; to higher altitudes (lower pressures).
-    obs     = (/ "MLS", "MERRAW_19x2" /)
-    obsName = (/ "MLS", "MERRA" /)
+    obs     = (/ "mlsw", "MERRAW_19x2" /)
+    obsName = (/ "MLS",  "MERRA" /)
     nObs = dimsizes(obs)
     
     tvars = new((/ nTables, nVars * nObs * 3 /), string)

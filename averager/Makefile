@@ -25,7 +25,8 @@ clean :
 #
 clobber : clean
 	-rm -f .Makedepend *.o *.mod *.il *.pyc
-	-rm -rf *.egg-info build
+	-rm -rf pyAverager/*.egg-info
+	-rm -rf pyAverager/build
 
 #
 # FORCE - Null rule to force things to happen.

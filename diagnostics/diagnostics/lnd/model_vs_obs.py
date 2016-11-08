@@ -69,7 +69,6 @@ class modelVsObs(LandDiagnostic):
         env['PLOTTYPE']       = env['p_type']
         env['OBS_DATA']       = env['OBS_HOME']
         env['INPUT_FILES']    = env['POSTPROCESS_PATH']+'/lnd_diag/inputFiles/'
-##        env['DIAG_RESOURCES'] = env['POSTPROCESS_PATH']+'/lnd_diag/resources/'
         env['DIAG_RESOURCES'] = env['DIAGOBSROOT']+'/resources/'
         env['RUNTYPE'] = 'model-obs'
 
@@ -229,7 +228,7 @@ class modelVsObs(LandDiagnostic):
 
                 elif env['CLEANUP_FILES'].lower() in ['t','true']:
                     # delete all the files in the diag_path directory
-                    for root, dirs, files in os.walk('diag_path'):
+                    for root, dirs, files in os.walk(diag_path):
                         for f in files:
                             os.unlink(os.path.join(root, f))
                         for d in dirs:
@@ -256,7 +255,6 @@ class modelVsObs(LandDiagnostic):
             env_file = '{0}/env_diags_lnd.xml'.format(env['PP_CASE_PATH'])
             key = 'LNDDIAG_WEBDIR_{0}'.format(self._name)
             value = diag_path
-            ##web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(env['PP_CASE_PATH'], key, scomm.get_size(), scomm.get_rank() )
             web_file = '{0}/web_dirs/{1}.{2}'.format(env['PP_CASE_PATH'], key, datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S'))
             try:
                 diagUtilsLib.write_web_file(web_file, 'lnd', key, value)

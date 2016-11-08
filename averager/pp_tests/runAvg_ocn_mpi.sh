@@ -1,6 +1,10 @@
 #! /usr/bin/env bash
 
+<<<<<<< HEAD
 #BSUB -n 6
+=======
+#BSUB -n 2
+>>>>>>> tseries_chunking
 #BSUB -q geyser
 #BSUB -N 
 #BSUB -W 06:00

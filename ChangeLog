@@ -1,8 +1,74 @@
 ================================================================================
-SVN $Id: ChangeLog 66183 2015-03-09 00:00:15Z aliceb@ucar.edu $
-SVN $URL: https://svn-ccsm-models.cgd.ucar.edu/postprocessing/trunk $
-================================================================================
 This file describes what tags were created and why
+================================================================================
+
+Originator: mickelso
+Date: 14 October 2016
+Model: CESM_postprocessing
+Version: CESM_postprocessing_v0.1.4
+One-line: add chunking for timeseries
+
+	modified:   Config/config_timeseries.xml
+	modified:   Config/config_timeseries.xsd
+	modified:   cesm_utils/cesm_utils/create_postprocess
+	modified:   timeseries/setup.py
+	modified:   timeseries/timeseries/cesm_tseries_generator.py
+	add:   timeseries/timeseries/chunking.py
+
+================================================================================
+
+Originator: aliceb
+Date: 12 October 2016
+Model: CESM_postprocessing
+Version: CESM_postprocessing_v0.1.3
+One-line: add additional WACCM datasets. Closes github issue #37. 
+
+	modified:   copy_html
+	modified:   ../atm_diag/functions_waccm.ncl
+	modified:   ../atm_diag/html/model-obs/wset2/wset2_2.htm
+	modified:   ../atm_diag/html/model-obs/wset3/wset3_2.htm
+	modified:   ../atm_diag/html/model-obs/wset4/wset4_2.htm
+	modified:   ../atm_diag/html/model-obs/wset5/wset5_2.htm
+	modified:   ../atm_diag/html/model1-model2/wset3/wset3_2.htm
+	modified:   ../atm_diag/html/model1-model2/wset4/wset4_2.htm
+	modified:   ../atm_diag/html/model1-model2/wset5/wset5_2.htm
+	modified:   ../atm_diag/plot_waccm_cycle.ncl
+	modified:   ../atm_diag/plot_waccm_map.ncl
+	modified:   ../atm_diag/plot_waccm_vcycle.ncl
+	modified:   ../atm_diag/plot_waccm_vzonal.ncl
+	modified:   ../atm_diag/tables_waccm.ncl
+	modified:   ../diagnostics/diagnostics/atm/atm_avg_generator.py
+
+	add:  ../averager/pp_tests/control_ocn_series.py
+	add:  ../averager/pp_tests/runAvg_ocn_mpi.sh
+
+================================================================================
+
+Originator: aliceb
+Date: 11 October 2016
+Model: CESM_postprocessing
+Version: CESM_postprocessing_v0.1.2
+One-line: bug-fixes and code clean-up
+
+	modified:   Config/config_timeseries.xml
+	modified:   Tools/copy_html
+	modified:   atm_diag/plot_surfaces_cons.ncl
+	modified:   averager/Makefile
+	modified:   cesm_utils/cesm_utils/create_postprocess
+	modified:   diagnostics/diagnostics/atm/Config/config_diags_atm.xml
+	modified:   diagnostics/diagnostics/atm/atm_avg_generator.py
+	modified:   diagnostics/diagnostics/lnd/lnd_avg_generator.py
+	modified:   diagnostics/diagnostics/ocn/Config/config_diags_ocn.xml
+	modified:   diagnostics/diagnostics/ocn/Plots/cpllog_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/Plots/moc_annual_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/Plots/moc_monthly_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/Plots/poplog_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/Plots/regional_mean_timeseries.py
+	modified:   diagnostics/diagnostics/ocn/ocn_avg_generator.py
+	modified:   mpi_utils/Makefile
+	modified:   reshaper/Makefile
+	modified:   timeseries/timeseries/cesm_tseries_generator.py
+
 ================================================================================
 
 Originator: aliceb
