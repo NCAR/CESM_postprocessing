@@ -27,6 +27,10 @@ begin
   colormap = getenv("colormap")
   projection=getenv("projection")
 
+;;  print((/"PTMPDIR_1: "+ptmpdir1/))
+;;  print((/"PTMPDIR_2: "+ptmpdir2/))
+;;  print((/"wkdir: "+wkdir/))
+
   flandmask = stringtofloat(land_mask)
 
   nyrs1 = stringtointeger(getenv("clim_num_yrs_1"))
@@ -709,12 +713,36 @@ begin
               end if
               if (vars(i) .eq. "SNOWDP") then
                  if (snowFlag .eq. 1) then
-                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_FOSTERDAVY")
+;;                   print((/"plot_type: "+plot_type/))
+;;                   print((/"wkdir: "+wkdir/))
+;;                   print((/"seasons: "+seasons(n)/))
+;;                   print((/"vars: "+vars(i)/))
+;;                   print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_FOSTERDAVY"/))
+                   fullname = wkdir+"set2_"+seasons(n)+"_"+vars(i)+"_FOSTERDAVY"
+;;		     print((/"Fullname: "+fullname/))
+;;                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_FOSTERDAVY")
+		      wks = gsn_open_wks(plot_type,fullname)
                  else
-                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC")
+;;                   print((/"plot_type: "+plot_type/))
+;;                   print((/"wkdir: "+wkdir/))
+;;                   print((/"seasons: "+seasons(n)/))
+;;                   print((/"vars: "+vars(i)/))
+;;                   print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC"/))
+                   fullname = wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC"
+;;		     print((/"Fullname: "+fullname/))
+;;                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC")
+		      wks = gsn_open_wks(plot_type,fullname)
                  end if
               else
-                 wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i))
+;;                print((/"plot_type: "+plot_type/))
+;;                print((/"wkdir: "+wkdir/))
+;;                print((/"seasons: "+seasons(n)/))
+;;                print((/"vars: "+vars(i)/))
+                fullname = wkdir + "set2_" + seasons(n)+"_"+vars(i)
+;;		  print((/"Fullname: "+fullname/))
+;;                print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)/))
+;;                 wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i))
+	         wks = gsn_open_wks(plot_type,fullname) 
               end if
               if (colormap.eq.0) then
                  cmap = RGBtoCmap("$DIAG_RESOURCES/rgb_files/diag10.rgb")  ; read in colormap
@@ -777,7 +805,7 @@ begin
 ;               Note:  Don't delete res here - save until after obs are posted.
               res@tiMainString    = cases(1) ; set case 2 titles
               res@gsnCenterString = " (yrs " + yrs_ave2 + ")"
-              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT") then
+              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT" .or. vars(i) .eq. "CPOOL") then
                  if (isatt(res,"cnLabelBarEndStyle")) then
                     if (res@cnLabelBarEndStyle.eq."IncludeMinMaxLabels") then
                        res@cnLabelBarEndStyle = "IncludeOuterBoxes" ; temporarily turn off minmax labels.
@@ -1194,6 +1222,11 @@ begin
                  if (isvar("wks")) then
                     delete(wks)
                  end if
+;;                print((/"plot_type: "+plot_type/))
+;;                print((/"wkdir: "+wkdir/))
+;;                print((/"seasons: "+seasons(n)/))
+;;                print((/"vars: "+vars(i)/))
+;;                print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_"+k/))
                  wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_"+k)
                  if (isvar("cmap")) then
                     delete(cmap)

@@ -128,6 +128,14 @@
 	     desc="If TRUE, create the single variable time series files using the history time slice files. All the time invariant metadata is included in each variable time series file header. Rules for how the time series variable files are created are specified in the env_archive.xml file."
 	     ></entry> 
 
+      <entry id="TIMESERIES_COMPLETECHUNK" 
+	     type="logical"
+	     valid_values="TRUE,FALSE"  
+	     value="TRUE" 
+	     group="postprocess"
+	     desc="If TRUE, create only complete chunks of variable timeseries data files as determined by the env_timeseries.xml tseries_filecat_tper and tseries_filecat_n elements. If FALSE, then incomplete chunks of variable timeseries data will be created and appended to upon subsequent running of the timeseries script. Default is TRUE."
+	     ></entry> 
+
       <entry id="GENERATE_AVGS_ATM"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  

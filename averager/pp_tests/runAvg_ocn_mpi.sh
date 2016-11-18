@@ -1,13 +1,9 @@
 #! /usr/bin/env bash
 
-<<<<<<< HEAD
 #BSUB -n 6
-=======
-#BSUB -n 2
->>>>>>> tseries_chunking
 #BSUB -q geyser
 #BSUB -N 
-#BSUB -W 06:00
+#BSUB -W 12:00
 #BSUB -R "span[ptile=1]"
 #BSUB -P P93300606
 #BSUB -o pyAve.%J.out         # output file name in which %J is replaced by the job ID

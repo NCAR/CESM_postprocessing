@@ -360,13 +360,7 @@ def weighted_hor_avg_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist
     region_mask = MA.expand_dims(slev_mask, axis=0)
     weights = MA.expand_dims(slev_weights, axis=0)
     if var_val.ndim > 2:
-<<<<<<< HEAD
-        for lev in range(1,60):
-## for 62 level ocn testing
-##        for lev in range(1,62):
-=======
         for lev in range(1,nlev):
->>>>>>> tseries_chunking
             new_region_mask = MA.expand_dims(slev_mask, axis=0)
             region_mask = np.vstack((region_mask,new_region_mask))
             new_weights = MA.expand_dims(slev_weights, axis=0)
@@ -459,13 +453,7 @@ def weighted_rms_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dic
     # Since weights and region mask are only one level, we need to expand them to all levels
     region_mask = MA.expand_dims(slev_mask, axis=0)
     weights = MA.expand_dims(slev_weights, axis=0)
-<<<<<<< HEAD
-    for lev in range(1,60):
-## for 62 level ocn testing
-##    for lev in range(1,62):
-=======
     for lev in range(1,nlev):
->>>>>>> tseries_chunking
         new_region_mask = MA.expand_dims(slev_mask, axis=0)
         region_mask = np.vstack((region_mask,new_region_mask))
         new_weights = MA.expand_dims(slev_weights, axis=0)

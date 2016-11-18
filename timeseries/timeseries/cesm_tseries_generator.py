@@ -31,15 +31,16 @@ import re
 import string
 import sys
 import traceback
+import warnings
 import xml.etree.ElementTree as ET
 
 from cesm_utils import cesmEnvLib
 import chunking
 
-# import the MPI related module
-from asaptools import partition, simplecomm, vprinter
+# import the MPI related modules
+from asaptools import partition, simplecomm, vprinter, timekeeper
 
-# load the pyreshaper modules
+# load the pyReshaper modules
 from pyreshaper import specification, reshaper
 
 #=====================================================
@@ -59,9 +60,6 @@ def commandline_options():
 
     parser.add_argument('--caseroot', nargs=1, required=True, 
                         help='fully quailfied path to case root directory')
-
-    parser.add_argument('--completechunk', nargs=1, type=int, required=False, 
-                        help='1: do not create incomplete chunks, 0: create an incomplete chunk')
 
     parser.add_argument('--standalone', action='store_true',
                         help='switch to indicate stand-alone post processing caseroot')
@@ -137,27 +135,6 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                             err_msg = "cesm_tseries_generator.py error: tseries_output_format undefined for data stream {0}.*.{1}".format(comp,file_extension)
                             raise TypeError(err_msg)
 
-
-                        # check if the tseries_output_subdir is specified and create the tseries_output_dir
-                        if file_spec.find("tseries_output_subdir") is not None:
-                            tseries_output_subdir = file_spec.find("tseries_output_subdir").text
-                            tseries_output_dir = '/'.join( [dout_s_root, rootdir,tseries_output_subdir] )
-                            if not os.path.exists(tseries_output_dir):
-                                os.makedirs(tseries_output_dir)
-                        else:
-                            err_msg = "cesm_tseries_generator.py error: tseries_output_subdir undefined for data stream {0}.*.{1}".format(comp,file_extension)
-                            raise TypeError(err_msg)
-
-                        # check if tseries_tper is specified and is valid 
-                        if file_spec.find("tseries_tper") is not None:
-                            tseries_tper = file_spec.find("tseries_tper").text
-                            if tseries_tper not in ["annual","yearly","monthly","weekly","daily","hourly6","hourly3","hourly1","min30"]:
-                                err_msg = "cesm_tseries_generator.py error: tseries_tper invalid for data stream {0}.*.{1}".format(comp,file_extension)
-                                raise TypeError(err_msg)
-                        else:
-                            err_msg = "cesm_tseries_generator.py error: tseries_tper undefined for data stream {0}.*.{1}".format(comp,file_extension)
-                            raise TypeError(err_msg)
-
                         # load the tseries_time_variant_variables into a list
                         if comp_archive_spec.find("tseries_time_variant_variables") is not None:
                             variable_list = list()
@@ -175,7 +152,17 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                         comp_name = comp
                         stream = file_extension.split('.[')[0]
 
-                        stream_dates,file_slices,cal,units = chunking.get_input_dates(in_file_path+'/*'+file_extension+'*.nc')
+                        stream_dates,file_slices,cal,units,time_period_freq = chunking.get_input_dates(in_file_path+'/*'+file_extension+'*.nc')
+
+                        # create the tseries_output_dir based on the time_period_freq global attribute
+                        tseries_output_dir = '/'.join( [dout_s_root, rootdir, 'proc/tseries/unknown'] )
+                        if time_period_freq is not None:
+                            tseries_output_dir = '/'.join( [dout_s_root, rootdir, 'proc/tseries', time_period_freq] )
+                        print ("tseries_output_dir = {0}".format(tseries_output_dir))
+
+                        if not os.path.exists(tseries_output_dir):
+                            os.makedirs(tseries_output_dir)
+
                         if comp+stream not in log.keys():
                             log[comp+stream] = {'slices':[],'index':0}
                         ts_log_dates = log[comp+stream]['slices']
@@ -191,16 +178,32 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                             last_time_parts = cf['end']
 
                             # create the tseries output prefix needs to end with a "."
-                            tseries_output_prefix = tseries_output_dir+"/"+casename+"."+comp_name+stream+"."
+##                            tseries_output_prefix = tseries_output_dir+"/"+casename+"."+comp_name+stream+"."
+                            tseries_output_prefix = "{0}/{1}.{2}{3}.".format(tseries_output_dir,casename,comp_name,stream)
+                            print ("tseries_output_prefix = {0}".format(tseries_output_prefix))
 
                             # format the time series variable output suffix based on the 
-                            # tseries_tper setting suffix needs to start with a "."
-                            if tseries_tper == "yearly":
+                            # time_period_freq global attribute - suffix needs to start with a "."
+                            if time_period_freq is None:
+                                time_period_freq = "unknown"
+                                start_time = ''.join(start_time_parts)
+                                last_time = ''.join(last_time_parts)
+                            freq_array = ["week","day","hour","min"]
+                            if 'year' in time_period_freq:
                                 tseries_output_suffix = "."+start_time_parts[0]+"-"+last_time_parts[0]+".nc"
-                            elif tseries_tper == "monthly":
+                                print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
+                            elif 'month' in time_period_freq:
                                 tseries_output_suffix = "."+start_time_parts[0]+start_time_parts[1]+start_time_parts[2]+"-"+last_time_parts[0]+last_time_parts[1]+last_time_parts[2]+".nc"
-                            elif tseries_tper in ["weekly","daily","hourly6","hourly3","hourly1","min30"]:
+                                print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
+                            elif any(freq_string in time_period_freq for freq_string in freq_array):
                                 tseries_output_suffix = "."+start_time_parts[0]+start_time_parts[1]+start_time_parts[2]+start_time_parts[3]+"-"+last_time_parts[0]+last_time_parts[1]+last_time_parts[2]+last_time_parts[3]+".nc"
+                                print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
+                            elif 'unknown' in time_period_freq:
+                                tseries_output_suffix = "."+start_time+"-"+last_time+".nc"
+                                print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
+                            else:
+                                err_msg = "cesm_tseries_generator.py error: invalid time_period_freq {0}.".format(time_period_freq)
+                                raise TypeError(err_msg)
 
                             # get a reshaper specification object
                             spec = specification.create_specifier()
@@ -295,7 +298,12 @@ def main(options, scomm, rank, size):
     if rank == 0:
         dout_s_root = cesmEnv['DOUT_S_ROOT'] 
         case = cesmEnv['CASE']
-        specifiers,log = readArchiveXML(caseroot, dout_s_root, case, options.standalone, options.completechunk[0], debug)
+        completechunk = cesmEnv['TIMESERIES_COMPLETECHUNK']
+        if completechunk.upper() in ['T','TRUE']:
+            completechunk = 1
+        else:
+            completechunk = 0
+        specifiers,log = readArchiveXML(caseroot, dout_s_root, case, options.standalone, completechunk, debug)
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
@@ -354,6 +362,10 @@ if __name__ == "__main__":
     # initialize simplecomm object
     scomm = simplecomm.create_comm(serial=False)
 
+    # setup an overall timer
+    timer = timekeeper.TimeKeeper()
+    timer.start("Total Time")
+
     # get commandline options
     options = commandline_options()
 
@@ -363,9 +375,20 @@ if __name__ == "__main__":
     if rank == 0:
         print('cesm_tseries_generator INFO Running on {0} cores'.format(size))
 
-    main(options, scomm, rank, size)
-    if rank == 0:
-        print('************************************************************')
-        print('Successfully completed generating variable time-series files')
-        print('************************************************************')
+    try:
+        main(options, scomm, rank, size)
+        scomm.sync()
+        timer.stop("Total Time")
+        if rank == 0:
+            print('************************************************************')
+            print('Successfully completed generating variable time-series files')
+            print('Total Time: {0} seconds'.format(timer.get_time("Total Time")))
+            print('************************************************************')
+        sys.exit(0)
+    except Exception as error:
+        print(str(error))
+        if options.backtrace:
+            traceback.print_exc()
+        sys.exit(1)
+
 

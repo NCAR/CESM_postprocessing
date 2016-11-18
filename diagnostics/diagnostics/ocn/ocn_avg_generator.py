@@ -463,7 +463,7 @@ def main(options, main_comm, debugMsg):
                         envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], 
                         tseries, envDict['MODEL_VARLIST'], envDict['TSERIES_YEAR0'], 
                         envDict['TSERIES_YEAR1'], envDict['DIAGOBSROOT'], 
-                        envDict['netcdf_format'], envDict['VERTICAL'], envDict['TIMESERIES_OBSPATH'],
+                        envDict['netcdf_format'], int(envDict['VERTICAL']), envDict['TIMESERIES_OBSPATH'],
                         main_comm, debugMsg)
     except Exception as error:
         print(str(error))
@@ -509,7 +509,7 @@ def main(options, main_comm, debugMsg):
             createClimFiles(envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], envDict['cntrl_in_dir'],
                             envDict['cntrl_htype'], envDict['CNTRLTAVGDIR'], envDict['CNTRLCASE'], 
                             False, envDict['CNTRL_VARLIST'], 0, 0, envDict['DIAGOBSROOT'],
-                            envDict['netcdf_format'], envDict['VERTICAL'], envDict['TIMESERIES_OBSPATH'],
+                            envDict['netcdf_format'], int(envDict['VERTICAL']), envDict['TIMESERIES_OBSPATH'],
                             main_comm, debugMsg)
         except Exception as error:
             print(str(error))

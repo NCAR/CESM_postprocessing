@@ -41,42 +41,25 @@ from pyaverager import PyAverager, specification
 #### User modify ####
 
 in_dir='/glade/scratch/aliceb/BRCP85C5CN_ne120_t12_pop62.c13b17.asdphys.001/ocn/proc/tseries/monthly'
-<<<<<<< HEAD
 out_dir= '/glade/scratch/aliceb/BRCP85C5CN_ne120_t12_pop62.c13b17.asdphys.001/ocn/proc/tavg.2041.2050'
 pref= 'BRCP85C5CN_ne120_t12_pop62.c13b17.asdphys.001.pop.h'
 htype= 'series'
-average = ['tavg:2041:2050','mavg:2041:2050']
-=======
-out_dir= '/glade/scratch/aliceb/BRCP85C5CN_ne120_t12_pop62.c13b17.asdphys.001/ocn/proc/tavg.2006.2006'
-pref= 'BRCP85C5CN_ne120_t12_pop62.c13b17.asdphys.001.pop.h'
-htype= 'series'
-average = ['hor.meanConcat:2006:2006']
->>>>>>> tseries_chunking
+average = ['hor.meanConcat:2041:2050']
 wght= False
 ncfrmt = 'netcdfLarge'
 serial=False
 
-<<<<<<< HEAD
-##var_list = ['TEMP', 'SALT']
-var_list = ['TEMP','SALT','PD','UVEL','VVEL','WVEL','IAGE','TAUX','TAUY','SSH','HMXL','HBLT','SFWF','PREC_F','MELT_F','MELTH_F','SHF','SHF_QSW','SENH_F','QFLUX','SNOW_F','SALT_F','EVAP_F','ROFF_F','LWUP_F','LWDN_F']
-mean_diff_rms_obs_dir = '/glade/p/cesm/omwg/timeseries_obs/'
+#var_list = ['TEMP','SALT','PD','UVEL','VVEL','WVEL','IAGE','TAUX','TAUY','SSH','HMXL','HBLT','SFWF','PREC_F','MELT_F','MELTH_F','SHF','SHF_QSW','SENH_F','QFLUX','SNOW_F','SALT_F','EVAP_F','ROFF_F','LWUP_F','LWDN_F']
 region_nc_var = 'REGION_MASK'
 regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
 region_wgt_var = 'TAREA'
-obs_dir = '/glade/p/cesm/'
-obs_file = 'obs.nc'
-reg_obs_file_suffix = '_hor_mean_obs.nc'
-=======
 var_list = ['TEMP', 'SALT']
 mean_diff_rms_obs_dir = '/glade/p/cesm/omwg/timeseries_obs_tx0.1v2_62lev/'
 region_nc_var = 'REGION_MASK'
-regions={1:'Sou',2:'Pac',3:'Ind',6:'Atl',8:'Lab',9:'Gin',10:'Arc',11:'Hud',0:'Glo'}
-region_wgt_var = 'TAREA'
 obs_dir = '/glade/p/cesm/omwg/timeseries_obs_tx0.1v2_62lev/'
 obs_file = 'obs.nc'
 reg_obs_file_suffix = '_hor_mean_obs.nc'
 vertical_levels = 62
->>>>>>> tseries_chunking
 
 clobber = False
 suffix = 'nc'
@@ -102,11 +85,7 @@ pyAveSpecifier = specification.create_specifier(in_directory=in_dir,
                                   region_wgt_var=region_wgt_var,
                                   obs_dir=obs_dir,
                                   obs_file=obs_file,
-<<<<<<< HEAD
-                                  reg_obs_file_suffix=reg_obs_file_suffix)
-=======
                                   reg_obs_file_suffix=reg_obs_file_suffix,
                                   vertical_levels=vertical_levels)
->>>>>>> tseries_chunking
 PyAverager.run_pyAverager(pyAveSpecifier)
 
