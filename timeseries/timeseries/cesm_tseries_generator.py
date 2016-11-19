@@ -109,6 +109,8 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
             comp = comp_archive_spec.get("name")
             rootdir = comp_archive_spec.find("rootdir").text
             multi_instance = comp_archive_spec.find("multi_instance").text
+            default_calendar = comp_archive_spec.find("default_calendar").text
+            print("default_calendar = {0}".format(default_calendar))
 
             # for now, set instance value to empty string implying only 1 instance
             instance = ""
@@ -124,7 +126,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
 
                     # check if the tseries_create element is set to TRUE            
                     if tseries_create.upper() in ["T","TRUE"]:
-
+                        
                         # check if tseries_format is an element for this file_spec and if it is valid
                         if file_spec.find("tseries_output_format") is not None:
                             tseries_output_format = file_spec.find("tseries_output_format").text
@@ -145,6 +147,9 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                         history_files = list()
                         in_file_path = '/'.join( [dout_s_root,rootdir,subdir] )                        
 
+                        # get XML tseries elements for chunking
+                        if file_spec.find("tseries_tper") is not None:
+                            tseries_tper = file_spec.find("tseries_tper").text
                         if file_spec.find("tseries_filecat_tper") is not None:
                             tper = file_spec.find("tseries_filecat_tper").text
                         if file_spec.find("tseries_filecat_n") is not None:
@@ -153,11 +158,16 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                         stream = file_extension.split('.[')[0]
 
                         stream_dates,file_slices,cal,units,time_period_freq = chunking.get_input_dates(in_file_path+'/*'+file_extension+'*.nc')
+                        # check if the calendar attribute was read or not
+                        print("1 cal = {0}".format(cal))
+                        if cal is None or cal == "none":
+                            cal = default_calendar
+                        print("2 cal = {0}".format(cal))
 
-                        # create the tseries_output_dir based on the time_period_freq global attribute
-                        tseries_output_dir = '/'.join( [dout_s_root, rootdir, 'proc/tseries/unknown'] )
+                        # the tseries_tper should be set in using the time_period_freq global file attribute if it exists
                         if time_period_freq is not None:
-                            tseries_output_dir = '/'.join( [dout_s_root, rootdir, 'proc/tseries', time_period_freq] )
+                            tseries_tper = time_period_freq
+                        tseries_output_dir = '/'.join( [dout_s_root, rootdir, 'proc/tseries', tseries_tper] )
                         print ("tseries_output_dir = {0}".format(tseries_output_dir))
 
                         if not os.path.exists(tseries_output_dir):
@@ -178,32 +188,22 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                             last_time_parts = cf['end']
 
                             # create the tseries output prefix needs to end with a "."
-##                            tseries_output_prefix = tseries_output_dir+"/"+casename+"."+comp_name+stream+"."
                             tseries_output_prefix = "{0}/{1}.{2}{3}.".format(tseries_output_dir,casename,comp_name,stream)
                             print ("tseries_output_prefix = {0}".format(tseries_output_prefix))
 
                             # format the time series variable output suffix based on the 
-                            # time_period_freq global attribute - suffix needs to start with a "."
-                            if time_period_freq is None:
-                                time_period_freq = "unknown"
-                                start_time = ''.join(start_time_parts)
-                                last_time = ''.join(last_time_parts)
+                            # tseries_tper setting suffix needs to start with a "."
                             freq_array = ["week","day","hour","min"]
-                            if 'year' in time_period_freq:
+                            if "year" in tseries_tper:
                                 tseries_output_suffix = "."+start_time_parts[0]+"-"+last_time_parts[0]+".nc"
-                                print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
-                            elif 'month' in time_period_freq:
+                            elif "month" in tseries_tper:
                                 tseries_output_suffix = "."+start_time_parts[0]+start_time_parts[1]+start_time_parts[2]+"-"+last_time_parts[0]+last_time_parts[1]+last_time_parts[2]+".nc"
-                                print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
-                            elif any(freq_string in time_period_freq for freq_string in freq_array):
+                            elif any(freq_string in tseries_tper for freq_string in freq_array):
                                 tseries_output_suffix = "."+start_time_parts[0]+start_time_parts[1]+start_time_parts[2]+start_time_parts[3]+"-"+last_time_parts[0]+last_time_parts[1]+last_time_parts[2]+last_time_parts[3]+".nc"
-                                print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
-                            elif 'unknown' in time_period_freq:
-                                tseries_output_suffix = "."+start_time+"-"+last_time+".nc"
-                                print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
                             else:
-                                err_msg = "cesm_tseries_generator.py error: invalid time_period_freq {0}.".format(time_period_freq)
+                                err_msg = "cesm_tseries_generator.py error: invalid tseries_tper = {0}.".format(tseries_tper)
                                 raise TypeError(err_msg)
+                            print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
 
                             # get a reshaper specification object
                             spec = specification.create_specifier()
@@ -356,6 +356,9 @@ def main(options, scomm, rank, size):
         chunking.write_log('{0}/logs/ts_status.log'.format(caseroot), log)
 
     scomm.sync()
+
+    return 0
+
 #===================================
 
 if __name__ == "__main__":
@@ -376,7 +379,7 @@ if __name__ == "__main__":
         print('cesm_tseries_generator INFO Running on {0} cores'.format(size))
 
     try:
-        main(options, scomm, rank, size)
+        status = main(options, scomm, rank, size)
         scomm.sync()
         timer.stop("Total Time")
         if rank == 0:

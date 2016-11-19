@@ -52,7 +52,7 @@ def get_input_dates(glob_str):
         for a in all_t.ncattrs():
             att[a] = all_t.__getattribute__(a)
 
-        # get the time_period_freq global attribut from the first file
+        # get the time_period_freq global attribute from the first file
         if first:
             try:
                 time_period_freq = f.getncattr('time_period_freq')
