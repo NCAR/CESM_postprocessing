@@ -20,6 +20,7 @@ def get_input_dates(glob_str):
     file_slices(dictionary) - keys->filename, values->the number of slices found in the file 
     calendar(string) - the name of the calendar type (ie, noleap, ...)
     units(string) - the calendar unit (possibly in the form 'days since....')
+    time_period_freq(string) - time_period_freq global attribute from first file
     '''
     stream_files = glob.glob(glob_str)
 
@@ -29,13 +30,16 @@ def get_input_dates(glob_str):
     print glob_str
 
     if len(stream_files) < 1:
-        return stream_dates, file_slices, None, None
+        return stream_dates, file_slices, None, None, None
 
+    time_period_freq = None
+    first = True
     for fn in sorted(stream_files):
         print 'opening ',fn
         # open file and get time dimension
         f = nc.Dataset(fn,"r")    
         all_t = f.variables['time']
+        nc_atts = f.ncattrs()
 
         # add the file name are how many slices it contains
         file_slices[fn] = len(all_t)
@@ -48,7 +52,16 @@ def get_input_dates(glob_str):
         for a in all_t.ncattrs():
             att[a] = all_t.__getattribute__(a)
 
-    return stream_dates,file_slices,att['calendar'],att['units']
+        # get the time_period_freq global attribute from the first file
+        if first:
+            try:
+                time_period_freq = f.getncattr('time_period_freq')
+                print 'time_period_freq = ',time_period_freq
+            except:
+                print 'Global attribute time_period_freq not found - set to None'
+            first = False
+
+    return stream_dates,file_slices,att['calendar'].lower(),att['units'],time_period_freq
 
 def get_cesm_date(fn,t=None):
 
@@ -82,7 +95,7 @@ def get_cesm_date(fn,t=None):
     else:
         d = f.variables['time'][1]    
 
-    d1 = cf_units.num2date(d,att['units'],att['calendar'])
+    d1 = cf_units.num2date(d,att['units'],att['calendar'].lower())
 
     return [str(d1.year).zfill(4),str(d1.month).zfill(2),str(d1.day).zfill(2),str(d1.hour).zfill(2)]
 

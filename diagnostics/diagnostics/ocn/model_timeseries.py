@@ -225,14 +225,14 @@ class modelTimeseries(OceanDiagnostic):
                     print('    {0}'.format(e.cmd))
                     print('    rc = {0}'.format(e.returncode))
             else:
-                print('model timeseries - Ocean logs do not exist. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLTmodules')
+                print('model timeseries - Ocean logs do not exist. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLT modules')
                 env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
                 env['MTS_PM_ENSOWVLT'] = os.environ['PM_ENSOWVLT'] = 'FALSE'
 
         # check if dt files exist
         if len(env['DTFILEPATH']) == 0:
             # print a message that the dt file path isn't defined and turn off POPLOG plot module
-            print('model timeseries - DTFILEPATH is undefined. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLTmodules')
+            print('model timeseries - DTFILEPATH is undefined. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLT modules')
             env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
             env['MTS_PM_ENSOWVLT'] = os.environ['PM_ENSOWVLT'] = 'FALSE'
         

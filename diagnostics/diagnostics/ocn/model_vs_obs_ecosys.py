@@ -179,7 +179,7 @@ class modelVsObsEcosys(OceanDiagnostic):
             except RecoverableError as e:
                 # catch all recoverable errors, print a message and continue.
                 print(e)
-                print("model vs. obs ecosys - Skipped '{0}' and continuing!".format(request_plot))
+                print("model vs. obs ecosys - Skipped '{0}' and continuing!".format(requested_plot))
             except RuntimeError as e:
                 # unrecoverable error, bail!
                 print(e)

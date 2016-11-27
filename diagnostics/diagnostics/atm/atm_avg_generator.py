@@ -277,7 +277,8 @@ def callPyAverager(start_year, stop_year, in_dir, htype, key_infile, out_dir, ca
 
     main_comm.sync()
 
-    if envDict['strip_off_vars']:
+    varList = []
+    if envDict['strip_off_vars'].lower() in ['t','true']:
         varList = get_variable_list(envDict,in_dir,case_prefix,key_infile,htype,stream)
 
     main_comm.sync()

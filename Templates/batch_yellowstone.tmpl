@@ -1,3 +1,42 @@
+##########
+##
+## General rules for determining PE counts and distribution across nodes
+## ---------------------------------------------------------------------
+##
+## Averages:
+##
+## For avearges, set -n equal to the number of variables to be averaged 
+## plus the number of averages to be computed. The ptile should always
+## be set to 15 on yellowstone exclusive nodes. 
+##
+## For ocean hi-resolution or atm data sets with a lot of variables, 
+## set the netcdf_format XML variable to netcdfLarge, change the queue to
+## either geyser (shared) or bigmem (exclusive). For geyser, set -n to 16
+## and ptile to 2 or more. Or, set -n < 16 and ptile to 1 which will 
+## allow for more memory usage. The -W setting may also need to be 
+## increased for large data sets.
+##
+##########
+##
+## Diagnostics:
+##
+## For diagnostics, the queue should always be set to geyser or caldera
+## with the -n not to exceed the number of plot sets to be created. 
+## The ptile can be adjusted depending on the size of the input climo
+## and average files.
+##
+##########
+##
+## Variable Time series generation:
+##
+## On the yellowstone queues, -n should be set to (number of variables)/2
+## and ptile = 15. For geyser or caldera, the maximum -n is 16 and the 
+## ptile can be adjusted based on what the memory requirements might
+## be depending on the variable size and number of history time slices
+## to be included in the final single variable output file.
+##
+##########
+
 #BSUB -n {{ pes }}
 #BSUB -R "span[ptile={{ ppn }}]"
 #BSUB -q {{ queue }}

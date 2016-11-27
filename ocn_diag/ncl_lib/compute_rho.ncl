@@ -9,9 +9,9 @@ begin
   file_S = getenv("SEASAVGSALT")
   file_out = getenv("SEASAVGRHO")
 
-;  print("compute_rho.ncl file_T = " + file_T)
-;  print("compute_rho.ncl file_S = " + file_S)
-;  print("compute_rho.ncl file_out = " + file_out)
+  print("compute_rho.ncl file_T = " + file_T)
+  print("compute_rho.ncl file_S = " + file_S)
+  print("compute_rho.ncl file_out = " + file_out)
 
   fileid = addfile(file_T,"r")
   TLONG = fileid->TLONG
@@ -24,6 +24,7 @@ begin
   SALT = fileid->SALT
 
   size = dimsizes(TEMP)
+;;  print("size = " + size)
   nx = size(3)
   ny = size(2)
   nz = size(1)
@@ -34,7 +35,7 @@ begin
 
   do n = 0, nt - 1
     do k = 0, nz - 1 
-      ;print("month = " + (n+1) + " level = " + (k+1))
+;;      print("month = " + (n+1) + " level = " + (k+1))
       opt = False
       PD(n,k,:,:) = (eos(TEMP(n,k,:,:),SALT(n,k,:,:),0,opt) - 1.0d) * 1000.0d
     end do

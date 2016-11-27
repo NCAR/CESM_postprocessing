@@ -69,13 +69,13 @@ class modelVsControl(OceanDiagnostic):
         diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
         # setup prerequisites for the model
-        # setup the gridfile based on the resolution
-##        os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
+        # setup the gridfile based on the resolution and levels
         os.environ['gridfile'] = '{0}/omwg/za_grids/{1}_grid_info.nc'.format(env['DIAGOBSROOT'],env['RESOLUTION'])
         if env['VERTICAL'] == '42':
-##            os.environ['gridfile'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(env['DIAGROOTPATH'],env['RESOLUTION'])
-            ## this file doesn't exist! - not sure if this even works now or not
             os.environ['gridfile'] = '{0}/omwg/za_grids/{1}_42lev_grid_info.nc'.format(env['DIAGOBSROOT'],env['RESOLUTION'])
+
+        if env['VERTICAL'] == '62':
+            os.environ['gridfile'] = '{0}/omwg/za_grids/{1}_62lev_grid_info.nc'.format(env['DIAGOBSROOT'],env['RESOLUTION'])
 
         # check if gridfile exists and is readable
         rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfile'], 'read')
@@ -97,13 +97,13 @@ class modelVsControl(OceanDiagnostic):
         env['CNTRL_MAVGFILE'], env['CNTRL_TAVGFILE'] = diagUtilsLib.createLinks(env['CNTRLYEAR0'], env['CNTRLYEAR1'], env['CNTRLTAVGDIR'], env['WORKDIR'], env['CNTRLCASE'], control)
         env['CNTRLFILE'] = env['CNTRL_TAVGFILE']
 
-        # setup the gridfile based on the resolution
-##        os.environ['gridfilecntrl'] = '{0}/tool_lib/zon_avg/grids/{1}_grid_info.nc'.format(env['DIAGROOTPATH'],env['CNTRLRESOLUTION'])
+        # setup the gridfile based on the resolution and vertical levels
         os.environ['gridfilecntrl'] = '{0}/omwg/za_grids/{1}_grid_info.nc'.format(env['DIAGOBSROOT'],env['CNTRLRESOLUTION'])
         if env['VERTICAL'] == '42':
-##            os.environ['gridfilecntrl'] = '{0}/tool_lib/zon_avg/grids/{1}_42lev_grid_info.nc'.format(env['DIAGROOTPATH'],env['CNTRLRESOLUTION'])
-            ## this file doesn't exist! - not sure if this even works now or not
             os.environ['gridfilecntrl'] = '{0}/omwg/za_grids/{1}_42lev_grid_info.nc'.format(env['DIAGOBSROOT'],env['CNTRLRESOLUTION'])
+
+        if env['VERTICAL'] == '62':
+            os.environ['gridfilecntrl'] = '{0}/omwg/za_grids/{1}_62lev_grid_info.nc'.format(env['DIAGOBSROOT'],env['CNTRLRESOLUTION'])
 
         # check if gridfile exists and is readable
         rc, err_msg = cesmEnvLib.checkFile(os.environ['gridfilecntrl'], 'read')
@@ -195,7 +195,7 @@ class modelVsControl(OceanDiagnostic):
 
             except RuntimeError as e:
                 # unrecoverable error, bail!
-                print("Skipped '{0}' and continuing!".format(request_plot))
+                print("Skipped '{0}' and continuing!".format(requested_plot))
                 print(e)
 
         scomm.sync()
