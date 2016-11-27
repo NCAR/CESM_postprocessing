@@ -4,11 +4,9 @@ load "$NCLPATH/get_environment.ncl"
 
 begin
 
-print("")
-print("Running sfcflx_za_highres.ncl")
-
 file_netcdf_za   = "za_"+file_netcdf
 file_flux_obs_za = "za_"+file_flux_obs
+file_wind_obs_za = "za_"+file_wind_obs
 
 fileid = addfile(file_netcdf,"r")
 f_za   = addfile(file_netcdf_za,"r")
@@ -17,7 +15,7 @@ yesobs = isfilepresent(file_flux_obs_za)
 if (yesobs) then
   f_obs = addfile(file_flux_obs_za,"r")
 else
-  print("Observational file of zonal average does not exisit.")
+  print("Observational file of zonal average does not exist.")
 end if
 
 nlev    = 21
@@ -35,20 +33,33 @@ n_reg = dimsizes(region_index)
 
 varsinfile = getfilevarnames(f_za)
 
-  field_name  = (/ "SHF_QSW", "MELTH_F", "SENH_F", \
-                   "LWUP_F",  "LWDN_F",  "EVAP_F", "PREC_F", \
-                   "MELT_F",  "SALT_F",  "SNOW_F"  /)
-;                  "MELT_F",  "SALT_F",  "SNOW_F", "ROFF_F" /)
+field_name = (/ "SHF_TOTAL", "SHF_QSW", "SFWF_TOTAL", "PREC_F",  \
+               "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
+               "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
+               "QFLUX", "SNOW_F" /)
 
-if (yesobs) then
+if (resolution .eq. "gx1v6") then
+ obsvar_name = (/ "nethflx", "swnet", "netfwflx", "rain", \
+                 "evap", "meltw", "roff", "", \
+                 "sen", "lwup", "lwdn", "melth", \
+                 "", "snow" /)
+else
+ obsvar_name = (/ "", "", "", "", \
+                 "", "", "", "", \
+                 "", "", "", "", \
+                 "", "" /)
+end if
+
+
+if (resolution .eq. "tx0.1v2") then
   obsvar_name = (/ "swnet",   "melth",   "sen",    \
                    "lwup",    "lwdn",    "evap",   "rain", \
                    "meltw",   "",        "snow"    /)
-;                  "meltw",   "",        "snow",   "roff" /)
 else
-  obsvar_name = (/ "",   "",   "",    \
-                   "",   "",   "",   "", \
-                   "",   "",   ""    /)
+ obsvar_name = (/ "", "", "", "", \
+                 "", "", "", "", \
+                 "", "", "", "", \
+                 "", "" /)
 end if
 
 n_fields = dimsizes(field_name)
@@ -111,13 +122,17 @@ do n=0, n_fields-1
 
   ;;-- Read observations from "obsfile" file --;;
 
-  if (obsvar .ne. "" .and. yesobs ) then
+;;  if (obsvar .ne. "" .and. yesobs ) then
+  if (obsvar .ne. "") then 
      field_obs = obsfile->$obsvar$
   end if
-  if ( field_name(n) .eq. "PREC_F" .and. yesobs ) then
+;;  if ( field_name(n) .eq. "PREC_F" .and. yesobs ) then
+  if ( field_name(n) .eq. "PREC_F" ) then 
      obsvar = obs_prefix + "Foxx_snow"
      snow = obsfile->$obsvar$
-     field_obs = where(field_obs .lt. 1.e10 .and. snow .lt. 1.e10, field_obs + snow, field_obs@_FillValue)
+;; ASB - error in logic since field_obs is not defined if PREC_F is not in obsfile
+;;     field_obs = where(field_obs .lt. 1.e10 .and. snow .lt. 1.e10, field_obs + snow, field_obs@_FillValue)
+     field_obs = where(snow .lt. 1.e10, snow, snow@_FillValue)
   end if
 
   ;;-- Read model output from "f_za" file --;;
@@ -161,6 +176,8 @@ do n=0, n_fields-1
       units = "dyn cm~S~-2~N~"
       field_obs = where(field_obs .lt. 1e10,field_obs * 10, field_obs@_FillValue)
    end if
+
+   print( " plotting zonal average of " + field_name(n))
 
    ;wks = gsn_open_wks("x11",field_name(n))
    wks = gsn_open_wks(img_format,field_name(n)+ "_GLO_za")
