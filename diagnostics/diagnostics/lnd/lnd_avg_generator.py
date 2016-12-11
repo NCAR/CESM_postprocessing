@@ -149,8 +149,10 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
 #========================================================================
 # callPyAverager - create the climatology files by calling the pyAverager
 #========================================================================
-def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out_dir, case_prefix, averageList, varList, 
-                   envDict, stream, trend_year0, trend_year1, main_comm,  debugMsg):
+def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, 
+                   out_dir, case_prefix, averageList, varList, 
+                   envDict, stream, trend_year0, trend_year1, 
+                   netcdf_format, main_comm,  debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -162,6 +164,8 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
        out_dir (string) - output directory for climatology files
        case_prefix (string) - input filename prefix
        averageList (list) - list of averages to be created
+       netcdf_format (string) - LNDDIAG_netcdf_format one of 
+                               ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
        varList (list) - list of variables. Note: an empty list implies all variables.
     """
     wght = envDict['weightAvg']
@@ -169,8 +173,10 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
        wght = True
     else:
        wght = False
-    ncfrmt = 'netcdf4'
-    #ncfrmt = 'netcdfLarge'
+    valid_netcdf_formats = ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
+    ncfrmt = 'netcdf'
+    if netcdf_format in valid_netcdf_formats:
+        ncfrmt = netcdf_format
     serial = False
     clobber = True
     if htype == 'series':
@@ -229,8 +235,10 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
 #=========================================================================
 # createClimFiles - create the climatology files by calling the pyAverager
 #=========================================================================
-def createClimFiles(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out_dir, case, stream, inVarList, envDict, 
-                    trend_year0, trend_year1, climo, trends, model, main_comm, debugMsg):
+def createClimFiles(avg_start_year, avg_stop_year, in_dir, htype, key_infile, 
+                    out_dir, case, stream, inVarList, envDict, 
+                    trend_year0, trend_year1, climo, trends, model, 
+                    netcdf_format, main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -242,6 +250,8 @@ def createClimFiles(avg_start_year, avg_stop_year, in_dir, htype, key_infile, ou
        out_dir (string) - output directory for averages
        case (string) - case name
        inVarList (list) - if empty, then create climatology files for all vars
+       netcdf_format (string) - LNDDIAG_netcdf_format one of 
+                               ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
     """
     # create the list of averages to be computed
     if 'rtm' in model or 'mosart' in model:
@@ -263,8 +273,10 @@ def createClimFiles(avg_start_year, avg_stop_year, in_dir, htype, key_infile, ou
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
-        callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out_dir, case_prefix, averageList, inVarList, 
-                       envDict, stream, trend_year0, trend_year1, main_comm, debugMsg)
+        callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, 
+                       out_dir, case_prefix, averageList, inVarList, 
+                       envDict, stream, trend_year0, trend_year1, 
+                       netcdf_format,  main_comm, debugMsg)
 
 
 #============================================
@@ -394,9 +406,11 @@ def main(options, main_comm, debugMsg):
                 case1_climo_dir =  envDict['PTMPDIR_1']+'/climo/'+ envDict['caseid_1']+'/' 
  
                 createClimFiles(envDict['clim_first_yr_1'], envDict['clim_last_yr_1'], h_path, 
-                                envDict['case1_htype'], envDict['case1_key_infile'], case1_climo_dir, envDict['caseid_1'], 
-                                suffix, varList, envDict, envDict['trends_first_yr_1'], envDict['trends_last_yr_1'], 
-                                envDict['climo_'+model+'_1'], envDict['trends_'+model+'_1'], model, main_comm, debugMsg)
+                                envDict['case1_htype'], envDict['case1_key_infile'], case1_climo_dir, 
+                                envDict['caseid_1'], suffix, varList, envDict, 
+                                envDict['trends_first_yr_1'], envDict['trends_last_yr_1'],
+                                envDict['climo_'+model+'_1'], envDict['trends_'+model+'_1'], model, 
+                                envDict['netcdf_large'], main_comm, debugMsg)
             except Exception as error:
                 print(str(error))
                 traceback.print_exc()
@@ -446,9 +460,11 @@ def main(options, main_comm, debugMsg):
                     case2_climo_dir =  envDict['PTMPDIR_2']+'/climo/'+ envDict['caseid_2']+'/'
 
                     createClimFiles(envDict['clim_first_yr_2'], envDict['clim_last_yr_2'], h_path,
-                                envDict['case2_htype'], envDict['case2_key_infile'], case2_climo_dir, envDict['caseid_2'], 
-                                suffix, varList, envDict, envDict['trends_first_yr_2'], envDict['trends_last_yr_2'], 
-                                envDict['climo_'+model+'_2'], envDict['trends_'+model+'_2'], model, main_comm, debugMsg)
+                                    envDict['case2_htype'], envDict['case2_key_infile'], case2_climo_dir, 
+                                    envDict['caseid_2'], suffix, varList, envDict, 
+                                    envDict['trends_first_yr_2'], envDict['trends_last_yr_2'], 
+                                    envDict['climo_'+model+'_2'], envDict['trends_'+model+'_2'], model, 
+                                    envDict['netcdf_format'], main_comm, debugMsg)
                 except Exception as error:
                     print(str(error))
                     traceback.print_exc()

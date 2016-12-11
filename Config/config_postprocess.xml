@@ -53,7 +53,7 @@
 
       <entry id="ATM_GRID"
 	     type="string"
-	     valid_values=""  
+	     valid_values="0.9x1.25"  
 	     value="inherit"
 	     group="case_info"
 	     desc="Atmosphere model grid"
@@ -61,7 +61,7 @@
 
       <entry id="ICE_GRID"
 	     type="string"
-	     valid_values=""  
+	     valid_values="gx1v6" 
 	     value="inherit"
 	     group="case_info"
 	     desc="Sea-Ice model grid"
@@ -69,7 +69,7 @@
 
       <entry id="ICE_NX"
 	     type="string"
-	     valid_values=""  
+	     valid_values="320"  
 	     value="inherit"
 	     group="case_info"
 	     desc="Sea-Ice model grid NX - default 320 for 1-degree ocean grid"
@@ -77,7 +77,7 @@
 
       <entry id="ICE_NY"
 	     type="string"
-	     valid_values=""  
+	     valid_values="384"
 	     value="inherit"
 	     group="case_info"
 	     desc="Sea-Ice model grid NY - default 384 for 1-degree ocean grid"
@@ -85,7 +85,7 @@
 
       <entry id="LND_GRID"
 	     type="string"
-	     valid_values=""  
+	     valid_values="0.9x1.25"
 	     value="inherit"
 	     group="case_info"
 	     desc="Land model grid"
@@ -93,7 +93,7 @@
 
       <entry id="OCN_GRID"
 	     type="string"
-	     valid_values=""  
+	     valid_values="gx1v6"   
 	     value="inherit"
 	     group="case_info"
 	     desc="Ocean model grid"
@@ -101,7 +101,7 @@
 
       <entry id="CESM_TAG"
 	     type="string"
-	     valid_values=""  
+	     valid_values="cesm2_0_beta05"  
 	     value="inherit"
 	     group="case_info"
 	     desc="CESM tag used to create this case"
@@ -215,7 +215,7 @@
 
       <entry id="GLOBAL_WEBHOST"
 	     type="char"
-	     valid_values=""
+	     valid_values="http://some-remote-host"
 	     value=""
 	     group="web_options"
 	     desc="Remote web host machine to serve HTML pages and diagnostics plots."
@@ -223,7 +223,7 @@
 
       <entry id="GLOBAL_WEBLOGIN"
 	     type="char"
-	     valid_values=""
+	     valid_values="remote-username"
 	     value=""
 	     group="web_options"
 	     desc="Remote web host login name which can be used with ssh keys. If ssh key is not setup, then will prompt for login on remote web host machine."
@@ -231,7 +231,7 @@
 
       <entry id="GLOBAL_REMOTE_WEBDIR"
 	     type="char"
-	     valid_values=""
+	     valid_values="/path/to/diags/$CASE/"
 	     value=""
 	     group="web_options"
 	     desc="Remote machine path to diagnostics directory."

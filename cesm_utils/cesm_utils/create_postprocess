@@ -94,10 +94,11 @@ import jinja2
 # define a class to be used for the xml entry, id, desc values
 # -------------------------------------------------------------------------------
 class XmlEntry(object):
-    def __init__(self, id, value, desc):
+    def __init__(self, id, value, desc, valid_values):
         self._id = id
         self._value = value
         self._desc = desc
+        self._valid_values = valid_values
     
     def id(self):
         return self._id
@@ -107,6 +108,9 @@ class XmlEntry(object):
 
     def desc(self):
         return self._desc
+
+    def valid_values(self):
+        return self._valid_values
 
 # -------------------------------------------------------------------------------
 # commandline_options - parse any command line options
@@ -204,9 +208,11 @@ def create_env_file(envDict, configFile, tmplFile, envFile, obs_root, comp, stan
         for entry_tag in group_tag.findall('entry'):
             # check if the value needs to be inherited from the envDict
             if entry_tag.get('value') == 'inherit':
-                xml_list.append(XmlEntry(entry_tag.get('id'), envDict[entry_tag.get('id')], entry_tag.get('desc')))
+                xml_list.append(XmlEntry(entry_tag.get('id'), envDict[entry_tag.get('id')], 
+                                         entry_tag.get('desc'), entry_tag.get('valid_values')))
             else:
-                xml_list.append(XmlEntry(entry_tag.get('id'), entry_tag.get('value'), entry_tag.get('desc')))
+                xml_list.append(XmlEntry(entry_tag.get('id'), entry_tag.get('value'), 
+                                         entry_tag.get('desc'), entry_tag.get('valid_values')))
                     
         group_dict = { 'order' : order, 'name' : name, 'comment' : comment, 'xml_list' : xml_list }
         group_list.append(group_dict)
@@ -217,9 +223,8 @@ def create_env_file(envDict, configFile, tmplFile, envFile, obs_root, comp, stan
     xml_list = list()
     if obs_root:
         if len(obs_root) > 0:
-            xml_obs = XmlEntry('{0}DIAG_DIAGOBSROOT'.format(comp.upper()), 
-                               obs_root, 
-                               'Machine dependent diagnostics observation files root path')
+            xml_obs = XmlEntry('{0}DIAG_DIAGOBSROOT'.format(comp.upper()), obs_root, 
+                               'Machine dependent diagnostics observation files root path', '')
             xml_list.append(xml_obs)
         
     # the xml_list now contains a list of XmlEntry classes that can be written to the template
@@ -562,7 +567,8 @@ def main(options):
         config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
         tmpl_file = 'env_diags.tmpl'
         env_file = '{0}/env_diags_{1}.xml'.format(envDict['PP_CASE_PATH'], comp)
-        create_env_file(envDict, config_file, tmpl_file, env_file, machine['{0}_obs_root'.format(comp)], comp, standalone)
+        create_env_file(envDict, config_file, tmpl_file, env_file, machine['{0}_obs_root'.format(comp)], 
+                        comp, standalone)
 
     # define the template files for the batch scripts
     batch_tmpl = 'batch_{0}.tmpl'.format(envDict['MACH'])
@@ -575,8 +581,9 @@ def main(options):
 
     create_batch(envDict['POSTPROCESS_PATH'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
                  machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                 envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'], machine['timeseries_queue'], 
-                 machine['timeseries_ppn'], machine['timeseries_wallclock'], options, standalone)
+                 envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'], 
+                 machine['timeseries_queue'], machine['timeseries_ppn'], machine['timeseries_wallclock'], 
+                 options, standalone)
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
@@ -584,19 +591,24 @@ def main(options):
         postProcessCmd = '{0}_avg_generator.py'.format(comp)
         processName = '{0}_averages'.format(comp)
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
-        create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
-                     machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'], machine['{0}_averages_queue'.format(comp)], 
-                     machine['{0}_averages_ppn'.format(comp)], machine['{0}_averages_wallclock'.format(comp)], options, standalone)
+        create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, 
+                     run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
+                     machine['project'], machine['pythonpath'], envDict['PP_CASE_PATH'], 
+                     machine['reset_modules'], machine['modules'], machine['{0}_averages_queue'.format(comp)], 
+                     machine['{0}_averages_ppn'.format(comp)], machine['{0}_averages_wallclock'.format(comp)],
+                     options, standalone)
 
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
         processName = '{0}_diagnostics'.format(comp)
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
-        create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
-                     machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'],  machine['reset_modules'], machine['modules'], machine['{0}_diagnostics_queue'.format(comp)],
-                     machine['{0}_diagnostics_ppn'.format(comp)], machine['{0}_diagnostics_wallclock'.format(comp)], options, standalone)
+        create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, 
+                     run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
+                     machine['project'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
+                     machine['reset_modules'], machine['modules'], 
+                     machine['{0}_diagnostics_queue'.format(comp)],
+                     machine['{0}_diagnostics_ppn'.format(comp)], 
+                     machine['{0}_diagnostics_wallclock'.format(comp)], options, standalone)
 
     # generate the regrid batch submit scripts from template files
     for comp in regridList:
@@ -604,10 +616,12 @@ def main(options):
         postProcessCmd = '{0}_regrid_generator.py'.format(comp)
         processName = '{0}_regrid'.format(comp)
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
-        create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_regrid_pes'.format(comp)], batch_tmpl, run_tmpl, postProcessCmd, 
-                     machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
-                     envDict['PP_CASE_PATH'],  machine['reset_modules'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
-                     machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
+        create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_regrid_pes'.format(comp)], batch_tmpl, 
+                     run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
+                     machine['project'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
+                     machine['reset_modules'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
+                     machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_wallclock'.format(comp)], 
+                     options, standalone)
 
     # copy some tools to the PP_CASE_PATH
     files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd']
