@@ -128,8 +128,10 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
 #========================================================================
 # callPyAverager - create the climatology files by calling the pyAverager
 #========================================================================
-def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out_dir, case_prefix, averageList, varList, 
-                   envDict, stream, grid_file, year0, year1, split, split_size, main_comm, debugMsg):
+def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, 
+                   out_dir, case_prefix, averageList, varList, envDict, stream,
+                   grid_file, year0, year1, split, split_size, netcdf_format,
+                   main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -142,10 +144,15 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
        case_prefix (string) - input filename prefix
        averageList (list) - list of averages to be created
        varList (list) - list of variables. Note: an empty list implies all variables.
+       netcdf_format (string) - ICEDIAG_netcdf_format one of 
+                                ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
        main_comm (object) - simple MPI communicator object
     """
     wght = False
+    valid_netcdf_formats = ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
     ncfrmt = 'netcdf'
+    if netcdf_format in valid_netcdf_formats:
+        ncfrmt = netcdf_format
     serial = False
     clobber = True
     if htype == 'series':
@@ -225,8 +232,9 @@ def callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out
 #=========================================================================
 # createClimFiles - create the climatology files by calling the pyAverager
 #=========================================================================
-def createClimFiles(avg_start_year, avg_stop_year, in_dir, split, split_size, htype, key_infile, out_dir, case, stream, inVarList, envDict, 
-                    reg_file, year0, year1, main_comm, debugMsg):
+def createClimFiles(avg_start_year, avg_stop_year, in_dir, split, split_size, 
+                    htype, key_infile, out_dir, case, stream, inVarList, envDict, 
+                    reg_file, year0, year1, netcdf_format, main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -238,6 +246,8 @@ def createClimFiles(avg_start_year, avg_stop_year, in_dir, split, split_size, ht
        out_dir (string) - output directory for averages
        case (string) - case name
        inVarList (list) - if empty, then create climatology files for all vars
+       netcdf_format (string) - ICEDIAG_netcdf_format one of 
+                               ['netcdf', 'netcdf4', 'netcdf4c', 'netcdfLarge']
        main_comm (object) - simple MPI communicator object
     """
     # create the list of averages to be computed
@@ -252,8 +262,9 @@ def createClimFiles(avg_start_year, avg_stop_year, in_dir, split, split_size, ht
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
         # call the pyAverager with the inVarList
-        callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out_dir, case_prefix, averageList, inVarList, 
-                       envDict, stream, reg_file, year0, year1, split, split_size, main_comm, debugMsg)
+        callPyAverager(avg_start_year, avg_stop_year, in_dir, htype, key_infile, out_dir, 
+                       case_prefix, averageList, inVarList, envDict, stream, reg_file, year0, 
+                       year1, split, split_size, netcdf_format, main_comm, debugMsg)
 
 
 #============================================
@@ -271,9 +282,6 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    # TODO put this file list into the config_postprocess definition
-##    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_ice.xml']
-##    if standalone:
     env_file_list =  ['./env_postprocess.xml', './env_diags_ice.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
@@ -288,7 +296,7 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     # add the os.environ['PATH'] to the envDict['PATH']
     envDict['ICEDIAG_PATH'] = os.pathsep + os.environ['PATH']
 
-    # strip the ATMDIAG_ prefix from the envDict entries before setting the 
+    # strip the ICEDIAG_ prefix from the envDict entries before setting the 
     # enviroment to allow for compatibility with all the diag routine calls
     envDict = diagUtilsLib.strip_prefix(envDict, 'ICEDIAG_')
 
@@ -379,8 +387,11 @@ def main(options, main_comm, debugMsg):
    
             avg_BEGYR = (int(envDict['ENDYR_CONT']) - int(envDict['YRS_TO_AVG'])) + 1
             createClimFiles(avg_BEGYR, envDict['ENDYR_CONT'], h_path, split, split_size,
-                            envDict['cont_htype'], envDict['cont_key_infile'], envDict['PATH_CLIMO_CONT'], envDict['CASE_TO_CONT'], 
-                            'cice.h', varList, envDict, envDict['GRIDFILECONT'], envDict['BEGYR_CONT'], envDict['ENDYR_CONT'], main_comm, debugMsg)
+                            envDict['cont_htype'], envDict['cont_key_infile'], 
+                            envDict['PATH_CLIMO_CONT'], envDict['CASE_TO_CONT'], 
+                            'cice.h', varList, envDict, envDict['GRIDFILECONT'], 
+                            envDict['BEGYR_CONT'], envDict['ENDYR_CONT'], 
+                            envDict['netcdf_format'], main_comm, debugMsg)
         except Exception as error:
             print(str(error))
             traceback.print_exc()
@@ -411,8 +422,11 @@ def main(options, main_comm, debugMsg):
 
             avg_BEGYR_DIFF = (int(envDict['ENDYR_DIFF']) - int(envDict['YRS_TO_AVG'])) + 1 
             createClimFiles(avg_BEGYR_DIFF, envDict['ENDYR_DIFF'], h_path, split, split_size,
-                            envDict['diff_htype'], envDict['diff_key_infile'], envDict['PATH_CLIMO_DIFF'], envDict['CASE_TO_DIFF'], 
-                            'cice.h', varList, envDict, envDict['GRIDFILEDIFF'], envDict['BEGYR_DIFF'], envDict['ENDYR_DIFF'], main_comm, debugMsg)
+                            envDict['diff_htype'], envDict['diff_key_infile'], 
+                            envDict['PATH_CLIMO_DIFF'], envDict['CASE_TO_DIFF'], 
+                            'cice.h', varList, envDict, envDict['GRIDFILEDIFF'], 
+                            envDict['BEGYR_DIFF'], envDict['ENDYR_DIFF'], 
+                            envDict['netcdf_format'], main_comm, debugMsg)
         except Exception as error:
             print(str(error))
             traceback.print_exc()
@@ -441,9 +455,6 @@ if __name__ == "__main__":
             print(' Successfully completed generating ice climatology averages')
             print('*************************************************************')
         sys.exit(status)
-
-##    except RunTimeError as error:
-        
     except Exception as error:
         print(str(error))
         if options.backtrace:

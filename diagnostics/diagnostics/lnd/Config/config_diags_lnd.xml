@@ -191,6 +191,16 @@
              desc="Controls whether to generate model vs. model diagnostics"
              ></entry>
 
+      <entry id="LNDDIAG_netcdf_format"
+             type="string"
+             valid_values="netcdf, netcdf4, netcdf4c, netcdfLarge"
+             value="netcdf"
+             group="diag_types"
+             desc="Output NetCDF file format - either 'netcdf4c' (netcdf4 compressed (lev=1)), 
+'netcdf4' (netcdf classic), 'netcdf' (netcdf3 classic), or netcdfLarge for high-resolution data sets. DEFAULT = 'netcdf'. 
+Applies to both model and control cases."
+             ></entry>
+
       <entry id="LNDDIAG_CLEANUP_FILES"
              type="logical"
              valid_values="True/False"
