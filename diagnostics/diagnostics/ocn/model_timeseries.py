@@ -130,6 +130,7 @@ class modelTimeseries(OceanDiagnostic):
                     env['ntailfw'] = os.environ['ntailfw'] = '16'
 
                 # expand the cpl.log* into a list
+                cplLogs.sort()
                 cplLogsString = ' '.join(cplLogs)
 
                 # define the awk scripts to parse the cpllog file
@@ -171,7 +172,6 @@ class modelTimeseries(OceanDiagnostic):
             else:
                 print('model timeseries - Coupler logs do not exist. Disabling MTS_PM_CPLLOG module')
                 env['MTS_PM_CPLLOG'] = os.environ['PM_CPLLOG'] = 'FALSE'
-
 
         # check if ocn log files exist
         if len(env['OCNLOGFILEPATH']) == 0:
