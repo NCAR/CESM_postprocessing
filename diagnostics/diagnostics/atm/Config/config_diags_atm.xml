@@ -102,6 +102,14 @@
              desc="Path to root of test case archive."
              ></entry>
 
+      <entry id="ATMDIAG_test_path_history_subdir"
+             type="char"
+             valid_values="/atm/hist, /atm/proc/tseries/month_1, /atm/proc/tseries/monthly"
+             value="/atm/hist"
+             group="test_params"
+             desc="subdir path concatenated to $ATMDIAG_test_path_history pointing to input history files, slice or series"
+             ></entry>
+
       <entry id="ATMDIAG_test_path_climo"
              type="char"
              valid_values=""
@@ -173,6 +181,14 @@
              value=""
              group="cntl_params"
              desc="Path to root of control case archive."
+             ></entry>
+
+      <entry id="ATMDIAG_cntl_path_history_subdir"
+             type="char"
+             valid_values="/atm/hist, /atm/proc/tseries/month_1, /atm/proc/tseries/monthly"
+             value="/atm/hist"
+             group="test_params"
+             desc="subdir path concatenated to $ATMDIAG_cntl_path_history pointing to input history files, slice or series"
              ></entry>
 
       <entry id="ATMDIAG_cntl_path_climo"

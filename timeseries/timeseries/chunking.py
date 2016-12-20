@@ -86,6 +86,9 @@ def get_cesm_date(fn,t=None):
     if ('bounds' in att.keys()):
         if t == 'b':
            d = f.variables[att['bounds']][0][0]
+           # for the first lnd and rof file
+           if ( -1.0 < d < 0.0):
+               d = 0
         elif t == 'e':
            l = len(f.variables[att['bounds']])
            d = (f.variables[att['bounds']][l-1][1])-1
@@ -94,8 +97,15 @@ def get_cesm_date(fn,t=None):
            d = (f.variables[att['bounds']][l-1][1])
     else:
         d = f.variables['time'][1]    
+        
+    print 'after d = ',d
 
     d1 = cf_units.num2date(d,att['units'],att['calendar'].lower())
+
+    print 'd1.year = ',str(d1.year).zfill(4)
+    print 'd1.month = ',str(d1.month).zfill(2)
+    print 'd1.day = ',str(d1.day).zfill(2)
+    print 'd1.hour = ',str(d1.hour).zfill(2)
 
     return [str(d1.year).zfill(4),str(d1.month).zfill(2),str(d1.day).zfill(2),str(d1.hour).zfill(2)]
 

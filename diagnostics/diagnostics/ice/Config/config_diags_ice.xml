@@ -126,8 +126,18 @@ Applies to both model and control cases."
          valid_values=""
          value="$DOUT_S_ROOT"
          group="cont_dataset"
-         desc="Path to cont case"
+         desc="Path to root of cont case"
          ></entry>
+
+  <entry id="ICEDIAG_PATH_CONT_SUBDIR"
+         type="char"
+         valid_values="/ice/hist, /ice/proc/tseries/month_1, /ice/proc/tseries/monthly"
+         value="ice/hist"
+         group="cont_dataset"
+         desc="subdir path concatenated to $ICEDIAG_PATH_CONT pointing to input history files, slice or series"
+         desc="Path to  cont case"
+         ></entry>
+
 
   <entry id="ICEDIAG_PATH_CLIMO_CONT"
          type="char"
@@ -233,6 +243,15 @@ Applies to both model and control cases."
          value=""
          group="diff_dataset"
          desc="Path to input history data files for the diff case"
+         ></entry>
+
+  <entry id="ICEDIAG_PATH_DIFF_SUBDIR"
+         type="char"
+         valid_values="/ice/hist, /ice/proc/tseries/month_1, /ice/proc/tseries/monthly"
+         value="ice/hist"
+         group="cont_dataset"
+         desc="subdir path concatenated to $ICEDIAG_PATH_DIFF pointing to input history files, slice or series"
+         desc="Path to  cont case"
          ></entry>
 
   <entry id="ICEDIAG_FILE_VAR_TYPE_DIFF"

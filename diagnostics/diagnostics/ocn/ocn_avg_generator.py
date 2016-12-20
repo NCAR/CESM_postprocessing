@@ -425,7 +425,7 @@ def main(options, main_comm, debugMsg):
         file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
         start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
             envDict['MODELCASE_INPUT_TSERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
-            envDict['YEAR0'], envDict['YEAR1'], 'ocn', suffix, file_pattern)
+            envDict['YEAR0'], envDict['YEAR1'], 'ocn', suffix, file_pattern, envDict['MODELCASE_SUBDIR'])
         envDict['YEAR0'] = start_year
         envDict['YEAR1'] = stop_year
         envDict['in_dir'] = in_dir
@@ -443,9 +443,11 @@ def main(options, main_comm, debugMsg):
     if envDict['MODEL_TIMESERIES'].lower() in ['t','true']:
         if main_comm.is_manager():
             debugMsg('timeseries years before checkHistoryFiles {0} - {1}'.format(envDict['TSERIES_YEAR0'], envDict['TSERIES_YEAR1']), header=True)
-            tseries_start_year, tseries_stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
-                envDict['MODELCASE_INPUT_TSERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
-                envDict['TSERIES_YEAR0'], envDict['TSERIES_YEAR1'], 'ocn', suffix, file_pattern)
+            tseries_start_year, tseries_stop_year, in_dir, htype, firstHistoryFile = \
+                diagUtilsLib.checkHistoryFiles(envDict['MODELCASE_INPUT_TSERIES'], envDict['DOUT_S_ROOT'], 
+                                               envDict['CASE'], envDict['TSERIES_YEAR0'], 
+                                               envDict['TSERIES_YEAR1'], 'ocn', suffix, file_pattern,
+                                               envDict['MODELCASE_SUBDIR'])
             debugMsg('timeseries years after checkHistoryFiles {0} - {1}'.format(envDict['TSERIES_YEAR0'], envDict['TSERIES_YEAR1']), header=True)
             envDict['TSERIES_YEAR0'] = tseries_start_year
             envDict['TSERIES_YEAR1'] = tseries_stop_year
@@ -463,8 +465,8 @@ def main(options, main_comm, debugMsg):
                         envDict['htype'], envDict['TAVGDIR'], envDict['CASE'], 
                         tseries, envDict['MODEL_VARLIST'], envDict['TSERIES_YEAR0'], 
                         envDict['TSERIES_YEAR1'], envDict['DIAGOBSROOT'], 
-                        envDict['netcdf_format'], int(envDict['VERTICAL']), envDict['TIMESERIES_OBSPATH'],
-                        main_comm, debugMsg)
+                        envDict['netcdf_format'], int(envDict['VERTICAL']), 
+                        envDict['TIMESERIES_OBSPATH'], main_comm, debugMsg)
     except Exception as error:
         print(str(error))
         traceback.print_exc()
@@ -481,7 +483,8 @@ def main(options, main_comm, debugMsg):
             file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
             start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
                 envDict['CNTRLCASE_INPUT_TSERIES'], envDict['CNTRLCASEDIR'], envDict['CNTRLCASE'], 
-                envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], 'ocn', suffix, file_pattern)
+                envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], 'ocn', suffix, file_pattern,
+                envDict['CNTRLCASE_SUBDIR'])
             envDict['CNTRLYEAR0'] = start_year
             envDict['CNTRLYEAR1'] = stop_year
             envDict['cntrl_in_dir'] = in_dir
@@ -509,8 +512,8 @@ def main(options, main_comm, debugMsg):
             createClimFiles(envDict['CNTRLYEAR0'], envDict['CNTRLYEAR1'], envDict['cntrl_in_dir'],
                             envDict['cntrl_htype'], envDict['CNTRLTAVGDIR'], envDict['CNTRLCASE'], 
                             False, envDict['CNTRL_VARLIST'], 0, 0, envDict['DIAGOBSROOT'],
-                            envDict['netcdf_format'], int(envDict['VERTICAL']), envDict['TIMESERIES_OBSPATH'],
-                            main_comm, debugMsg)
+                            envDict['netcdf_format'], int(envDict['VERTICAL']), 
+                            envDict['TIMESERIES_OBSPATH'], main_comm, debugMsg)
         except Exception as error:
             print(str(error))
             traceback.print_exc()

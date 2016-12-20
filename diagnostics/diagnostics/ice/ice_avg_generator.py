@@ -365,24 +365,26 @@ def main(options, main_comm, debugMsg):
     main_comm.sync()
 
     # get model history file information from the DOUT_S_ROOT archive location
-    start_year, stop_year, in_dir, envDict['cont_htype'],  envDict['cont_key_infile'] = diagUtilsLib.checkHistoryFiles(
-        cont_time_series, envDict['PATH_CONT'], envDict['CASE_TO_CONT'], envDict['BEGYR_CONT'], envDict['ENDYR_CONT'],
-        'ice',suffix,filep)
+    start_year, stop_year, in_dir, envDict['cont_htype'],  envDict['cont_key_infile'] = \
+        diagUtilsLib.checkHistoryFiles(cont_time_series, envDict['PATH_CONT'], envDict['CASE_TO_CONT'], 
+                                       envDict['BEGYR_CONT'], envDict['ENDYR_CONT'],
+                                       'ice',suffix,filep,envDict['PATH_CONT_SUBDIR'])
     
     if envDict['COMPUTE_CLIMO_CONT'].lower() == 'true':
         try:
             split_size = None
+            h_path = envDict['PATH_CONT']+envDict['PATH_CONT_SUBDIR']
             if cont_time_series.lower() == 'true':
                 if main_comm.is_manager():
                     debugMsg('Computing averages for model vs. obs',header=True)
 
-                h_path = envDict['PATH_CONT']+'/ice/proc/tseries/monthly/'
+##                h_path = envDict['PATH_CONT']+'/ice/proc/tseries/monthly/'
                 # Check to see if tseries is split into hemispheres
                 split = checkIceSplit(envDict['ICE_NY_CONT'], envDict['cont_key_infile'])
                 if split:
                     split_size = 'nj='+envDict['ICE_NY_CONT']+',ni='+envDict['ICE_NX_CONT']
             else:
-                h_path = envDict['PATH_CONT']+'/ice/hist/'
+##                h_path = envDict['PATH_CONT']+'/ice/hist/'
                 split = False 
    
             avg_BEGYR = (int(envDict['ENDYR_CONT']) - int(envDict['YRS_TO_AVG'])) + 1
@@ -403,21 +405,24 @@ def main(options, main_comm, debugMsg):
             split_size = None
             suffix = 'cice.h.*.nc'
             filep = '.*\.cice.h.\d{4,4}-\d{2,2}\.nc'
-            start_year, stop_year, in_dir, envDict['diff_htype'],  envDict['diff_key_infile'] = diagUtilsLib.checkHistoryFiles(
-            diff_time_series, envDict['PATH_DIFF'], envDict['CASE_TO_DIFF'], envDict['BEGYR_DIFF'], envDict['ENDYR_DIFF'],
-            'ice',suffix,filep)
+            start_year, stop_year, in_dir, envDict['diff_htype'],  envDict['diff_key_infile'] = \
+                diagUtilsLib.checkHistoryFiles(diff_time_series, envDict['PATH_DIFF'], 
+                                               envDict['CASE_TO_DIFF'], envDict['BEGYR_DIFF'], 
+                                               envDict['ENDYR_DIFF'],'ice',suffix,filep,
+                                               envDict['PATH_DIFF_SUBDIR'])
 
+            h_path = envDict['PATH_DIFF']+envDict['PATH_DIFF_SUBDIR']
             if diff_time_series.lower() == 'true':
                 if main_comm.is_manager():
                     debugMsg('Computing averages for model vs. model',header=True)
 
-                h_path = envDict['PATH_DIFF']+'/ice/proc/tseries/monthly/'
+##                h_path = envDict['PATH_DIFF']+'/ice/proc/tseries/monthly/'
                 # Check to see if tseries is split into hemispheres
                 split = checkIceSplit(envDict['ICE_NY_DIFF'], envDict['diff_key_infile'])
                 if split:
                     split_size = 'nj='+envDict['ICE_NY_DIFF']+',ni='+envDict['ICE_NX_DIFF']
             else:
-                h_path = envDict['PATH_DIFF']+'/ice/hist/'
+##                h_path = envDict['PATH_DIFF']+'/ice/hist/'
                 split = False
 
             avg_BEGYR_DIFF = (int(envDict['ENDYR_DIFF']) - int(envDict['YRS_TO_AVG'])) + 1 
