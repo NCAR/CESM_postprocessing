@@ -2,11 +2,11 @@ Notes for running diagnostics for the CESM2.0 PI control experiments:
 
 The examples in this directory are configured for the following settings:
 
-Model - b.e15.B1850.f09_g16.pi_control.all.113 years 1-22
-Control - b.e15.B1850.f09_g16.pi_control.all.104 years 1-22
+Model - b.e15.B1850.f09_g16.pi_control.all.123 years 1-9 (years 1-6 for ocean)
+Control - b.e15.B1850.f09_g16.pi_control.all.123.lndbugfix years 1-9 (years 1-6 for ocean)
 
 The env_*.xml files contain the settings that were used to generate the 
 diagnostics plots. 
 
 The web page with all the plots is located here:
-http://webext.cgd.ucar.edu/B1850/b.e15.B1850.f09_g16.pi_control.all.113/pp/index.20160922-103655.html
+http://www.cesm.ucar.edu/models/cesm2.0/model_diagnostics/test/b.e20.B1850.f09_g16.pi_control.all.123/index.20161221-114650.html

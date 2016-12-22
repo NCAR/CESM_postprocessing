@@ -71,12 +71,28 @@
              desc="Root location of source history files for CASE1"
              ></entry>
 
+      <entry id="LNDDIAG_SOURCE_1_SUBDIR"
+             type="char"
+             valid_values="/hist, /proc/tseries/month_1, /proc/tseries/monthly"
+             value="/hist"
+             group="data_path"
+             desc="subdir path concatenated to $LNDDIAG_SOURCE_1/[lnd,rof] pointing to input history files, slice or series"
+             ></entry>
+
       <entry id="LNDDIAG_SOURCE_2"
              type="char"
              valid_values=""
              value=""
              group="data_path"
              desc="Root location of source history files for CASE2"
+             ></entry>
+
+      <entry id="LNDDIAG_SOURCE_2_SUBDIR"
+             type="char"
+             valid_values="/hist, /proc/tseries/month_1, /proc/tseries/monthly"
+             value="/hist"
+             group="data_path"
+             desc="subdir path concatenated to $LNDDIAG_SOURCE_2/[lnd,rof] pointing to input history files, slice or series"
              ></entry>
 
     </group>

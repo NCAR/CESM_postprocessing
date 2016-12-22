@@ -171,7 +171,7 @@ def checkXMLyears(hfstart_year, hfstop_year, rstart_year, rstop_year):
 #========================================
 # checkHistoryFiles - check history files
 #========================================
-def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp, suffix, filep):
+def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp, suffix, filep, subdir):
     """checkHistoryFiles - check if variable history time-series 
     files or history time-slice files exist
     in the DOUT_S_ROOT location. Then check the actual run files 
@@ -186,9 +186,10 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     case (string) - corresponds to XML variable CASE name
     rstart_year (string) - requested diagnostics model start year from XML env_diags_ocn.xml
     rstop_year (string) - requested diagnostics model stop year from XML env_diags_ocn.xml
-    comp (string) - component one of atm, ice, lnd, or ocn
+    comp (string) - component one of atm, ice, lnd, ocn, or rof
     suffix (string) - suffix for history files
     filep (string) - file pattern to match filenames
+    subdir (string) - subdir location of input history files, slice or series
 
     Return:
     start_year (string) - start year as defined by the history files
@@ -198,10 +199,12 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     """
     if tseries.upper() in ['T','TRUE'] :
         htype = 'series'
-        in_dir = '{0}/{1}/proc/tseries/monthly'.format(dout_s_root, comp)
+##        in_dir = '{0}/{1}/proc/tseries/month_1'.format(dout_s_root, comp)
     else :
         htype = 'slice'
-        in_dir = '{0}/{1}/hist'.format(dout_s_root, comp)
+##        in_dir = '{0}/{1}/hist'.format(dout_s_root, comp)
+
+    in_dir = '{0}/{1}/{2}'.format(dout_s_root, comp, subdir)
 
     # check the in_dir directory exists 
     if not os.path.isdir(in_dir):

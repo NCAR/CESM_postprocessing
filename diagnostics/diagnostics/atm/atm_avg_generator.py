@@ -215,7 +215,8 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
     else: # htype == series
         import glob
 
-        glob_string = '{0}/{1}.{2}.'.format(in_dir,case_prefix,stream)
+##        glob_string = '{0}/{1}.{2}.'.format(in_dir,case_prefix,stream)
+        glob_string = '{0}/{1}.'.format(in_dir,case_prefix)
         file_list = glob.glob(glob_string+'*')
         print (glob_string,'File list:',file_list)
         for f in file_list:
@@ -449,23 +450,27 @@ def main(options, main_comm, debugMsg):
     test_end_year = (int(envDict['test_first_yr']) + int(envDict['test_nyrs'])) - 1
     suffix = envDict['test_modelstream']+'.*.nc'
     filep = '.*\.'+ envDict['test_modelstream']+'.\d{4,4}-\d{2,2}\.nc'
-    start_year, stop_year, in_dir, envDict['test_htype'],  envDict['test_key_infile'] = diagUtilsLib.checkHistoryFiles(
-        test_time_series, envDict['test_path_history'], envDict['test_casename'], envDict['test_first_yr'], test_end_year,
-        'atm',suffix,filep)
+    start_year, stop_year, in_dir, envDict['test_htype'],  envDict['test_key_infile'] = \
+        diagUtilsLib.checkHistoryFiles(test_time_series, envDict['test_path_history'], 
+                                       envDict['test_casename'], envDict['test_first_yr'], test_end_year,
+                                       'atm',suffix,filep,envDict['test_path_history_subdir'])
 
     if envDict['test_compute_climo'] == 'True':
         try:
-            if test_time_series == 'True':
-                h_path = envDict['test_path_history']+'/atm/proc/tseries/monthly/'
-            else:
-                h_path = envDict['test_path_history']+'/atm/hist/'
+##            if test_time_series == 'True':
+##                h_path = envDict['test_path_history']+'/atm/proc/tseries/month_1/'
+##            else:
+##                h_path = envDict['test_path_history']+'/atm/hist/'
+
+            h_path = envDict['test_path_history']+'/atm/'+envDict['test_path_history_subdir']
 
             # generate the climatology files used for all plotting types using the pyAverager
             if main_comm.is_manager():
                 debugMsg('calling createClimFiles', header=True)
 
             createClimFiles(envDict['test_first_yr'], test_end_year, h_path,
-                            envDict['test_htype'], envDict['test_key_infile'], envDict['test_path_climo'], envDict['test_casename'], 
+                            envDict['test_htype'], envDict['test_key_infile'], 
+                            envDict['test_path_climo'], envDict['test_casename'], 
                             envDict['test_modelstream'], varList, envDict, main_comm, debugMsg)
         except Exception as error:
             print(str(error))
@@ -478,20 +483,25 @@ def main(options, main_comm, debugMsg):
             cntl_end_year = (int(envDict['cntl_first_yr']) + int(envDict['cntl_nyrs'])) - 1
             suffix = envDict['cntl_modelstream']+'.*.nc'
             filep = '.*\.'+ envDict['cntl_modelstream']+'.\d{4,4}-\d{2,2}\.nc'
-            start_year, stop_year, in_dir, envDict['cntl_htype'],  envDict['cntl_key_infile'] = diagUtilsLib.checkHistoryFiles(
-            cntl_time_series, envDict['cntl_path_history'], envDict['cntl_casename'], envDict['cntl_first_yr'], cntl_end_year,
-            'atm',suffix,filep)
+            start_year, stop_year, in_dir, envDict['cntl_htype'],  envDict['cntl_key_infile'] = \
+                diagUtilsLib.checkHistoryFiles(cntl_time_series, envDict['cntl_path_history'], 
+                                               envDict['cntl_casename'], envDict['cntl_first_yr'], 
+                                               cntl_end_year,'atm',suffix,filep,
+                                               envDict['cntl_path_history_subdir'])
 
-            if cntl_time_series == 'True':
-                h_path = envDict['cntl_path_history']+'/atm/proc/tseries/monthly/'
-            else:
-                h_path = envDict['cntl_path_history']+'/atm/hist/'
+##            if cntl_time_series == 'True':
+##                h_path = envDict['cntl_path_history']+'/atm/proc/tseries/month_1/'
+##            else:
+##                h_path = envDict['cntl_path_history']+'/atm/hist/'
+
+            h_path = envDict['cntl_path_history']+'/atm/'+envDict['cntl_path_history_subdir']
  
             # generate the climatology files used for all plotting types using the pyAverager
             debugMsg('calling createClimFiles', header=True)
 
             createClimFiles(envDict['cntl_first_yr'], cntl_end_year, h_path,
-                            envDict['cntl_htype'], envDict['cntl_key_infile'], envDict['cntl_path_climo'], envDict['cntl_casename'], 
+                            envDict['cntl_htype'], envDict['cntl_key_infile'], 
+                            envDict['cntl_path_climo'], envDict['cntl_casename'], 
                             envDict['cntl_modelstream'], varList, envDict, main_comm, debugMsg)
         except Exception as error:
             print(str(error))

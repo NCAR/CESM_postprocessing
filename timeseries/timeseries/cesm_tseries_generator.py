@@ -76,7 +76,7 @@ def commandline_options():
 #==============================================================================================
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
 #==============================================================================================
-def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, debug):
+def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, debug, debugMsg):
     """ reads the $CASEROOT/env_timeseries.xml file and builds a fully defined list of 
          reshaper specifications to be passed to the pyReshaper tool.
 
@@ -110,7 +110,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
             rootdir = comp_archive_spec.find("rootdir").text
             multi_instance = comp_archive_spec.find("multi_instance").text
             default_calendar = comp_archive_spec.find("default_calendar").text
-            print("default_calendar = {0}".format(default_calendar))
+            debugMsg("default_calendar = {0}".format(default_calendar), header=True)
 
             # for now, set instance value to empty string implying only 1 instance
             instance = ""
@@ -159,16 +159,15 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
 
                         stream_dates,file_slices,cal,units,time_period_freq = chunking.get_input_dates(in_file_path+'/*'+file_extension+'*.nc')
                         # check if the calendar attribute was read or not
-                        print("1 cal = {0}".format(cal))
                         if cal is None or cal == "none":
                             cal = default_calendar
-                        print("2 cal = {0}".format(cal))
+                        debugMsg("calendar = {0}".format(cal), header=True)
 
                         # the tseries_tper should be set in using the time_period_freq global file attribute if it exists
                         if time_period_freq is not None:
                             tseries_tper = time_period_freq
                         tseries_output_dir = '/'.join( [dout_s_root, rootdir, 'proc/tseries', tseries_tper] )
-                        print ("tseries_output_dir = {0}".format(tseries_output_dir))
+                        debugMsg("tseries_output_dir = {0}".format(tseries_output_dir), header=True)
 
                         if not os.path.exists(tseries_output_dir):
                             os.makedirs(tseries_output_dir)
@@ -189,7 +188,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
 
                             # create the tseries output prefix needs to end with a "."
                             tseries_output_prefix = "{0}/{1}.{2}{3}.".format(tseries_output_dir,casename,comp_name,stream)
-                            print ("tseries_output_prefix = {0}".format(tseries_output_prefix))
+                            debugMsg("tseries_output_prefix = {0}".format(tseries_output_prefix), header=True)
 
                             # format the time series variable output suffix based on the 
                             # tseries_tper setting suffix needs to start with a "."
@@ -203,7 +202,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                             else:
                                 err_msg = "cesm_tseries_generator.py error: invalid tseries_tper = {0}.".format(tseries_tper)
                                 raise TypeError(err_msg)
-                            print ("tseries_output_suffix = {0}".format(tseries_output_suffix))
+                            debugMsg("tseries_output_suffix = {0}".format(tseries_output_suffix), header=True)
 
                             # get a reshaper specification object
                             spec = specification.create_specifier()
@@ -275,7 +274,7 @@ def divide_comm(scomm, l_spec):
 # main
 #======
 
-def main(options, scomm, rank, size):
+def main(options, scomm, rank, size, debug, debugMsg):
     """
     """
     # initialize the CASEROOT environment dictionary
@@ -283,9 +282,6 @@ def main(options, scomm, rank, size):
 
     # CASEROOT is given on the command line as required option --caseroot
     caseroot = options.caseroot[0]
-
-    # set the debug level 
-    debug = options.debug[0]
 
     # get the XML variables loaded into a hash
     env_file_list = ['env_postprocess.xml']
@@ -303,7 +299,8 @@ def main(options, scomm, rank, size):
             completechunk = 1
         else:
             completechunk = 0
-        specifiers,log = readArchiveXML(caseroot, dout_s_root, case, options.standalone, completechunk, debug)
+        specifiers,log = readArchiveXML(caseroot, dout_s_root, case, options.standalone, 
+                                        completechunk, debug, debugMsg)
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
@@ -353,7 +350,9 @@ def main(options, scomm, rank, size):
 
     if rank == 0:
         # Update system log with the dates that were just converted 
+        debugMsg('before chunking.write_log', header=True, verbosity=1)
         chunking.write_log('{0}/logs/ts_status.log'.format(caseroot), log)
+        debugMsg('after chunking.write_log', header=True, verbosity=1)
 
     scomm.sync()
 
@@ -371,15 +370,22 @@ if __name__ == "__main__":
 
     # get commandline options
     options = commandline_options()
+    debug = options.debug[0]
+
+    # initialize global vprinter object for printing debug messages
+    debugMsg = vprinter.VPrinter(header='', verbosity=0)
+    if options.debug:
+        header = 'cesm_tseries_generator: DEBUG... '
+        debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
 
     rank = scomm.get_rank()
     size = scomm.get_size()
 
     if rank == 0:
-        print('cesm_tseries_generator INFO Running on {0} cores'.format(size))
+        debugMsg('Running on {0} cores'.format(size), header=True)
 
     try:
-        status = main(options, scomm, rank, size)
+        status = main(options, scomm, rank, size, debug, debugMsg)
         scomm.sync()
         timer.stop("Total Time")
         if rank == 0:
