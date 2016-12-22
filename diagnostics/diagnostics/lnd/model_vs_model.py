@@ -183,7 +183,7 @@ class modelVsModel(LandDiagnostic):
                         print("... debug before rename img = {0}".format(img))
                         print("... debug before rename basename = {0}".format(os.path.basename(img)))
                         print("... debug before rename new_fn = {0}".format(new_fn))
-##                        os.rename(img,new_fn)
+                        os.rename(img,new_fn)
                 # Copy the set1Diff and set1Anom plots to set_1 web dir
                 if n == '1':
                     glob_string = web_dir+'/set1Diff'+'_*'
@@ -239,27 +239,27 @@ class modelVsModel(LandDiagnostic):
 
             # lnd_create_webpage.pl call
             rc1, err_msg = cesmEnvLib.checkFile(web_script_1,'read')
-##            if rc1:
-##                try:
-##                    subprocess.check_call(web_script_1)
-##                except subprocess.CalledProcessError as e:
-##                    print('WARNING: {0} error executing command:'.format(web_script_1))
-##                    print('    {0}'.format(e.cmd))
-##                    print('    rc = {0}'.format(e.returncode))
-##            else:
-##                print('{0}... {1} file not found'.format(err_msg,web_script_1))
+            if rc1:
+                try:
+                    subprocess.check_call(web_script_1)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} error executing command:'.format(web_script_1))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
+            else:
+                print('{0}... {1} file not found'.format(err_msg,web_script_1))
 
             # lnd_lookupTable.pl call          
             rc2, err_msg = cesmEnvLib.checkFile(web_script_2,'read')
-##            if rc2:
-##                try:
-##                    subprocess.check_call(web_script_2)
-##                except subprocess.CalledProcessError as e:
-##                    print('WARNING: {0} error executing command:'.format(web_script_2))
-##                    print('    {0}'.format(e.cmd))
-##                    print('    rc = {0}'.format(e.returncode))
-##            else:
-##                print('{0}... {1} file not found'.format(err_msg,web_script_2))
+            if rc2:
+                try:
+                    subprocess.check_call(web_script_2)
+                except subprocess.CalledProcessError as e:
+                    print('WARNING: {0} error executing command:'.format(web_script_2))
+                    print('    {0}'.format(e.cmd))
+                    print('    rc = {0}'.format(e.returncode))
+            else:
+                print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
             # move all the plots to the diag_path with the years appended to the path
             endYr1 = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1 
@@ -294,7 +294,7 @@ class modelVsModel(LandDiagnostic):
             if move_files:
                 try:
                     print('DEBUG: model_vs_model renaming web files')
-##                    os.rename(web_dir, diag_path)
+                    os.rename(web_dir, diag_path)
                 except OSError as e:
                     print ('WARNING: Error renaming %s to %s: %s' % (web_dir, diag_path, e))
                     diag_path = web_dir

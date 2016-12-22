@@ -29,7 +29,8 @@
 ##
 ## Variable Time series generation:
 ##
-## On the yellowstone queues, -n should be set to (number of variables)/2
+## On the yellowstone queues, -n should be set to total number of streams
+## to be converted into variable timeseries * 16 minimum tasks per stream
 ## and ptile = 15. For geyser or caldera, the maximum -n is 16 and the 
 ## ptile can be adjusted based on what the memory requirements might
 ## be depending on the variable size and number of history time slices

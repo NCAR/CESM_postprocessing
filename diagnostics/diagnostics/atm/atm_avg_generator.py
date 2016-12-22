@@ -215,7 +215,8 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
     else: # htype == series
         import glob
 
-        glob_string = '{0}/{1}.{2}.'.format(in_dir,case_prefix,stream)
+##        glob_string = '{0}/{1}.{2}.'.format(in_dir,case_prefix,stream)
+        glob_string = '{0}/{1}.'.format(in_dir,case_prefix)
         file_list = glob.glob(glob_string+'*')
         print (glob_string,'File list:',file_list)
         for f in file_list:
@@ -461,7 +462,7 @@ def main(options, main_comm, debugMsg):
 ##            else:
 ##                h_path = envDict['test_path_history']+'/atm/hist/'
 
-            h_path = envDict['test_path_history']+envDict['test_path_history_subdir']
+            h_path = envDict['test_path_history']+'/atm/'+envDict['test_path_history_subdir']
 
             # generate the climatology files used for all plotting types using the pyAverager
             if main_comm.is_manager():
@@ -493,7 +494,7 @@ def main(options, main_comm, debugMsg):
 ##            else:
 ##                h_path = envDict['cntl_path_history']+'/atm/hist/'
 
-            h_path = envDict['cntl_path_history']+envDict['cntl_path_history_subdir']
+            h_path = envDict['cntl_path_history']+'/atm/'+envDict['cntl_path_history_subdir']
  
             # generate the climatology files used for all plotting types using the pyAverager
             debugMsg('calling createClimFiles', header=True)

@@ -414,7 +414,7 @@ def main(options, main_comm, debugMsg):
                                 envDict['caseid_1'], suffix, varList, envDict, 
                                 envDict['trends_first_yr_1'], envDict['trends_last_yr_1'],
                                 envDict['climo_'+model+'_1'], envDict['trends_'+model+'_1'], model, 
-                                envDict['netcdf_large'], main_comm, debugMsg)
+                                envDict['netcdf_format'], main_comm, debugMsg)
             except Exception as error:
                 print(str(error))
                 traceback.print_exc()

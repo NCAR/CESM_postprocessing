@@ -484,10 +484,10 @@ Applies to both model and control cases."
 
       <entry id="OCNDIAG_MODELCASE_SUBDIR"
 	     type="char"
-             valid_values="/ocn/hist, /ocn/proc/tseries/month_1, /ocn/proc/tseries/monthly"
-             value="ocn/hist"
+             valid_values="/hist, /proc/tseries/month_1, /proc/tseries/monthly"
+             value="/hist"
              group="model_case_options"
-             desc="subdir path concatenated to $DOUT_S_ROOT  pointing to input history files, slice or series"
+             desc="subdir path concatenated to $DOUT_S_ROOT/ocn pointing to input history files, slice or series"
              ></entry>
     </group>
 
@@ -519,10 +519,10 @@ Applies to both model and control cases."
 
       <entry id="OCNDIAG_CNTRLCASE_SUBDIR"
 	     type="char"
-             valid_values="/ocn/hist, /ocn/proc/tseries/month_1, /ocn/proc/tseries/monthly"
-             value="ocn/hist"
+             valid_values="/hist, /proc/tseries/month_1, /proc/tseries/monthly"
+             value="/hist"
              group="control_case_options"
-             desc="subdir path concatenated to $OCNDIAG_CNTRLCASEDIR  pointing to input history files, slice or series"
+             desc="subdir path concatenated to $OCNDIAG_CNTRLCASEDIR/ocn  pointing to input history files, slice or series"
              ></entry>
 
       <entry id="OCNDIAG_CNTRLCASE"
@@ -568,7 +568,7 @@ Applies to both model and control cases."
       <entry id="OCNDIAG_CNTRLTAVGDIR"
 	     type="char"
 	     valid_values="$OCNDIAG_CNTRLCASEDIR/ocn/proc/tavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1"
-	     value=""
+	     value="$OCNDIAG_CNTRLCASEDIR/ocn/proc/tavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1"
 	     group="control_case_options"
 	     desc="Local directory path to control model climatology files for OMWG model vs. model diagnostics. This directory must have write permissions for the user running the postprocessing."
 	     ></entry>

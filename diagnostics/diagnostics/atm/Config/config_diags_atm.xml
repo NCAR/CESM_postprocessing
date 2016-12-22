@@ -104,8 +104,8 @@
 
       <entry id="ATMDIAG_test_path_history_subdir"
              type="char"
-             valid_values="/atm/hist, /atm/proc/tseries/month_1, /atm/proc/tseries/monthly"
-             value="/atm/hist"
+             valid_values="/hist, /proc/tseries/month_1, /proc/tseries/monthly"
+             value="/hist"
              group="test_params"
              desc="subdir path concatenated to $ATMDIAG_test_path_history pointing to input history files, slice or series"
              ></entry>
@@ -185,8 +185,8 @@
 
       <entry id="ATMDIAG_cntl_path_history_subdir"
              type="char"
-             valid_values="/atm/hist, /atm/proc/tseries/month_1, /atm/proc/tseries/monthly"
-             value="/atm/hist"
+             valid_values="/hist, /proc/tseries/month_1, /proc/tseries/monthly"
+             value="/hist"
              group="test_params"
              desc="subdir path concatenated to $ATMDIAG_cntl_path_history pointing to input history files, slice or series"
              ></entry>

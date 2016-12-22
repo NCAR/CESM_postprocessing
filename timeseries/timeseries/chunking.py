@@ -58,7 +58,7 @@ def get_input_dates(glob_str):
                 time_period_freq = f.getncattr('time_period_freq')
                 print 'time_period_freq = ',time_period_freq
             except:
-                print 'Global attribute time_period_freq not found - set to None'
+                print 'Global attribute time_period_freq not found - set to XML tseries_tper element'
             first = False
 
     return stream_dates,file_slices,att['calendar'].lower(),att['units'],time_period_freq

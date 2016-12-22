@@ -373,7 +373,7 @@ def main(options, main_comm, debugMsg):
     if envDict['COMPUTE_CLIMO_CONT'].lower() == 'true':
         try:
             split_size = None
-            h_path = envDict['PATH_CONT']+envDict['PATH_CONT_SUBDIR']
+            h_path = envDict['PATH_CONT']+'/ice/'+envDict['PATH_CONT_SUBDIR']
             if cont_time_series.lower() == 'true':
                 if main_comm.is_manager():
                     debugMsg('Computing averages for model vs. obs',header=True)
@@ -411,7 +411,7 @@ def main(options, main_comm, debugMsg):
                                                envDict['ENDYR_DIFF'],'ice',suffix,filep,
                                                envDict['PATH_DIFF_SUBDIR'])
 
-            h_path = envDict['PATH_DIFF']+envDict['PATH_DIFF_SUBDIR']
+            h_path = envDict['PATH_DIFF']+'/ice/'+envDict['PATH_DIFF_SUBDIR']
             if diff_time_series.lower() == 'true':
                 if main_comm.is_manager():
                     debugMsg('Computing averages for model vs. model',header=True)
