@@ -1,0 +1,50 @@
+##########
+##
+## General rules for determining PE counts and distribution across nodes
+## ---------------------------------------------------------------------
+##
+## Averages:
+##
+## For avearges, set -N equal to the number of variables to be averaged 
+## plus the number of averages to be computed. The ppn should always
+## be set to 15 on cheyenne exclusive nodes. 
+##
+## For ocean hi-resolution or atm data sets with a lot of variables, 
+## set the netcdf_format XML variable to netcdfLarge, change the queue to
+## either geyser (shared) or bigmem (exclusive). For geyser, set -n to 16
+## and ptile to 2 or more. Or, set -n < 16 and ptile to 1 which will 
+## allow for more memory usage. The -W setting may also need to be 
+## increased for large data sets.
+##
+##########
+##
+## Diagnostics:
+##
+## For diagnostics, the queue should always be set to geyser or caldera
+## with the -n not to exceed the number of plot sets to be created. 
+## The ptile can be adjusted depending on the size of the input climo
+## and average files.
+##
+##########
+##
+## Variable Time series generation:
+##
+## On the cheyenne queues, -N should be set to total number of streams
+## to be converted into variable timeseries * 16 minimum tasks per stream
+## and ppn = 15. For geyser or caldera, the maximum -n is 16 and the 
+## ppn can be adjusted based on what the memory requirements might
+## be depending on the variable size and number of history time slices
+## to be included in the final single variable output file.
+##
+##########
+
+#PBS -N {{ processName }}
+#PBS -q {{ queue }}
+#PBS -l nodes={{ pes }}:ppn={{ ppn }}
+#PBS -l walltime={{ wallclock }}
+
+. /glade/u/apps/opt/lmod/lmod/init/bash
+
+export MP_TIMEOUT=14400
+export MP_PULSE=1800
+export MP_DEBUG_NOTIMEOUT=yes
