@@ -35,7 +35,7 @@ begin
  factor_mam = (/1.,1.,1.,1.,1.,32.066/115.11/)  ; SO4 in TgS
  ivars = dimsizes(vars)
   mw_bam = (/12.001,144.132,12.011,12.011,12.011,96.06/)  ; chem mw (96.06 is from SO4, 115.11 is from NH4HSO4 (mam) 
-  mw_mam = (/12.001,144.132,12.011,12.011,12.011,115.11/)  ; chem mw (96.06 is from SO4, 115.11 is from NH4HSO4 (mam) 
+  mw_mam = (/12.001,250.,12.011,12.011,12.011,115.11/)  ; chem mw (96.06 is from SO4, 115.11 is from NH4HSO4 (mam) 
  nvars = 6*dimsizes(vars)+2   ; burden, emis, dry dep, wet dep, chem_loss, lifetime
  global  = new ((/nvars,3/),"float", -999)   ; global means,diff
  vars_all = new((/nvars/),"string")
@@ -124,8 +124,10 @@ begin
 ; and then the difference between
 ; the fields
 aer = new(2,"string")
+aer(:) = "bam"
   
  do i = 0, ivars-1
+ print(vars(i))
   vint1 = new((/ntime1,nlev1,nlat1,nlon1/),"float")
   vemis1 = new((/ntime1,nlat1,nlon1/),"float")
   vgas1 = new((/ntime1,nlat1,nlon1/),"float")
@@ -136,11 +138,15 @@ aer = new(2,"string")
   dwf1 = new((/ntime1,nlat1,nlon1/),"float")
   vaqu1 = new((/ntime1,nlat1,nlon1/),"float")
   vnuc1 = new((/ntime1,nlat1,nlon1/),"float")
+  vcaqa1 = new((/ntime1,nlat1,nlon1/),"float")
+  vcaqb1 = new((/ntime1,nlat1,nlon1/),"float")
   if (compare .eq. "OBS") then
    nca = 1
   else
 ; CASE 2 MODEL
   vint2 = new((/ntime2,nlev2,nlat2,nlon2/),"float")
+  vcaqa2 = new((/ntime2,nlat2,nlon2/),"float")
+  vcaqb2 = new((/ntime2,nlat2,nlon2/),"float")
   vemis2 = new((/ntime2,nlat2,nlon2/),"float")
   vgas2 = new((/ntime2,nlat2,nlon2/),"float")
   chmp2 = new((/ntime2,nlev2,nlat2,nlon2/),"float")
@@ -201,6 +207,24 @@ aer = new(2,"string")
      vara =  (/"soa_c1","soa_c2"/)
      aer(ca) = "mam3"
    end if
+    if (isfilevar(inptr,"soaff1_a1") .and. isfilevar(inptr,"soaff1_a2")) then
+     delete(varsoa)
+     mw(i) = 250.
+     varsoa =  (/"soaff1_a1","soaff1_a2","soaff2_a1","soaff2_a2","soaff3_a1","soaff3_a2","soaff4_a1","soaff4_a2","soaff5_a1","soaff5_a2",\
+               "soabb1_a1","soabb1_a2","soabb2_a1","soabb2_a2","soabb3_a1","soabb3_a2","soabb4_a1","soabb4_a2","soabb5_a1","soabb5_a2",\
+               "soabg1_a1","soabg1_a2","soabg2_a1","soabg2_a2","soabg3_a1","soabg3_a2","soabg4_a1","soabg4_a2","soabg5_a1","soabg5_a2" /)
+     vara =  (/"soaff1_c1","soaff1_c2","soaff2_c1","soaff2_c2","soaff3_c1","soaff3_c2","soaff4_c1","soaff4_c2","soaff5_c1","soaff5_c2",\
+               "soabb1_c1","soabb1_c2","soabb2_c1","soabb2_c2","soabb3_c1","soabb3_c2","soabb4_c1","soabb4_c2","soabb5_c1","soabb5_c2",\
+               "soabg1_c1","soabg1_c2","soabg2_c1","soabg2_c2","soabg3_c1","soabg3_c2","soabg4_c1","soabg4_c2","soabg5_c1","soabg5_c2" /)
+     aer(ca) = "mam3"
+    end if
+    if (isfilevar(inptr,"soa1_a1") .and. isfilevar(inptr,"soa1_a2")) then
+     delete(varsoa)
+     mw(i) = 250.
+     varsoa =  (/"soa_a1","soa_a2","soa2_a1","soa2_a2","soa3_a1","soa3_a2","soa4_a1","soa4_a2","soa5_a1","soa5_a2"/)
+     vara =  (/"soa1_c1","soa1_c2","soa2_c1","soa2_c2","soa3_c1","soa3_c2","soa4_c1","soa4_c2","soa5_c1","soa5_c2"/)
+     aer(ca) = "mam3"
+    end if
   end if
    if vars(i).eq."DUST" then
          if (isfilevar(inptr,"DST01") .and. isfilevar(inptr,"DST02") .and. isfilevar(inptr,"DST03") .and. isfilevar(inptr,"DST04")) then
@@ -266,6 +290,13 @@ aer = new(2,"string")
            delete(varsoa)
            varsoa = (/"pom_a1","pom_a4"/)
            vara = (/"pom_c1","pom_c4"/)
+           aer(ca) = "mam3"
+          end if
+           if (isfilevar(inptr,"pomff1_a1") .and. isfilevar(inptr,"pomff1_a4")) then
+           delete(vara)
+           delete(varsoa)
+           varsoa =  (/"pomff1_a1","pomff1_a4","pombb1_a1","pombb1_a4"/)
+           vara =  (/"pomff1_c1","pomff1_c4","pombb1_c1","pombb1_c4"/)
            aer(ca) = "mam3"
           end if
          end if
@@ -547,7 +578,6 @@ aer = new(2,"string")
    end if
 
 
-
  
 
 ; CASE 1 MODEL
@@ -638,6 +668,7 @@ aer = new(2,"string")
 
  if (compare .ne. "OBS") then
 ; CASE 2 MODEL
+ 
   vaqu2 = vcaqa2 + vcaqb2
   delp2=(/vint2/)
   ddd2=dimsizes(delp2)
@@ -707,7 +738,12 @@ aer = new(2,"string")
    if (all(ismissing(tbchmp2)) .or. all(ismissing(tddf2)) .or. all(ismissing(tdwf2))) then
       lifet2=0. 
    else
-     lifet2 = tbvar2/(tbchmp2+tddf2-tdwf2 + tbaqu2+tbnuc2)*365.
+   ; lifet2 = tbvar2/(tbchmp2+tddf2-tdwf2 + tbaqu2+tbnuc2)*365.
+    if (tddf2-tdwf2).ne.0. then
+     lifet2 = tbvar2/(tddf2-tdwf2)*365
+    else 
+      lifet2=0. 
+    end if
    end if 
   end if
  

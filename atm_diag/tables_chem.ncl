@@ -94,8 +94,8 @@ ntime1 = dimsizes(time1)
 	end if 
 
 	aerod1 = new((/ntime1,nlat1,nlon1/),"float")
-	if (isfilevar(inptr1, "AEROD_v"))
-	aerod1  = inptr1->AEROD_v
+	if (isfilevar(inptr1, "AODVIS"))
+	aerod1  = inptr1->AODVIS
 	else
 	aerod1 = 0.
 	end if
@@ -110,7 +110,7 @@ ntime1 = dimsizes(time1)
 	delete(dst3)
 	delete(dst4)
 	delete(dst1)
-delete(dst2)
+        delete(dst2)
 	end if
 	if (isfilevar(inptr1, "AODDUST1").and.isfilevar(inptr1, "AODDUST2").and.isfilevar(inptr1, "AODDUST3"))
 	dst1 = inptr1->AODDUST1
@@ -119,8 +119,27 @@ delete(dst2)
 	dst11 = dst1+dst2+dst3
 	delete(dst1)
 	delete(dst2)
-delete(dst3)
+        delete(dst3)
+        else
+	 if (isfilevar(inptr1, "AODDUST"))
+	 dst1 = inptr1->AODDUST
+	 dst11 = dst1
+	 delete(dst1)
+	 end if 
 	end if 
+        dlon1=360./nlon1
+        coffa=pi*re^2./180.
+        area1 = aerod1
+        area1 = 1.
+        area1 = area1 + aerod1*0.
+        do ii=0,dimsizes(gw1)-1
+          aerod1(:,ii,:)=aerod1(:,ii,:)*coffa*dlon1*gw1(ii)
+          dst11(:,ii,:)=dst11(:,ii,:)*coffa*dlon1*gw1(ii)
+          area1(:,ii,:)=area1(:,ii,:)*coffa*dlon1*gw1(ii)
+        end do
+        taerod1 = sum(aerod1)/sum(area1)
+        tdst11 = sum(dst11)/sum(area1)
+        delete(area1)
 
 	ps1 = inptr1->PS
 	if (isfilevar(inptr1,"O3")) then
@@ -189,8 +208,8 @@ ntime2 = dimsizes(time2)
 	cochm2 = 0.
 	end if 
 	aerod2 = new((/ntime2,nlat2,nlon2/),"float")
-	if (isfilevar(inptr2, "AEROD_v"))
-	aerod2  = inptr2->AEROD_v
+	if (isfilevar(inptr2, "AODVIS"))
+	aerod2  = inptr2->AODVIS
 	else
 	aerod2 = 0.
 	end if
@@ -215,8 +234,28 @@ delete(dst4)
 	dst22 = dst1+dst2+dst3
 	delete(dst1)
 	delete(dst2)
-delete(dst3)
+        delete(dst3)
+        else
+	 if (isfilevar(inptr2, "AODDUST"))
+	 dst1 = inptr2->AODDUST
+	 dst22 = dst1
+	 delete(dst1)
+	 end if 
 	end if
+        dlon2=360./nlon2
+        coffa=pi*re^2./180.
+        area2 = aerod2
+        area2 = 1.
+        area2 = area2 + aerod2*0.
+        do ii=0,dimsizes(gw2)-1
+          aerod2(:,ii,:)=aerod2(:,ii,:)*coffa*dlon2*gw2(ii)
+          dst22(:,ii,:)=dst22(:,ii,:)*coffa*dlon2*gw2(ii)
+          area2(:,ii,:)=area2(:,ii,:)*coffa*dlon2*gw2(ii)
+        end do
+        taerod2 = sum(aerod2)/sum(area2)
+        tdst22 = sum(dst22)/sum(area2)
+        delete(area2)
+
 
 	ps2 = inptr2->PS
 	if (isfilevar(inptr2,"O3")) then
@@ -277,21 +316,21 @@ p21 = pres_hybrid_ccm(ps2,p0,ha21,hb21)
 	vint1 = new((/ntime1,nlev1,nlat1,nlon1/),"float")
 	vint1(:,:,:,:) = 0.
 	end if 
-	if (isfilevar(inptr1,vchml)) then
-	chml1=inptr1->$vchml$
+	if (isfilevar(inptr1,vchmll)) then
+	chml1=inptr1->$vchmll$
 	else
-	 if (isfilevar(inptr1,vchmll)) then
-	  chml1=inptr1->$vchmll$
+	 if (isfilevar(inptr1,vchml)) then
+	  chml1=inptr1->$vchml$
  	 else
 	  chml1 = new((/ntime1,nlev1,nlat1,nlon1/),"float")
 	  chml1(:,:,:,:) = 0.
          end if
 	end if 
-	if (isfilevar(inptr1,vchmp)) then
-	chmp1=inptr1->$vchmp$
+	if (isfilevar(inptr1,vchmpp)) then
+	chmp1=inptr1->$vchmpp$
 	else
-	  if (isfilevar(inptr1,vchmpp)) then
-	   chmp1=inptr1->$vchmpp$
+	  if (isfilevar(inptr1,vchmp)) then
+	   chmp1=inptr1->$vchmp$
 	  else
 	   chmp1 = new((/ntime1,nlev1,nlat1,nlon1/),"float")
 	   chmp1(:,:,:,:) = 0.
@@ -375,8 +414,6 @@ p21 = pres_hybrid_ccm(ps2,p0,ha21,hb21)
 	tbchml1 = sum(bchml1)*86400.*365.*factor(i)
 	temis1 = sum(emis1)*86400.*365.*1e-9*factor(i)
 	tdf1 = sum(df1)*86400.*365.*1e-9*factor(i)
-	taerod1 = dim_avg_n(aerod1,(/1,2/))
-        tdst11 = dim_avg_n(dst11,(/1,2/))	
 	if vars(i).eq."O3" then 
 	if (isfilevar(inptr1,"O3")) then
 	 do ii=0,ddd1(2)-1
@@ -413,22 +450,22 @@ p21 = pres_hybrid_ccm(ps2,p0,ha21,hb21)
 	vint2 = new((/ntime2,nlev2,nlat2,nlon2/),"float")
 	vint2(:,:,:,:) = 0.
 	end if
-	if (isfilevar(inptr2,vchml)) then
-	chml2=inptr2->$vchml$
+	if (isfilevar(inptr2,vchmll)) then
+	chml2=inptr2->$vchmll$
 	else
-	 if (isfilevar(inptr2,vchmll)) then
-	  chml2=inptr2->$vchmll$
+	 if (isfilevar(inptr2,vchml)) then
+	  chml2=inptr2->$vchml$
  	 else
 	  chml2 = new((/ntime2,nlev2,nlat2,nlon2/),"float")
 	  chml2(:,:,:,:) = 0.
          end if
 	end if
 	;if i.eq.2 then
-	if (isfilevar(inptr2,vchmp)) then
-	chmp2=inptr2->$vchmp$
+	if (isfilevar(inptr2,vchmpp)) then
+	chmp2=inptr2->$vchmpp$
 	else
-	  if (isfilevar(inptr2,vchmpp)) then
-	   chmp2=inptr2->$vchmpp$
+	  if (isfilevar(inptr2,vchmp)) then
+	   chmp2=inptr2->$vchmp$
 	  else
 	   chmp2 = new((/ntime2,nlev2,nlat2,nlon2/),"float")
 	   chmp2(:,:,:,:) = 0.
@@ -495,7 +532,6 @@ p21 = pres_hybrid_ccm(ps2,p0,ha21,hb21)
         end if
 
   coo2=new((/ddd2(2)/),float)
- dst22 = dim_avg_n(dst22,(/1,2/))
  do ii=0, ddd2(2)-1
    coo2(ii) = gw2(ii)*(2.*pi/nlon2)*re^2.
   end do
@@ -511,8 +547,6 @@ p21 = pres_hybrid_ccm(ps2,p0,ha21,hb21)
  tbchml2 = sum(bchml2)*86400.*365.*factor(i)
  temis2 = sum(emis2)*86400.*365.*1e-9*factor(i)
  tdf2 = sum(df2)*86400.*365.*1e-9*factor(i)
- taerod2 = dim_avg_n(aerod2,(/1,2/))
- tdst22 = dim_avg_n(dst22,(/1,2/))
   if (isfilevar(inptr2,"O3")) then
    if vars(i).eq."O3" then
    do ii=0,ddd2(2)-1
@@ -636,17 +670,21 @@ end do
 global((i-1)*5+3,0)=  tlno_prod1
 if (compare .ne. "OBS") then
  global((i-1)*5+3,1)=  tlno_prod2
- global((i-1)*5+3,2) = global(5*(i-1)+2,1) - global(5*(i-1)+2,0)           ; diff
+ global((i-1)*5+3,2) = global(5*(i-1)+3,1) - global(5*(i-1)+3,0)           ; diff
 end if
 global((i-1)*5+4,0)=  taerod1
 if (compare .ne. "OBS") then
  global((i-1)*5+4,1)=  taerod2
- global((i-1)*5+4,2) = global(5*(i-1)+3,1) - global(5*(i-1)+3,0)           ; diff
+ global((i-1)*5+4,2) = global(5*(i-1)+4,1) - global(5*(i-1)+4,0)           ; diff
+ delete(aerod2)
+ delete(taerod2)
 end if
 global((i-1)*5+5,0)=  tdst11
 if (compare .ne. "OBS") then
  global((i-1)*5+5,1)=  tdst22
- global((i-1)*5+5,2) = global(5*(i-1)+4,1) - global(5*(i-1)+4,0)           ; diff
+ global((i-1)*5+5,2) = global(5*(i-1)+5,1) - global(5*(i-1)+5,0)           ; diff
+ delete(dst22)
+ delete(tdst22)
 end if
 
 ; PRINTT THE TABLES
