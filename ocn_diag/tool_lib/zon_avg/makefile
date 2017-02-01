@@ -4,8 +4,8 @@
 
 FC = ifort
 FFLAGS = -c -g -O2
-INCLUDE = -I/glade/apps/opt/netcdf/4.2/intel/12.1.5/include
-LIBS = -L/glade/apps/opt/netcdf/4.2/intel/12.1.5/lib -lnetcdff -lnetcdf
+INCLUDE = -I/glade/u/apps/ch/opt/netcdf/4.4.1.1/intel/16.0.3/include
+LIBS = -L/glade/u/apps/ch/opt/netcdf/4.4.1.1/intel/16.0.3/lib -lnetcdff -lnetcdf
 
 .SUFFIXES:            # Delete the default suffixes
 .SUFFIXES: .F .F90 .o # Define our suffix list

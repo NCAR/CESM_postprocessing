@@ -136,6 +136,22 @@
 	     desc="If TRUE, create only complete chunks of variable timeseries data files as determined by the env_timeseries.xml tseries_filecat_tper and tseries_filecat_n elements. If FALSE, then incomplete chunks of variable timeseries data will be created and appended to upon subsequent running of the timeseries script. Default is TRUE."
 	     ></entry> 
 
+      <entry id="TIMESERIES_INPUT_ROOTDIR" 
+	     type="string"
+	     valid_values="/glade/scratch/$USER/archive/$CASE, $DOUT_S_ROOT"  
+	     value="$DOUT_S_ROOT" 
+	     group="postprocess"
+	     desc="Fully-qualified rootdir path to input raw history time-slice data. Note: [compname]/hist will be appended automatically."
+	     ></entry> 
+
+      <entry id="TIMESERIES_OUTPUT_ROOTDIR" 
+	     type="string"
+	     valid_values="/glade/scratch/$USER/archive/$CASE, $DOUT_S_ROOT"  
+	     value="$DOUT_S_ROOT" 
+	     group="postprocess"
+	     desc="Fully-qualified rootdir path to output variable time series data files. Note: [compname]/proc/tseries/[tper] will be appended automatically."
+	     ></entry> 
+
       <entry id="GENERATE_AVGS_ATM"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
