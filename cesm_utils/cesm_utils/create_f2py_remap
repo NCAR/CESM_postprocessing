@@ -153,7 +153,7 @@ def main(options):
     # call the f2py command as a subprocess
     try:
         subprocess.check_call(f2pyCall)
-    except subprocess.calledProcessError as e:
+    except subprocess.CalledProcessError as e:
         print('ERROR: create_f2py_remap subprocess call to {1} failed with error:'.format(e.cmd))
         print('    {0} - {1}'.format(e.returncode, e.output))
         sys.exit(1)

@@ -76,13 +76,14 @@ def commandline_options():
 #==============================================================================================
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
 #==============================================================================================
-def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, debug, debugMsg):
+def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone, completechunk, debug, debugMsg):
     """ reads the $CASEROOT/env_timeseries.xml file and builds a fully defined list of 
          reshaper specifications to be passed to the pyReshaper tool.
 
     Arguments:
     caseroot (string) - case root path
-    dout_s_root (string) - short term archive root path
+    input_rootdir (string) - rootdir to input raw history files
+    output_rootdir (string) - rootdir to output single variable time series files
     casename (string) - casename
     standalone (boolean) - logical to indicate if postprocessing case is stand-alone or not
     completechunk (boolean) - end on a ragid boundary if True.  Otherwise, do not create incomplete chunks if False
@@ -145,7 +146,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
 
                         # get a list of all the input files for this stream from the archive location
                         history_files = list()
-                        in_file_path = '/'.join( [dout_s_root,rootdir,subdir] )                        
+                        in_file_path = '/'.join( [input_rootdir,rootdir,subdir] )                        
 
                         # get XML tseries elements for chunking
                         if file_spec.find("tseries_tper") is not None:
@@ -166,7 +167,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                         # the tseries_tper should be set in using the time_period_freq global file attribute if it exists
                         if time_period_freq is not None:
                             tseries_tper = time_period_freq
-                        tseries_output_dir = '/'.join( [dout_s_root, rootdir, 'proc/tseries', tseries_tper] )
+                        tseries_output_dir = '/'.join( [output_rootdir, rootdir, 'proc/tseries', tseries_tper] )
                         debugMsg("tseries_output_dir = {0}".format(tseries_output_dir), header=True)
 
                         if not os.path.exists(tseries_output_dir):
@@ -196,6 +197,8 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                             if "year" in tseries_tper:
                                 tseries_output_suffix = "."+start_time_parts[0]+"-"+last_time_parts[0]+".nc"
                             elif "month" in tseries_tper:
+                                tseries_output_suffix = "."+start_time_parts[0]+start_time_parts[1]+"-"+last_time_parts[0]+last_time_parts[1]+".nc"
+                            elif "day" in tseries_tper:
                                 tseries_output_suffix = "."+start_time_parts[0]+start_time_parts[1]+start_time_parts[2]+"-"+last_time_parts[0]+last_time_parts[1]+last_time_parts[2]+".nc"
                             elif any(freq_string in tseries_tper for freq_string in freq_array):
                                 tseries_output_suffix = "."+start_time_parts[0]+start_time_parts[1]+start_time_parts[2]+start_time_parts[3]+"-"+last_time_parts[0]+last_time_parts[1]+last_time_parts[2]+last_time_parts[3]+".nc"
@@ -225,7 +228,6 @@ def readArchiveXML(caseroot, dout_s_root, casename, standalone, completechunk, d
                             specifiers.append(spec)
     return specifiers,log
 
-
 def divide_comm(scomm, l_spec):
   
     '''
@@ -243,33 +245,32 @@ def divide_comm(scomm, l_spec):
     '''
     min_procs_per_spec = 16
     size = scomm.get_size()
-    rank = scomm.get_rank()-1
+    rank = scomm.get_rank()
+
+    if l_spec == 1:
+        num_of_groups = 1
+    else:
+        num_of_groups = size/min_procs_per_spec
+    if l_spec < num_of_groups:
+        num_of_groups = l_spec
+
 
     # the global master needs to be in its own subcommunicator
     # ideally it would not be in any, but the divide function 
     # requires all ranks to participate in the call
-    if rank == -1:
-        group = ((size/min_procs_per_spec)%l_spec)+1
-        if l_spec == 1:
-            num_of_groups = 1
-        else:
-            num_of_groups = (size/min_procs_per_spec)
+    if rank == 0:
+        temp_color = 0
     else:
-        temp_color = (rank // min_procs_per_spec) % l_spec
-        if l_spec == 1:
-            num_of_groups = 1
-        else:
-            num_of_groups = (size/min_procs_per_spec)
-        if (temp_color == num_of_groups):
-            temp_color = temp_color - 1
-        groups = []
-        for g in range(0,num_of_groups+1):
-            groups.append(g)
-        group = groups[temp_color]
-    
+        temp_color = (rank % num_of_groups)+1 
+    groups = []
+    for g in range(0,num_of_groups+1):
+        groups.append(g)
+    group = groups[temp_color]
+     
     inter_comm,multi_comm = scomm.divide(group)
 
     return inter_comm,num_of_groups
+
 #======
 # main
 #======
@@ -292,19 +293,22 @@ def main(options, scomm, rank, size, debug, debugMsg):
 
     # loading the specifiers from the env_timeseries.xml  only needs to run on the master task (rank=0) 
     if rank == 0:
-        dout_s_root = cesmEnv['DOUT_S_ROOT'] 
+        tseries_input_rootdir = cesmEnv['TIMESERIES_INPUT_ROOTDIR'] 
+        tseries_output_rootdir = cesmEnv['TIMESERIES_OUTPUT_ROOTDIR'] 
         case = cesmEnv['CASE']
         completechunk = cesmEnv['TIMESERIES_COMPLETECHUNK']
         if completechunk.upper() in ['T','TRUE']:
             completechunk = 1
         else:
             completechunk = 0
-        specifiers,log = readArchiveXML(caseroot, dout_s_root, case, options.standalone, 
-                                        completechunk, debug, debugMsg)
+        specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir, 
+                                        case, options.standalone, completechunk, debug, debugMsg)
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
     specifiers = scomm.partition(specifiers, func=partition.Duplicate(), involved=True)
+    if rank == 0:
+        debugMsg("# of Specifiers: "+str(len(specifiers)), header=True, verbosity=1)
 
     if len(specifiers) > 0:
         # setup subcommunicators to do streams and chunks in parallel
@@ -336,6 +340,7 @@ def main(options, scomm, rank, size, debug, debugMsg):
                     reshpr = reshaper.create_reshaper(specifiers[i], serial=False, verbosity=debug, simplecomm=inter_comm)
                     # Run the conversion (slice-to-series) process 
                     reshpr.convert()
+                inter_comm.sync()
 
         # all subcomm ranks - recv the specifier to work on and call the reshaper
         else:
@@ -347,6 +352,7 @@ def main(options, scomm, rank, size, debug, debugMsg):
                     reshpr = reshaper.create_reshaper(specifiers[i], serial=False, verbosity=debug, simplecomm=inter_comm)
                     # Run the conversion (slice-to-series) process 
                     reshpr.convert()
+                inter_comm.sync()
 
     if rank == 0:
         # Update system log with the dates that were just converted 

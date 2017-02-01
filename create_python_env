@@ -212,7 +212,7 @@ echo "$progname - Compiling ocn diagnostics remap.so"
 # reads XML and call subprocess f2py
 create_f2py_remap --machine $machine
 if [ $? -ne 0 ]; then
-    echo "WARNING: Problem the ocean diagnostics create_f2py_remap in $pp_dir"
+    echo "WARNING: Problem with ocean diagnostics create_f2py_remap in $pp_dir"
 fi
 
 #----------------------------------------------------------------------
