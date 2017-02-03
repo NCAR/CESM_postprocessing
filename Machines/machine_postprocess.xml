@@ -14,7 +14,6 @@
       <include>-I/glade/apps/opt/netcdf/4.2/intel/12.1.5/include</include>
       <libs>-L/glade/apps/opt/netcdf/4.2/intel/12.1.5/lib -lnetcdff -lnetcdf</libs>
     </za>
-    <project></project>
     <reset_modules>
       <module>module restore system</module>
       <module>module load python/2.7.7</module>
@@ -72,7 +71,6 @@
       <include>-I/glade/u/apps/ch/opt/netcdf/4.4.1.1/intel/16.0.3/include</include>
       <libs>-L/glade/u/apps/ch/opt/netcdf/4.4.1.1/intel/16.0.3/lib -lnetcdff -lnetcdf</libs>
     </za>
-    <project></project>
     <reset_modules>
       <module>module restore system</module>
       <module>module load python/2.7.13</module>
@@ -131,7 +129,6 @@
       <include>-I-I/opt/cray/netcdf/4.3.2/INTEL/140/include</include>
       <libs>-L/opt/cray/netcdf/4.3.2/INTEL/140/lib -lnetcdff -L/opt/cray/hdf5/1.8.13/INTEL/140/lib -lnetcdf</libs>
     </za>
-    <project></project>
     <reset_modules>
       <module>module restore system</module>
       <module>module load python/2.7.7</module>

@@ -135,6 +135,9 @@ def commandline_options():
     parser.add_argument('-cesmtag', '--cesmtag', nargs=1, required=False,
                         help='CESM repository tag (optional)')
 
+    parser.add_argument('-project', '--project', nargs=1, required=False,
+                        help='Project code (optional). This setting will override the environment variable setting.')
+
     options = parser.parse_args()
         
     return options
@@ -289,11 +292,6 @@ def read_machine_xml(machineName, xmlFile):
             machine['pythonpath'] = xmlmachine.find('pythonpath').text
             if machine['pythonpath'] is None:
                 machine['pythonpath'] = ''
-
-            # get the project from the XML first then override with env setting
-            machine['project'] = xmlmachine.find('project').text
-            if os.getenv('PROJECT') is not None:
-                machine['project'] = os.getenv('PROJECT')
 
             # loop through the reset_module list
             for mod in xmlmachine.findall("reset_modules/module"):
@@ -490,6 +488,11 @@ def initialize_main(envDict, options, standalone):
     if options.cesmtag:
         envDict['CESM_TAG'] = options.cesmtag[0]
 
+    # set the project code
+    envDict['PROJECT'] = os.getenv('PROJECT')
+    if options.project:
+        envDict['PROJECT'] = options.project[0]
+
     return envDict
 
 # -------------------------------------------------------------------------------
@@ -591,7 +594,7 @@ def main(options):
     outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
 
     create_batch(envDict['POSTPROCESS_PATH'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
-                 machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
+                 machine['mpi_command'], outFile, processName, envDict['PROJECT'], machine['pythonpath'], 
                  envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'], 
                  machine['timeseries_queue'], machine['timeseries_ppn'], machine['timeseries_nodes'], 
                  machine['timeseries_wallclock'], options, standalone)
@@ -604,7 +607,7 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, 
                      run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
-                     machine['project'], machine['pythonpath'], envDict['PP_CASE_PATH'], 
+                     envDict['PROJECT'], machine['pythonpath'], envDict['PP_CASE_PATH'], 
                      machine['reset_modules'], machine['modules'], machine['{0}_averages_queue'.format(comp)], 
                      machine['{0}_averages_ppn'.format(comp)], machine['{0}_averages_nodes'.format(comp)], 
                      machine['{0}_averages_wallclock'.format(comp)], options, standalone)
@@ -615,7 +618,7 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, 
                      run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
-                     machine['project'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
+                     envDict['PROJECT'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
                      machine['reset_modules'], machine['modules'], 
                      machine['{0}_diagnostics_queue'.format(comp)],
                      machine['{0}_diagnostics_ppn'.format(comp)], 
@@ -630,7 +633,7 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_regrid_pes'.format(comp)], batch_tmpl, 
                      run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
-                     machine['project'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
+                     envDict['PROJECT'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
                      machine['reset_modules'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
                      machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_nodes'.format(comp)],
                      machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
