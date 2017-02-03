@@ -19,7 +19,7 @@ import subprocess
 try:
     import lxml.etree as etree
 except:
-    import xml.etree.ElementTree as ET
+    import xml.etree.ElementTree as etree
 
 re_val = re.compile(r'\$(\{([A-Za-z0-9_]+)\}|[A-Za-z0-9_]+)')
 
@@ -58,7 +58,7 @@ def readXML(casedir, env_file_list):
   for efile in env_file_list:
     env_file = '{0}/{1}'.format(casedir, efile)
     if os.path.isfile(env_file):
-      xml_tree = ET.ElementTree()
+      xml_tree = etree.ElementTree()
       xml_tree.parse(env_file)
       for entry_tag in xml_tree.findall('entry'):
         output[entry_tag.get('id')] = entry_tag.get('value')
@@ -220,7 +220,7 @@ def get_machine_name(hostname, xmlFile):
     machine = None
     rc, err_msg = checkFile(xmlFile, 'read')
     if rc:
-        xml_tree = ET.ElementTree()
+        xml_tree = etree.ElementTree()
         xml_tree.parse(xmlFile)
 
         # find the matching machine name
