@@ -47,8 +47,6 @@ if sys.version_info[0] == 2:
     from ConfigParser import SafeConfigParser as config_parser
 else:
     from configparser import ConfigParser as config_parser
-
-# STARTHERE to get the machine from the arglist...
 #
 # import modules installed in the virtual environment
 #
@@ -112,7 +110,7 @@ def read_machine_xml(machineName, xmlFile):
                 xmlDict["f2py"] = f2py.text
                 xmlDict["fcompiler"] = f2py.get("fcompiler")
                 xmlDict["f77exec"] = f2py.get("f77exec")
-
+                xmlDict["f90exec"] = f2py.get("f90exec")
         if not found:
             err_msg = ('create_f2py_remap ERROR: Invalid machine "{0}" requested for postprocessing'.format(machineName))
             raise OSError(err_msg)
@@ -141,8 +139,13 @@ def main(options):
     os.chdir('{0}/ocn_diag/eco_lib'.format(ppdir))
 
     # construct the f2py call list
-    f2pyCall = ['{0}'.format(f2pyDict['f2py']), '-c', '--fcompiler={0}'.format(f2pyDict['fcompiler']), 
-                '--f77exec={0}'.format(f2pyDict['f77exec']),'-m', 'remap', 'remap.f']
+    if len(f2pyDict["f90exec"]) > 0:
+        f2pyCall = ['{0}'.format(f2pyDict['f2py']), '-c', '--fcompiler={0}'.format(f2pyDict['fcompiler']), 
+                    '--f77exec={0}'.format(f2pyDict['f77exec']), '--f90exec={0}'.format(f2pyDict['f90exec']),
+                    '-m', 'remap', 'remap.f']
+    else:
+        f2pyCall = ['{0}'.format(f2pyDict['f2py']), '-c', '--fcompiler={0}'.format(f2pyDict['fcompiler']), 
+                    '--f77exec={0}'.format(f2pyDict['f77exec']),'-m', 'remap', 'remap.f']
 
     # remove the remap.so if it already exists
     try:

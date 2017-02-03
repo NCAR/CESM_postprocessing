@@ -39,7 +39,7 @@
 
 #PBS -N {{ processName }}
 #PBS -q {{ queue }}
-#PBS -l select=2:ncpus={{ ppn }}:mpiprocs={{ pes }}
+#PBS -l select={{ nodes }}:ncpus={{ ppn }}:mpiprocs={{ ppn }}
 #PBS -l walltime={{ wallclock }}
 #PBS -A {{ project }}
 
