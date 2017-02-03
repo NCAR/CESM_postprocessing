@@ -16,7 +16,6 @@
   <xs:element name="module" type="xs:string" />
   <xs:element name="mpi_command" type="xs:string"/>
   <xs:element name="pythonpath" type="xs:string"/>
-  <xs:element name="project" type="xs:string"/>
   <xs:element name="obs_root" type="xs:string"/>
   <xs:element name="compiler" type="xs:string"/>
   <xs:element name="flags" type="xs:string"/>
@@ -143,7 +142,6 @@
 	<xs:element ref="pythonpath" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="f2py" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="za" minOccurs="0" maxOccurs="1"/>
-	<xs:element ref="project" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="modules" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="components" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
