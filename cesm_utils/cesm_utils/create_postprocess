@@ -281,7 +281,9 @@ def read_machine_xml(machineName, xmlFile):
             machine['timeseries_pes'] = tseries_pes.text
             machine['timeseries_queue'] = tseries_pes.get('queue').lower()
             machine['timeseries_ppn'] = tseries_pes.get('pes_per_node').lower()
-            machine['timeseries_nodes'] = tseries_pes.get('nodes').lower()
+            machine['timeseries_nodes'] = ''
+            if 'nodes' in tseries_pes.attrib:
+                machine['timeseries_nodes'] = tseries_pes.get('nodes').lower()
             machine['timeseries_wallclock'] = tseries_pes.get('wallclock').lower()
 
 
@@ -309,14 +311,18 @@ def read_machine_xml(machineName, xmlFile):
                 avg = comp.find('averages_pes')
                 machine['{0}_averages_pes'.format(compName)] = avg.text
                 machine['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
-                machine['{0}_averages_nodes'.format(compName)] = avg.get('nodes').lower()
+                machine['{0}_averages_nodes'.format(compName)] = ''
+                if 'nodes' in avg.attrib:
+                    machine['{0}_averages_nodes'.format(compName)] = avg.get('nodes').lower()
                 machine['{0}_averages_ppn'.format(compName)] = avg.get('pes_per_node').lower()
                 machine['{0}_averages_wallclock'.format(compName)] = avg.get('wallclock').lower()
 
                 diags = comp.find('diagnostics_pes')
                 machine['{0}_diagnostics_pes'.format(compName)] = diags.text
                 machine['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
-                machine['{0}_diagnostics_nodes'.format(compName)] = diags.get('nodes').lower()
+                machine['{0}_diagnostics_nodes'.format(compName)] = ''
+                if 'nodes' in diags.attrib:
+                    machine['{0}_diagnostics_nodes'.format(compName)] = diags.get('nodes').lower()
                 machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
                 machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
 
@@ -324,7 +330,9 @@ def read_machine_xml(machineName, xmlFile):
                 if regrid is not None:
                     machine['{0}_regrid_pes'.format(compName)] = regrid.text
                     machine['{0}_regrid_queue'.format(compName)] = regrid.get('queue').lower()
-                    machine['{0}_regrid_nodes'.format(compName)] = regrid.get('nodes').lower()
+                    machine['{0}_regrid_nodes'.format(compName)] = ''
+                    if 'nodes' in regrid.attrib:
+                        machine['{0}_regrid_nodes'.format(compName)] = regrid.get('nodes').lower()
                     machine['{0}_regrid_ppn'.format(compName)] = regrid.get('pes_per_node').lower()
                     machine['{0}_regrid_wallclock'.format(compName)] = regrid.get('wallclock').lower()
                         
