@@ -110,7 +110,9 @@ def read_machine_xml(machineName, xmlFile):
                 xmlDict["f2py"] = f2py.text
                 xmlDict["fcompiler"] = f2py.get("fcompiler")
                 xmlDict["f77exec"] = f2py.get("f77exec")
-                xmlDict["f90exec"] = f2py.get("f90exec")
+                xmlDict["f90exec"] = ''
+                if 'f90exec' in f2py.attrib:
+                    xmlDict["f90exec"] = f2py.get("f90exec")
         if not found:
             err_msg = ('create_f2py_remap ERROR: Invalid machine "{0}" requested for postprocessing'.format(machineName))
             raise OSError(err_msg)
