@@ -8,7 +8,7 @@
 #BSUB -q geyser
 #BSUB -N
 #BSUB -a poe
-#BSUB -J CESM_postprocessing
+#BSUB -J ration_script
 #BSUB -W 00:02
 #BSUB -P P93300606 
 
@@ -16,7 +16,11 @@
 
 export MP_LABELIO=yes
 
+module load python/2.7.7
+
 . /glade/p/work/aliceb/sandboxes/dev/postprocessing/cesm-env2/bin/activate
+
+module load mpi4py/2.0.0
 
 mpirun.lsf ./ration_example.py >> ./ration.log
 

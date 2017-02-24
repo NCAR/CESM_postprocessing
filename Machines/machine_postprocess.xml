@@ -6,7 +6,7 @@
     <!-- restricting to geyser for CMIP6 and problem with scaling of the chunking -->
     <timeseries_pes queue="geyser" pes_per_node="4" wallclock="02:00">32</timeseries_pes>
     <mpi_command>mpirun.lsf</mpi_command>
-    <pythonpath></pythonpath>
+    <pythonpath>/glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/lib/python2.7/site-packages</pythonpath>
     <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
     <za>
       <compiler>ifort</compiler>
@@ -29,7 +29,6 @@
       <module>module load netcdf/4.3.0</module>
       <module>module load nco/4.4.4</module>
       <module>module load netcdf4python/1.1.1</module>
-      <module>module load cf_units/1.1</module>
       <module>module use /glade/apps/contrib/ncl-nightly/modules</module>
       <module>module load ncltest-intel</module>
     </modules>
