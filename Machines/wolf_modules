@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo "Python boot-strap modules for machine wolf"
+
+export LD_LIBRARY_PATH='/usr/lib64'
+source /usr/share/Modules/init/bash
+
+module purge
+module use /usr/projects/climate/SHARED_CLIMATE/modulefiles/all
+module load python/anaconda-2.7-climate
+module load nco/4.4.5
+module load intel/15.0.5
+module load netcdf/4.4.0
+module load hdf5/1.8.16
+module load openmpi/1.6.5
+
+# prepend the virtualenv into the PATH
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/projects/climate/SHARED_CLIMATE/anaconda_envs/default-2.7/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/projects/climate/SHARED_CLIMATE/anaconda_envs/.pkgs/geos-3.4.2-4/lib/
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/projects/climate/SHARED_CLIMATE/anaconda_envs/.pkgs/mpi4py-2.0.0-py27_1/lib/python2.7/site-packages/mpi4py
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/projects/climate/SHARED_CLIMATE/anaconda_envs/.pkgs/numpy-1.10.4-py27_1/lib//python2.7/site-packages/numpy/
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/projects/climate/SHARED_CLIMATE/anaconda_envs/.pkgs/scipy-0.17.0-np110py27_2/lib/python2.7/site-packages/scipy/
+
+export PATH=$PATH:/usr/projects/cesm/milena/software/ncl-6.2.0/bin

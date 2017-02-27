@@ -16,10 +16,10 @@ import subprocess
 #
 # installed dependencies
 #
-try:
-    import lxml.etree as etree
-except:
-    import xml.etree.ElementTree as ET
+# try:
+#     import lxml.etree as etree
+# except:
+import xml.etree.ElementTree as ET
 
 re_val = re.compile(r'\$(\{([A-Za-z0-9_]+)\}|[A-Za-z0-9_]+)')
 

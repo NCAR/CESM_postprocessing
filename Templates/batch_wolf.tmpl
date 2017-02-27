@@ -1,0 +1,8 @@
+#MSUB -N {{ processName }}
+#MSUB -l procs={{ pes }}
+#MSUB -l walltime={{ wallclock }}
+#MSUB -A s11_climatehilat
+#MSUB -o {{ processName }}.stdout
+#MSUB -e {{ processName }}.stderr
+
+/bin/csh

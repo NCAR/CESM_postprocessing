@@ -1,0 +1,47 @@
+Changes made to get the create_python_env to execute properly
+WW Oct 3 2016
+
+Change jinja2==2.7.3 to jinja2>=2.7.3 in these files:
+
+diagnostics/requirements.txt
+
+Add file: Machines/wolf_modules
+
+Add explicit paths to certain library locations in wolf_modules:
+
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/projects/climate/SHARED_CLIMATE/anaconda_envs/default-2.7/lib
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/projects/climate/SHARED_CLIMATE/anaconda_envs/.pkgs/geos-3.4.2-4/lib/
+export LD_LIBRARY_PATH
+
+ocn_diag/tool_lib/zon_avg/makefile.wolf
+cp ocn_diag/tool_lib/zon_avg/makefile.wolf ocn_diag/tool_lib/zon_avg/makefile
+
+** No longer necessary, automatically grabs the compiler and its options using nc-config.
+
+The paths to the netcdf paths are implicitly assumed
+to be known by setting the module environment.
+
+./create_python_env -machine wolf
+
+Changes made to get the create_postprocess script to execute properly on Wolf:
+
+Add entry for wolf in:
+
+Machines/machine_postprocess.xml
+
+Add file:
+
+Templates/batch_wolf.tmpl
+
+Edit:
+/cesm_utils/cesm_utils/cesmEnvLib.py
+
+#try:
+#    import lxml.etree as etree
+#except:
+import xml.etree.ElementTree as ET
+
+
+./create_postprocess -caseroot /turquoise/usr/projects/climate/wilbert/HiLAT0.3_3/t32_NYF_Prod_Mus4 -debug 1 -backtrace
+
+
