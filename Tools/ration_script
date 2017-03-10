@@ -24,6 +24,13 @@ module load mpi4py/2.0.0
 
 mpirun.lsf ./ration_example.py >> ./ration.log
 
+status=$?
+echo $status
+
 deactivate
+
+echo $status
+
+
 
 
