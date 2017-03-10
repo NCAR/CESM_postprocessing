@@ -89,7 +89,12 @@ else:
 #
 from cesm_utils import cesmEnvLib, processXmlLib
 from asaptools import vprinter
+import jinja2
 
+# global variables
+_scripts = ['timeseries','averages','regrid','diagnostics']
+_machines = ['yellowstone','cheyenne','edison']
+_comps = ['atm','ice','lnd','ocn']
 
 # -------------------------------------------------------------------------------
 # User input
@@ -126,15 +131,111 @@ def commandline_options():
                         help=('print only the value of the variable.'
                               'Works in conjunction with the --get option'))
 
+    parser.add_argument('--getbatch', nargs=1, required=False, choices=_scripts,
+                        help='batch script option.')
+
+    parser.add_argument('-comp', '--comp', nargs=1, required=False, choices=_comps,
+                        help='batch script option.')
+
+    parser.add_argument('-machine', '--machine', nargs=1, required=False, choices=_machines,
+                        help='machine name used in conjunction with --getbatch option.')
+
     options = parser.parse_args()
     return options
 
 
 # -------------------------------------------------------------------------------
+# get_batch
+# -------------------------------------------------------------------------------
+def get_batch(pp_path, script, mach, comp, project, debugMsg):
+    """
+    print the batch directives only for given script and machine
+    """
+    found = False
+    mach_dict = dict()
+    xml_file = os.path.join(pp_path, 'Machines', 'machine_postprocess.xml')
+    xml_tree = etree.ElementTree()
+    xml_tree.parse(xml_file)
+    for xmlmachine in xml_tree.findall('machine'):
+        if mach.lower() == xmlmachine.get('name').lower():
+            if script == 'timeseries':
+                tseries_pes = xmlmachine.find('timeseries_pes')
+                pes = tseries_pes.text
+                queue = tseries_pes.get('queue').lower()
+                ppn = tseries_pes.get('pes_per_node').lower()
+                wallclock = tseries_pes.get('wallclock').lower()
+                nodes = ''
+                if 'nodes' in tseries_pes.attrib:
+                    nodes = tseries_pes.get('nodes').lower()
+                found = True
+            elif script in ['averages','regrid','diagnostics'] and len(comp) > 0:
+                for comp_xml in xmlmachine.findall("components/component"):
+                    compName = comp_xml.get("name").lower()
+
+                    if script == 'averages' and compName == comp:
+                        avg = comp_xml.find('averages_pes')
+                        pes = avg.text
+                        queue = avg.get('queue').lower()
+                        ppn = avg.get('pes_per_node').lower()
+                        wallclock = avg.get('wallclock').lower()
+                        nodes = ''
+                        if 'nodes' in avg.attrib:
+                            nodes = avg.get('nodes').lower()
+                        found = True
+
+                    if script == 'diagnostics' and compName == comp:
+                        diags = comp_xml.find('diagnostics_pes')
+                        pes = diags.text
+                        queue = diags.get('queue').lower()
+                        ppn = diags.get('pes_per_node').lower()
+                        wallclock = diags.get('wallclock').lower()
+                        nodes = ''
+                        if 'nodes' in diags.attrib:
+                            nodes = diags.get('nodes').lower()
+                        found = True
+
+                    if script == 'regrid' and compName == comp:
+                        regrid = comp_xml.find('regrid_pes')
+                        if regrid is not None:
+                            pes = regrid.text
+                            queue = regrid.get('queue').lower()
+                            ppn = regrid.get('pes_per_node').lower()
+                            wallclock = regrid.get('wallclock').lower()
+                            nodes = ''
+                            if 'nodes' in regrid.attrib:
+                                nodes = regrid.get('nodes').lower()
+                            found = True
+    
+    # load up the template and print it out
+    if found:
+        batchTmpl = 'cylc_batch_{0}.tmpl'.format(mach)
+        templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(pp_path) )
+        templateEnv = jinja2.Environment( loader=templateLoader )
+        template = templateEnv.get_template( batchTmpl )
+        templateVars = { 'pes' : pes,
+                         'queue' : queue,
+                         'nodes' : nodes,
+                         'processName' : script,
+                         'project' : project,
+                         'ppn' : ppn,
+                         'wallclock' : wallclock }
+
+        # render this template into the batchdirectives string
+        batchdirectives = template.render( templateVars )
+
+        # print the batchdirectives
+        print (batchdirectives)
+    else:
+        msg = "pp_config INFO: no matching XML records found for " \
+              "comp='{0}', script='{1}' on machine='{2}' in XML file='{3}'".format(comp, script, mach, xml_file)
+        print (msg)
+
+    return 0
+
+# -------------------------------------------------------------------------------
 # main
 # -------------------------------------------------------------------------------
 def main(options):
-
 
     debugMsg = vprinter.VPrinter(header='', verbosity=0)
     if options.debug:
@@ -144,7 +245,7 @@ def main(options):
     case_dir = options.caseroot[0]
     debugMsg("Using case directory : {0}".format(case_dir), header=True, verbosity=1)
     os.chdir(case_dir)
-
+    
     xml_filenames = glob.glob('*.xml')
 
     xml_trees = []
@@ -164,9 +265,7 @@ def main(options):
     for tree in xml_trees:
         xml_processor.xml_to_dict(tree, envDict)
 
-    #
     # 'get' user input
-    #
     if options.get:
         entry_id = options.get[0]
         if options.value:
@@ -174,9 +273,7 @@ def main(options):
         else:
             print("{0}={1}".format(entry_id, envDict[entry_id]))
 
-    #
     # 'set' user input
-    #
     if options.set:
         key_value = options.set[0].split('=')
         new_entry_id = key_value[0].strip()
@@ -190,8 +287,25 @@ def main(options):
 
         xml_processor.write(envDict, comp.lower(), new_entry_id, new_entry_value)
 
-if __name__ == "__main__":
+    # print out the batch information
+    if options.getbatch:
+        script = options.getbatch[0]
+        if not options.machine:
+            print("Option --getbatch requires a matching --machine option be specified")
+            return 1
+        mach = options.machine[0]
+        comp = ''
+        if script != 'timeseries':
+            if not options.comp:
+                print("Option --getbatch with script not set to 'timeseries' requires --comp option be spcified")
+                return 1
+            comp = options.comp[0]
+        get_batch(envDict['POSTPROCESS_PATH'], script, mach, comp, envDict['PROJECT'], debugMsg)
 
+    return 0
+
+# -------------------------------------------------------------------------------
+if __name__ == "__main__":
 
     try:
         options = commandline_options()
