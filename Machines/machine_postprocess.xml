@@ -29,8 +29,7 @@
       <module>module load netcdf/4.3.0</module>
       <module>module load nco/4.4.4</module>
       <module>module load netcdf4python/1.1.1</module>
-      <module>module use /glade/apps/contrib/ncl-nightly/modules</module>
-      <module>module load ncltest-intel</module>
+      <module>module load ncl/6.4.0</module>
     </modules>
     <components>
       <component name="atm">
