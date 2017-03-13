@@ -12,6 +12,14 @@ begin
   nlev    = 21
   missing = 1.0e30
 
+;; NOTE - for pop, the basin regions are always
+;; referenced by an index number, 1-14, with the
+;; region areas defined in the POP source code
+;; input_templates/[grid]_region_ids
+;; We are only interested in the regions listed
+;; below so want to subset the input fields 
+;; for just these basin index for these regions
+
   global   = 0
   atlantic = 6
   pacific  = 2 
@@ -65,7 +73,9 @@ begin
   do n=0,n_fields-1 
 
     fname = ListPop(field_name)
-    field = f_za->$fname$(0,:,:,:)
+;; just need the subset basin index of the second dimension
+;;    field = f_za->$fname$(0,:,:,:)
+    field = f_za->$fname$(0,0:6,:,:)
     field&z_t = z_t
     field@units = "km"
 
@@ -76,10 +86,11 @@ begin
       end if	
       field_obs = where(field_obs .lt. -50. .or. field_obs .gt. 1.e10,field_obs@_FillValue,field_obs)
       field_diff = field
+;; get just the basin index (region) in the first dimension
       if (isvar("ind_z_obs")) then
-        field_diff = field - field_obs(:,ind_z_obs,:)
+        field_diff = field - field_obs(0:6,ind_z_obs,:)
       else
-        field_diff = field - field_obs
+        field_diff = field - field_obs(0:6,:,:)
       end if
       units = "~S~o~N~C"
       dmin  =  -4.0
@@ -176,6 +187,7 @@ begin
         opt@do_panel = False
       end if
 
+;; field now has only 1 dimension 
       plot1 = yz_plot(wks,  field(region_index(m),:,:), lat_t, z_t, case_info, \
       missing, units, dlev, lev, coltab, opt)
 

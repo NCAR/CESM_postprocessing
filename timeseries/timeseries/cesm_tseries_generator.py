@@ -139,8 +139,8 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             raise TypeError(err_msg)
 
                         # load the tseries_time_variant_variables into a list
+                        variable_list = list()
                         if comp_archive_spec.find("tseries_time_variant_variables") is not None:
-                            variable_list = list()
                             for variable in comp_archive_spec.findall("tseries_time_variant_variables/variable"):
                                 variable_list.append(variable.text)
 

@@ -228,6 +228,7 @@ class modelVsObs(AtmosphereDiagnostic):
                      glob_set = plot_set.replace('_','')
                      plot_set = 'set5_6'
                  elif 'set_1' == plot_set or 'cset_1' == plot_set:
+                     print('DEBUG model_vs_obs: plot_set = %s' % plot_set)
                      glob_set = 'table_'
                      plot_set = plot_set.replace('_','')
                  elif 'sets' == plot_set:

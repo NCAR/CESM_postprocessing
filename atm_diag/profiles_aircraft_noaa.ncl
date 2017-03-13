@@ -216,7 +216,7 @@ do re = 0, nregions-1
    ; open obs data file
   if (vars(v).ne. "OH" .and. vars(v).ne."SAD_TROP" .and. vars(v).ne."CLOUD") then
 ;;    dir_in = "/glade/p/acd/tilmes/amwg/amwg_diag_20131004_work/obs_data/aircraft/"
-    dir_in = "$OBS_DATA/cam-chem/aircraft/NOAA/"
+    dir_in = "$OBS_DATA/cam-chem/"
     rin1 = addfile(dir_in+variablen(v)+aircraft(re1(re))+".nc","r")
     air1_med = rin1->prof_med
     air1_p25 = rin1->prof_p25

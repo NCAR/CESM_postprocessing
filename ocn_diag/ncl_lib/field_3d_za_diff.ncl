@@ -11,6 +11,14 @@ begin
   nlev    = 21
   missing = 1.0e30
 
+;; NOTE - for pop, the basin regions are always
+;; referenced by an index number, 1-14, with the
+;; region areas defined in the POP source code
+;; input_templates/[grid]_region_ids
+;; We are only interested in the regions listed
+;; below so want to subset the input fields 
+;; for just these basin index for these regions
+
   global   = 0
   atlantic = 6
   pacific  = 2 
@@ -63,16 +71,19 @@ begin
   coltab(1:) = ((color2-color1+1)/(nlev-1))*ispan(0,nlev-1,1)+color1
   coltab(0) = 0
 
+;; just need the subset basin index of the second dimension
   do n=0,n_fields-1 
 
     fname = ListPop(field_name)
     if (dimsizes(getfilevardimsizes(fileid_1,fname)) .eq. 4) then
-      field_1 = fileid_1->$fname$(0,:,:,:)
+;;      field_1 = fileid_1->$fname$(0,:,:,:)
+      field_1 = fileid_1->$fname$(0,0:6,:,:)
     else
       field_1 = fileid_1->$fname$(:,:,:)
     end if
     if (dimsizes(getfilevardimsizes(fileid_1,fname)) .eq. 4) then
-      field_2 = fileid_2->$fname$(0,:,:,:)
+;;      field_2 = fileid_2->$fname$(0,:,:,:)
+      field_2 = fileid_2->$fname$(0,0:6,:,:)
     else
       field_2 = fileid_2->$fname$(:,:,:)
     end if

@@ -75,6 +75,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
             # call ncks to extract the UAREA variable
             za_args = ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['TOBSFILE']) ]
             if env['netcdf_format'] in ['netcdfLarge']:
+
                 za_args = ['ncks','-6','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['TOBSFILE']) ]
             try:
 ##                subprocess.check_output( ['ncks','-A','-v','UAREA',env['TAVGFILE'],'{0}_tmp'.format(env['TOBSFILE']) ], env=env)
