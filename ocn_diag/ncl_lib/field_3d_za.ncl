@@ -115,9 +115,10 @@ begin
       field_diff = field
       if (dimsizes(z_t) .ne. dimsizes(field_obs&$field_obs!1$)) then
         ind_z_obs = ind_nearest_coord(z_t*1000.,field_obs&$field_obs!1$,0)
-        field_diff = field - field_obs(:,ind_z_obs,:)
+;; only want the first 6 basin regions from the field_obs
+        field_diff = field - field_obs(0:6,ind_z_obs,:)
       else
-        field_diff = field - field_obs
+        field_diff = field - field_obs(0:6,:,:)
       end if	
 
       units = "psu"
