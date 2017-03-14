@@ -112,9 +112,10 @@ begin
    nca = 2
  end if
  vars =(/"SO2","SO4","BC","OC","NH4NO3"/)
+ varsn =(/"SO~B~2~N~","SO~B~4~N~","BC","OC","NH~B~4~N~NO~B~3~N~"/)
  vars_data =(/"so2","so4","ec","oc","nh4no3"/)
  data_n =(/"SO2_","SO4_","EC_","OC_","NH4NO3_"/)
- vars_units = (/"ppv","ug/m3","ug/m3","ug/m3","ug/m3"/)
+ vars_units = (/"ug/m~S~3~N~","ug/m~S~3~N~","ug/m~S~3~N~","ug/m~S~3~N~","ug/m~S~3~N~"/)
 ;qmin = (/0.01,0.01,0.005
 ;qmax = (/5.,   10.,
  nvars = dimsizes(vars)
@@ -142,7 +143,8 @@ begin
  end if
 
 ; calculate plotting values
-do i = 0, nvars-1
+do i = 0, nvars-2
+ print(vars(i))
   if (compare .eq. "OBS") then
    nca = 1
   else                        ;  CASE 2 IS MODEL
@@ -189,8 +191,18 @@ do i = 0, nvars-1
           delete(varsoa)
           varsoa = (/"CB1","CB2"/)
          else
-          delete(varsoa)
-          varsoa = (/"bc_a1"/)
+           if (isfilevar(inptr,"bc_a1")) then
+            delete(varsoa)
+            varsoa = (/"bc_a1"/)
+           end if
+           if (isfilevar(inptr,"bc_a1") .and. isfilevar(inptr,"bc_a4")) then
+            delete(varsoa)
+            varsoa = (/"bc_a1","bc_a4"/)
+           end if
+           if (isfilevar(inptr,"bc_a1") .and. isfilevar(inptr,"bc_a3")) then
+            delete(varsoa)
+            varsoa = (/"bc_a1","bc_a3"/)
+           end if
          end if
    end if
    varsoa1 = -1
@@ -200,23 +212,42 @@ do i = 0, nvars-1
           delete(varsoa1)
           varsoa1 = (/"OC1","OC2"/)
          else
-          delete(varsoa1)
-          varsoa1 = (/"pom_a1"/)
+           if (isfilevar(inptr,"pom_a1")) then
+            delete(varsoa1)
+            varsoa1 = (/"pom_a1"/)
+           end if
+           if (isfilevar(inptr,"pom_a1") .and. isfilevar(inptr,"pom_a4")) then
+            delete(varsoa1)
+            varsoa1 = (/"pom_a1","pom_a4"/)
+           end if
+           if (isfilevar(inptr,"pom_a1") .and. isfilevar(inptr,"pom_a3")) then
+            delete(varsoa1)
+            varsoa1 = (/"pom_a1","pom_a3"/)
+           end if
          end if
         ; function SOA Colette
         if (isfilevar(inptr,"SOAI") .and. isfilevar(inptr,"SOAT") .and. isfilevar(inptr,"SOAB") .and. isfilevar(inptr,"SOAX") .and. isfilevar(inptr,"SOAM")) then
           delete(varsoa2)
           varsoa2 = (/"SOAI","SOAT","SOAB","SOAX","SOAM"/)
-        else 
-          if (isfilevar(inptr,"soa_a1") .and. isfilevar(inptr,"soa_a2")) then
-            delete(varsoa2)
-            varsoa2 =  (/"soa_a1","soa_a2"/)
-          else 
-            if (isfilevar(inptr,"SOA")) then
+        end if
+        if (isfilevar(inptr,"SOA")) then
                 delete(varsoa2)
                 varsoa2 =  (/"SOA"/)
-            end if
+        end if
+        if (isfilevar(inptr,"soa_a1") .and. isfilevar(inptr,"soa_a2")) then
+            delete(varsoa2)
+            varsoa2 =  (/"soa_a1","soa_a2"/)
+        else
+          if (isfilevar(inptr,"soaff1_a1") .and. isfilevar(inptr,"soaff1_a2")) then
+            delete(varsoa2)
+            varsoa2 =  (/"soaff1_a1","soaff1_a2","soaff2_a1","soaff2_a2","soaff3_a1","soaff3_a2","soaff4_a1","soaff4_a2","soaff5_a1","soaff5_a2",\
+               "soabb1_a1","soabb1_a2","soabb2_a1","soabb2_a2","soabb3_a1","soabb3_a2","soabb4_a1","soabb4_a2","soabb5_a1","soabb5_a2",\
+               "soabg1_a1","soabg1_a2","soabg2_a1","soabg2_a2","soabg3_a1","soabg3_a2","soabg4_a1","soabg4_a2","soabg5_a1","soabg5_a2" /)
           end if
+          if (isfilevar(inptr,"soa1_a1") .and. isfilevar(inptr,"soa1_a2")) then
+           delete(varsoa2)
+           varsoa2 =  (/"soa_a1","soa_a2","soa2_a1","soa2_a2","soa3_a1","soa3_a2","soa4_a1","soa4_a2","soa5_a1","soa5_a2"/)
+          end if 
         end if
         delete(varsoa)
         varsoa = array_append_record(varsoa1,varsoa2,0)
@@ -243,20 +274,22 @@ do i = 0, nvars-1
       var11 = var11a(0,nlev-1,:,:)
       delete(var11a)
       if vars(i).eq."SO2" then
+        ; SO2 improve in ug/m3
         ; convert mmr to  kg/kg
-        var11 = var11* 64./28.97 
+        if var11@units.ne."kg/kg" then 
+          var11 = var11* 64./28.97 
+        end if
       end if
-      if vars(i).eq."SO4" .and. (vinta .eq. "so4_a1" .or. vinta .eq. "so4_a2" .or. vinta .eq. "so4_3") then 
+      if vars(i).eq."SO4" .and. (vinta .eq. "so4_a1" .or. vinta .eq. "so4_a2" .or. vinta .eq. "so4_a3") then 
          var11 = var11*96.06/115.11  ; adjust that SO4 is really SO4NO3
       end if
-      if vars(i).eq."pom_a1" then
-        var11 = var11* 0.714286 
+;     if vars(i).eq."pom_a1" then
+;       var11 = var11* 0.714286 
+;     end if
+      if vars(i).eq."SOA" .and. (vinta .eq. "SOAI" .or. vinta .eq. "SOAM" .or. vinta .eq. "SOAB" .or. vinta .eq. "SOAT" .or. vinta .eq. "SOAX") then 
+          var11 = var11*mwsoa_c(si)/mwsoa(si) 
       end if
-;     if vars(i).eq."SOA" .and. (vinta .eq. "SOAI" .or. vinta .eq. "SOAM" .or. vinta .eq. "SOAB" .or. vinta .eq. "SOAT" .or. vinta .eq. "SOAX") then 
-;         var11 = var11*mwsoa_c(si)/mwsoa(si) 
-    else
-     var11 = var11@_FillValue 
-    end if
+   end if
    if ca.eq.0 then
      if si.eq.0 then
       var1 = var11
@@ -275,7 +308,8 @@ do i = 0, nvars-1
   delete(varsoa)
   delete(var11)
  end do ; ca
- var1 = var1 * rho1 * 1.e9 ; convert from kg/kg to ug/m3 ; ppb for SO2
+
+ var1 = var1 * rho1 * 1.e9 ; convert from kg/kg to ug/m3 ;
  var1@_FillValue = -999 
  var1!0 = "lat"
  var1!1 = "lon"
@@ -295,7 +329,7 @@ do i = 0, nvars-1
 
 
 ; load data and interpolate model to station location
- dir = "/glade/p/acd/tilmes/amwg/amwg_diag_20131004_work/obs_data/"
+;dir = "$OBS_DATA/cam-chem/"
   
  stn_name = systemfunc("ls $OBS_DATA/cam-chem/"+data_n(i)+"IMPROVE*nc")
  do nstn=0,dimsizes(stn_name)-1
@@ -432,20 +466,21 @@ res@trXAxisType = "LogAxis"
 
    
   ;  loop over variables     
-   do i  = 0, nvars -1
+   do i  = 0, nvars -2
      Xdata(0,:) = (/stn_ann_avg_obs(i,:)/)
      Ydata(0,:) = (/stn_ann_avg_mod1(i,:)/)
      
     if (.not.all(ismissing(Xdata(0,:)))) then
      ccro=esccr(Xdata(0,:),Xdata(0,:),0)
-     avg_obs=avg(Xdata(0,:))
+     avg_obs = dim_median(Xdata(0,:))
     else
       ccro = 0.
       avg_obs = 0.
     end if
     if (.not.all(ismissing(Ydata(0,:)))) then
      ccr1=esccr(Xdata(0,:),Ydata(0,:),0)
-     avg_mod1=avg(Ydata(0,:))
+     avg_mod1=dim_median(Ydata(0,:))
+  ;  avg_mod1=avg(Ydata(0,:))
     else
      avg_mod1 = 0.
      ccr1 = 0.
@@ -456,7 +491,14 @@ res@trXAxisType = "LogAxis"
       Ydata(1,:) = (/stn_ann_avg_mod2(i,:)/)
       if (.not.all(ismissing(Xdata(1,:)))) then
        ccr2=esccr(Xdata(1,:),Ydata(1,:),0)
-       avg_mod2=avg(Ydata(1,:))
+   ;   ins = ind(Xdata(1,:).gt.0)
+       avg_mod2=dim_median(Ydata(1,:))
+     ; avg_mod2=stat_medrng(Ydata(1,:))
+  ;    print(Ydata(0,ins))
+  ;    print(Ydata(1,ins))
+  ;  print(avg_obs)
+  ;  print(avg_mod1)
+  ;  print(avg_mod2)
       else
        ccr2 = 0.
        avg_mod2 = 0.
@@ -473,7 +515,7 @@ res@trXAxisType = "LogAxis"
 
      res@tiXAxisString = "Observed "+vars(i)+" ("+vars_units(i)+")"
      res@tiYAxisString = "Simulated "+vars(i)+" ("+vars_units(i)+")"
-     res@gsnLeftString = vars(i)+" ("+vars_units(i)+")" 
+     res@gsnLeftString = varsn(i)+" ("+vars_units(i)+")" 
 
 
         res@pmLegendDisplayMode    = "Always"
@@ -509,26 +551,27 @@ res@trXAxisType = "LogAxis"
     txres@txPerimOn             = False
     txres@txJust        = "CenterLeft"
     txres@txBackgroundFillColor = 0
-    txres@txFontHeightF         = 0.013
+    txres@txFontHeightF         = 0.015
     aaa=log10(qmax)
     bbb=log10(qmin)
     aba=(aaa-bbb)/2
 
-    txid2 = gsn_add_text(wks, plot(i), "mean_test="+sprintf("%5.2f",avg_mod1)+" R="+sprintf("%5.2f",ccr1), qmin+qmin*0.2, 10.^(aaa-0.2*aba),txres)
-    txid3 = gsn_add_text(wks, plot(i), "mean_obs="+sprintf("%5.2f",avg_obs),qmin+qmin*.2, 10.^(aaa-0.1*aba),txres)
+    txid3 = gsn_add_text(wks, plot(i), "Median Obs="+sprintf("%5.2f",avg_obs),qmin+qmin*.2, 10.^(aaa-0.1*aba),txres)
+    txres@txFontColor = "blue"
+    txid2 = gsn_add_text(wks, plot(i), "Median ="+sprintf("%5.2f",avg_mod1)+" R="+sprintf("%5.2f",ccr1), qmin+qmin*0.2, 10.^(aaa-0.2*aba),txres)
     if (compare .eq. "OBS") then
     else
-     txid1 = gsn_add_text(wks, plot(i),  "mean_cntl="+sprintf("%5.2f",avg_mod2)+" R="+sprintf("%5.2f",ccr2), qmin+qmin*0.2, 10.^(aaa-0.3*aba), txres)
+     txres@txFontColor = "red"
+     txid1 = gsn_add_text(wks, plot(i),  "Median ="+sprintf("%5.2f",avg_mod2)+" R="+sprintf("%5.2f",ccr2), qmin+qmin*0.2, 10.^(aaa-0.3*aba), txres)
     end if
-
-
+    txres@txFontColor = "black"
 
    end do
 ;*********************************************
     txres               = True
     txres@txFontHeightF = 0.017
     title = "IMPROVE "+season   
-    gsn_text_ndc(wks,title,.50,.85,txres)
+    gsn_text_ndc(wks,title,.45,.98,txres)
 
     panres = True
     panres@gsnFrame = False
@@ -536,10 +579,10 @@ res@trXAxisType = "LogAxis"
     panres@gsnPanelTop = 0.96
     if (time_stamp .eq. "True") then
       panres@gsnPanelBottom = 0.05
-      gsn_panel (wks,plot,(/2,3/),panres)
+      gsn_panel (wks,plot,(/2,2/),panres)
       infoTimeStamp(wks,0.011,"DIAG Version: "+version)
     else
-      gsn_panel (wks,plot,(/2,3/),panres)
+      gsn_panel (wks,plot,(/2,2/),panres)
     end if
     frame(wks)
     delete (title)

@@ -391,6 +391,9 @@
         <tseries_filecat_n>10</tseries_filecat_n>
       </file_extension>
     </files>
+    <tseries_time_variant_variables>
+      <variable>time</variable>
+    </tseries_time_variant_variables>
   </comp_archive_spec>
 
   <comp_archive_spec name="ww3">
