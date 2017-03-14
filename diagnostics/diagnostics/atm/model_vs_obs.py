@@ -223,31 +223,43 @@ class modelVsObs(AtmosphereDiagnostic):
 
             # Create set dirs, copy plots to set dir, and create html file for set 
             requested_plot_sets.append('sets') # Add 'sets' to create top level html files
+            glob_set = list()
             for plot_set in requested_plot_sets:
                  if 'set_5' == plot_set or 'set_6' == plot_set:
-                     glob_set = plot_set.replace('_','')
+                     glob_set.append(plot_set.replace('_',''))
                      plot_set = 'set5_6'
-                 elif 'set_1' == plot_set or 'cset_1' == plot_set:
+                 elif 'cset_1' == plot_set:
                      print('DEBUG model_vs_obs: plot_set = %s' % plot_set)
-                     glob_set = 'table_'
+                     glob_set.append('table_soa')                
+                     glob_set.append('table_chem')
+                     plot_set = plot_set.replace('_','')     
+                 elif 'set_1' == plot_set:
+                     print('DEBUG model_vs_obs: plot_set = %s' % plot_set)
+                     glob_set.append('table_GLBL')
+                     glob_set.append('table_NEXT')
+                     glob_set.append('table_SEXT')
+                     glob_set.append('table_TROP')
                      plot_set = plot_set.replace('_','')
                  elif 'sets' == plot_set:
                      set_dir = web_dir + '/'
                  else:
+                     glob_set.append(plot_set)
                      plot_set = plot_set.replace('_','')
-                     glob_set = plot_set
+
                  if 'sets' not in plot_set: #'sets' is top level, don't create directory or copy images files
                      set_dir = web_dir + '/' + plot_set
                      # Create the plot set web directory
                      if not os.path.exists(set_dir):
                          os.makedirs(set_dir)
                      # Copy plots into the correct web dir
-                     glob_string = env['test_path_diag']+'/'+glob_set+'*.*'
-                     imgs = glob.glob(glob_string)
-                     if imgs > 0:
-                         for img in imgs:
-                             new_fn = set_dir + '/' + os.path.basename(img)
-                             os.rename(img,new_fn)
+                     for gs in glob_set:
+                         glob_string = env['test_path_diag']+'/'+gs+'*.*'
+                         imgs = glob.glob(glob_string)
+                         if imgs > 0:
+                             for img in imgs:
+                                 new_fn = set_dir + '/' + os.path.basename(img)
+                                 os.rename(img,new_fn)
+
                  # Copy/Process html files
                  if 'sets' in plot_set:
                      orig_html = env['HTML_HOME']+'/'+plot_set
