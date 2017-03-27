@@ -19,7 +19,6 @@ def create_plotset_html(html_file_prefix, web_path, set_name, env, diag_type):
         os.remove(new_fn)
     new_html = open(new_fn,'w')
 
-##    if env['MODEL_VS_OBS'] == 'True':
     if diag_type == 'model_vs_obs':
         title = env['test_casename'] + '<br>and<br> OBS data (<a href="http://climatedataguide.ucar.edu/category/data-set-variables/model-diagnostics/atmosdiagnostics">info</a>)'
     else:
