@@ -60,7 +60,7 @@ def commandline_options():
                         help='show exception backtraces as extra debugging '
                         'output')
 
-    parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
+    parser.add_argument('--debug', nargs=1, type=int, default=0,
                         help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
     parser.add_argument('--caseroot', nargs=1, required=True, 
@@ -154,8 +154,6 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     envDict (dictionary) - environment dictionary
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-##    env_file_list = ['../env_case.xml', '../env_run.xml', '../env_build.xml', '../env_mach_pes.xml', './env_postprocess.xml', './env_diags_atm.xml']
-##    if standalone:
     env_file_list =  ['./env_postprocess.xml', './env_diags_atm.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
@@ -306,18 +304,8 @@ def main(options, main_comm, debugMsg):
 
             # check the prerequisites for the diagnostics types
             debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True)
-            
-            #if lmaster:
             envDict = diag.check_prerequisites(envDict, inter_comm)
-
             inter_comm.sync()
-
-            ## broadcast the envDict
-            #envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
-         
-            # set the shell env using the values set in the XML and read into the envDict across all tasks
-            #cesmEnvLib.setXmlEnv(envDict)
-
             debugMsg('inter_comm = {0}'.format(inter_comm))
             diag.run_diagnostics(envDict, inter_comm)
             

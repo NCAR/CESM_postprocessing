@@ -229,12 +229,10 @@ class modelVsObs(AtmosphereDiagnostic):
                      glob_set.append(plot_set.replace('_',''))
                      plot_set = 'set5_6'
                  elif 'cset_1' == plot_set:
-                     print('DEBUG model_vs_obs: plot_set = %s' % plot_set)
                      glob_set.append('table_soa')                
                      glob_set.append('table_chem')
                      plot_set = plot_set.replace('_','')     
                  elif 'set_1' == plot_set:
-                     print('DEBUG model_vs_obs: plot_set = %s' % plot_set)
                      glob_set.append('table_GLBL')
                      glob_set.append('table_NEXT')
                      glob_set.append('table_SEXT')
@@ -243,7 +241,7 @@ class modelVsObs(AtmosphereDiagnostic):
                  elif 'sets' == plot_set:
                      set_dir = web_dir + '/'
                  else:
-                     glob_set.append(plot_set)
+                     glob_set.append(plot_set.replace('_',''))
                      plot_set = plot_set.replace('_','')
 
                  if 'sets' not in plot_set: #'sets' is top level, don't create directory or copy images files
@@ -314,7 +312,6 @@ class modelVsObs(AtmosphereDiagnostic):
             env_file = '{0}/env_diags_atm.xml'.format(env['PP_CASE_PATH'])
             key = 'ATMDIAG_WEBDIR_{0}'.format(self._name)
             value = diag_path
-            ##web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(env['PP_CASE_PATH'], key, scomm.get_size(), scomm.get_rank() )
             web_file = '{0}/web_dirs/{1}.{2}'.format(env['PP_CASE_PATH'], key, datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S'))
             try:
                 diagUtilsLib.write_web_file(web_file, 'atm', key, value)
