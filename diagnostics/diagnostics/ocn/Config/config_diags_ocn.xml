@@ -131,7 +131,7 @@ Applies to both model and control cases."
       <entry id="OCNDIAG_MODEL_VS_CONTROL"
 	     type="logical"
 	     valid_values="TRUE/FALSE"
-	     value="TRUE"
+	     value="FALSE"
 	     group="diags_types"
 	     desc="True or false to control if model vs. control diagnostics are generated. If true, then all OCNDIAG_CNTRL* XML variables will need to be set correctly."
 	     ></entry>
