@@ -76,7 +76,8 @@ def commandline_options():
 #==============================================================================================
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
 #==============================================================================================
-def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone, completechunk, debug, debugMsg):
+def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone, completechunk, 
+                   generate_all, debug, debugMsg):
     """ reads the $CASEROOT/env_timeseries.xml file and builds a fully defined list of 
          reshaper specifications to be passed to the pyReshaper tool.
 
@@ -87,6 +88,7 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
     casename (string) - casename
     standalone (boolean) - logical to indicate if postprocessing case is stand-alone or not
     completechunk (boolean) - end on a ragid boundary if True.  Otherwise, do not create incomplete chunks if False
+    generate_all (boolean) - generate timeseries for all streams if True.  Otherwise, use the tseries_create setting.
     """
     specifiers = list()
     xml_tree = ET.ElementTree()
@@ -126,7 +128,7 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                     tseries_create = file_spec.find("tseries_create").text
 
                     # check if the tseries_create element is set to TRUE            
-                    if tseries_create.upper() in ["T","TRUE"]:
+                    if tseries_create.upper() in ["T","TRUE"] or generate_all.upper() in ["T","TRUE"]:
                         
                         # check if tseries_format is an element for this file_spec and if it is valid
                         if file_spec.find("tseries_output_format") is not None:
@@ -170,9 +172,6 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                         tseries_output_dir = '/'.join( [output_rootdir, rootdir, 'proc/tseries', tseries_tper] )
                         debugMsg("tseries_output_dir = {0}".format(tseries_output_dir), header=True)
 
-                        if not os.path.exists(tseries_output_dir):
-                            os.makedirs(tseries_output_dir)
-
                         if comp+stream not in log.keys():
                             log[comp+stream] = {'slices':[],'index':0}
                         ts_log_dates = log[comp+stream]['slices']
@@ -182,6 +181,9 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             log[comp+stream]['slices'].append(float(d))
                         log[comp+stream]['index']=index
                         for cn,cf in files.iteritems():
+
+                            if not os.path.exists(tseries_output_dir):
+                                os.makedirs(tseries_output_dir)
 
                             history_files = cf['fn']
                             start_time_parts = cf['start']
@@ -297,12 +299,14 @@ def main(options, scomm, rank, size, debug, debugMsg):
         tseries_output_rootdir = cesmEnv['TIMESERIES_OUTPUT_ROOTDIR'] 
         case = cesmEnv['CASE']
         completechunk = cesmEnv['TIMESERIES_COMPLETECHUNK']
+        generate_all = cesmEnv['TIMESERIES_GENERATE_ALL']
         if completechunk.upper() in ['T','TRUE']:
             completechunk = 1
         else:
             completechunk = 0
         specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir, 
-                                        case, options.standalone, completechunk, debug, debugMsg)
+                                        case, options.standalone, completechunk, generate_all,
+                                        debug, debugMsg)
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper

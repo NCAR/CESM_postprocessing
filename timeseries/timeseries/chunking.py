@@ -8,7 +8,8 @@ import datetime
 def num2date(time_value, unit, calendar):
     if ('common_year' in unit):
         my_unit = unit.replace('common_year', 'day')
-        my_time_value = time_value * 365
+##        my_time_value = time_value * 365
+        my_time_value = int(round(time_value)) * 365
     else:
         my_unit = unit
         my_time_value = time_value
