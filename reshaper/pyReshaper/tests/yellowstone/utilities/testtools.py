@@ -80,8 +80,7 @@ class TestDB(object):
             self._database = dict(json.load(dbfile))
             dbfile.close()
         except:
-            err_msg = 'Problem reading and parsing test info file: {0!s}'.format(
-                abs_path)
+            err_msg = 'Problem reading and parsing test info file: {0!s}'.format(abs_path)
             raise ValueError(err_msg)
 
     def getdb(self):
@@ -195,8 +194,7 @@ class StatDB(object):
                 self._statistics = dict(json.load(stfile))
                 stfile.close()
             except:
-                err_msg = 'Problem reading and parsing test stats file: {0!s}'.format(
-                    abs_path)
+                err_msg = 'Problem reading and parsing test stats file: {0!s}'.format(abs_path)
                 raise ValueError(err_msg)
 
     def getdb(self):
@@ -531,7 +529,7 @@ class StatDB(object):
 #==============================================================================
 class TimeDB(object):
 
-    def __init__(self, name=None):
+    def __init__(self, name='timings.json'):
         """
         Initializer
 
@@ -543,20 +541,17 @@ class TimeDB(object):
             ValueError: If the timing database file cannot be opened and/or
                 read.
         """
-        # See if there is a user-defined testinfo file,
-        # otherwise look for default
-        abs_path = os.path.abspath('timings.json')
+        # See if there is a user-defined timings file, otherwise look for default
+        abs_path = os.path.abspath(name)
 
         # Try opening and reading the testinfo file
-        self._timings = {}
         try:
             dbfile = open(abs_path, 'r')
             self._timings = dict(json.load(dbfile))
             dbfile.close()
         except:
-            err_msg = 'Problem reading and parsing timings file: {0!s}'.format(
-                abs_path)
-            raise ValueError(err_msg)
+            print 'Timings file does not exist.  Creating a new timings database.'
+            self._timings = {}
 
     def getdb(self):
         """

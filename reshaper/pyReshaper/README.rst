@@ -14,9 +14,9 @@ Send questions and comments to Kevin Paul (kpaul@ucar.edu).
 Overview
 --------
 
-The PyReshaper package is a Python-based package for performing time-slice
-to time-series convertion of NetCDF files, compliant with the CF 1.6 
-Conventions.  The PyReshaper package is designed to run in parallel to
+The PyReshaper is a tool for converting time-slice (or history-file
+or synoptically) formatted NetCDF files into time-series (or single-field)
+format.  The PyReshaper package is designed to run in parallel (MPI) to
 maximize performance, with the parallelism implemented over variables
 (i.e., task parallelism).  This means that the maximum parallelism
 achieveable for a given operation is one core/processor per variables in
@@ -26,25 +26,23 @@ the time-slice NetCDF files.
 Dependencies
 ------------
 
-The PyReshaper directly depends upon the PyNIO and mpi4py packages.  Access
-and manipulation of the NetCDF files is done through PyNIO, and the parallelism
-is implimented directly with mpi4py.  Implicit dependencies exists, as PyNIO
-has its own dependencies (netCDF, NCL, and numpy) as does mpi4py (numpy and 
-MPI).
+The PyReshaper directly depends upon the ASAP Python Toolbox (ASAPTools)
+and either PyNIO or netcdf4-python.  Access and manipulation of the NetCDF
+files is done through PyNIO or netcdf4-python, and the parallelism is 
+implimented using the ASAPTools SimpleComm, which uses mpi4py.  Implicit
+dependencies exist as a result of these direct dependencies.
 
-Currently the explicit dependencies are known to be:
+The PyReshaper explicitly depends upon the following Python packages:
 
-* ASAPTools (>=0.4)
-* PyNIO (>=1.4.1)
-* mpi4py (>=1.3)
+-  PyNIO (v1.4.1+) or netCDF4-python (v1.2+)
+-  ASAPPyTools (v0.4+)
 
-This implies the dependencies:
-
-* PyNIO depends upon numpy (>=1.4), NCL, and netCDF
-* mpi4py depends on numpy (>=1.4) and MPI
+These packages imply a dependency on the NumPy (v1.4+) and mpi4py (v1.3+) 
+packages, and the  libraries NetCDF and MPI/MPI-2.
     
 Additionally, the entire package is designed to work with Python v2.6 and up
-to (but not including) Python v3.0.
+to (but not including) Python v3.0.  If using Python version 2.6, you will
+need to install the ``ordereddict`` package, too.
  
 The version requirements have not been rigidly tested, so earlier versions
 may actually work.  No version requirement is made during installation, though,
@@ -77,7 +75,7 @@ via git from the site::
 
     https://github.com/NCAR/PyReshaper
 
-Check out the most recent stable tag.  The source is available in
+You may then check out the most recent stable tag.  The source is available in
 read-only mode to everyone.  Developers are welcome to update the source
 and submit Pull Requests via GitHub.
 
@@ -109,7 +107,7 @@ to install.  To do this, type (on unix machines)::
     $  python setup.py install --user
     
 This can be handy since the site-packages directory will be common for all
-user installs, and therefore only needs to be added to the PYTHONPATH once.
+user installs, and therefore only needs to be added to the ``PYTHONPATH`` once.
 
 To install the documentation, you must have Sphinx installed on your system.
 Sphinx can be easily installed with pip, via::
