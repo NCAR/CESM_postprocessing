@@ -181,10 +181,10 @@ class EqualLength(PartitionFunction):
         if self._is_indexable(data):
             (lenpart, remdata) = divmod(len(data), size)
             psizes = [lenpart] * size
-            for i in xrange(remdata):
+            for i in range(remdata):
                 psizes[i] += 1
             ibeg = 0
-            for i in xrange(index):
+            for i in range(index):
                 ibeg += psizes[i]
             iend = ibeg + psizes[index]
             return data[ibeg:iend]

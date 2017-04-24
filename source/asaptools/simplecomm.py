@@ -118,7 +118,7 @@ Copyright 2016, University Corporation for Atmospheric Research
 See the LICENSE.txt file for details
 """
 
-from functools import partial
+from functools import partial  # @UnusedImport
 from collections import defaultdict
 
 # Define the supported reduction operators
@@ -689,7 +689,7 @@ class SimpleCommMPI(SimpleComm):
         if self.is_manager():
             op = func if func else lambda *x: x[0][x[1]::x[2]]
             j = 1 if not involved else 0
-            for i in xrange(1, self.get_size()):
+            for i in range(1, self.get_size()):
 
                 # Get the part of the data to send to rank i
                 part = op(data, i - j, self.get_size() - j)
@@ -983,7 +983,7 @@ class SimpleCommMPI(SimpleComm):
             RuntimeError: If executed during a serial or 1-rank parallel run
         """
         if self.get_size() > 1:
-            allgroups = list(set(self._comm.allgather(group)))
+            allgroups = list(self._comm.allgather(group))
             color = allgroups.index(group)
             monocomm = SimpleCommMPI()
             monocomm._color = color
