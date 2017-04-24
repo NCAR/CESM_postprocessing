@@ -4,6 +4,9 @@ These are the unit tests for the partition module functions
 Copyright 2016, University Corporation for Atmospheric Research
 See the LICENSE.txt file for details
 """
+
+from __future__ import print_function
+
 import unittest
 from asaptools import partition
 from os import linesep
@@ -27,7 +30,7 @@ class partitionTests(unittest.TestCase):
     """
 
     def setUp(self):
-        data = [range(3), range(5), range(7)]
+        data = [list(range(3)), list(range(5)), list(range(7))]
         indices_sizes = [(0, 1), (1, 3), (5, 9)]
         self.inputs = []
         for d in data:
@@ -50,43 +53,43 @@ class partitionTests(unittest.TestCase):
             expected = inp[0]
             msg = test_info_msg(
                 'Duplicate', inp[0], inp[1], inp[2], actual, expected)
-            print msg
+            print(msg)
             self.assertEqual(actual, expected, msg)
 
     def testEquallength(self):
-        results = [range(3), [1], [],
-                   range(5), [2, 3], [],
-                   range(7), [3, 4], [5]]
+        results = [list(range(3)), [1], [],
+                   list(range(5)), [2, 3], [],
+                   list(range(7)), [3, 4], [5]]
         for (ii, inp) in enumerate(self.inputs):
             pfunc = partition.EqualLength()
             actual = pfunc(*inp)
             expected = results[ii]
             msg = test_info_msg(
                 'EqualLength', inp[0], inp[1], inp[2], actual, expected)
-            print msg
+            print(msg)
             self.assertEqual(actual, expected, msg)
 
     def testEqualStride(self):
         for inp in self.inputs:
             pfunc = partition.EqualStride()
             actual = pfunc(*inp)
-            expected = inp[0][inp[1]::inp[2]]
+            expected = list(inp[0][inp[1]::inp[2]])
             msg = test_info_msg(
                 'EqualStride', inp[0], inp[1], inp[2], actual, expected)
-            print msg
+            print(msg)
             self.assertEqual(actual, expected, msg)
 
     def testSortedStride(self):
         for inp in self.inputs:
             weights = [(20 - i) for i in inp[0]]
             pfunc = partition.SortedStride()
-            actual = pfunc(zip(inp[0], weights), inp[1], inp[2])
-            expected = inp[0][:]
+            actual = pfunc(list(zip(inp[0], weights)), inp[1], inp[2])
+            expected = list(inp[0][:])
             expected.reverse()
             expected = expected[inp[1]::inp[2]]
             msg = test_info_msg(
                 'SortedStride', zip(inp[0], weights), inp[1], inp[2], actual, expected)
-            print msg
+            print(msg)
             self.assertEqual(actual, expected, msg)
 
     def testWeightBalanced(self):
@@ -96,11 +99,11 @@ class partitionTests(unittest.TestCase):
         for (ii, inp) in enumerate(self.inputs):
             weights = [(3 - i) ** 2 for i in inp[0]]
             pfunc = partition.WeightBalanced()
-            actual = set(pfunc(zip(inp[0], weights), inp[1], inp[2]))
+            actual = set(pfunc(list(zip(inp[0], weights)), inp[1], inp[2]))
             expected = results[ii]
             msg = test_info_msg(
                 'WeightBalanced', zip(inp[0], weights), inp[1], inp[2], actual, expected)
-            print msg
+            print(msg)
             self.assertEqual(actual, expected, msg)
 
 

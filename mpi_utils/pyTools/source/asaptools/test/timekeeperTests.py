@@ -4,6 +4,9 @@ Unit tests (serial only) for the TimeKeeper class
 Copyright 2016, University Corporation for Atmospheric Research
 See the LICENSE.txt file for details
 """
+
+from __future__ import print_function
+
 import unittest
 
 from time import sleep
@@ -42,8 +45,9 @@ class TimeKeeperTests(unittest.TestCase):
         tk.start(name)
         sleep(wait_time)
         tk.stop(name)
-        self.assertAlmostEqual(wait_time, tk.get_time(name),
-                               msg='Accumulated time seems off', places=2)
+        dt = tk.get_time(name)
+        dterr = abs(dt / wait_time - 1.0)
+        self.assertTrue(dterr < 0.15, msg='Accumulated time seems off')
 
     def test_start_stop_order_names(self):
         tk = timekeeper.TimeKeeper()
@@ -73,12 +77,12 @@ class TimeKeeperTests(unittest.TestCase):
         tk.stop(name1)
         sleep(wait_time)
         tk.stop(name2)
-        self.assertAlmostEqual(3 * wait_time, tk.get_time(name1),
-                               msg='Accumulated time 1 seems off',
-                               places=2)
-        self.assertAlmostEqual(2 * wait_time, tk.get_time(name2),
-                               msg='Accumulated time 2 seems off',
-                               places=2)
+        dt1 = tk.get_time(name1)
+        dt1err = abs(dt1 / (3 * wait_time)  - 1.0) 
+        self.assertTrue(dt1err < 0.15, msg='Accumulated time 1 seems off')
+        dt2 = tk.get_time(name2)
+        dt2err = abs(dt2 / (2 * wait_time)  - 1.0)
+        self.assertTrue(dt2err < 0.15, msg='Accumulated time 1 seems off')
 
     def test_reset_values(self):
         tk = timekeeper.TimeKeeper()
@@ -98,9 +102,9 @@ class TimeKeeperTests(unittest.TestCase):
         tk.start(name)
         sleep(wait_time)
         tk.stop(name)
-        self.assertAlmostEqual(wait_time, tk.get_time(name),
-                               msg='Get time seems off',
-                               places=2)
+        dt = tk.get_time(name)
+        dterr = abs(dt / wait_time - 1.0)
+        self.assertTrue(dterr < 0.15, msg='Get time seems off')
 
     def test_get_all_times(self):
         tk = timekeeper.TimeKeeper()
@@ -122,12 +126,12 @@ class TimeKeeperTests(unittest.TestCase):
         self.assertTrue(all([i1==i2 for i1,i2 in 
                              zip(expected_all_times.keys(),all_times.keys())]),
                         'Clock names are not the same')
-        self.assertAlmostEqual(expected_all_times.values()[0],
-                               all_times.values()[0],
+        self.assertAlmostEqual(list(expected_all_times.values())[0],
+                               list(all_times.values())[0],
                                msg='Accumulated time 1 seems off',
                                places=1)
-        self.assertAlmostEqual(expected_all_times.values()[1],
-                               all_times.values()[1],
+        self.assertAlmostEqual(list(expected_all_times.values())[1],
+                               list(all_times.values())[1],
                                msg='Accumulated time 2 seems off',
                                places=1)
 

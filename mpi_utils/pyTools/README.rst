@@ -31,8 +31,8 @@ Python packages.
 Dependencies
 ------------
 
-All of the ASAP Python Toolbox are written to work with Python 2.7+ (but not
-Python 3.0+). The vprinter, timekeeper, and partition modules are pure
+All of the ASAP Python Toolbox are written to work with Python 2.6+ (including
+Python 3+). The vprinter, timekeeper, and partition modules are pure
 Python. The simplecomm module depends on mpi4py (>=1.3).
 
 This implies the dependency:
@@ -75,7 +75,6 @@ change into the top-level source directory, check out the most recent tag,
 and run the Python distutils setup. On unix, this involves::
 
     $  cd ASAPPyTools
-    $  git checkout [latest tag]
     $  python setup.py install [--prefix-/path/to/install/location]
 
 The prefix is optional, as the default prefix is typically /usr/local on

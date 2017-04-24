@@ -8,6 +8,8 @@ Copyright 2016, University Corporation for Atmospheric Research
 See the LICENSE.txt file for details
 """
 
+from __future__ import print_function
+
 
 class VPrinter(object):
 
@@ -105,4 +107,4 @@ class VPrinter(object):
             verbosity = kwargs['verbosity']
 
         if verbosity < self.verbosity:
-            print self.to_str(*args, **kwargs)
+            print(self.to_str(*args, **kwargs))

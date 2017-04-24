@@ -9,6 +9,9 @@ sure that serial communication behaves consistently.
 Copyright 2016, University Corporation for Atmospheric Research
 See the LICENSE.txt file for details
 """
+
+from __future__ import print_function
+
 import unittest
 import numpy as np
 
@@ -16,7 +19,7 @@ from asaptools import simplecomm
 from asaptools.partition import EqualStride, Duplicate
 from os import linesep
 from mpi4py import MPI
-MPI_COMM_WORLD = MPI.COMM_WORLD
+MPI_COMM_WORLD = MPI.COMM_WORLD  # @UndefinedVariable
 
 
 def test_info_msg(name, data, sresult, presult):
@@ -49,14 +52,14 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.get_size()
         presult = self.pcomm.get_size()
         msg = test_info_msg('get_size()', None, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testIsManager(self):
         sresult = self.scomm.is_manager()
         presult = self.pcomm.is_manager()
         msg = test_info_msg('is_manager()', None, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testSumInt(self):
@@ -64,7 +67,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.allreduce(data, 'sum')
         presult = self.pcomm.allreduce(data, 'sum')
         msg = test_info_msg('sum(int)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testSumList(self):
@@ -72,7 +75,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.allreduce(data, 'sum')
         presult = self.pcomm.allreduce(data, 'sum')
         msg = test_info_msg('sum(list)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testSumDict(self):
@@ -80,7 +83,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.allreduce(data, 'sum')
         presult = self.pcomm.allreduce(data, 'sum')
         msg = test_info_msg('sum(list)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testSumArray(self):
@@ -88,7 +91,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.allreduce(data, 'sum')
         presult = self.pcomm.allreduce(data, 'sum')
         msg = test_info_msg('sum(array)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testMaxInt(self):
@@ -96,7 +99,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.allreduce(data, 'max')
         presult = self.pcomm.allreduce(data, 'max')
         msg = test_info_msg('max(int)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testMaxList(self):
@@ -104,7 +107,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.allreduce(data, 'max')
         presult = self.pcomm.allreduce(data, 'max')
         msg = test_info_msg('max(list)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testMaxDict(self):
@@ -112,7 +115,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.allreduce(data, 'max')
         presult = self.pcomm.allreduce(data, 'max')
         msg = test_info_msg('max(dict)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testMaxArray(self):
@@ -120,7 +123,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.allreduce(data, 'max')
         presult = self.pcomm.allreduce(data, 'max')
         msg = test_info_msg('max(array)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testPartitionInt(self):
@@ -128,7 +131,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.partition(data, func=Duplicate())
         presult = self.pcomm.partition(data, func=Duplicate())
         msg = test_info_msg('partition(int)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testPartitionIntInvolved(self):
@@ -136,7 +139,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.partition(data, func=Duplicate(), involved=True)
         presult = self.pcomm.partition(data, func=Duplicate(), involved=True)
         msg = test_info_msg('partition(int, T)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testPartitionList(self):
@@ -144,7 +147,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.partition(data, func=EqualStride())
         presult = self.pcomm.partition(data, func=EqualStride())
         msg = test_info_msg('partition(list)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testPartitionListInvolved(self):
@@ -152,7 +155,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.partition(data, func=EqualStride(), involved=True)
         presult = self.pcomm.partition(data, func=EqualStride(), involved=True)
         msg = test_info_msg('partition(list, T)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testPartitionArray(self):
@@ -160,7 +163,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.partition(data)
         presult = self.pcomm.partition(data)
         msg = test_info_msg('partition(array)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testPartitionArrayInvolved(self):
@@ -168,7 +171,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.partition(data, involved=True)
         presult = self.pcomm.partition(data, involved=True)
         msg = test_info_msg('partition(array, T)', data, sresult, presult)
-        print msg
+        print(msg)
         np.testing.assert_array_equal(sresult, presult, msg)
 
     def testPartitionStrArray(self):
@@ -176,7 +179,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.partition(data)
         presult = self.pcomm.partition(data)
         msg = test_info_msg('partition(string-array)', data, sresult, presult)
-        print msg
+        print(msg)
         self.assertEqual(sresult, presult, msg)
 
     def testPartitionStrArrayInvolved(self):
@@ -184,7 +187,7 @@ class SimpleCommP1STests(unittest.TestCase):
         sresult = self.scomm.partition(data, involved=True)
         presult = self.pcomm.partition(data, involved=True)
         msg = test_info_msg('partition(string-array, T)', data, sresult, presult)
-        print msg
+        print(msg)
         np.testing.assert_array_equal(sresult, presult, msg)
         
     def testRationError(self):
@@ -201,12 +204,16 @@ class SimpleCommP1STests(unittest.TestCase):
 if __name__ == "__main__":
     hline = '=' * 70
     if MPI_COMM_WORLD.Get_rank() == 0:
-        print hline
-        print 'STANDARD OUTPUT FROM ALL TESTS:'
-        print hline
+        print(hline)
+        print('STANDARD OUTPUT FROM ALL TESTS:')
+        print(hline)
     MPI_COMM_WORLD.Barrier()
 
-    from cStringIO import StringIO
+    try:
+        from cStringIO import StringIO
+    except ImportError:
+        from io import StringIO
+    
     mystream = StringIO()
     tests = unittest.TestLoader().loadTestsFromTestCase(SimpleCommP1STests)
     unittest.TextTestRunner(stream=mystream).run(tests)
@@ -215,7 +222,7 @@ if __name__ == "__main__":
     results = MPI_COMM_WORLD.gather(mystream.getvalue())
     if MPI_COMM_WORLD.Get_rank() == 0:
         for rank, result in enumerate(results):
-            print hline
-            print 'TESTS RESULTS FOR RANK ' + str(rank) + ':'
-            print hline
-            print str(result)
+            print(hline)
+            print('TESTS RESULTS FOR RANK ' + str(rank) + ':')
+            print(hline)
+            print(str(result))
