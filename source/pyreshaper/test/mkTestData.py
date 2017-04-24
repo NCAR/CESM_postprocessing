@@ -1,5 +1,5 @@
 """
-Copyright 2015, University Corporation for Atmospheric Research
+Copyright 2016, University Corporation for Atmospheric Research
 See LICENSE.txt for details
 """
 
@@ -107,6 +107,9 @@ def check_outfile(infiles, prefix, tsvar, suffix, metadata, once, **kwds):
     if not os.path.exists(outfile):
         return assertions
     ncout = Nio.open_file(outfile, 'r')
+
+    if 'meta1d' in kwds and kwds['meta1d'] is True:
+        metadata.append('time')
 
     series_step = 0
     for infile in infiles:

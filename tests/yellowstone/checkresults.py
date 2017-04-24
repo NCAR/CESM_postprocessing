@@ -10,7 +10,7 @@ import os
 import re
 import sys
 import glob
-import argparse
+import optparse
 from subprocess import Popen, PIPE, STDOUT, call
 
 # ASAP Toolbox Modules
@@ -23,33 +23,27 @@ from utilities import testtools as tt
 # Command-Line Interface Definition
 #==============================================================================
 _DESC_ = 'Check the results of tests found in the rundirs directory.'
-_PARSER_ = argparse.ArgumentParser(description=_DESC_)
-_PARSER_.add_argument('-c', '--code', default='STDD0002', type=str,
-                      help='The name of the project code for charging in '
-                           'parallel runs (ignored if running in serial) '
-                           '[Default: STDD0002]')
-_PARSER_.add_argument('-i', '--infofile', default='testinfo.json',
-                      help='Location of the testinfo.json file '
-                           '[Default: testinfo.json]')
-_PARSER_.add_argument('-l', '--list', default=False,
-                      action='store_true', dest='list_tests',
-                      help='True or False, indicating whether to list all '
-                           'tests that have been run with resulting output, '
-                           'instead of actually comparing any tests. '
-                           '[Default: False]')
-_PARSER_.add_argument('-m', '--multiple', default=False,
-                      action='store_true', dest='multispec',
-                      help='True or False, indicating whether to look for '
-                           'multispec results [Default: False]')
-_PARSER_.add_argument('-s', '--serial', default=False,
-                      action='store_true', dest='serial',
-                      help='True or False, indicating whether to run checks '
-                           'serial or not [Default: False]')
-_PARSER_.add_argument('-x', '--executable', type=str,
-                      default='/glade/p/work/kpaul/installs/intel/12.1.5/cprnc/bin/cprnc',
-                      help='The path to the CPRNC executable.')
-_PARSER_.add_argument('rundir', type=str, nargs='*',
-                      help='Name of a test run directory to check')
+_PARSER_ = optparse.OptionParser(description=_DESC_)
+_PARSER_.add_option('-c', '--code', default='STDD0002', type='string',
+                    help=('The name of the project code for charging in '
+                          'parallel runs (ignored if running in serial) '
+                          '[Default: STDD0002]'))
+_PARSER_.add_option('-i', '--infofile', default='testinfo.json',
+                    help=('Location of the testinfo.json file '
+                          '[Default: testinfo.json]'))
+_PARSER_.add_option('-l', '--list', default=False,
+                    action='store_true', dest='list_tests',
+                    help=('True or False, indicating whether to list all '
+                          'tests that have been run with resulting output, '
+                          'instead of actually comparing any tests. '
+                          '[Default: False]'))
+_PARSER_.add_option('-s', '--serial', default=False,
+                    action='store_true', dest='serial',
+                    help=('True or False, indicating whether to run checks '
+                          'serial or not [Default: False]'))
+_PARSER_.add_option('-x', '--executable', type='string',
+                    default='/glade/p/work/kpaul/installs/intel/12.1.5/cprnc/bin/cprnc',
+                    help='The path to the CPRNC executable.')
 
 
 #==============================================================================
@@ -139,24 +133,20 @@ class CPRNC(object):
 # Command-Line Operation
 #==============================================================================
 if __name__ == '__main__':
-    args = _PARSER_.parse_args()
+    opts, args = _PARSER_.parse_args()
 
     # Create/read the testing info and stats files
-    testdb = tt.TestDB(name=args.infofile).getdb()
+    testdb = tt.TestDB(name=opts.infofile).getdb()
 
     # Get a list of valid rundir names to look for
-    if len(args.rundir) > 0:
-        rundirs = args.rundir
+    if len(args) > 0:
+        rundirs = args
     else:
         rundirs = glob.glob(os.path.join('results', '*', '[ser,par]*', '*'))
 
     # Get the list of valid run names and the output directory pattern
-    if args.multispec:
-        valid_runnames = ['multitest']
-        outdir_pattern = os.path.join('output', '*')
-    else:
-        valid_runnames = testdb.keys()
-        outdir_pattern = 'output'
+    valid_runnames = testdb.keys()
+    outdir_pattern = 'output'
 
     # Find valid tests for comparison
     tests_to_check = {}
@@ -235,15 +225,11 @@ if __name__ == '__main__':
             unchecked_old_items.append(item_dict)
 
     # Get a basic MPI comm
-    comm = create_comm(serial=(args.serial or args.list_tests))
+    comm = create_comm(serial=(opts.serial or opts.list_tests))
 
     # Print tests that will be checked
     if comm.is_manager():
-        if args.multispec:
-            print 'Checking multitest results.'
-        else:
-            print 'Checking individual test results.'
-        print
+        print 'Checking test results.'
 
         for test_name in tests_to_check:
             print 'Test {0!s}:'.format(test_name)
@@ -257,7 +243,7 @@ if __name__ == '__main__':
             print 'old files found.'
 
     # Quit now, if just listing tests to be checked
-    if args.list_tests:
+    if opts.list_tests:
         sys.exit(1)
 
     # For each test to be compared, generate the cprnc output directories
@@ -272,7 +258,7 @@ if __name__ == '__main__':
     comm.sync()
 
     # Create the CPRNC object
-    cprnc = CPRNC(args.executable)
+    cprnc = CPRNC(opts.executable)
 
     # For each file on this partition, do the CPRNC Comparison
     local_results = []

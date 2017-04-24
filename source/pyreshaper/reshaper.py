@@ -5,19 +5,17 @@ This is the main reshaper module.  This is where the specific operations
 are defined.  Currently, only one operation has been implemented (i.e.,
 the time-slice to time-series operation).
 
-Copyright 2015, University Corporation for Atmospheric Research
+Copyright 2016, University Corporation for Atmospheric Research
 See the LICENSE.rst file for details
 """
 
 # Built-in imports
-import abc
+from sys import platform
 from os import linesep, remove, rename
 from os.path import exists, isfile
 
 # Third-party imports
 import numpy
-from Nio import open_file as nio_open_file
-from Nio import options as nio_options
 from asaptools.simplecomm import create_comm, SimpleComm
 from asaptools.timekeeper import TimeKeeper
 from asaptools.partition import WeightBalanced
@@ -25,6 +23,23 @@ from asaptools.vprinter import VPrinter
 
 # PyReshaper imports
 from specification import Specifier
+import iobackend
+
+# For memory diagnostics
+from resource import getrusage, RUSAGE_SELF
+
+
+#===================================================================================================
+# _memory_usage_resource_
+#===================================================================================================
+def _get_memory_usage_MB_():
+    """
+    Return the maximum memory use of this Python process in MB
+    """
+    to_MB = 1024.
+    if platform == 'darwin':
+        to_MB *= to_MB
+    return getrusage(RUSAGE_SELF).ru_maxrss / to_MB
 
 
 #==============================================================================
@@ -65,30 +80,12 @@ def create_reshaper(specifier, serial=False, verbosity=1, wmode='w',
     """
     # Determine the type of Reshaper object to instantiate
     if isinstance(specifier, Specifier):
-        return Slice2SeriesReshaper(specifier,
-                                    serial=serial,
-                                    verbosity=verbosity,
-                                    wmode=wmode,
-                                    once=once,
-                                    simplecomm=simplecomm)
-    elif isinstance(specifier, (list, tuple)):
-        spec_dict = dict([(str(i), s) for (i, s) in enumerate(specifier)])
-        return create_reshaper(spec_dict,
-                               serial=serial,
-                               verbosity=verbosity,
-                               wmode=wmode,
-                               once=once,
-                               simplecomm=simplecomm)
-    elif isinstance(specifier, dict):
-        if not all([isinstance(s, Specifier) for s in specifier.values()]):
-            err_msg = 'Multiple specifiers must all be of Specifier type'
-            raise TypeError(err_msg)
-        return MultiSpecReshaper(specifier,
-                                 serial=serial,
-                                 verbosity=verbosity,
-                                 wmode=wmode,
-                                 once=once,
-                                 simplecomm=simplecomm)
+        return Reshaper(specifier,
+                        serial=serial,
+                        verbosity=verbosity,
+                        wmode=wmode,
+                        once=once,
+                        simplecomm=simplecomm)
     else:
         err_msg = 'Specifier of type ' + str(type(specifier)) + ' is not a ' \
             + 'valid Specifier object.'
@@ -155,35 +152,9 @@ def _pprint_dictionary(title, dictionary, order=None):
 
 
 #==============================================================================
-# Reshaper Abstract Base Class
+# Reshaper Base Class
 #==============================================================================
 class Reshaper(object):
-
-    """
-    Abstract base class for Reshaper objects
-    """
-
-    __metaclass__ = abc.ABCMeta
-
-    @abc.abstractmethod
-    def convert(self):
-        """
-        Method to perform the Reshaper's designated operation.
-        """
-        return
-
-    @abc.abstractmethod
-    def print_diagnostics(self):
-        """
-        Print out timing and I/O information collected up to this point
-        """
-        return
-
-
-#==============================================================================
-# Reshaper Class
-#==============================================================================
-class Slice2SeriesReshaper(Reshaper):
 
     """
     The time-slice to time-series Reshaper class
@@ -258,6 +229,7 @@ class Slice2SeriesReshaper(Reshaper):
         self._timer.start('Initializing Simple Communicator')
         if simplecomm is None:
             simplecomm = create_comm(serial=serial)
+
         # Reference to the simple communicator
         self._simplecomm = simplecomm
         self._timer.stop('Initializing Simple Communicator')
@@ -280,30 +252,45 @@ class Slice2SeriesReshaper(Reshaper):
         if self._simplecomm.is_manager():
             self._vprint('  Specifier validated', verbosity=1)
 
+        # The I/O backend to use
+        self._backend = specifier.io_backend
+        if iobackend.is_available(specifier.io_backend):
+            self._backend = specifier.io_backend
+        else:
+            self._backend = iobackend.get_backend()
+            self._vprint(('  I/O Backend {0} not available.  Using {1} '
+                          'instead').format(specifier.io_backend, self._backend),
+                         verbosity=1)
+
         # Store the input file names
         self._input_filenames = specifier.input_file_list
 
+        # Store the time-series variable names
+        self._time_series_names = specifier.time_series
+        if self._time_series_names is not None:
+            vnames = ', '.join(self._time_series_names)
+            self._vprint('WARNING: Extracting only variables: {0}'.format(vnames), verbosity=-1)
+
         # Store the list of metadata names
         self._metadata_names = specifier.time_variant_metadata
+
+        # Store whether to treat 1D time-variant variables as metadata
+        self._1d_metadata = specifier.assume_1d_time_variant_metadata
 
         # Store the output file prefix and suffix
         self._output_prefix = specifier.output_file_prefix
         self._output_suffix = specifier.output_file_suffix
 
-        # Setup PyNIO options (including disabling the default PreFill option)
-        opt = nio_options()
-        opt.PreFill = False
-
-        # Determine the Format and CompressionLevel options
-        # from the NetCDF format string in the Specifier
-        if specifier.netcdf_format == 'netcdf':
-            opt.Format = 'Classic'
-        elif specifier.netcdf_format in ['netcdf4', 'netcdf4c']:
-            opt.Format = 'NetCDF4Classic'
-            opt.CompressionLevel = specifier.compression_level
-        self._nio_options = opt
+        # Setup NetCDF file options
+        self._netcdf_format = specifier.netcdf_format
+        self._netcdf_compression = specifier.compression_level
         if self._simplecomm.is_manager():
-            self._vprint('  PyNIO options set', verbosity=1)
+            self._vprint('  NetCDF I/O Backend: {0}'.format(self._backend),
+                         verbosity=1)
+            self._vprint('  NetCDF Output Format: {0}'.format(self._netcdf_format),
+                         verbosity=1)
+            self._vprint('  NetCDF Compression: {0}'.format(self._netcdf_compression),
+                         verbosity=1)
 
         # Helpful debugging message
         if self._simplecomm.is_manager():
@@ -318,6 +305,8 @@ class Slice2SeriesReshaper(Reshaper):
 
         We check the file contents here.
         """
+        # Set the I/O backend according to what is specified
+        iobackend.set_backend(self._backend)
 
         # Initialize the list of variable names for each category
         self._time_variant_metadata = []
@@ -329,7 +318,7 @@ class Slice2SeriesReshaper(Reshaper):
         #===== INSPECT FIRST INPUT FILE =====
 
         # Open first file
-        ifile = nio_open_file(self._input_filenames[0])
+        ifile = iobackend.NCFile(self._input_filenames[0])
 
         # Look for the 'unlimited' dimension
         try:
@@ -340,22 +329,22 @@ class Slice2SeriesReshaper(Reshaper):
             raise LookupError(err_msg)
 
         # Get the time values
-        time_values = [ifile.variables[self._unlimited_dim].get_value()]
-
-        # Get the list of variable names and missing variables
-        var_names = set(ifile.variables.keys())
-        missing_vars = set()
+        time_values = [ifile.variables[self._unlimited_dim][:]]
 
         # Categorize each variable (only looking at first file)
         for var_name, var in ifile.variables.iteritems():
             if self._unlimited_dim not in var.dimensions:
                 self._time_invariant_metadata.append(var_name)
-            elif var_name in self._metadata_names:
+            elif (var_name in self._metadata_names or
+                  (self._1d_metadata and len(var.dimensions) == 1)):
                 self._time_variant_metadata.append(var_name)
-            else:
-                size = numpy.dtype(var.typecode()).itemsize
-                size = size * numpy.prod(var.shape)
-                all_tsvars[var_name] = size
+            elif (self._time_series_names is None or
+                  var_name in self._time_series_names):
+                all_tsvars[var_name] = var.datatype.itemsize * var.size
+
+        # Get the list of variable names and missing variables
+        var_names = set(all_tsvars.keys() + self._time_invariant_metadata + self._time_variant_metadata)
+        missing_vars = set()
 
         # Close the first file
         ifile.close()
@@ -372,7 +361,7 @@ class Slice2SeriesReshaper(Reshaper):
         # (4) Check if there are any missing variables
         # (5) Get the time values from the files
         for ifilename in self._input_filenames[1:]:
-            ifile = nio_open_file(ifilename)
+            ifile = iobackend.NCFile(ifilename)
 
             # Determine the unlimited dimension
             if self._unlimited_dim not in ifile.dimensions:
@@ -389,8 +378,7 @@ class Slice2SeriesReshaper(Reshaper):
                 raise LookupError(err_msg)
 
             # Get the time values (list of NDArrays)
-            time_values.append(
-                ifile.variables[self._unlimited_dim].get_value())
+            time_values.append(ifile.variables[self._unlimited_dim][:])
 
             # Get the missing variables
             var_names_next = set(ifile.variables.keys())
@@ -406,10 +394,9 @@ class Slice2SeriesReshaper(Reshaper):
 
         # Make sure that the list of variables in each file is the same
         if len(missing_vars) != 0:
-            warning = ("WARNING: The first input file has variables that are "
-                       "not in all input files:{0}{1}").format(linesep, '   ')
-            for var in missing_vars:
-                warning += ' {0}'.format(var)
+            warning = ("WARNING: The first input file has variables "
+                       "that are not in all input files:{0}   "
+                       "{1}").format(linesep, ', '.join(sorted(missing_vars)))
             self._vprint(warning, header=True, verbosity=0)
 
         if self._simplecomm.is_manager():
@@ -471,6 +458,7 @@ class Slice2SeriesReshaper(Reshaper):
         we check whether the output files exist.  By default, if the output
         file
         """
+        iobackend.set_backend(self._backend)
 
         # Loop through the time-series variables and generate output filenames
         self._time_series_filenames = \
@@ -482,17 +470,18 @@ class Slice2SeriesReshaper(Reshaper):
                           if isfile(f)]
 
         # Set the starting step index for each variable
-        self._time_series_step_index = \
-            dict([(variable, 0) for variable in self._time_series_variables])
+        self._time_series_step_index = dict([(variable, 0) for variable in
+                                             self._time_series_variables])
 
         # If overwrite is enabled, delete all existing files first
         if self._write_mode == 'o':
             if self._simplecomm.is_manager() and len(self._existing) > 0:
-                self._vprint('WARNING: Deleting existing output files for '
-                             'time-series variables: {0}'.format(self._existing),
+                self._vprint('WARNING: Deleting existing output files for time-series '
+                             'variables: {0}'.format(', '.join(self._existing)),
                              verbosity=0)
             for variable in self._existing:
                 remove(self._time_series_filenames[variable])
+            self._existing = []
 
         # Or, if skip existing is set, remove the existing time-series
         # variables from the list of time-series variables to convert
@@ -515,13 +504,12 @@ class Slice2SeriesReshaper(Reshaper):
                 filename = self._time_series_filenames[variable]
 
                 # Open the time-series file for inspection
-                tsfile = nio_open_file(filename, 'r')
+                tsfile = iobackend.NCFile(filename)
 
                 # Check that the file has the unlimited dim and var
                 if not tsfile.unlimited(self._unlimited_dim):
-                    err_msg = ("Cannot append to time-series file with "
-                               "missing unlimited dimension "
-                               "'{0}'").format(self._unlimited_dim)
+                    err_msg = ("Cannot append to time-series file with missing unlimited "
+                               "dimension {0!r}").format(self._unlimited_dim)
                     raise RuntimeError(err_msg)
 
                 # Check for once file
@@ -548,8 +536,7 @@ class Slice2SeriesReshaper(Reshaper):
                     raise RuntimeError(err_msg)
 
                 # Get the starting step index to start writing from
-                self._time_series_step_index[variable] = \
-                    tsfile.dimensions[self._unlimited_dim]
+                self._time_series_step_index[variable] = tsfile.dimensions[self._unlimited_dim]
 
                 # Close the time-series file
                 tsfile.close()
@@ -560,7 +547,105 @@ class Slice2SeriesReshaper(Reshaper):
                        "variables: {0}").format(self._existing)
             raise RuntimeError(err_msg)
 
-    def convert(self, output_limit=0):
+    def _create_var(self, in_file, out_file, vname):
+        in_var = in_file.variables[vname]
+        out_var = out_file.create_variable(vname, in_var.datatype, in_var.dimensions)
+        for att_name in in_var.ncattrs:
+            att_value = in_var.getncattr(att_name)
+            out_var.setncattr(att_name, att_value)
+        
+    def _chunk_iter(self, vobj, chunks={}, corder=True):
+        """
+        This is a generator function to iterator over chunks of arrays with named dimensions
+        
+        Parameters:
+            vobj: A NetCDF file variable object with dimensions and shape attributes
+            chunks (dict): A dictionary of dimension names mapped to chunk sizes along that
+                named dimension
+            corder (bool): Whether to assume the array has C-style axis ordering, where the
+                fastest changing dimension is assumed to be the first axis.  If False, then
+                the fastest changing dimension is assumed to be the last.
+        """
+        dimensions = vobj.dimensions
+        shape = vobj.shape
+
+        nchunks = 1
+        dchunks = []
+        for dname, dlen in zip(dimensions, shape):
+            if dname in chunks:
+                clen = chunks[dname]
+                cnum = dlen // clen
+                if dlen % clen > 0:
+                    cnum += 1
+                nchunks *= cnum
+            else:
+                clen = dlen
+                cnum = 1
+            dchunks.append((dlen, clen, cnum))
+
+        for n in xrange(nchunks):
+            cidx = []
+            nidx = n
+            nstride = nchunks
+            if corder:
+                diter = reversed(dchunks)
+            else:
+                diter = iter(dchunks)
+            for dlen, clen, cnum in diter:
+                nstride = nstride // cnum
+                cidx.append(nidx // nstride)
+                nidx = nidx % nstride
+            if corder:
+                cidx.reverse()
+
+            cslice = []
+            for d in xrange(len(shape)):
+                ic = cidx[d]
+                dlen, clen, cnum = dchunks[d]
+
+                ibeg = ic * clen
+                iend = (ic + 1) * clen
+                if iend >= dlen:
+                    iend = dlen
+
+                cslice.append(slice(ibeg, iend))
+
+            yield tuple(cslice)
+
+    def _offset_chunk(self, chunk, vobj, offset):
+        """
+        Compute a new chunk/slice for a variable with a given offset
+        """
+        new_chunk = []
+        for i, d in enumerate(vobj.dimensions):
+            if d in offset:
+                o = offset[d]
+            else:
+                o = 0
+            new_chunk.append(slice(chunk[i].start + o, chunk[i].stop + o))
+        return tuple(new_chunk)
+
+    def _copy_var(self, kind, in_var, out_var, chunks={}, offsets={}):
+        """
+        Copy variable data from one variable object to another via chunking
+        """
+        for rslice in self._chunk_iter(in_var, chunks=chunks):
+
+            self._timer.start('Read {0}'.format(kind))
+            tmp_data = in_var[rslice]
+            self._timer.stop('Read {0}'.format(kind))
+            wslice = self._offset_chunk(rslice, out_var, offsets)
+            self._timer.start('Write {0}'.format(kind))
+            out_var[wslice] = tmp_data
+            self._timer.stop('Write {0}'.format(kind))
+
+            requested_nbytes = tmp_data.nbytes if hasattr(tmp_data, 'nbytes') else 0
+            self._byte_counts['Requested Data'] += requested_nbytes
+            actual_nbytes = (self.assumed_block_size *
+                             numpy.ceil(requested_nbytes / self.assumed_block_size))
+            self._byte_counts['Actual Data'] += actual_nbytes
+
+    def convert(self, output_limit=0, chunks=None):
         """
         Method to perform the Reshaper's designated operation.
 
@@ -572,14 +657,17 @@ class Slice2SeriesReshaper(Reshaper):
                 to 0, no limit is placed.  This limits the number
                 of output files produced by each processor in a
                 parallel run.
+            chunks (dict): A dictionary of dimension names mapped to chunk sizes 
+                along that named dimension
         """
+        iobackend.set_backend(self._backend)
+
         # Type checking input
         if type(output_limit) is not int:
             err_msg = 'Output limit must be an integer'
             raise TypeError(err_msg)
 
         # Start the total convert process timer
-        self._simplecomm.sync()
         self._timer.start('Complete Conversion Process')
 
         # Validate the input files themselves
@@ -600,9 +688,26 @@ class Slice2SeriesReshaper(Reshaper):
         if self._simplecomm.is_manager():
             self._vprint('...Output files inspected.', verbosity=0)
 
+        # Check the chunking
+        if chunks is None:
+            # Default chunking is over 1 time-step at a time
+            chunks = {self._unlimited_dim: 1}
+        if not isinstance(chunks, dict):
+            err_msg = 'Chunks must be specified with a dictionary'
+            raise TypeError(err_msg)
+        for key, value in chunks.iteritems():
+            if not isinstance(key, basestring):
+                err_msg = 'Chunks dictionary must have string-type keys'
+                raise TypeError(err_msg)
+            if not isinstance(value, int):
+                err_msg = 'Chunks dictionary must have integer chunk sizes'
+                raise TypeError(err_msg)
+            
         # Debugging output
         if self._simplecomm.is_manager():
+            self._vprint('Read chunk sizes: {0!s}'.format(chunks), verbosity=1)
             self._vprint('Converting time-slices to time-series...', verbosity=0)
+        self._simplecomm.sync()
 
         # Partition the time-series variables across all processors
         tsv_names_loc = self._time_series_variables
@@ -633,11 +738,6 @@ class Slice2SeriesReshaper(Reshaper):
         self._byte_counts['Requested Data'] = 0
         self._byte_counts['Actual Data'] = 0
 
-        # Defining a simple helper function to determine the bytes size of
-        # a variable given to it, whether an NDArray or not
-        def _get_bytesize(data):
-            return data.nbytes if hasattr(data, 'nbytes') else 0
-
         #===== LOOP OVER TIME_SERIES VARIABLES =====
 
         # Loop over all time-series variables
@@ -662,33 +762,33 @@ class Slice2SeriesReshaper(Reshaper):
                 remove(temp_filename)
             if self._write_mode == 'a' and out_name in self._existing:
                 rename(out_filename, temp_filename)
-                out_file = nio_open_file(temp_filename, 'a',
-                                         options=self._nio_options)
+                out_file = iobackend.NCFile(temp_filename, 'a', self._netcdf_format,
+                                            self._netcdf_compression)
                 appending = True
             else:
-                out_file = nio_open_file(temp_filename, 'w',
-                                         options=self._nio_options)
+                out_file = iobackend.NCFile(temp_filename, 'w', self._netcdf_format,
+                                            self._netcdf_compression)
                 appending = False
             self._timer.stop('Open Output Files')
 
-            # Start the loop over input files (i.e., time-steps)
-            series_step_index = self._time_series_step_index[out_name]
+            # Start the loop over input files (i.e., time-slices)
+            offsets = {self._unlimited_dim: self._time_series_step_index[out_name]}
             for in_filename in self._input_filenames:
 
                 # Open the input file
                 self._timer.start('Open Input Files')
-                in_file = nio_open_file(in_filename, 'r')
+                in_file = iobackend.NCFile(in_filename)
                 self._timer.stop('Open Input Files')
 
                 # Create header info, if this is the first input file
                 if in_filename == self._input_filenames[0] and not appending:
 
                     # Copy file attributes and dimensions to output file
-                    for name, val in in_file.attributes.iteritems():
-                        setattr(out_file, name, val)
+                    for name in in_file.ncattrs:
+                        out_file.setncattr(name, in_file.getncattr(name))
                     for name, val in in_file.dimensions.iteritems():
                         if name == self._unlimited_dim:
-                            out_file.create_dimension(name, None)
+                            out_file.create_dimension(name)
                         else:
                             out_file.create_dimension(name, val)
 
@@ -698,21 +798,13 @@ class Slice2SeriesReshaper(Reshaper):
                         # Time-invariant metadata variables
                         self._timer.start('Create Time-Invariant Metadata')
                         for name in self._time_invariant_metadata:
-                            in_var = in_file.variables[name]
-                            out_var = out_file.create_variable(
-                                name, in_var.typecode(), in_var.dimensions)
-                            for att_name, att_val in in_var.attributes.iteritems():
-                                setattr(out_var, att_name, att_val)
+                            self._create_var(in_file, out_file, name)
                         self._timer.stop('Create Time-Invariant Metadata')
 
                         # Time-variant metadata variables
                         self._timer.start('Create Time-Variant Metadata')
                         for name in self._time_variant_metadata:
-                            in_var = in_file.variables[name]
-                            out_var = out_file.create_variable(
-                                name, in_var.typecode(), in_var.dimensions)
-                            for att_name, att_val in in_var.attributes.iteritems():
-                                setattr(out_var, att_name, att_val)
+                            self._create_var(in_file, out_file, name)
                         self._timer.stop('Create Time-Variant Metadata')
 
                     # Create the time-series variable
@@ -720,11 +812,7 @@ class Slice2SeriesReshaper(Reshaper):
 
                         # Time-series variable
                         self._timer.start('Create Time-Series Variables')
-                        in_var = in_file.variables[out_name]
-                        out_var = out_file.create_variable(
-                            out_name, in_var.typecode(), in_var.dimensions)
-                        for att_name, att_val in in_var.attributes.iteritems():
-                            setattr(out_var, att_name, att_val)
+                        self._create_var(in_file, out_file, out_name)
                         self._timer.stop('Create Time-Series Variables')
 
                     dbg_msg = ('Writing output file for variable: '
@@ -735,83 +823,29 @@ class Slice2SeriesReshaper(Reshaper):
 
                     # Copy the time-invariant metadata
                     if write_meta_data:
-
                         for name in self._time_invariant_metadata:
                             in_var = in_file.variables[name]
                             out_var = out_file.variables[name]
-                            self._timer.start('Read Time-Invariant Metadata')
-                            tmp_data = in_var.get_value()
-                            self._timer.stop('Read Time-Invariant Metadata')
-                            self._timer.start('Write Time-Invariant Metadata')
-                            out_var.assign_value(tmp_data)
-                            self._timer.stop('Write Time-Invariant Metadata')
+                            self._copy_var('Time-Invariant Metadata', in_var, out_var,
+                                           chunks=chunks)
 
-                            requested_nbytes = _get_bytesize(tmp_data)
-                            self._byte_counts[
-                                'Requested Data'] += requested_nbytes
-                            actual_nbytes = self.assumed_block_size \
-                                * numpy.ceil(requested_nbytes / self.assumed_block_size)
-                            self._byte_counts['Actual Data'] += actual_nbytes
+                # Copy the time-varient metadata
+                if write_meta_data:
+                    for name in self._time_variant_metadata:
+                        in_var = in_file.variables[name]
+                        out_var = out_file.variables[name]
+                        self._copy_var('Time-Variant Metadata', in_var, out_var,
+                                       chunks=chunks, offsets=offsets)
 
-                # Get the number of time steps in this slice file
-                num_steps = in_file.dimensions[self._unlimited_dim]
+                # Copy the time-series variables
+                if write_tser_data:
+                    in_var = in_file.variables[out_name]
+                    out_var = out_file.variables[out_name]
+                    self._copy_var('Time-Series Variables', in_var, out_var,
+                                   chunks=chunks, offsets=offsets)
 
-                # Explicitly loop over time steps (to control memory use)
-                for slice_step_index in xrange(num_steps):
-
-                    # Copy the time-varient metadata
-                    if write_meta_data:
-
-                        for name in self._time_variant_metadata:
-                            in_var = in_file.variables[name]
-                            out_var = out_file.variables[name]
-                            ndims = len(in_var.dimensions)
-                            udidx = in_var.dimensions.index(
-                                self._unlimited_dim)
-                            in_slice = [slice(None)] * ndims
-                            in_slice[udidx] = slice_step_index
-                            out_slice = [slice(None)] * ndims
-                            out_slice[udidx] = series_step_index
-                            self._timer.start('Read Time-Variant Metadata')
-                            tmp_data = in_var[tuple(in_slice)]
-                            self._timer.stop('Read Time-Variant Metadata')
-                            self._timer.start('Write Time-Variant Metadata')
-                            out_var[tuple(out_slice)] = tmp_data
-                            self._timer.stop('Write Time-Variant Metadata')
-
-                            requested_nbytes = _get_bytesize(tmp_data)
-                            self._byte_counts[
-                                'Requested Data'] += requested_nbytes
-                            actual_nbytes = self.assumed_block_size \
-                                * numpy.ceil(requested_nbytes / self.assumed_block_size)
-                            self._byte_counts['Actual Data'] += actual_nbytes
-
-                    # Copy the time-series variables
-                    if write_tser_data:
-
-                        in_var = in_file.variables[out_name]
-                        out_var = out_file.variables[out_name]
-                        ndims = len(in_var.dimensions)
-                        udidx = in_var.dimensions.index(self._unlimited_dim)
-                        in_slice = [slice(None)] * ndims
-                        in_slice[udidx] = slice_step_index
-                        out_slice = [slice(None)] * ndims
-                        out_slice[udidx] = series_step_index
-                        self._timer.start('Read Time-Series Variables')
-                        tmp_data = in_var[tuple(in_slice)]
-                        self._timer.stop('Read Time-Series Variables')
-                        self._timer.start('Write Time-Series Variables')
-                        out_var[tuple(out_slice)] = tmp_data
-                        self._timer.stop('Write Time-Series Variables')
-
-                        requested_nbytes = _get_bytesize(tmp_data)
-                        self._byte_counts['Requested Data'] += requested_nbytes
-                        actual_nbytes = self.assumed_block_size \
-                            * numpy.ceil(requested_nbytes / self.assumed_block_size)
-                        self._byte_counts['Actual Data'] += actual_nbytes
-
-                    # Increment the time-series step index
-                    series_step_index += 1
+                # Increment the time-series index offset
+                offsets[self._unlimited_dim] += in_file.dimensions[self._unlimited_dim]
 
                 # Close the input file
                 self._timer.start('Close Input Files')
@@ -833,8 +867,7 @@ class Slice2SeriesReshaper(Reshaper):
         # Information
         self._simplecomm.sync()
         if self._simplecomm.is_manager():
-            self._vprint(('Finished converting time-slices '
-                          'to time-series.'), verbosity=0)
+            self._vprint('Finished converting time-slices to time-series.', verbosity=0)
 
         # Finish clocking the entire convert procedure
         self._timer.stop('Complete Conversion Process')
@@ -847,6 +880,8 @@ class Slice2SeriesReshaper(Reshaper):
         # Get all totals and maxima
         my_times = self._timer.get_all_times()
         max_times = self._simplecomm.allreduce(my_times, op='max')
+        my_memory = {'Maximum Memory Use': _get_memory_usage_MB_()}
+        max_memory = self._simplecomm.allreduce(my_memory, op='max')
         my_bytes = self._byte_counts
         total_bytes = self._simplecomm.allreduce(my_bytes, op='sum')
 
@@ -868,170 +903,8 @@ class Slice2SeriesReshaper(Reshaper):
         if self._simplecomm.is_manager():
             self._vprint(byte_count_str, verbosity=-1)
 
+        # Print maximum memory use in MB
+        memory_str = _pprint_dictionary('MEMORY USAGE (MB)', max_memory)
+        if self._simplecomm.is_manager():
+            self._vprint(memory_str, verbosity=-1)
 
-#==============================================================================
-# MultiSpecReshaper Class
-#==============================================================================
-class MultiSpecReshaper(Reshaper):
-
-    """
-    Multiple Slice-to-Series Reshaper class
-
-    This class is designed to deal with lists of multiple
-    Slice2SeriesSpecifiers at a time.  Instead of being instantiated
-    (or initialized) with a single Slice2SeriesSpecifier,
-    it takes a dictionary of Slice2SeriesSpecifier objects.
-    """
-
-    def __init__(self, specifiers, serial=False, verbosity=1, wmode='w',
-                 once=False, simplecomm=None):
-        """
-        Constructor
-
-        Parameters:
-            specifiers (dict): A dict of named Specifier instances, each
-                defining an input specification for this reshaper operation.
-            serial (bool): True or False, indicating whether the operation
-                should be performed in serial (True) or parallel
-                (False).  The default is to assume parallel operation
-                (but serial will be chosen if the mpi4py cannot be
-                found when trying to initialize decomposition.
-            verbosity(int): Level of printed output (stdout).  A value of 0
-                means no output, and a higher value means more output.  The
-                default value is 1.
-            wmode (str): The mode to use for writing output.  Can be 'w' for
-                normal write operation, 's' to skip the output generation for
-                existing time-series files, 'o' to overwrite existing
-                time-series files, 'a' to append to existing time-series files.
-            once (bool): True or False, indicating whether the Reshaper should
-                write all metadata to a 'once' file (separately).
-            simplecomm (SimpleComm): A SimpleComm object to handle the parallel
-                communication, if necessary
-        """
-
-        # Check types
-        if not isinstance(specifiers, dict):
-            err_msg = "Input must be given in a dictionary of Specifiers"
-            raise TypeError(err_msg)
-        if type(serial) is not bool:
-            err_msg = "Serial indicator must be True or False."
-            raise TypeError(err_msg)
-        if type(verbosity) is not int:
-            err_msg = "Verbosity level must be an integer."
-            raise TypeError(err_msg)
-        if type(wmode) is not str:
-            err_msg = "Write mode flag must be a str."
-            raise TypeError(err_msg)
-        if type(once) is not bool:
-            err_msg = "Once-file indicator must be True or False."
-            raise TypeError(err_msg)
-        if simplecomm is not None:
-            if not isinstance(simplecomm, SimpleComm):
-                err_msg = "Simple communicator object is not a SimpleComm"
-                raise TypeError(err_msg)
-        if wmode not in ['w', 's', 'o', 'a']:
-            err_msg = "Write mode '{0}' not recognized".format(wmode)
-            raise ValueError(err_msg)
-
-        # Whether to write to a once file
-        self._use_once_file = once
-
-        # Output file write mode
-        self._write_mode = wmode
-
-        # Store the list of specifiers
-        self._specifiers = specifiers
-
-        # Store the serial specifier
-        self._serial = serial
-
-        # Check for a SimpleComm, and if none create it
-        if simplecomm is None:
-            simplecomm = create_comm(serial=serial)
-
-        # Pointer to its own messenger
-        self._simplecomm = simplecomm
-
-        # Store the verbosity
-        self._verbosity = verbosity
-
-        # Set the verbose printer
-        self._vprint = VPrinter(verbosity=verbosity)
-
-        # Storage for timing data
-        self._times = {}
-
-        # Orders for printing timing data
-        self._time_orders = {}
-
-        # Storage for all byte counters
-        self._byte_counts = {}
-
-    def convert(self, output_limit=0):
-        """
-        Method to perform each Reshaper's designated operation.
-
-        Loops through and creates each Reshaper, calls each Reshaper's
-        convert() method, and pulls the timing data out for each convert
-        operation.
-
-        Parameters:
-            output_limit (int): Limit on the number of output (time-series)
-                files to write during the convert() operation.  If set
-                to 0, no limit is placed.  This limits the number
-                of output files produced by each processor in a
-                parallel run.
-        """
-        # Type checking input
-        if type(output_limit) is not int:
-            err_msg = 'Output limit must be an integer'
-            raise TypeError(err_msg)
-
-        # Loop over all specifiers
-        for spec_name in self._specifiers:
-            if self._simplecomm.is_manager():
-                self._vprint('--- Converting Specifier: ' +
-                             str(spec_name), verbosity=0)
-
-            rshpr = create_reshaper(self._specifiers[spec_name],
-                                    serial=self._serial,
-                                    verbosity=self._verbosity,
-                                    wmode=self._write_mode,
-                                    once=self._use_once_file,
-                                    simplecomm=self._simplecomm)
-            rshpr.convert(output_limit=output_limit)
-
-            this_times = rshpr._timer.get_all_times()
-            self._times[spec_name] = rshpr._simplecomm.allreduce(
-                this_times, op='max')
-            self._time_orders[spec_name] = rshpr._timer.get_names()
-            this_count = rshpr._byte_counts
-            self._byte_counts[spec_name] = rshpr._simplecomm.allreduce(
-                this_count, op='sum')
-
-            if self._simplecomm.is_manager():
-                self._vprint('--- Finished converting Specifier: ' +
-                             str(spec_name) + linesep, verbosity=0)
-            self._simplecomm.sync()
-
-    def print_diagnostics(self):
-        """
-        Print out timing and I/O information collected up to this point
-        """
-        # Loop through all timers
-        for name in self._specifiers:
-            if self._simplecomm.is_manager():
-                self._vprint('Specifier: ' + str(name), verbosity=0)
-
-            times = self._times[name]
-            o = self._time_orders[name]
-            times_str = _pprint_dictionary('TIMING DATA', times, order=o)
-            if self._simplecomm.is_manager():
-                self._vprint(times_str, verbosity=0)
-
-            counts = self._byte_counts[name]
-            for name in counts:
-                counts[name] = counts[name] / float(1024 * 1024)
-            counts_str = _pprint_dictionary('BYTE COUNTS (MB)', counts)
-            if self._simplecomm.is_manager():
-                self._vprint(counts_str, verbosity=0)
