@@ -1,5 +1,5 @@
 """
-Copyright 2015, University Corporation for Atmospheric Research
+Copyright 2016, University Corporation for Atmospheric Research
 See LICENSE.txt for details
 """
 
@@ -10,6 +10,7 @@ from glob import glob
 from cStringIO import StringIO
 from os import linesep as eol
 from os import remove
+from os.path import exists
 from mpi4py import MPI
 
 from pyreshaper.specification import Specifier
@@ -18,7 +19,7 @@ import mkTestData
 
 s2srun = imp.load_source('s2srun', '../../../scripts/s2srun')
 
-MPI_COMM_WORLD = MPI.COMM_WORLD
+MPI_COMM_WORLD = MPI.COMM_WORLD  # @UndefinedVariable
 
 
 class s2srunTest(unittest.TestCase):
@@ -53,14 +54,18 @@ class s2srunTest(unittest.TestCase):
 
     def _convert_header(self, infiles, prefix, suffix, metadata,
                         ncfmt, clevel, serial, verbosity, wmode, once,
-                        print_diags=False):
+                        print_diags=False, meta1d=False, tseries=None):
         nfiles = len(infiles)
         ncvers = '3' if ncfmt == 'netcdf' else ('4c' if ncfmt == 'netcdf4c'
                                                 else '4')
-        self._test_header(("convert() - {0} infile(s), NC{1}-CL{2}, serial={3},{4}"
-                           "            verbosity={5}, wmode={6!r}, once={7}"
+        if tseries is not None:
+            tsvstr = ', ntsvar={0}'.format(len(tseries))
+        else:
+            tsvstr = ''
+        self._test_header(("convert() - {0} infile(s), NC{1}-CL{2}, serial={3}{9},{4}"
+                           "            verbosity={5}, wmode={6!r}, once={7}, meta1d={8}"
                            "").format(nfiles, ncvers, clevel, serial, eol,
-                                      verbosity, wmode, once))
+                                      verbosity, wmode, once, meta1d, tsvstr))
 
     def _assertion(self, name, actual, expected,
                    data=None, show=True, assertion=None):
@@ -78,16 +83,24 @@ class s2srunTest(unittest.TestCase):
         else:
             self.assertEqual(actual, expected, msg)
 
+    def _check_outfile(self, tsvar, **args):
+        assertions_dict = mkTestData.check_outfile(tsvar=tsvar, **args)
+        failed_assertions = [key for key, value in assertions_dict.iteritems() if value is False]
+        assert_msgs = ['Output file check for variable {0!r}:'.format(tsvar)]
+        assert_msgs.extend(['   {0}'.format(assrt) for assrt in failed_assertions])
+        self.assertEqual(len(failed_assertions), 0, eol.join(assert_msgs))
+        
     def _run_main(self, infiles, prefix, suffix, metadata,
-                  ncfmt, clevel, serial, verbosity, wmode, once):
+                  ncfmt, clevel, serial, verbosity, wmode, once, meta1d=False, tseries=None):
         if not (serial and self.rank > 0):
             spec = Specifier(infiles=infiles, ncfmt=ncfmt, compression=clevel,
-                             prefix=prefix, suffix=suffix, metadata=metadata)
+                             prefix=prefix, suffix=suffix, timeseries=tseries,
+                             metadata=metadata, meta1d=meta1d)
             specfile = 'input.s2s'
             pickle.dump(spec, open(specfile, 'wb'))
             argv = ['-v', str(verbosity), '-m', wmode]
             if once:
-                argv.append('-s')
+                argv.append('-1')
             argv.append(specfile)
             s2srun.main(argv)
             remove(specfile)
@@ -191,7 +204,37 @@ class s2srunTest(unittest.TestCase):
         self._run_main(**args)
         if self.rank == 0:
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(tsvar=tsvar, **args)
+                self._check_outfile(tsvar=tsvar, **args)
+        MPI_COMM_WORLD.Barrier()
+
+    def test_main_All_NC3_CL0_SER_V0_W_M1D(self):
+        mdata = [v for v in mkTestData.tvmvars]
+        args = {'infiles': mkTestData.slices, 'prefix': 'out.', 'suffix': '.nc',
+                'metadata': mdata, 'meta1d': True, 'ncfmt': 'netcdf', 'clevel': 0,
+                'serial': True, 'verbosity': 0, 'wmode': 'w', 'once': False}
+        self._convert_header(**args)
+        self._run_main(**args)
+        if self.rank == 0:
+            for tsvar in mkTestData.tsvars:
+                self._check_outfile(tsvar=tsvar, **args)
+        MPI_COMM_WORLD.Barrier()
+
+    def test_main_All_NC3_CL0_SER_V1_W_TSER(self):
+        mdata = [v for v in mkTestData.tvmvars]
+        tsers = mkTestData.tsvars[2:]
+        args = {'infiles': mkTestData.slices, 'prefix': 'out.', 'suffix': '.nc',
+                'metadata': mdata, 'meta1d': True, 'ncfmt': 'netcdf', 'clevel': 0,
+                'serial': True, 'verbosity': 1, 'wmode': 'w', 'once': False,
+                'tseries': tsers}
+        self._convert_header(**args)
+        self._run_main(**args)
+        if self.rank == 0:
+            for tsvar in mkTestData.tsvars:
+                if tsvar in tsers:
+                    self._check_outfile(tsvar=tsvar, **args)
+                else:
+                    fname = args['prefix'] + tsvar + args['suffix']
+                    self.assertFalse(exists(fname), 'File {0!r} should not exist'.format(fname))
         MPI_COMM_WORLD.Barrier()
 
     def test_main_1_NC3_CL0_SER_V0_W(self):
@@ -204,7 +247,7 @@ class s2srunTest(unittest.TestCase):
         self._run_main(**args)
         if self.rank == 0:
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(tsvar=tsvar, **args)
+                self._check_outfile(tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC4_CL1_SER_V0_W(self):
@@ -217,7 +260,7 @@ class s2srunTest(unittest.TestCase):
         self._run_main(**args)
         if self.rank == 0:
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(tsvar=tsvar, **args)
+                self._check_outfile(tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC3_CL0_PAR_V1_W(self):
@@ -230,7 +273,7 @@ class s2srunTest(unittest.TestCase):
         self._run_main(**args)
         if self.rank == 0:
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(tsvar=tsvar, **args)
+                self._check_outfile(tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC3_CL0_PAR_V1_W_ONCE(self):
@@ -242,9 +285,9 @@ class s2srunTest(unittest.TestCase):
         self._convert_header(**args)
         self._run_main(**args)
         if self.rank == 0:
-            mkTestData.check_outfile(tsvar='once', **args)
+            self._check_outfile(tsvar='once', **args)
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(tsvar=tsvar, **args)
+                self._check_outfile(tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC3_CL0_PAR_V1_O(self):
@@ -257,7 +300,7 @@ class s2srunTest(unittest.TestCase):
         self._run_main(**args)
         if self.rank == 0:
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(tsvar=tsvar, **args)
+                self._check_outfile(tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC3_CL0_PAR_V1_O_ONCE(self):
@@ -269,9 +312,9 @@ class s2srunTest(unittest.TestCase):
         self._convert_header(**args)
         self._run_main(**args)
         if self.rank == 0:
-            mkTestData.check_outfile(tsvar='once', **args)
+            self._check_outfile(tsvar='once', **args)
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(tsvar=tsvar, **args)
+                self._check_outfile(tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC3_CL0_PAR_V1_S(self):
@@ -284,7 +327,7 @@ class s2srunTest(unittest.TestCase):
         self._run_main(**args)
         if self.rank == 0:
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(tsvar=tsvar, **args)
+                self._check_outfile(tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC3_CL0_PAR_V1_S_ONCE(self):
@@ -296,9 +339,9 @@ class s2srunTest(unittest.TestCase):
         self._convert_header(**args)
         self._run_main(**args)
         if self.rank == 0:
-            mkTestData.check_outfile(tsvar='once', **args)
+            self._check_outfile(tsvar='once', **args)
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(tsvar=tsvar, **args)
+                self._check_outfile(tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC3_CL0_PAR_V3_A(self):
@@ -313,7 +356,7 @@ class s2srunTest(unittest.TestCase):
             self._run_main(infiles=[infile], wmode='a', **args)
         if self.rank == 0:
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(infiles=mkTestData.slices, tsvar=tsvar, **args)
+                self._check_outfile(infiles=mkTestData.slices, tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC3_CL0_PAR_V3_A_ONCE(self):
@@ -327,9 +370,9 @@ class s2srunTest(unittest.TestCase):
         for infile in mkTestData.slices[1:]:
             self._run_main(infiles=[infile], wmode='a', **args)
         if self.rank == 0:
-            mkTestData.check_outfile(infiles=mkTestData.slices, tsvar='once', **args)
+            self._check_outfile(infiles=mkTestData.slices, tsvar='once', **args)
             for tsvar in mkTestData.tsvars:
-                mkTestData.check_outfile(infiles=mkTestData.slices, tsvar=tsvar, **args)
+                self._check_outfile(infiles=mkTestData.slices, tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
     def test_main_All_NC3_CL0_PAR_V3_A_MISSING(self):
@@ -348,9 +391,9 @@ class s2srunTest(unittest.TestCase):
         if self.rank == 0:
             for tsvar in mkTestData.tsvars:
                 if tsvar == missingvar:
-                    mkTestData.check_outfile(infiles=mkTestData.slices[2:], tsvar=tsvar, **args)
+                    self._check_outfile(infiles=mkTestData.slices[2:], tsvar=tsvar, **args)
                 else:
-                    mkTestData.check_outfile(infiles=mkTestData.slices, tsvar=tsvar, **args)
+                    self._check_outfile(infiles=mkTestData.slices, tsvar=tsvar, **args)
         MPI_COMM_WORLD.Barrier()
 
 

@@ -347,9 +347,27 @@ def get_duration_pdata(data_dict):
             plot_dict[dataset] = {}
             for method in data_dict[dataset][__RESULTS__]:
                 plot_dict[dataset][method] = []
-                for job_data in data_dict[dataset][__RESULTS__][method].values():
+                for job_id in sorted(data_dict[dataset][__RESULTS__][method]):
+                    job_data = data_dict[dataset][__RESULTS__][method][job_id]
                     real_time = float(job_data['real']) / 60.0
                     plot_dict[dataset][method].append(real_time)
+    return plot_dict
+
+
+#==============================================================================
+# Gather speedup data from a data dictionary and return a plot dictionary
+#==============================================================================
+def get_speedup_pdata(plot_dict, over_method):
+    to_remove = []
+    for dataset in plot_dict:
+        if over_method in plot_dict[dataset]:
+            over_time = plot_dict[dataset].pop(over_method)
+            for method in plot_dict[dataset]:
+                plot_dict[dataset][method] *= 1.0/over_time 
+        else:
+            to_remove.append(dataset)
+    for dataset in to_remove:
+        plot_dict.pop(dataset)
     return plot_dict
 
 
@@ -364,7 +382,8 @@ def get_throughput_pdata(data_dict):
             plot_dict[dataset] = {}
             for method in data_dict[dataset][__RESULTS__]:
                 plot_dict[dataset][method] = []
-                for job_data in data_dict[dataset][__RESULTS__][method].values():
+                for job_id in sorted(data_dict[dataset][__RESULTS__][method]):
+                    job_data = data_dict[dataset][__RESULTS__][method][job_id]
                     throughput = isize / float(job_data['real'])
                     plot_dict[dataset][method].append(throughput)
     return plot_dict
@@ -376,8 +395,9 @@ def get_throughput_pdata(data_dict):
 def reduce_pdata(plot_dict, func=numpy.average):
     for dataset in plot_dict:
         for method in plot_dict[dataset]:
-            reduced_data = func(plot_dict[dataset][method])
-            plot_dict[dataset][method] = reduced_data
+            if isinstance(plot_dict[dataset][method], (list,tuple)):
+                reduced_data = func(plot_dict[dataset][method])
+                plot_dict[dataset][method] = reduced_data
     return plot_dict
 
 
@@ -388,18 +408,15 @@ def make_bar_plot(pdata, filename,
                   dataset_order, method_order, method_colors,
                   dataset_labels, method_labels,
                   title=None, xlabel=None, ylabel=None,
-                  figsize=(4, 3),
-                  figadjustments={
-                      'left': 0.175, 'right': 0.98, 'top': 0.915, 'bottom': 0.275},
+                  figsize=(8, 6),
+                  figadjustments={'left': 0.175, 'right': 0.98, 'top': 0.915, 'bottom': 0.275},
                   labelrotation=35,
                   titlefontsize=12,
                   labelfontsize=10,
                   tickfontsize=9,
                   legendfontsize=8,
+                  logplot=False,
                   figformat='pdf'):
-
-    # Reduce the data first (if already reduced, does nothing)
-    pdata = reduce_pdata(pdata)
 
     # Get the names of the datasets and the methods
     dataset_names = set(pdata.keys())
@@ -409,19 +426,19 @@ def make_bar_plot(pdata, filename,
         method_names.update(new_set)
 
     # Check that the order and colors lists contain enough names
-    if not set(dataset_order).issubset(dataset_names):
+    if not set(dataset_order).issuperset(dataset_names):
         raise ValueError(
             'Dataset order must contain all dataset names found in the plot dictionary')
-    if not set(dataset_labels).issubset(dataset_names):
+    if not set(dataset_labels).issuperset(dataset_names):
         raise ValueError(
             'Dataset labels must contain all dataset names found in the plot dictionary')
-    if not set(method_order).issubset(method_names):
+    if not set(method_order).issuperset(method_names):
         raise ValueError(
             'Method order must contain all method names found in the plot dictionary')
-    if not set(method_colors).issubset(method_names):
+    if not set(method_colors).issuperset(method_names):
         raise ValueError(
             'Method colors must contain all method names found in the plot dictionary')
-    if not set(method_labels).issubset(method_names):
+    if not set(method_labels).issuperset(method_names):
         raise ValueError(
             'Method labels must contain all method names found in the plot dictionary')
 
@@ -439,7 +456,7 @@ def make_bar_plot(pdata, filename,
     plt.figure(figsize=figsize)
     plt.subplots_adjust(**figadjustments)
 
-    # Plot every method and dataset in the plot dictionary
+    axes = {'xmin': [], 'xmax': [], 'ymin': [], 'ymax': []}
     for method in method_order:
         if method in method_names:
             yvalues = numpy.zeros(n_datasets)
@@ -454,8 +471,17 @@ def make_bar_plot(pdata, filename,
 
             clr = method_colors[str(method)]
             lab = method_labels[str(method)]
-            plt.bar(xvalues, yvalues, width, color=clr, label=lab)
+            plt.bar(xvalues, yvalues, width, color=clr, label=lab, log=logplot)
             offset += width
+            
+            for nm,vl in zip(['xmin', 'xmax', 'ymin', 'ymax'], plt.axis()):
+                axes[nm].append(vl)
+    
+    axes['xmin'] = min(axes['xmin'])
+    axes['xmax'] = max(axes['xmax'])
+    axes['ymin'] = min(axes['ymin'])
+    axes['ymax'] = max(axes['ymax'])
+    new_axes = [axes[nm] for nm in ['xmin', 'xmax', 'ymin', 'ymax']]
 
     # Label the x-axis values
     xlabels = []
@@ -473,4 +499,5 @@ def make_bar_plot(pdata, filename,
     plt.xticks(xbase, xlabels, rotation=labelrotation,
                ha='right', fontsize=tickfontsize)
     plt.legend(loc=2, fontsize=legendfontsize)
+    plt.axis(new_axes)
     plt.savefig(filename, format=figformat)

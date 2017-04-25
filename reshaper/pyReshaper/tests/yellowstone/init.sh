@@ -1,5 +1,8 @@
 #!/bin/bash
 
+module load python
+module load all-python-libs
+
 # Function to return the absolute path
 function abspath {
   cd $1
