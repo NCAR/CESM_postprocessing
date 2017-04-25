@@ -59,7 +59,7 @@
 
   <machine name="cheyenne" hostname="cheyenne">
     <timeseries_pes queue="regular" nodes="2" pes_per_node="36" wallclock="00:30:00">72</timeseries_pes>
-    <mpi_command>mpirun -n {{ pes }}</mpi_command>
+    <mpi_command>mpiexec_mpt dplace -s 1</mpi_command>
     <pythonpath></pythonpath>
     <f2py fcompiler="gfortran" f77exec="/glade/u/apps/ch/opt/gnu/6.2.0/bin/gfortran" 
 	  f90exec="/glade/u/apps/ch/opt/gnu/6.2.0/bin/gfortran">f2py</f2py>
@@ -77,11 +77,9 @@
       <module>module load python/2.7.13</module>
       <module>module load numpy/1.12.0</module>
       <module>module load scipy/0.18.1</module>
-      <module>module load impi/5.1.3.210</module>
-      <module>module load mpi4py/2.0.0-impi</module>
+      <module>module load mpi4py/2.0.0-mpt</module>
       <module>module load pynio/1.4.1</module>
       <module>module load matplotlib/2.0.0</module>
-      <module>module load intel/16.0.3</module>
       <module>module load netcdf/4.4.1.1</module>
       <module>module load nco/4.6.2</module>
       <module>module load netcdf4-python/1.2.7</module>
