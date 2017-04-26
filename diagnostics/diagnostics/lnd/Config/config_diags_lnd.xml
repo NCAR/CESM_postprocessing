@@ -811,6 +811,30 @@ Applies to both model and control cases."
              desc="Plot Set 9: VALIDATION DIAGNOSTICS (ONLY FOR MODEL-MODEL)"
              ></entry>
 
+      <entry id="LNDDIAG_set_10"
+             type="logical"
+             valid_values="True/False"
+             value="True"
+             group="plot_sets"
+             desc="Plot Set 10: Regional ice sheet plots: Greenland"
+             ></entry>
+
+      <entry id="LNDDIAG_set_11"
+             type="logical"
+             valid_values="True/False"
+             value="True"
+             group="plot_sets"
+             desc="Plot Set 11: Regional ice sheet plots: Antarctica"
+             ></entry>
+     
+      <entry id="LNDDIAG_set_12"
+             type="logical"
+             valid_values="True/False"
+             value="True"
+             group="plot_sets"
+             desc="Plot Set 12: Ice sheet averages"
+             ></entry>
+
     </group>
 
     <!-- ============================================================================================== -->

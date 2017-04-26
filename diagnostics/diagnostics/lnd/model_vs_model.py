@@ -168,7 +168,7 @@ class modelVsModel(LandDiagnostic):
         if scomm.is_manager():
 
             # Create web dirs and move images/tables to that web dir
-            for n in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
+            for n in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'):
                 web_dir = env['WKDIR'] 
                 set_dir = web_dir + '/set' + n
                 # Create the plot set web directory

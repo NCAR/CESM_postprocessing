@@ -21,6 +21,9 @@
   $set_8  = $ENV{'set_8'};
   $set_8_lnd  = $ENV{'set_8_lnd'};
   $set_9  = $ENV{'set_9'};
+  $set_10 = $ENV{'set_10'};
+  $set_11 = $ENV{'set_11'};
+  $set_12 = $ENV{'set_12'};
 
 ##  $prefix_1  = $ENV{'prefix_1'};
   $prefix_1  = $ENV{'CASE'};
@@ -89,8 +92,8 @@ if($set_8_lnd eq "True") { $set_8 = 'True'; }
 ##if($runtype eq "model-obs")   { $set_9=0; }
 if($runtype eq "model-obs")   { $set_9 = 'False'; }
 
-@setList = (1,2,3,4,5,6,7,8,9); 
-@status = ($set_1, $set_2, $set_3, $set_4, $set_5, $set_6, $set_7,$set_8,$set_9);
+@setList = (1,2,3,4,5,6,7,8,9,10,11,12); 
+@status = ($set_1, $set_2, $set_3, $set_4, $set_5, $set_6, $set_7,$set_8,$set_9,$set_10,$set_11,$set_12);
 
 for $set (@setList)
 {
@@ -122,6 +125,9 @@ for $set (@setList)
 	if ($set ==  7)   { &set7Page; } 
 	if ($set ==  8)   { &set8Page; }
 	if ($set ==  9)   { &set9Page; }
+	if ($set ==  10)  { &set10Page; }
+	if ($set ==  11)  { &set11Page; }
+   if ($set ==  12)  { &set12Page; }
     }
 }
 &clickablePlotTypes(@status);
@@ -272,12 +278,12 @@ sub setHeader
 sub clickablePlotTypes
 {
 	printf(fp_main "</table>\n");
-        @setList = (1,2,3,4,6,7,8);
+        @setList = (1,2,3,4,6,7,8,10,11,12);
 	printf(fp_main "<hr noshade size=2 size=\"100%\">\n");
 	printf(fp_main "<em>Click on Plot Type</em></b><p>\n");
 	for $set (@setList)
 	{
-	   if ($set == 3 | $set == 4) { $sn = "s"; }
+	   if ($set == 3 | $set == 4 | $set == 12) { $sn = "s"; }
 	   else                       { $sn = "sn";  }
 ##           if( @status[$set-1] == "True") { 
            if( @status[$set-1] eq "True") { 
@@ -364,6 +370,21 @@ sub setDescription
 		$l1 = "Contour plots and statistics for precipitation and temperature.";
 	        $l2 = "  Statistics include DJF, JJA, and ANN biases, and RMSE, correlation and standard deviation of the annual cycle relative to observations</b><br>";
 		$l  = $l1.$l2;
+	}
+	if ($set == 10)
+	{
+		$l  = "Horizontal contour plots of DJF, MAM, JJA, SON, and ANN means, zoomed in on the Greenland ice sheet (courtesy: Jan Lenaerts, jtmlenaerts@gmail.com) </b><br>";
+	}
+	if ($set == 11)
+	{
+		$l  = "Horizontal contour plots of DJF, MAM, JJA, SON, and ANN means, zoomed in on the Antarctic ice sheet (courtesy: Jan Lenaerts, jtmlenaerts@gmail.com) </b><br>";
+	}
+	if ($set == 12)
+	{
+	      $l1 = "Line plots of monthly climatology: regional air temperature, precipitation,";
+                    $l2 = " runoff, snow depth, radiative fluxes, and turbulent fluxes,";
+                     $l3 = " ice sheet cells only (courtesy: Jan Lenaerts, jtmlenaerts@gmail.com) </b><br>";
+                          $l  = $l1.$l2.$l3;
 	}
 	return($l)
 }
@@ -565,6 +586,7 @@ sub set2Page
               }
         }
 }
+
 
 sub set3and6Page
 {
@@ -1149,3 +1171,518 @@ sub set9Page
         }
         printf fp_wp "<TR>\n";
 }
+ 
+ 
+ 
+sub set10Page
+{
+	# set-specific header
+        @time  = ("DJF","MAM","JJA","SON","ANN");
+	printf fp_wp "  <TH><BR>\n";
+	$snF = 0;
+        @vSP = ("TSA","Q2M","RH2M","U10","SNOW","RAIN","PBOT",
+                "FSH","QSOIL","FGR","FLDS","FIRE","FSDS","FSR","ASA",
+                "QICE_FRZ","QICE_MELT","QSNOMELT","QICE");
+        @vCN = ("TSA","Q2M","RH2M","U10","SNOW","RAIN","PBOT",
+                "FSH","QSOIL","FGR","FLDS","FIRE","FSDS","FSR","ASA",
+                "QICE_FRZ","QICE_MELT","QSNOMELT","QICE");
+        if ($cn) { @VarArray = @vCN }
+        else     { @VarArray = @vSP }
+	foreach $varname (@VarArray)
+	{
+		if ($varname eq "TSA") {
+			printf fp_wp "<TH ALIGN=LEFT><font color=navy size=+1>RACMO2.3: near-sfc atm & precip</font>\n";
+			printf fp_wp "<TH>DJF\n  <TH>MAM\n  <TH>JJA\n  <TH>SON\n  <TH>ANN\n";
+			printf fp_wp "<TR>\n";
+			$v2="";
+		}
+		if ($varname eq "FSH" ) { 
+	    	printf fp_wp "<TH><BR>\n";
+			printf fp_wp "<TH ALIGN=LEFT><font color=navy size=+1>RACMO2.3: Fluxes</font>\n";
+			printf fp_wp "<TR>\n";
+			$v2="";
+		}
+      if ($varname eq "QICE_FRZ" ) { 
+	    	printf fp_wp "<TH><BR>\n";
+			printf fp_wp "<TH ALIGN=LEFT><font color=navy size=+1>RACMO2.3: SMB and components</font>\n";
+			printf fp_wp "<TR>\n";
+			$v2="";
+		}
+    		$longName = &getLongName($varname);
+	   	printf fp_wp "  <TH ALIGN=LEFT> $varname&nbsp&nbsp&nbsp&nbsp\n";
+	   	printf fp_wp "  <TH ALIGN=LEFT> $longName&nbsp&nbsp&nbsp&nbsp\n";
+               	foreach $t (@time) {
+			$filename = "set10_".$t."_".$varname.$v2.$sfx; 
+			$file  = $webdir."/set10/".$filename;
+			$href  = $filename;
+			if (!-e $file) { printf fp_wp "  <TH ALIGN=CENTER><font color=green>---</font></a>\n"; }
+			if ( -e $file) { printf fp_wp "  <TH ALIGN=CENTER><A HREF=\"$href\">plot</a>\n"; }
+               	}
+	    	printf fp_wp "<TR>\n";
+	}
+
+	printf fp_wp "<TR>\n";
+	printf fp_wp "<TR>\n";
+	printf fp_wp "  <TH></TH><TH ALIGN=LEFT><font color=navy size=+1>Model Only</font>\n";
+	printf fp_wp "<TH>DJF\n  <TH>MAM\n  <TH>JJA\n  <TH>SON\n  <TH>ANN\n";
+	printf fp_wp "<TR>\n";
+        $inFile = $wkdir."/master_set".$set.".txt";
+        close(fp_in);
+        open(fp_in,"<"."$inFile") || die "Can't open set input set10Page filelist ($inFile) \n";
+
+        $ctr=0;
+        while(<fp_in>)
+        {
+            @line = split(/\s+/,$_);
+            $varname = @line[1];
+
+	    # skip model vs obs plots.
+	   # if ($varname eq "TSA" | $varname eq "Q2M" | $varname eq "RH2M" | $varname eq "U10" |
+		#$varname eq "FSNO"| $varname eq "H2OSNO" | $varname eq "LHEAT" | $varname eq "GPP" |
+      #          $varname eq "TLAI" ) { next; } 
+
+    	    $longName = &getLongName($varname);
+	    # $suffix = substr($filename,(length($filename)-5),1);
+	    if ($varname eq "TLAKE" | $varname eq "SOILLIQ" | $varname eq "SOILICE" | $varname eq "H2OSOI" | $varname eq "TSOI") {
+		   # foreach $layer (0 .. 9) {
+		   foreach $layer (0, 4, 9) {
+			$lyr = $layer+1;
+		        printf fp_wp "  <TH ALIGN=LEFT> $varname ($lyr)&nbsp&nbsp&nbsp&nbsp\n";
+		        printf fp_wp "  <TH ALIGN=LEFT> $longName&nbsp&nbsp&nbsp&nbsp\n";
+                	foreach $t (@time) {
+			     	$filename = "set10_".$t."_".$varname."_".$layer.$sfx; 
+				$file  = $webdir."/set10/".$filename;
+				$href  = $filename;
+				if (!-e $file) { printf fp_wp "  <TH ALIGN=CENTER><font color=green>---</font></a>\n"; }
+				if ( -e $file) { printf fp_wp "  <TH ALIGN=CENTER><A HREF=\"$href\">plot</a>\n"; }
+			}
+			printf fp_wp "<TR>\n";
+		   }
+              }
+	      else {
+		   printf fp_wp "  <TH ALIGN=LEFT> $varname&nbsp&nbsp&nbsp&nbsp\n";
+		   printf fp_wp "  <TH ALIGN=LEFT> $longName&nbsp&nbsp&nbsp&nbsp\n";
+                   foreach $t (@time) {
+			$filename = "set10_".$t."_".$varname.$sfx; 
+			$file  = $webdir."/set10/".$filename;
+			$href  = $filename;
+			if (!-e $file) { printf fp_wp "  <TH ALIGN=CENTER><font color=green>---</font></a>\n"; }
+			if ( -e $file) { printf fp_wp "  <TH ALIGN=CENTER><A HREF=\"$href\">plot</a>\n"; }
+                    }
+		    printf fp_wp "<TR>\n";
+              }
+          }
+}
+
+ 
+sub set11Page
+{
+	# set-specific header
+        @time  = ("DJF","MAM","JJA","SON","ANN");
+	printf fp_wp "  <TH><BR>\n";
+	$snF = 0;
+        @vSP = ("TSA","Q2M","RH2M","U10","SNOW","RAIN","PBOT",
+                "FSH","QSOIL","FGR","FLDS","FIRE","FSDS","FSR","ASA",
+                "QICE_FRZ","QICE_MELT","QSNOMELT","QICE");
+        @vCN = ("TSA","Q2M","RH2M","U10","SNOW","RAIN","PBOT",
+                "FSH","QSOIL","FGR","FLDS","FIRE","FSDS","FSR","ASA",
+                "QICE_FRZ","QICE_MELT","QSNOMELT","QICE");
+        if ($cn) { @VarArray = @vCN }
+        else     { @VarArray = @vSP }
+	foreach $varname (@VarArray)
+	{
+		if ($varname eq "TSA") {
+			printf fp_wp "<TH ALIGN=LEFT><font color=navy size=+1>RACMO2.3: near-sfc atm & precip</font>\n";
+			printf fp_wp "<TH>DJF\n  <TH>MAM\n  <TH>JJA\n  <TH>SON\n  <TH>ANN\n";
+			printf fp_wp "<TR>\n";
+			$v2="";
+		}
+		if ($varname eq "FSH" ) { 
+	    	printf fp_wp "<TH><BR>\n";
+			printf fp_wp "<TH ALIGN=LEFT><font color=navy size=+1>RACMO2.3: Fluxes</font>\n";
+			printf fp_wp "<TR>\n";
+			$v2="";
+		}
+      if ($varname eq "QICE_FRZ" ) { 
+	    	printf fp_wp "<TH><BR>\n";
+			printf fp_wp "<TH ALIGN=LEFT><font color=navy size=+1>RACMO2.3: SMB and components</font>\n";
+			printf fp_wp "<TR>\n";
+			$v2="";
+		}
+    		$longName = &getLongName($varname);
+	   	printf fp_wp "  <TH ALIGN=LEFT> $varname&nbsp&nbsp&nbsp&nbsp\n";
+	   	printf fp_wp "  <TH ALIGN=LEFT> $longName&nbsp&nbsp&nbsp&nbsp\n";
+               	foreach $t (@time) {
+			$filename = "set11_".$t."_".$varname.$v2.$sfx; 
+			$file  = $webdir."/set11/".$filename;
+			$href  = $filename;
+			if (!-e $file) { printf fp_wp "  <TH ALIGN=CENTER><font color=green>---</font></a>\n"; }
+			if ( -e $file) { printf fp_wp "  <TH ALIGN=CENTER><A HREF=\"$href\">plot</a>\n"; }
+               	}
+	    	printf fp_wp "<TR>\n";
+	}
+
+	printf fp_wp "<TR>\n";
+	printf fp_wp "<TR>\n";
+	printf fp_wp "  <TH></TH><TH ALIGN=LEFT><font color=navy size=+1>Model Only</font>\n";
+	printf fp_wp "<TH>DJF\n  <TH>MAM\n  <TH>JJA\n  <TH>SON\n  <TH>ANN\n";
+	printf fp_wp "<TR>\n";
+        $inFile = $wkdir."/master_set".$set.".txt";
+        close(fp_in);
+        open(fp_in,"<"."$inFile") || die "Can't open set input set11Page filelist ($inFile) \n";
+
+        $ctr=0;
+        while(<fp_in>)
+        {
+            @line = split(/\s+/,$_);
+            $varname = @line[1];
+
+	    # skip model vs obs plots.
+	   # if ($varname eq "TSA" | $varname eq "Q2M" | $varname eq "RH2M" | $varname eq "U10" |
+		#$varname eq "FSNO"| $varname eq "H2OSNO" | $varname eq "LHEAT" | $varname eq "GPP" |
+      #          $varname eq "TLAI" ) { next; } 
+
+    	    $longName = &getLongName($varname);
+	    # $suffix = substr($filename,(length($filename)-5),1);
+	    if ($varname eq "TLAKE" | $varname eq "SOILLIQ" | $varname eq "SOILICE" | $varname eq "H2OSOI" | $varname eq "TSOI") {
+		   # foreach $layer (0 .. 9) {
+		   foreach $layer (0, 4, 9) {
+			$lyr = $layer+1;
+		        printf fp_wp "  <TH ALIGN=LEFT> $varname ($lyr)&nbsp&nbsp&nbsp&nbsp\n";
+		        printf fp_wp "  <TH ALIGN=LEFT> $longName&nbsp&nbsp&nbsp&nbsp\n";
+                	foreach $t (@time) {
+			     	$filename = "set11_".$t."_".$varname."_".$layer.$sfx; 
+				$file  = $webdir."/set11/".$filename;
+				$href  = $filename;
+				if (!-e $file) { printf fp_wp "  <TH ALIGN=CENTER><font color=green>---</font></a>\n"; }
+				if ( -e $file) { printf fp_wp "  <TH ALIGN=CENTER><A HREF=\"$href\">plot</a>\n"; }
+			}
+			printf fp_wp "<TR>\n";
+		   }
+              }
+	      else {
+		   printf fp_wp "  <TH ALIGN=LEFT> $varname&nbsp&nbsp&nbsp&nbsp\n";
+		   printf fp_wp "  <TH ALIGN=LEFT> $longName&nbsp&nbsp&nbsp&nbsp\n";
+                   foreach $t (@time) {
+			$filename = "set11_".$t."_".$varname.$sfx; 
+			$file  = $webdir."/set11/".$filename;
+			$href  = $filename;
+			if (!-e $file) { printf fp_wp "  <TH ALIGN=CENTER><font color=green>---</font></a>\n"; }
+			if ( -e $file) { printf fp_wp "  <TH ALIGN=CENTER><A HREF=\"$href\">plot</a>\n"; }
+                    }
+		    printf fp_wp "<TR>\n";
+              }
+          }
+}
+
+ 
+sub set12Page
+{
+	%polar = ( 'Alaskan_Arctic',   'Alaskan Arctic', 	# polar
+		    'Canadian_Arctic',  'Canadian Arctic',
+		    'Greenland',        'Greenland',
+		    'Russian_Arctic',   'Russian Arctic',
+		    'Polar',            'Polar',
+		    'Antarctica',       'Antarctica', );
+
+	%boreal = ( 'Alaska',		'Alaska',		# boreal
+		    'Northwest_Canada', 'Northwest Canada', 
+		    'Central_Canada',   'Central Canada',
+		    'Eastern_Canada',   'Eastern Canada',
+		    'Northern_Europe',  'Northern Europe',
+		    'Western_Siberia',  'Western Siberia',
+                    'Lost_BorealForest', 'Lost Boreal Forest',
+		    'Eastern_Siberia',  'Eastern Siberia', );
+
+	%midLat = ( 'Western_US',       'Western U.S.',		# middle latitudes
+		    'Central_US',       'Central U.S.',
+		    'Eastern_US',       'Eastern U.S.',
+		    'Europe', 		'Europe',
+		    'Mediterranean',    'Mediterranean', );
+
+	%trpRF = ( 'Central_America',  'Central America',	# Tropical Rainforests
+		    'Amazonia',         'Amazonia',
+		    'Central_Africa',   'Central Africa',
+		    'Indonesia',        'Indonesia', );
+
+	%trpSav = ( 'Brazil',	        'Brazil',		# Tropical Savannas
+		    'Sahel', 		'Sahel',
+		    'Southern_Africa',  'Southern Africa',
+		    'India', 		'India',
+		    'Indochina', 	'Indochina', );
+
+ 	%arid = ( 'Sahara_Desert',	'Sahara Desert',	# arid
+		    'Arabian_Peninsula','Arabian Peninsula',
+		    'Australia', 	'Australia',
+		    'Central_Asia', 	'Central Asia',
+		    'Mongolia', 	'Mongolia',
+		    'Tigris_Euphrates',	'Tigris_Euphrates');
+
+        %highlands = ('Tibetan_Plateau',  'Tibetan Plateau', );		# highland
+
+        %asia = ('Asia',    'Central Asia',			# Liya Jin
+		 'Mongolia_China',    'Central and Eastern Mongolia and NE China',
+		 'Eastern_China',     'Eastern China',
+		 'Tibet',   	      'Tibetan_Plateau',
+		 'Southern_Asia',     'Southern Asia',
+		 'NAfrica_Arabia',    'Sahara Desert and Arabian Peninsula',
+		 'Med_MidEast',       'Mediterranean and Western Asia', );
+
+	%glHem = ( 'N_H_Land',         'Northern Hemisphere Land',     # global and hemispheric
+		   'S_H_Land',         'Southern Hemisphere Land',
+		   'Global',           'Global Land', );
+
+
+	# == Set 3
+	if ( $cn) { 
+           if ( $hydro) { @set3fluxes  = ("landf","radf","turbf","cnFlx","frFlx","moistEnergyFlx","snow","albedo","hydro"); }
+	   else {         @set3fluxes  = ("landf","radf","turbf","cnFlx","frFlx","moistEnergyFlx","snow","albedo"); }
+	}
+	else       { 
+	   if ( $hydro) { @set3fluxes  = ("landf","radf","turbf","moistEnergyFlx","snow","albedo","hydro"); }
+	   else         { @set3fluxes  = ("landf","radf","turbf","moistEnergyFlx","snow","albedo"); }
+	}
+	# == Set 6
+        if ( $cn) {
+	   if ( $hydro) { 
+                  @set6fluxes  = ("landf","radf","turbf","cnFlx","frFlx","crbStock","tsoi","soilliq","soilice",	
+			          "soilliqIce","snowliqIce","hydro"); 
+	   }
+           else { @set6fluxes  = ("landf","radf","turbf","cnFlx","frFlx","crbStock","tsoi","soilliq","soilice",
+				  "soilliqIce","snowliqIce"); 
+	   }
+        }
+	else 	 { 
+	   if ( $hydro) { 
+		@set6fluxes  = ("landf","radf","turbf","tsoi","soilliq","soilice","soilliqIce","snowliqIce","hydro"); 
+	   }
+	   else {
+		@set6fluxes  = ("landf","radf","turbf","tsoi","soilliq","soilice","soilliqIce","snowliqIce"); 
+	   }
+         }
+	@regions = ("HEMISPHERIC AND GLOBAL","POLAR","BOREAL","MIDDLE LATITUDES","TROPICAL RAINFOREST","TROPICAL SAVANNA",
+			   "ARID","HIGHLAND","ASIA");
+	@paleo_regions = ("HEMISPHERIC AND GLOBAL");
+
+	# print set-specific header information
+	printf fp_wp "<TR>\n"; 
+	printf fp_wp "<TR>\n  <TH ALIGN=LEFT>All Model Data Regions\n";
+	if ($set == 3) { $n2 = "set3_reg_all".$sfx; }
+	if ($set == 6) { $n2 = "set6_reg_all".$sfx; }
+	printf fp_wp "  <TH ALIGN=CENTER><A HREF=\"$n2\">map</A>\n";
+	printf fp_wp "<TR>\n<TR>\n";
+	if ($set == 3) {
+           printf fp_wp "  <TH>\n  <TH>\n  <TH>GPP\n  <TH>\n  <TH>\n";
+	   printf fp_wp "<TR>\n";
+           printf fp_wp "  <TH>\n  <TH>\n  <TH>Latent Heat\n  <TH>\n  <TH>\n";
+	   printf fp_wp "<TR>\n";
+        }
+	printf fp_wp "  <TH>\n  <TH>\n  <TH>Temp\n  <TH>\n  <TH>\n";
+	printf fp_wp "<TR>\n";
+	if ($set == 3) {
+	   # CN active
+           if ( $cn) {	
+		printf fp_wp "  <TH>\n  <TH>\n  <TH>Precip\n  <TH>\n  <TH>\n  <TH>Carbon <TH>\n <TH>Energy/Moist\n";
+		printf fp_wp "<TR>\n";
+		printf fp_wp "  <TH>\n  <TH>\n  <TH>Runoff\n  <TH>Radiative\n  <TH>Turbulent\n  <TH>Nitrogen\n";
+		printf fp_wp "  <TH>Fire <TH>Control of\n<TH>Snow\n<TH>ALbedo\n";
+		printf fp_wp "<TR>\n";
+		printf fp_wp "  <TH>\n  <TH>Map\n  <TH>SnowDepth\n  <TH>Fluxes\n  <TH>Fluxes\n  <TH>Fluxes\n";
+		if ( $hydro) { printf fp_wp "  <TH>Fluxes\n <TH> Evap\n <TH> vs Obs\n <TH> vs Obs\n <TH> Hydrology\n"; }
+		else         { printf fp_wp "  <TH>Fluxes\n <TH> Evap\n <TH> vs Obs\n <TH> vs Obs\n";                  }
+		printf fp_wp "<TR>\n";
+	   # CN Not Active
+	   } else {
+	
+		printf fp_wp "  <TH>\n  <TH>\n  <TH>Precip\n  <TH>\n  <TH>\n  <TH>Energy/moisture\n";
+		printf fp_wp "<TR>\n";
+		printf fp_wp "  <TH>\n  <TH>\n  <TH>Runoff\n  <TH>Radiative\n  <TH>Turbulent\n  <TH>Control of\n<TH>Snow\n<TH>Albedo\n";
+		printf fp_wp "<TR>\n";
+		if ( $hydro) { printf fp_wp "  <TH>\n  <TH>Map\n  <TH>SnowDepth\n  <TH>Fluxes\n  <TH>Fluxes\n  <TH>Evap\n<TH>vsObs\n <TH>vsObs\n <TH> Hydrology\n"; }
+		else         { printf fp_wp "  <TH>\n  <TH>Map\n  <TH>SnowDepth\n  <TH>Fluxes\n  <TH>Fluxes\n  <TH>Evap\n<TH>vsObs\n <TH>vsObs\n <TH>\n"; }
+		printf fp_wp "<TR>\n";
+	   }
+	}
+	else
+	{
+           if ( $cn) {	
+		printf fp_wp "  <TH>\n  <TH>\n  <TH>Precip\n  <TH>\n  <TH>\n  <TH>Carbon/\n";
+		printf fp_wp "<TR>\n";
+		printf fp_wp "  <TH>\n  <TH>\n  <TH>Runoff\n  <TH>Radiative\n  <TH>Turbulent\n  <TH>Nitrogen\n  <TH>Fire\n  <TH>Carbon\n";
+		printf fp_wp "  <TH>Soil\n  <TH>SoilLiq\n  <TH>\n  <TH>TotalSoilIce\n  <TH>TotalSnowH2O\n";
+		printf fp_wp "<TR>\n";
+		printf fp_wp "  <TH>\n  <TH>Map\n  <TH>SnowDepth\n  <TH>Fluxes\n  <TH>Fluxes\n  <TH>Fluxes\n  <TH>Fluxes\n  <TH>Stocks\n";
+		if ( $hydro) {
+		   printf fp_wp "  <TH>Temp\n  <TH>Water\n  <TH>SoilIce\n  <TH>TotalSoilH2O\n  <TH>TotalSnowIce\n  <TH>Hydrology\n";
+		} else {
+		   printf fp_wp "  <TH>Temp\n  <TH>Water\n  <TH>SoilIce\n  <TH>TotalSoilH2O\n  <TH>TotalSnowIce\n";
+		}
+		printf fp_wp "<TR>\n";
+	   } else {
+		printf fp_wp "  <TH>\n  <TH>\n  <TH>Precip\n  <TH>\n  <TH>\n  <TH>\n";
+		printf fp_wp "<TR>\n";
+		printf fp_wp "  <TH>\n  <TH>\n  <TH>Runoff\n  <TH>Radiative\n  <TH>Turbulent\n";
+		printf fp_wp "  <TH>Soil\n  <TH>SoilLiq\n  <TH>\n  <TH>TotalSoilIce\n  <TH>TotalSnowH2O\n";
+		printf fp_wp "<TR>\n";
+		printf fp_wp "  <TH>\n  <TH>Map\n  <TH>SnowDepth\n  <TH>Fluxes\n  <TH>Fluxes\n";
+		if ( $hydro) {
+		  printf fp_wp "  <TH>Temp\n  <TH>Water\n  <TH>SoilIce\n  <TH>TotalSoilH2O\n  <TH>TotalSnowIce\n  <TH>Hydrology\n";
+	        } else {
+		  printf fp_wp "  <TH>Temp\n  <TH>Water\n  <TH>SoilIce\n  <TH>TotalSoilH2O\n  <TH>TotalSnowIce\n";
+		}
+		printf fp_wp "<TR>\n";
+	   }
+	}
+
+	if ($paleo eq 'True') {
+		@use_region = @paleo_regions;
+	}
+	else {
+		@use_region = @regions;
+	}
+	foreach $region (@use_region)
+	{
+	    undef $nList;
+	    if ($region eq "POLAR")                  { %nList = %polar;    }
+	    if ($region eq "BOREAL")                 { %nList = %boreal;   }
+	    if ($region eq "MIDDLE LATITUDES")       { %nList = %midLat;   }
+	    if ($region eq "TROPICAL RAINFOREST")    { %nList = %trpRF;    }
+	    if ($region eq "TROPICAL SAVANNA")       { %nList = %trpSav;   }
+	    if ($region eq "ARID")                   { %nList = %arid;     }
+	    if ($region eq "HIGHLAND")               { %nList = %highlands;}
+	    if ($region eq "ASIA")                   { %nList = %asia;	   }
+	    if ($region eq "HEMISPHERIC AND GLOBAL") { %nList = %glHem;    }
+
+	    &writeRegion();
+	}
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+}
+
