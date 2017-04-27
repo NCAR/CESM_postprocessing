@@ -830,9 +830,9 @@ Applies to both model and control cases."
       <entry id="LNDDIAG_set_12"
              type="logical"
              valid_values="True/False"
-             value="True"
+             value="False"
              group="plot_sets"
-             desc="Plot Set 12: Ice sheet averages"
+             desc="Plot Set 12: Ice sheet averages - *NOTE* Plot set 12 is not currently working. See plot set 3 of Ice sheet averages."
              ></entry>
 
     </group>
