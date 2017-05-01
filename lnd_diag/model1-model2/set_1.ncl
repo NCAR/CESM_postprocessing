@@ -204,7 +204,8 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
 
         filevar = vars(i)
 
-        if (isfilevar(in,filevar))then
+        info = var_init(vars(i))
+        if (isfilevar(in,filevar) .and. info@derivedVariable .eq. False)then
            if (c13Flag(i) .eq. "C13_") then
               x = derive_del13C(vars(i),in,scale_type(i),yrs(m),1)
            else

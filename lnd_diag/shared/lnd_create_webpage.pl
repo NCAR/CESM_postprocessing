@@ -373,11 +373,11 @@ sub setDescription
 	}
 	if ($set == 10)
 	{
-		$l  = "Horizontal contour plots of DJF, MAM, JJA, SON, and ANN means, zoomed in on the Greenland ice sheet (courtesy: Jan Lenaerts, jtmlenaerts@gmail.com) </b><br>";
+		$l  = "Horizontal contour plots of DJF, MAM, JJA, SON, and ANN means, zoomed in on the Greenland ice sheet </b><br>";
 	}
 	if ($set == 11)
 	{
-		$l  = "Horizontal contour plots of DJF, MAM, JJA, SON, and ANN means, zoomed in on the Antarctic ice sheet (courtesy: Jan Lenaerts, jtmlenaerts@gmail.com) </b><br>";
+		$l  = "Horizontal contour plots of DJF, MAM, JJA, SON, and ANN means, zoomed in on the Antarctic ice sheet </b><br>";
 	}
 	if ($set == 12)
 	{
