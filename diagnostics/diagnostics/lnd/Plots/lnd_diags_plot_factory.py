@@ -22,6 +22,11 @@ import set_8_trends
 import set_8_zonal_lnd
 import set_8_zonal
 import set_9_lnd
+import set_10_lnd
+import set_10_seas_lnd
+import set_11_lnd
+import set_11_seas_lnd
+import set_12_lnd
 
 def LandDiagnosticPlotFactory(plot_type,env):
     """Create and return an object of the requested type.
@@ -57,7 +62,12 @@ def LandDiagnosticPlotFactory(plot_type,env):
         plot_set['set_8_zonal_lnd'] = set_8_zonal_lnd.set_8_zonal_lnd(env)
     elif plot_type == "set_9":
         plot_set['set_9'] = set_9_lnd.set_9(env)
-
+    elif plot_type == "set_10":
+        plot_set['set_10'] = set_10_lnd.set_10(env)
+    elif plot_type == "set_11":
+        plot_set['set_11'] = set_11_lnd.set_11(env)
+    elif plot_type == "set_12":
+        plot_set['set_12'] = set_12_lnd.set_12(env)
     else:
         raise UnknownPlotType("WARNING: Unknown plot type requested: '{0}'".format(plot_type))
 

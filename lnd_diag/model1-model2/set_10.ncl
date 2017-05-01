@@ -7,7 +7,7 @@ load "$DIAG_SHARED/find_var_with_alts.ncl"
 ;************************************************
 begin
   print ("=========================================")
-  print ("Starting:  set_2.ncl")
+  print ("Starting:  set_10.ncl")
   print ("Start Time: "+systemfunc("date") )
   print ("=========================================")
   ptmpdir1  = getenv("PTMPDIR_1")
@@ -45,7 +45,7 @@ begin
 
 ; the set lists contains two columns of information. This comes into
 ; NCL as one long string that we need to parse out.
-  tmp = stringtocharacter(asciiread(wkdir+"/master_set2.txt",-1,"string"))
+  tmp = stringtocharacter(asciiread(wkdir+"/master_set10.txt",-1,"string"))
   nvar = dimsizes(tmp(:,0))
   scale_type = new(nvar,"string")
   vars       = new(nvar,"string")
@@ -115,26 +115,8 @@ begin
         dof_2 = getfilevardimsizes(in22, "time")
      end if
 ; open observation files
-     if (obs_res .eq. "T85") then
-        ptr_wm = addfile(obsdata+"/T85_WILLMOTT_"+seasons(n)+"_climo.nc","r") ; temp and precip
-     else
-        ptr_wm = addfile(obsdata+"/WILLMOTT_"+seasons(n)+"_climo.nc","r") ; temp and precip
-     end if
-     if (obs_res .eq. "T85") then
-        ptr_grdc = addfile(obsdata+"/T85_GRDC_"+seasons(n)+"_climo.nc","r")   ; runoff
-        ptr_fd   = addfile(obsdata+"/T85_FOSTERDAVY_"+seasons(n)+"_climo.nc","r")   ; snow depth
-     else
-        ptr_grdc = addfile(obsdata+"/GRDC_"+seasons(n)+"_climo.nc","r")   ; runoff
-        ptr_fd   = addfile(obsdata+"/FOSTERDAVY_"+seasons(n)+"_climo.nc","r")   ; snow depth
-     end if
-     ptr_scf    = addfile(obsdata+"/NOAA_AVHRR_SNOWF_"+seasons(n)+"_climo.070502.nc","r")   ; snow cover
-     ptr_swe    = addfile(obsdata+"/CMC_SWE_"+seasons(n)+"_climo.070502.nc","r")            ; snow depth
-     ptr_sd     = addfile(obsdata+"/CMC_SNOWD_"+seasons(n)+"_climo.070503.nc","r")          ; swe
-     ptr_alb    = addfile(obsdata+"/T42_MODIS_"+seasons(n)+"_climo.070523.nc","r")          ; albedo
-     ptr_asa    = addfile(obsdata+"/modisradweighted_"+seasons(n)+"_071105.nc","r")         ; albedo
-     ptr_lhf    = addfile(obsdata+"/MR_LHF_0.9x1.25_"+seasons(n)+"_climo.nc","r")           ; latent heat flux
-     ptr_gpp    = addfile(obsdata+"/MR_GPP_0.9x1.25_"+seasons(n)+"_climo.nc","r")           ; gross primary production
-     ptr_lai    = addfile(obsdata+"/MODIS_LAI_"+seasons(n)+"_climo.nc","r")                 ; leaf area index
+
+     ptr_racmo    = addfile(obsdata+"/RACMO2_GR_"+seasons(n)+"_climo.nc","r")                 ; RACMO2.3
 
 ; extract years averaged for plotting
      if (isatt(in1,"yrs_averaged")) then
@@ -240,8 +222,7 @@ begin
 ;         not found in the file, then filevar will be ""
 
         plot_check = True
-        if (filevar .ne. "" .and. info@derivedVariable .eq. False)then
-
+        if (filevar .ne. "")then
            if (isvar("x1")) then
               delete(x1)
            end if
@@ -277,7 +258,7 @@ begin
 ;         not found in the file, then filevar will be ""
 
         plot_check = True
-        if (filevar .ne. "" .and. info@derivedVariable .eq. False)then
+        if (filevar .ne. "")then
            if (isvar("x2")) then
               delete(x2)
            end if
@@ -311,131 +292,144 @@ begin
            delete(x3)
         end if
         if (paleo .ne. "True") then
+           if (vars(i) .eq. "ASA" ) then
+              x3 = ptr_racmo->$vars(i)$
+              x3 = x3*100. ; fraction to %
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "QSOIL" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "U10" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "FGR" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "FLDS" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "FIRE" ) then
+              x3 = ptr_racmo->$vars(i)$
+              x3 = x3 * -1. ; defined negative in RACMO2.3
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "RAIN" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "PBOT" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "Q2M" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "QICE_FRZ" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "RH2M" ) then
+              x3 = ptr_racmo->$vars(i)$
+              x3 = x3 * 100. ; fraction to %
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "QICE_MELT" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "FSH" ) then
+              x3 = ptr_racmo->$vars(i)$
+              x3 = x3 * -1. ; defined neg. in CESM
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "QICE" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "SNOW" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "QSNOMELT" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "FSDS" ) then
+              x3 = ptr_racmo->$vars(i)$
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
+           if (vars(i) .eq. "FSR" ) then
+              x3 = ptr_racmo->$vars(i)$
+              x3 = x3 * -1. ; defined as negative in RACMO2.3
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
+              obsFlag = 1;
+           else
            if (vars(i) .eq. "TSA" ) then
-              x3 = ptr_wm->$vars(i)$
-              x3 = x3 - 273.15  ; convert K to C 
-              k2c = True
-              lon3 = ptr_wm->lon
-              lat3 = ptr_wm->lat
-              cases(2) = ptr_wm@case_id
-              x3@_FillValue = 1e30
+              x3 = ptr_racmo->$vars(i)$
+              x3 = x3 - 273.16 ; K to C
+              lon3 = ptr_racmo->lon
+              lat3 = ptr_racmo->lat
+              cases(2) = "RACMO2.3"
               obsFlag = 1;
-           else 
-           if (vars(i) .eq. "PREC" ) then
-              x3 = ptr_wm->PREC
-              lon3 = ptr_wm->lon
-              lat3 = ptr_wm->lat
-              cases(2) = ptr_wm@case_id
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "TOTRUNOFF" ) then
-              x3 = ptr_grdc->RUNOFF
-              lon3 = ptr_grdc->lon
-              lat3 = ptr_grdc->lat
-              cases(2) = "GRDC"
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "SNOWDP" .and. snowFlag .eq. 1) then
-              x3 = ptr_fd->$vars(i)$
-              lon3 = ptr_fd->lon
-              lat3 = ptr_fd->lat
-              cases(2) = "FOSTERDAVY"
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "FSNO" ) then                ; fractional snow cover
-              x3 = ptr_scf->SCF
-              x3 = x3 * 0.01                        ; convert from percent to 0-1
-              lon3 = ptr_scf->lon
-              lat3 = ptr_scf->lat
-              cases(2) = "NOAA AVHRR (1967-2003)"
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "H2OSNO" ) then                ; fractional snow cover
-              x3 = ptr_swe->SWE
-              lon3 = ptr_scf->lon
-              lat3 = ptr_scf->lat
-              cases(2) = "CMC (1980-1996)"
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "SNOWDP" .and. snowFlag .eq. 2) then
-              x3 = ptr_sd->SNOWD
-              lon3 = ptr_sd->lon
-              lat3 = ptr_sd->lat
-              cases(2) = "CMC (1980-1996)"
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "VBSA") then
-              x3 = ptr_alb->VBSA(0,:,:)
-              cases(2) = "MODIS (2001-2003)"
-              lat3     = ptr_alb->lat
-              lon3     = ptr_alb->lon
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "NBSA") then
-              x3 = ptr_alb->NBSA(0,:,:)
-              cases(2) = "MODIS (2001-2003)"
-              lat3 = ptr_alb->lat
-              lon3 = ptr_alb->lon
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "VWSA") then
-              x3       = ptr_alb->VWSA(0,:,:)
-              cases(2) = "MODIS (2001-2003)"
-              lat3     = ptr_alb->lat
-              lon3     = ptr_alb->lon
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "NWSA") then
-              x3       = ptr_alb->NWSA(0,:,:)
-              cases(2) = "MODIS (2001-2003)"
-              lat3     = ptr_alb->lat
-              lon3     = ptr_alb->lon
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "ASA") then
-              x3       = ptr_asa->BRDALB(0,:,:)
-              cases(2) = "MODIS (2001-2003)"
-              lat3     = ptr_asa->lat
-              lon3     = ptr_asa->lon
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "LHEAT") then
-              x3       = ptr_lhf->LHF(:,:)
-              cases(2) = "FLUXNET (1982-2008)"
-              lat3     = ptr_lhf->lat
-              lon3     = ptr_lhf->lon
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if ((vars(i) .eq. "FPSN" .and. cn .eq. 0) .or. vars(i) .eq. "GPP") then
-              x3 = ptr_gpp->GPP(:,:)
-              cases(2) = "FLUXNET (1982-2008)"
-              lat3     = ptr_gpp->lat
-              lon3     = ptr_gpp->lon
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-           if (vars(i) .eq. "TLAI") then
-              x3 = ptr_lai->TLAI(:,:)
-              cases(2) = "MODIS (2001-2003)"
-              lat3     = ptr_lai->lat
-              lon3     = ptr_lai->lon
-              x3@_FillValue = 1e30
-              obsFlag = 1;
-           else
-              x3 = 0.0
-              obsFlag = 0;
            end if
            end if
            end if
@@ -451,6 +445,11 @@ begin
            end if
            end if
            end if
+           end if
+           end if
+           end if
+           end if
+        
         end if                ; paleo
 
         if (paleo .eq. "True") then
@@ -655,7 +654,7 @@ begin
               end if
 
               res  = True
-              res  = set2ResMvM(res)
+              res  = set10ResMvM(res)
               if (paleo .eq. "True") then
                  res@mpDataBaseVersion = "Ncarg4_1"
                  res@mpDataSetName     =  fname
@@ -718,20 +717,20 @@ begin
 ;;                   print((/"wkdir: "+wkdir/))
 ;;                   print((/"seasons: "+seasons(n)/))
 ;;                   print((/"vars: "+vars(i)/))
-;;                   print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_FOSTERDAVY"/))
-                   fullname = wkdir+"set2_"+seasons(n)+"_"+vars(i)+"_FOSTERDAVY"
+;;                   print((/"Fullname: "+wkdir + "set10_" + seasons(n)+"_"+vars(i)+"_FOSTERDAVY"/))
+                   fullname = wkdir+"set10_"+seasons(n)+"_"+vars(i)+"_FOSTERDAVY"
 ;;		     print((/"Fullname: "+fullname/))
-;;                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_FOSTERDAVY")
+;;                    wks  = gsn_open_wks(plot_type,wkdir + "set10_" + seasons(n)+"_"+vars(i)+"_FOSTERDAVY")
 		      wks = gsn_open_wks(plot_type,fullname)
                  else
 ;;                   print((/"plot_type: "+plot_type/))
 ;;                   print((/"wkdir: "+wkdir/))
 ;;                   print((/"seasons: "+seasons(n)/))
 ;;                   print((/"vars: "+vars(i)/))
-;;                   print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC"/))
-                   fullname = wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC"
+;;                   print((/"Fullname: "+wkdir + "set10_" + seasons(n)+"_"+vars(i)+"_CMC"/))
+                   fullname = wkdir + "set10_" + seasons(n)+"_"+vars(i)+"_CMC"
 ;;		     print((/"Fullname: "+fullname/))
-;;                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC")
+;;                    wks  = gsn_open_wks(plot_type,wkdir + "set10_" + seasons(n)+"_"+vars(i)+"_CMC")
 		      wks = gsn_open_wks(plot_type,fullname)
                  end if
               else
@@ -739,10 +738,10 @@ begin
 ;;                print((/"wkdir: "+wkdir/))
 ;;                print((/"seasons: "+seasons(n)/))
 ;;                print((/"vars: "+vars(i)/))
-                fullname = wkdir + "set2_" + seasons(n)+"_"+vars(i)
+                fullname = wkdir + "set10_" + seasons(n)+"_"+vars(i)
 ;;		  print((/"Fullname: "+fullname/))
-;;                print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)/))
-;;                 wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i))
+;;                print((/"Fullname: "+wkdir + "set10_" + seasons(n)+"_"+vars(i)/))
+;;                 wks  = gsn_open_wks(plot_type,wkdir + "set10_" + seasons(n)+"_"+vars(i))
 	         wks = gsn_open_wks(plot_type,fullname) 
               end if
               if (colormap.eq.0) then
@@ -806,7 +805,7 @@ begin
 ;               Note:  Don't delete res here - save until after obs are posted.
               res@tiMainString    = cases(1) ; set case 2 titles
               res@gsnCenterString = " (yrs " + yrs_ave2 + ")"
-              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT" .or. vars(i) .eq. "CPOOL" .or. vars(i) .eq. "FERT" .or. vars(i) .eq. "FERT_TO_SMINN") then
+              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT" .or. vars(i) .eq. "CPOOL") then
                  if (isatt(res,"cnLabelBarEndStyle")) then
                     if (res@cnLabelBarEndStyle.eq."IncludeMinMaxLabels") then
                        res@cnLabelBarEndStyle = "IncludeOuterBoxes" ; temporarily turn off minmax labels.
@@ -823,7 +822,7 @@ begin
 ;               Note:  Don't delete res here - save until after obs are posted.
               if (obsFlag .eq. 1 .and. plotObs .eq. 1) then   ; OBS  plot (if present)
                  res  = True
-                 res  = set2ResMvM(res)
+                 res  = set10ResMvM(res)
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
                     res@mpDataSetName     = fname
@@ -864,7 +863,7 @@ begin
               
               if (obsFlag .eq. 1 .and. plotObs .eq. 1) then    ; OBS  plot (if present)
                  res  = True
-                 res  = set2ResMvM(res)
+                 res  = set10ResMvM(res)
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
                     res@mpDataSetName     = fname
@@ -939,7 +938,7 @@ begin
 
 ;               set contour levels 
               res  = True
-              res  = set2ResMvM(res)
+              res  = set10ResMvM(res)
               res@cnFillPalette = cmap1(13:240,:)
 
               if (paleo .eq. "True") then
@@ -1028,7 +1027,7 @@ begin
               delete([/diff,mindiff,maxdiff/])
 
               res  = True     ; T-Test plots
-              res  = set2ResMvM(res)
+              res  = set10ResMvM(res)
               if (paleo .eq. "True") then
                  res@mpDataBaseVersion = "Ncarg4_1"
                  res@mpDataSetName     = fname
@@ -1123,7 +1122,7 @@ begin
               end if
 
               res  = True     ; t-test plot (3D vars)
-              res  = set2ResMvM(res)
+              res  = set10ResMvM(res)
               if (paleo .eq. "True") then
                  res@mpDataBaseVersion = "Ncarg4_1"
                  res@mpDataSetName     = fname
@@ -1214,7 +1213,7 @@ begin
               do lev=0,2  ; assume both cases have same number of levels.
                  k = karr(lev)
                  res  = True
-                 res  = set2ResMvM(res)
+                 res  = set10ResMvM(res)
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
                     res@mpDataSetName     = fname
@@ -1227,8 +1226,8 @@ begin
 ;;                print((/"wkdir: "+wkdir/))
 ;;                print((/"seasons: "+seasons(n)/))
 ;;                print((/"vars: "+vars(i)/))
-;;                print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_"+k/))
-                 wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_"+k)
+;;                print((/"Fullname: "+wkdir + "set10_" + seasons(n)+"_"+vars(i)+"_"+k/))
+                 wks  = gsn_open_wks(plot_type,wkdir + "set10_" + seasons(n)+"_"+vars(i)+"_"+k)
                  if (isvar("cmap")) then
                     delete(cmap)
                  end if
@@ -1306,7 +1305,7 @@ begin
                  delete(res)
 
                  res  = True
-                 res  = set2ResMvM(res)
+                 res  = set10ResMvM(res)
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
                     res@mpDataSetName     = fname
@@ -1384,7 +1383,7 @@ begin
                  delete(diff) 
 
                  res  = True    ; T-Test plot (4D)
-                 res  = set2ResMvM(res)
+                 res  = set10ResMvM(res)
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
                     res@mpDataSetName     = fname
@@ -1459,6 +1458,6 @@ begin
      end do ; end variable loop
   end do   ; seasons loop 
 ;  remove error file if program completes successfully.  
-  filo  = wkdir +"/set2_error_file"                   
+  filo  = wkdir +"/set10_error_file"                   
   system("/bin/rm -f " + filo)  
 end

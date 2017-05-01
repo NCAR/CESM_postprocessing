@@ -1459,6 +1459,196 @@ begin
 end
 
 ;***************************************************************************
+undef("set10Res")
+function set10Res(res)
+begin
+    	raster 			     = getenv("raster")
+    	paleo 			     = getenv("paleo")
+     proj_type     = getenv("projection")
+
+     res                          = True
+     res@cnFillOn                 = True
+     res@cnMissingValFillColor    = "white"
+;;     if (raster .eq. 1) then
+     if (raster .eq. "True") then
+;;        res@cnRasterModeOn     = True
+        res@cnFillMode           = "RasterFill"
+     end if
+;;     if (paleo .eq. 1) then
+     if (paleo .eq. "True") then
+        res@cnFillMode         = "CellFill"
+     end if
+     res@cnInfoLabelOn            = False
+     res@cnLinesOn                = False
+     res@gsnDraw                  = False
+     res@gsnFrame                 = False
+     res@lbTitleOn                = False
+     res@tiMainFont               = "Helvetica"
+     res@cnLabelBarEndStyle = "IncludeMinMaxLabels"
+     res@mpPerimOn    = False
+     res@mpGridLineColor = "transparent"
+     ; Greenland zoom
+      
+   res@mpLimitMode                 = "LatLon"           ; method to zoom
+   res@mpMaxLatF                   = 84    
+   res@mpMinLatF                   = 59
+   res@mpMaxLonF                   = -25
+   res@mpMinLonF                   = -55
+
+   res@mpGridAndLimbOn        = False
+   res@mpFillOn               = False
+
+   res@mpProjection           = "Stereographic"
+   res@mpCenterLonF           = -40.
+   res@mpCenterLatF           = 50.
+      
+        res@gsnLeftStringParallelPosF = 0.1
+        res@gsnRightStringParallelPosF = 0.9        
+     res@mpFillOn                 = False
+     res@mpOutlineOn              = True
+     res@mpGridAndLimbOn          = True
+     return(res)
+end
+
+
+;**************************************************************************************************
+undef("set10ResMvM")
+function set10ResMvM(res)
+begin
+    	raster 			     = getenv("raster")
+    	paleo 			     = getenv("paleo")
+     proj_type     = getenv("projection")
+
+     res                          = True
+     res@cnFillOn                 = True
+     res@cnMissingValFillColor    = "white"
+;;     if (raster .eq. 1) then
+     if (raster .eq. "True") then
+;;        res@cnRasterModeOn     = True
+        res@cnFillMode           = "RasterFill"
+     end if
+;;     if (paleo .eq. 1) then
+     if (paleo .eq. "True") then
+        res@cnFillMode         = "CellFill"
+     end if
+     ; Greenland zoom
+      
+   res@mpLimitMode                 = "LatLon"           ; method to zoom
+   res@mpMaxLatF                   = 84    
+   res@mpMinLatF                   = 59
+   res@mpMaxLonF                   = -25
+   res@mpMinLonF                   = -55
+
+   res@mpGridAndLimbOn        = False
+   res@mpFillOn               = False
+
+   res@mpProjection           = "Stereographic"
+   res@mpCenterLonF           = -40.
+   res@mpCenterLatF           = 50.
+      
+     res@cnInfoLabelOn            = False
+     res@cnLinesOn                = False
+     res@gsnDraw                  = False
+     res@gsnFrame           = False
+;     res@gsnLeftStringParallelPosF = 0.2  ; Values set in set_2.ncl
+     res@gsnLeftStringOrthogonalPosF = -1.25
+     res@tiMainFont            = "Helvetica"
+     res@cnLabelBarEndStyle = "IncludeMinMaxLabels"
+     res@mpFillOn           = False
+     res@mpOutlineOn           = True
+     res@mpGridAndLimbOn       = True
+     res@gsnPaperOrientation      = "landscape"
+	return(res)
+
+end
+
+;***************************************************************************
+undef("set11Res")
+function set11Res(res)
+begin
+    	raster 			     = getenv("raster")
+    	paleo 			     = getenv("paleo")
+     proj_type     = getenv("projection")
+
+     res                          = True
+     res@cnFillOn                 = True
+     res@cnMissingValFillColor    = "white"
+;;     if (raster .eq. 1) then
+     if (raster .eq. "True") then
+;;        res@cnRasterModeOn     = True
+        res@cnFillMode           = "RasterFill"
+     end if
+;;     if (paleo .eq. 1) then
+     if (paleo .eq. "True") then
+        res@cnFillMode         = "CellFill"
+     end if
+     res@cnInfoLabelOn            = False
+     res@cnLinesOn                = False
+     res@gsnDraw                  = False
+     res@gsnFrame                 = False
+     res@lbTitleOn                = False
+     res@tiMainFont               = "Helvetica"
+     res@cnLabelBarEndStyle = "IncludeMinMaxLabels"
+     res@mpPerimOn    = False
+     res@mpGridLineColor = "transparent"
+     ; Antarctica zoom
+     
+     res@mpGridAndLimbOn        = False
+     res@mpFillOn               = False
+     res@gsnPolar               = "SH"
+     res@mpMaxLatF  = -60.
+      
+     res@gsnLeftStringParallelPosF = 0.1
+     res@gsnRightStringParallelPosF = 0.9        
+     res@mpFillOn                 = False
+     res@mpOutlineOn              = True
+     res@mpGridAndLimbOn          = True
+     return(res)
+end
+
+;**************************************************************************************************
+undef("set11ResMvM")
+function set11ResMvM(res)
+begin
+      raster 			     = getenv("raster")
+      paleo 			     = getenv("paleo")
+     proj_type     = getenv("projection")
+
+     res                          = True
+     res@cnFillOn                 = True
+     res@cnMissingValFillColor    = "white"
+;;     if (raster .eq. 1) then
+     if (raster .eq. "True") then
+;;        res@cnRasterModeOn     = True
+        res@cnFillMode           = "RasterFill"
+     end if
+;;     if (paleo .eq. 1) then
+     if (paleo .eq. "True") then
+        res@cnFillMode         = "CellFill"
+     end if
+     ; Antarctica zoom
+     
+     res@mpGridAndLimbOn        = False
+     res@mpFillOn               = False
+     res@gsnPolar               = "SH"
+     res@mpMaxLatF  = -60.
+      
+     res@cnInfoLabelOn            = False
+     res@cnLinesOn                = False
+     res@gsnDraw                  = False
+     res@gsnFrame           = False
+;     res@gsnLeftStringParallelPosF = 0.2  ; Values set in set_2.ncl
+     res@gsnLeftStringOrthogonalPosF = -1.25
+     res@tiMainFont            = "Helvetica"
+     res@cnLabelBarEndStyle = "IncludeMinMaxLabels"
+     res@mpFillOn           = False
+     res@mpOutlineOn           = True
+     res@mpGridAndLimbOn       = True
+     res@gsnPaperOrientation      = "landscape"
+   return(res)
+
+end
+;**************************************************************************************************
 undef("getLimits")
 function getLimits(val)
 local pCut, pLow, pHigh

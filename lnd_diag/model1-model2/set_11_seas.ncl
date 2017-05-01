@@ -5,6 +5,10 @@ load "$DIAG_SHARED/$VAR_MASTER"
 load "$DIAG_SHARED/lnd_func.ncl"
 load "$DIAG_SHARED/find_var_with_alts.ncl"
 ;************************************************
+; Modified by Sheri Mickelson - March 2013
+; The seasonal loop for set_2 was moved to the 
+; swift script to run the seasons in parallel.
+;************************************************
 begin
   print ("=========================================")
   print ("Starting:  set_2.ncl")
@@ -15,7 +19,7 @@ begin
   wkdir    = getenv("WKDIR")
   obsdata  = getenv("OBS_DATA")
   obs_res  = getenv("OBS_RES")
-  paleo    = getenv("paleo")
+  paleo  = getenv("paleo")
   plotObs  = getenv("plotObs")
   useCommon1 = getenv("UseCommonName_1")
   useCommon2 = getenv("UseCommonName_2")
@@ -26,10 +30,7 @@ begin
   cn = getenv("CN")
   colormap = getenv("colormap")
   projection=getenv("projection")
-
-;;  print((/"PTMPDIR_1: "+ptmpdir1/))
-;;  print((/"PTMPDIR_2: "+ptmpdir2/))
-;;  print((/"wkdir: "+wkdir/))
+  season = getenv("season")
 
   flandmask = stringtofloat(land_mask)
 
@@ -69,7 +70,7 @@ begin
      min_lon = stringtofloat(getenv("min_lon"))
      max_lon = stringtofloat(getenv("min_lon"))
   end if
-  seasons = (/"DJF","JJA","MAM","SON","ANN"/)
+;  seasons = (/"DJF","JJA","MAM","SON","ANN"/)
 ;*************************************************
 ; common plot resources
 ;*************************************************
@@ -97,12 +98,12 @@ begin
 
 ; loop over seasons
 
-  do n = 0,dimsizes(seasons)-1
-     print("Processing season " + seasons(n))
-     in1  = addfile(ptmpdir1+"/"+prefix(0)+"_"+seasons(n)+"_climo.nc","r")        ; used for first 3 plots
-     in2  = addfile(ptmpdir2+"/"+prefix(1)+"_"+seasons(n)+"_climo.nc","r")        ; used for first 3 plots
-     in11 = addfile(ptmpdir1+"/"+prefix(0)+"_"+seasons(n)+"_means.nc","r")
-     in22 = addfile(ptmpdir2+"/"+prefix(1)+"_"+seasons(n)+"_means.nc","r")
+;  do n = 0,dimsizes(seasons)-1
+     print("Processing season " + season)
+     in1  = addfile(ptmpdir1+"/"+prefix(0)+"_"+season+"_climo.nc","r")        ; used for first 3 plots
+     in2  = addfile(ptmpdir2+"/"+prefix(1)+"_"+season+"_climo.nc","r")        ; used for first 3 plots
+     in11 = addfile(ptmpdir1+"/"+prefix(0)+"_"+season+"_means.nc","r")
+     in22 = addfile(ptmpdir2+"/"+prefix(1)+"_"+season+"_means.nc","r")
     ; get degrees of freedom for t test
      if (isatt(in11,"num_yrs_averaged")) then
         dof_1 = in11@num_yrs_averaged
@@ -116,25 +117,25 @@ begin
      end if
 ; open observation files
      if (obs_res .eq. "T85") then
-        ptr_wm = addfile(obsdata+"/T85_WILLMOTT_"+seasons(n)+"_climo.nc","r") ; temp and precip
+        ptr_wm = addfile(obsdata+"/T85_WILLMOTT_"+season+"_climo.nc","r") ; temp and precip
      else
-        ptr_wm = addfile(obsdata+"/WILLMOTT_"+seasons(n)+"_climo.nc","r") ; temp and precip
+        ptr_wm = addfile(obsdata+"/WILLMOTT_"+season+"_climo.nc","r") ; temp and precip
      end if
      if (obs_res .eq. "T85") then
-        ptr_grdc = addfile(obsdata+"/T85_GRDC_"+seasons(n)+"_climo.nc","r")   ; runoff
-        ptr_fd   = addfile(obsdata+"/T85_FOSTERDAVY_"+seasons(n)+"_climo.nc","r")   ; snow depth
+        ptr_grdc = addfile(obsdata+"/T85_GRDC_"+season+"_climo.nc","r")   ; runoff
+        ptr_fd   = addfile(obsdata+"/T85_FOSTERDAVY_"+season+"_climo.nc","r")   ; snow depth
      else
-        ptr_grdc = addfile(obsdata+"/GRDC_"+seasons(n)+"_climo.nc","r")   ; runoff
-        ptr_fd   = addfile(obsdata+"/FOSTERDAVY_"+seasons(n)+"_climo.nc","r")   ; snow depth
+        ptr_grdc = addfile(obsdata+"/GRDC_"+season+"_climo.nc","r")   ; runoff
+        ptr_fd   = addfile(obsdata+"/FOSTERDAVY_"+season+"_climo.nc","r")   ; snow depth
      end if
-     ptr_scf    = addfile(obsdata+"/NOAA_AVHRR_SNOWF_"+seasons(n)+"_climo.070502.nc","r")   ; snow cover
-     ptr_swe    = addfile(obsdata+"/CMC_SWE_"+seasons(n)+"_climo.070502.nc","r")            ; snow depth
-     ptr_sd     = addfile(obsdata+"/CMC_SNOWD_"+seasons(n)+"_climo.070503.nc","r")          ; swe
-     ptr_alb    = addfile(obsdata+"/T42_MODIS_"+seasons(n)+"_climo.070523.nc","r")          ; albedo
-     ptr_asa    = addfile(obsdata+"/modisradweighted_"+seasons(n)+"_071105.nc","r")         ; albedo
-     ptr_lhf    = addfile(obsdata+"/MR_LHF_0.9x1.25_"+seasons(n)+"_climo.nc","r")           ; latent heat flux
-     ptr_gpp    = addfile(obsdata+"/MR_GPP_0.9x1.25_"+seasons(n)+"_climo.nc","r")           ; gross primary production
-     ptr_lai    = addfile(obsdata+"/MODIS_LAI_"+seasons(n)+"_climo.nc","r")                 ; leaf area index
+     ptr_scf    = addfile(obsdata+"/NOAA_AVHRR_SNOWF_"+season+"_climo.070502.nc","r")   ; snow cover
+     ptr_swe    = addfile(obsdata+"/CMC_SWE_"+season+"_climo.070502.nc","r")            ; snow depth
+     ptr_sd     = addfile(obsdata+"/CMC_SNOWD_"+season+"_climo.070503.nc","r")          ; swe
+     ptr_alb    = addfile(obsdata+"/T42_MODIS_"+season+"_climo.070523.nc","r")          ; albedo
+     ptr_asa    = addfile(obsdata+"/modisradweighted_"+season+"_071105.nc","r")         ; albedo
+     ptr_lhf    = addfile(obsdata+"/MR_LHF_0.9x1.25_"+season+"_climo.nc","r")           ; latent heat flux
+     ptr_gpp    = addfile(obsdata+"/MR_GPP_0.9x1.25_"+season+"_climo.nc","r")           ; gross primary production
+     ptr_lai    = addfile(obsdata+"/MODIS_LAI_"+season+"_climo.nc","r")           ; leaf area index
 
 ; extract years averaged for plotting
      if (isatt(in1,"yrs_averaged")) then
@@ -240,8 +241,7 @@ begin
 ;         not found in the file, then filevar will be ""
 
         plot_check = True
-        if (filevar .ne. "" .and. info@derivedVariable .eq. False)then
-
+        if (filevar .ne. "")then
            if (isvar("x1")) then
               delete(x1)
            end if
@@ -277,7 +277,7 @@ begin
 ;         not found in the file, then filevar will be ""
 
         plot_check = True
-        if (filevar .ne. "" .and. info@derivedVariable .eq. False)then
+        if (filevar .ne. "")then
            if (isvar("x2")) then
               delete(x2)
            end if
@@ -320,7 +320,7 @@ begin
               cases(2) = ptr_wm@case_id
               x3@_FillValue = 1e30
               obsFlag = 1;
-           else 
+           else
            if (vars(i) .eq. "PREC" ) then
               x3 = ptr_wm->PREC
               lon3 = ptr_wm->lon
@@ -337,7 +337,7 @@ begin
               x3@_FillValue = 1e30
               obsFlag = 1;
            else
-           if (vars(i) .eq. "SNOWDP" .and. snowFlag .eq. 1) then
+              if (vars(i) .eq. "SNOWDP" .and. snowFlag .eq. 1) then
               x3 = ptr_fd->$vars(i)$
               lon3 = ptr_fd->lon
               lat3 = ptr_fd->lat
@@ -362,7 +362,7 @@ begin
               x3@_FillValue = 1e30
               obsFlag = 1;
            else
-           if (vars(i) .eq. "SNOWDP" .and. snowFlag .eq. 2) then
+              if (vars(i) .eq. "SNOWDP" .and. snowFlag .eq. 2) then
               x3 = ptr_sd->SNOWD
               lon3 = ptr_sd->lon
               lat3 = ptr_sd->lat
@@ -370,7 +370,7 @@ begin
               x3@_FillValue = 1e30
               obsFlag = 1;
            else
-           if (vars(i) .eq. "VBSA") then
+              if (vars(i) .eq. "VBSA") then
               x3 = ptr_alb->VBSA(0,:,:)
               cases(2) = "MODIS (2001-2003)"
               lat3     = ptr_alb->lat
@@ -378,7 +378,7 @@ begin
               x3@_FillValue = 1e30
               obsFlag = 1;
            else
-           if (vars(i) .eq. "NBSA") then
+              if (vars(i) .eq. "NBSA") then
               x3 = ptr_alb->NBSA(0,:,:)
               cases(2) = "MODIS (2001-2003)"
               lat3 = ptr_alb->lat
@@ -386,7 +386,7 @@ begin
               x3@_FillValue = 1e30
               obsFlag = 1;
            else
-           if (vars(i) .eq. "VWSA") then
+              if (vars(i) .eq. "VWSA") then
               x3       = ptr_alb->VWSA(0,:,:)
               cases(2) = "MODIS (2001-2003)"
               lat3     = ptr_alb->lat
@@ -427,7 +427,7 @@ begin
               obsFlag = 1;
            else
            if (vars(i) .eq. "TLAI") then
-              x3 = ptr_lai->TLAI(:,:)
+              x3       = ptr_lai->TLAI(:,:)
               cases(2) = "MODIS (2001-2003)"
               lat3     = ptr_lai->lat
               lon3     = ptr_lai->lon
@@ -453,9 +453,9 @@ begin
            end if
         end if                ; paleo
 
-        if (paleo .eq. "True") then
-           obsFlag = 0
-        end if
+;       if (paleo .eq. "True") then
+;          obsFlag = 0
+;       end if
 
         if (obsFlag .eq. 1) then
            nlon3   = dimsizes(lon3)
@@ -682,6 +682,7 @@ begin
                     delete(x)
                  end if
                  maxLevel = 9
+
                  if (vars(i) .eq. "SNOWDP") then
                     useMin12 = 0.
                     useMax12 = 1.
@@ -698,6 +699,7 @@ begin
                     useMin12 = 4000.
                     useMax12 = 10000.
                  end if
+
                  mnmxint = nice_mnmxintvl( useMin12, useMax12, maxLevel, False)
                  res@cnLevelSelectionMode = "ManualLevels" ; explicit contour levels
                  res@cnMinLevelValF       = mnmxint(0)
@@ -714,36 +716,12 @@ begin
               end if
               if (vars(i) .eq. "SNOWDP") then
                  if (snowFlag .eq. 1) then
-;;                   print((/"plot_type: "+plot_type/))
-;;                   print((/"wkdir: "+wkdir/))
-;;                   print((/"seasons: "+seasons(n)/))
-;;                   print((/"vars: "+vars(i)/))
-;;                   print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_FOSTERDAVY"/))
-                   fullname = wkdir+"set2_"+seasons(n)+"_"+vars(i)+"_FOSTERDAVY"
-;;		     print((/"Fullname: "+fullname/))
-;;                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_FOSTERDAVY")
-		      wks = gsn_open_wks(plot_type,fullname)
+                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + season+"_"+vars(i)+"_FOSTERDAVY")
                  else
-;;                   print((/"plot_type: "+plot_type/))
-;;                   print((/"wkdir: "+wkdir/))
-;;                   print((/"seasons: "+seasons(n)/))
-;;                   print((/"vars: "+vars(i)/))
-;;                   print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC"/))
-                   fullname = wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC"
-;;		     print((/"Fullname: "+fullname/))
-;;                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_CMC")
-		      wks = gsn_open_wks(plot_type,fullname)
+                    wks  = gsn_open_wks(plot_type,wkdir + "set2_" + season+"_"+vars(i)+"_CMC")
                  end if
               else
-;;                print((/"plot_type: "+plot_type/))
-;;                print((/"wkdir: "+wkdir/))
-;;                print((/"seasons: "+seasons(n)/))
-;;                print((/"vars: "+vars(i)/))
-                fullname = wkdir + "set2_" + seasons(n)+"_"+vars(i)
-;;		  print((/"Fullname: "+fullname/))
-;;                print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)/))
-;;                 wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i))
-	         wks = gsn_open_wks(plot_type,fullname) 
+                 wks  = gsn_open_wks(plot_type,wkdir + "set2_" + season+"_"+vars(i))
               end if
               if (colormap.eq.0) then
                  cmap = RGBtoCmap("$DIAG_RESOURCES/rgb_files/diag10.rgb")  ; read in colormap
@@ -806,7 +784,7 @@ begin
 ;               Note:  Don't delete res here - save until after obs are posted.
               res@tiMainString    = cases(1) ; set case 2 titles
               res@gsnCenterString = " (yrs " + yrs_ave2 + ")"
-              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT" .or. vars(i) .eq. "CPOOL" .or. vars(i) .eq. "FERT" .or. vars(i) .eq. "FERT_TO_SMINN") then
+              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT") then
                  if (isatt(res,"cnLabelBarEndStyle")) then
                     if (res@cnLabelBarEndStyle.eq."IncludeMinMaxLabels") then
                        res@cnLabelBarEndStyle = "IncludeOuterBoxes" ; temporarily turn off minmax labels.
@@ -829,7 +807,7 @@ begin
                     res@mpDataSetName     = fname
                  end if
                  res@tiMainString           = cases(2) 
-                 res@gsnCenterString = " "
+		 res@gsnCenterString = " "
                  delete(min3)
                  delete(max3)
                  if (projection.eq.1) then    ; CE
@@ -1187,7 +1165,7 @@ begin
                  nrows = 2
                  ncols = 2
               end if
-              pres@txString = seasons(n)+" "+vars(i)+" ("+useUnits+")" ; "
+              pres@txString = season+" "+vars(i)+" ("+useUnits+")" ; "
               gsn_panel(wks,plot,(/nrows,ncols/),pres)           ; draw panel plot
            else
 ;*************************************************************************
@@ -1223,12 +1201,7 @@ begin
                  if (isvar("wks")) then
                     delete(wks)
                  end if
-;;                print((/"plot_type: "+plot_type/))
-;;                print((/"wkdir: "+wkdir/))
-;;                print((/"seasons: "+seasons(n)/))
-;;                print((/"vars: "+vars(i)/))
-;;                print((/"Fullname: "+wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_"+k/))
-                 wks  = gsn_open_wks(plot_type,wkdir + "set2_" + seasons(n)+"_"+vars(i)+"_"+k)
+                 wks  = gsn_open_wks(plot_type,wkdir + "set2_" + season+"_"+vars(i)+"_"+k)
                  if (isvar("cmap")) then
                     delete(cmap)
                  end if
@@ -1428,7 +1401,7 @@ begin
                  res@gsnLeftString      = "Cells are significant at " + sig_lvl +" level"
                  plot(3) = gsn_csm_contour_map(wks,prob(k,:,:),res) ; will be sig test
                  delete(res)
-                 pres@txString = seasons(n)+" "+vars(i)+" Level " + k+" ("+useUnits+")" ; "
+                 pres@txString = season+" "+vars(i)+" Level " + k+" ("+useUnits+")" ; "
                  gsn_panel(wks,plot,(/2,2/),pres)           ; draw panel plot
               end do ; level loop
            end if ; 4d variables
@@ -1457,7 +1430,7 @@ begin
            delete(lat3)
         end if
      end do ; end variable loop
-  end do   ; seasons loop 
+;  end do   ; seasons loop 
 ;  remove error file if program completes successfully.  
   filo  = wkdir +"/set2_error_file"                   
   system("/bin/rm -f " + filo)  

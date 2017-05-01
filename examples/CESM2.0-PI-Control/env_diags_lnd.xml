@@ -561,9 +561,20 @@
 <!-- Valid Values: True/False -->
 <entry id="LNDDIAG_set_9" value="True" />
        
-    
+<!-- Description:  Plot Set 10: Regional ice sheet plots: Greenland -->
+<!-- Valid Values: True/False -->
+<entry id="LNDDIAG_set_10" value="True" />
   
-    
+<!-- Description:  Plot Set 11: Regional ice sheet plots: Antarctica -->
+<!-- Valid Values: True/False -->
+<entry id="LNDDIAG_set_11" value="True" />
+
+<!-- Description:  Plot Set 11: Ice sheet averages -->
+<!-- Valid Values: True/False -->
+<entry id="LNDDIAG_set_12" value="True" />
+   
+   
+   
   
     
   
