@@ -204,6 +204,14 @@ class modelVsModel(LandDiagnostic):
             shutil.copy2(env['POSTPROCESS_PATH']+'/lnd_diag/inputFiles/'+env['VAR_MASTER'],web_dir+'/variable_master.ncl')
 
             if n == '9':
+                # copy the set9_*_statsOut.txt files to the set9 subdir
+                glob_string = web_dir+'/set9'+'_*'+'.txt'
+                imgs = glob.glob(glob_string)
+                if len(imgs) > 0:
+                    for img in imgs:
+                       new_fn = set_dir + '/' + os.path.basename(img)
+                       os.rename(img,new_fn)
+
                 web_script = env['POSTPROCESS_PATH']+'/lnd_diag/shared/lnd_statTable.pl'
                 rc2, err_msg = cesmEnvLib.checkFile(web_script,'read')
                 if rc2:

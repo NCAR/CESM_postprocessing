@@ -436,7 +436,7 @@ sub set2Page
 	printf fp_wp "  <TH><BR>\n";
 	$snF = 0;
         @vSP = ("TSA","PREC","TOTRUNOFF","SNOWDP","SNOWDP","H2OSNO","FSNO",
-                "VBSA","NBSA","VWSA","NWSA","ASA","LHEAT","FPSN");
+                "VBSA","NBSA","VWSA","NWSA","ASA","LHEAT","FPSN","TLAI");
         @vCN = ("TSA","PREC","TOTRUNOFF","SNOWDP","SNOWDP","H2OSNO","FSNO",
                 "VBSA","NBSA","VWSA","NWSA","ASA","LHEAT","GPP","TLAI");
         if ($cn) { @VarArray = @vCN }
@@ -1105,7 +1105,7 @@ sub set9Page
 {
         # set-specific header
         @time  = ("DJF","MAM","JJA","SON","ANN");
-        @vSP = ("TSA","PREC","ASA","LHEAT","FPSN");
+        @vSP = ("TSA","PREC","ASA","LHEAT","FPSN","TLAI");
         @vCN = ("TSA","PREC","ASA","LHEAT","GPP","TLAI");
         if ($cn) { @vars = @vCN }
         else     { @vars = @vSP }

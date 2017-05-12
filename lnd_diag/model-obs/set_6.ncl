@@ -78,7 +78,7 @@ print("Now printing plot #" + p)
   if (p .eq. 1) then
 	fileName   = "set6_radFlx.txt"
 	plot_name  = "radf"
-        titstr = new(7,"string")
+        titstr = new(8,"string")
         titstr(0) = "Incoming Solar"
         titstr(1) = "Albedo"
         titstr(2) = "Absorbed Solar"
@@ -86,6 +86,7 @@ print("Now printing plot #" + p)
         titstr(4) = "Emitted Longwave"
         titstr(5) = "Net Longwave"
         titstr(6) = "Net Radiation"
+        titstr(7) = "Ground Snow Covered Fraction"
   end if
   if (p .eq. 2) then
 	fileName   = "set6_turbFlx.txt"
@@ -98,7 +99,7 @@ print("Now printing plot #" + p)
         titstr(4) = "Canopy Evaporation"
         titstr(5) = "Ground Evaporation"
         titstr(6) = "Ground Heat + Snow Melt"
-        titstr(7) = "Soil moisture factor (BTRAN)"
+        titstr(7) = "Soil moisture factor (BTRAN or BTRANMN)"
         titstr(8) = "Total LAI"
   end if
   if (p .eq. 3) then
@@ -124,7 +125,7 @@ print("Now printing plot #" + p)
                 titstr(4) = "Heterotrophic Respiration"
                 titstr(5) = "Ecosystem Respiration"
                 titstr(6) = "Gridcell Surface CH4 Flux"
-                titstr(7) = "Leached Mineral Nitrogen"
+                titstr(7) = "Carbon Use Efficiency (NPP/GPP)"
                 titstr(8) = "Soil NO3 Pool Loss to Leaching"
                 titstr(9) = "Soil NO3 Pool Loss to Runoff"
         else
@@ -344,7 +345,7 @@ print("processing " + vars(i) + " for plot " + p)
 ; check for variables in case 1
       info = var_init(vars(i))
       vcheck1(i) = True
-      if(isfilevar(in1,vars(i)))then
+      if(isfilevar(in1,vars(i)) .and. info@derivedVariable .eq. False)then
           x1 = in1->$vars(i)$
                rank = dimsizes(dimsizes(x1))
           plot_check = True

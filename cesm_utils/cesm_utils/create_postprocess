@@ -135,6 +135,11 @@ def commandline_options():
     parser.add_argument('-cesmtag', '--cesmtag', nargs=1, required=False,
                         help='CESM repository tag (optional)')
 
+    parser.add_argument('-completechunk', '--completechunk', nargs=1, required=False, type=int, default=1,
+                        help='timeseries control -  1: do not create incomplete chunks, '\
+                            ' 0: create an incomplete chunk.' \
+                            ' 1 is default.')
+
     options = parser.parse_args()
         
     return options
@@ -385,6 +390,10 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     if options.backtrace:
         backtrace = '--backtrace'
 
+    completechunk = ''
+    if postProcessCmd == 'cesm_tseries_generator.py':
+        completechunk = '--completechunk {0}'.format(options.completechunk)
+
     # all files look good so start parsing the template file starting with the batchTmpl
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(ppDir) )
     templateEnv = jinja2.Environment( loader=templateLoader )
@@ -409,6 +418,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
                      'pythonpath': pythonpath,
                      'processName' : processName,
                      'postProcessCmd' : postProcessCmd,
+                     'completechunk' : completechunk,
                      'caseRoot' : caseRoot,
                      'virtualEnvDir' : virtualEnvDir,
                      'debug' : debug,

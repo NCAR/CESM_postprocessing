@@ -308,9 +308,11 @@ begin
     qvege = ptr ->QVEGE
     qvegt = ptr ->QVEGT
     qsoil = ptr ->QSOIL
+    rain  = ptr ->RAIN
+    snow  = ptr ->SNOW
     
     var =  qvege                ; trick to retain meta data
-    var =  qvege+qvegt+qsoil
+    var =  (rain+snow)-(qvege+qvegt+qsoil)
     return(var)
   end if
 
@@ -329,9 +331,10 @@ begin
   if(var_name.eq."PCT_BSOIL_PFT") then
     var  = ptr ->FSR
     var = var@_FillValue
-    if(isfilevar(ptr,"PCT_NAT_PFT"))then
-        pct_nat_pft = ptr ->PCT_NAT_PFT
-        var         = pct_nat_pft(:,0,:,:)
+    if(isfilevar(ptr,"PCT_NAT_PFT") .and. isfilevar(ptr,"PCT_LANDUNIT"))then
+        pct_nat_pft  = ptr ->PCT_NAT_PFT
+        pct_landunit = ptr ->PCT_LANDUNIT
+        var          = pct_nat_pft(:,0,:,:) * (pct_landunit(:,0,:,:)/100.)  ; Natural Veg Landunit
     end if
     return(var)
   end if
@@ -339,10 +342,12 @@ begin
   if(var_name.eq."PCT_TREE_PFT") then
     var  = ptr ->FSR
     var = var@_FillValue
-    if(isfilevar(ptr,"PCT_NAT_PFT"))then
-        pct_nat_pft = ptr ->PCT_NAT_PFT
-        var         = pct_nat_pft(:,1,:,:)+pct_nat_pft(:,2,:,:)+pct_nat_pft(:,3,:,:)+pct_nat_pft(:,4,:,:)+ \
-                      pct_nat_pft(:,5,:,:)+pct_nat_pft(:,6,:,:)+pct_nat_pft(:,7,:,:)+pct_nat_pft(:,8,:,:)
+    if(isfilevar(ptr,"PCT_NAT_PFT") .and. isfilevar(ptr,"PCT_LANDUNIT"))then
+        pct_nat_pft  = ptr ->PCT_NAT_PFT
+        pct_landunit = ptr ->PCT_LANDUNIT
+        var          = (pct_nat_pft(:,1,:,:)+pct_nat_pft(:,2,:,:)+pct_nat_pft(:,3,:,:)+pct_nat_pft(:,4,:,:)+ \
+                       pct_nat_pft(:,5,:,:)+pct_nat_pft(:,6,:,:)+pct_nat_pft(:,7,:,:)+pct_nat_pft(:,8,:,:)) * \
+                       (pct_landunit(:,0,:,:)/100.)  ; Natural Veg Landunit
     end if
     return(var)
   end if
@@ -350,9 +355,11 @@ begin
   if(var_name.eq."PCT_GRASS_PFT") then
     var  = ptr ->FSR
     var = var@_FillValue
-    if(isfilevar(ptr,"PCT_NAT_PFT"))then
-        pct_nat_pft = ptr ->PCT_NAT_PFT
-        var         = pct_nat_pft(:,12,:,:)+pct_nat_pft(:,13,:,:)+pct_nat_pft(:,14,:,:)
+    if(isfilevar(ptr,"PCT_NAT_PFT") .and. isfilevar(ptr,"PCT_LANDUNIT"))then
+        pct_nat_pft  = ptr ->PCT_NAT_PFT
+        pct_landunit = ptr ->PCT_LANDUNIT
+        var          = (pct_nat_pft(:,12,:,:)+pct_nat_pft(:,13,:,:)+pct_nat_pft(:,14,:,:)) * \
+                       (pct_landunit(:,0,:,:)/100.)  ; Natural Veg Landunit
     end if
     return(var)
   end if
@@ -360,9 +367,11 @@ begin
   if(var_name.eq."PCT_SHRUB_PFT") then
     var  = ptr ->FSR
     var = var@_FillValue
-    if(isfilevar(ptr,"PCT_NAT_PFT"))then
-        pct_nat_pft = ptr ->PCT_NAT_PFT
-        var         = pct_nat_pft(:,9,:,:)+pct_nat_pft(:,10,:,:)+pct_nat_pft(:,11,:,:)
+    if(isfilevar(ptr,"PCT_NAT_PFT") .and. isfilevar(ptr,"PCT_LANDUNIT"))then
+        pct_nat_pft  = ptr ->PCT_NAT_PFT
+        pct_landunit = ptr ->PCT_LANDUNIT
+        var          = (pct_nat_pft(:,9,:,:)+pct_nat_pft(:,10,:,:)+pct_nat_pft(:,11,:,:)) * \
+                       (pct_landunit(:,0,:,:)/100.)  ; Natural Veg Landunit
     end if
     return(var)
   end if
@@ -370,10 +379,19 @@ begin
   if(var_name.eq."PCT_CROP_PFT") then
     var  = ptr ->FSR
     var = var@_FillValue
-    if(isfilevar(ptr,"PCT_NAT_PFT"))then
-        pct_nat_pft = ptr ->PCT_NAT_PFT
+    if(isfilevar(ptr,"PCT_NAT_PFT") .and. isfilevar(ptr,"PCT_LANDUNIT"))then
+        pct_nat_pft  = ptr ->PCT_NAT_PFT
+        pct_landunit = ptr ->PCT_LANDUNIT
         if (dimsizes(pct_nat_pft(0,:,0,0)) .gt. 15) then
-          var         = pct_nat_pft(:,15,:,:)+pct_nat_pft(:,16,:,:)
+          var        = (pct_nat_pft(:,15,:,:)+pct_nat_pft(:,16,:,:)) * \
+                       (pct_landunit(:,0,:,:)/100.)  ; Natural Veg Landunit
+          var@longName = "Percent Crop on Natural Veg Landunit"
+        else
+          if (isfilevar(ptr,"PCT_CFT")) then
+            pct_cft  = ptr ->PCT_CFT
+            var      = dim_sum_n(pct_cft(:,:,:,:),1) * (pct_landunit(:,1,:,:)/100.)  ; Crop Landunit
+            var@longName = "Percent Crop on Gridcell"
+          end if
         end if
     end if
     return(var)
@@ -472,6 +490,29 @@ begin
       leafn = mask(leafn,(leafn .eq. 0),False)
     end if
     var = leafc/leafn
+    return(var)
+  end if
+
+  if(var_name.eq."CUE")then
+    npp = ptr ->NPP
+    gpp = ptr ->GPP
+
+    var = npp                    ; trick to retain meta data
+    if (any(gpp .eq. 0)) then    ; set zeros to _FillValue
+      gpp = mask(gpp,(gpp .eq. 0),False)
+    end if
+    npp = where(npp .lt. 0,0.,npp) ; set negative npp to 0
+    var = npp/gpp
+    var = where(var .gt. 1.,var@_FillValue,var) ; screen out CUE above 1.0
+    return(var)
+  end if
+
+  if(var_name.eq."BTRAN")then
+    if (isfilevar(ptr,"BTRANMN")) then
+      var = ptr ->BTRANMN
+    else
+      var = ptr ->BTRAN
+    end if
     return(var)
   end if
 
@@ -959,6 +1000,12 @@ do t = 0,endTime
              end if
 
           end if			; end .all. loop
+      end if
+      ; calculate area total 
+      if(type .eq. "Totl")then		; set 5 (some)
+         weights_1n ({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}) = \
+              (area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
+              fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))
       end if
   end if
 

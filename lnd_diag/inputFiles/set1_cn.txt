@@ -1,6 +1,9 @@
 globalTotlAnn   NEE
 globalTotlAnn   NEP
+globalTotlAnn   NBP
 globalTotlAnn   GPP
+globalMeanNat   CUE
+globalMeanNat   BTRAN2
 globalTotlAnn   PSNSUN_TO_CPOOL
 globalTotlAnn   PSNSHADE_TO_CPOOL
 globalTotlAnn   NPP
@@ -58,6 +61,8 @@ globalMeanNat   FPG
 globalMeanNat   FPI
 globalTotlNat   TOTECOSYSN
 globalTotlAnn   NDEP_TO_SMINN
+globalTotlAnn   FERT
+globalTotlAnn   FERT_TO_SMINN
 globalTotlAnn   NFIX_TO_SMINN
 globalTotlAnn   NACTIVE
 globalTotlAnn   NAM
@@ -108,3 +113,16 @@ globalTotlAnn   SOILC_LOSS
 globalTotlNat   WOODC
 globalTotlAnn   WOODC_ALLOC
 globalTotlAnn   WOODC_LOSS
+globalTotlAnn   WOOD_HARVESTC
+globalTotlAnn   WOOD_HARVESTN
+globalTotlAnn   TOT_WOODPRODC_LOSS
+globalTotlAnn   TOT_WOODPRODN_LOSS
+globalTotlAnn   PROD10C_LOSS
+globalTotlAnn   PROD10N_LOSS
+globalTotlAnn   PROD100C_LOSS
+globalTotlAnn   PROD100N_LOSS
+globalTotlAnn   DWT_PROD10C_GAIN
+globalTotlAnn   DWT_PROD10N_GAIN
+globalTotlAnn   DWT_PROD100C_GAIN
+globalTotlAnn   DWT_PROD100N_GAIN
+globalTotlAnn   DWT_CONV_CFLUX

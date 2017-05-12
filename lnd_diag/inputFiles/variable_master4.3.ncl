@@ -105,6 +105,34 @@ begin
     info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1/)
     return(info)
   end if
+  if (varName .eq. "NBP") then
+    info@flux=True
+    info@longName="net biome production, includes fire, landuse and harvest flux"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m^2/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m^2/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m^2/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-1.0, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
 
   if (varName .eq. "GPP") then
     info@flux=True
@@ -125,6 +153,35 @@ begin
     ; -- Origin 
     info@model		           = "CN" 
     info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.5, 1.0, 1.5, 2.0, 4.0, 6., 8., 10., 12./)
+    info@cn_LevelsDiff             = (/-5.0, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5/)
+    return(info)
+  end if
+
+  if (varName .eq. "CUE") then
+    info@flux=True
+    info@longName="carbon use efficiency"
+    info@nativeUnits = "NPP/GPP"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "NPP/GPP"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NPP/GPP"
+    info@globalMean_Annual__SF     =  1.0
+    info@globalMean_Daily__units   = "NPP/GPP"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = True
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -282,7 +339,7 @@ begin
 
   if (varName .eq. "PCT_CROP_PFT") then
     info@flux=False
-    info@longName="Percent Crop on Natural Veg Landunit"
+    info@longName="Percent Crop on Natural Veg Landunit or Gridcell (CropModel)"
     info@nativeUnits = "%"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -831,6 +888,383 @@ begin
   if (varName .eq. "WOODC_LOSS") then
     info@flux=True
     info@longName="Wood C Loss"
+    info@nativeUnits = "gC/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "WOOD_HARVESTC") then
+    info@flux=True
+    info@longName="Wood Harvest C (to prod pools)"
+    info@nativeUnits = "gC/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "WOOD_HARVESTN") then
+    info@flux=True
+    info@longName="Wood Harvest N (to prod pools)"
+    info@nativeUnits = "gN/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgN/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gN/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "TOT_WOODPRODC_LOSS") then
+    info@flux=True
+    info@longName="Total C loss from wood prod pools"
+    info@nativeUnits = "gC/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "TOT_WOODPRODN_LOSS") then
+    info@flux=True
+    info@longName="Total N loss from wood prod pools"
+    info@nativeUnits = "gN/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgN/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gN/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "PROD10C_LOSS") then
+    info@flux=True
+    info@longName="C loss from 10-yr wood prod pool"
+    info@nativeUnits = "gC/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "PROD10N_LOSS") then
+    info@flux=True
+    info@longName="N loss from 10-yr wood prod pool"
+    info@nativeUnits = "gN/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgN/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gN/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "PROD100C_LOSS") then
+    info@flux=True
+    info@longName="C loss from 100-yr wood prod pool"
+    info@nativeUnits = "gC/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "PROD100N_LOSS") then
+    info@flux=True
+    info@longName="N loss from 100-yr wood prod pool"
+    info@nativeUnits = "gN/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgN/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gN/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "DWT_PROD10C_GAIN") then
+    info@flux=True
+    info@longName="LCC-driven addition to 10-yr wood prod pool"
+    info@nativeUnits = "gC/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "DWT_PROD10N_GAIN") then
+    info@flux=True
+    info@longName="LCC-driven addition to 10-yr wood prod pool"
+    info@nativeUnits = "gN/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgN/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gN/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "DWT_PROD100C_GAIN") then
+    info@flux=True
+    info@longName="LCC-driven addition to 100-yr wood prod pool"
+    info@nativeUnits = "gC/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "DWT_PROD100N_GAIN") then
+    info@flux=True
+    info@longName="LCC-driven addition to 100-yr wood prod pool"
+    info@nativeUnits = "gN/m2s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgN/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gN/m2s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m2y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m2d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "DWT_CONV_CFLUX") then
+    info@flux=True
+    info@longName="conversion C flux (immediate loss to atm)"
     info@nativeUnits = "gC/m2s"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -2676,6 +3110,64 @@ if (varName .eq. "LITTERC_HR") then
   if (varName .eq. "NDEP_TO_SMINN") then
     info@flux=True
     info@longName="nitrogen deposition"
+    info@nativeUnits = "gN/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "TgN/y"
+    info@globalTotal_Annual__SF    = grams2Tgrams * secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "gN/m^2/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m^2/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m^2/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.01, 0.03, 0.05, 0.08, 0.10, 0.13, 0.15, 0.18, 0.2/)
+    info@cn_LevelsDiff             = (/-.01, -0.008, -0.006, -0.004, -0.002, 0, 0.002, 0.004, 0.006, 0.008, 0.01/)
+    return(info)
+  end if
+
+  if (varName .eq. "FERT") then
+    info@flux=True
+    info@longName="fertilizer added"
+    info@nativeUnits = "gN/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "TgN/y"
+    info@globalTotal_Annual__SF    = grams2Tgrams * secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "gN/m^2/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m^2/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m^2/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.01, 0.03, 0.05, 0.08, 0.10, 0.13, 0.15, 0.18, 0.2/)
+    info@cn_LevelsDiff             = (/-.01, -0.008, -0.006, -0.004, -0.002, 0, 0.002, 0.004, 0.006, 0.008, 0.01/)
+    return(info)
+  end if
+
+  if (varName .eq. "FERT_TO_SMINN") then
+    info@flux=True
+    info@longName="fertilizer to soil mineral N"
     info@nativeUnits = "gN/m^2/s"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -5878,6 +6370,64 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CLM" 
+    info@derivedVariable           = True
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,0.15,0.3,0.45,0.6,0.75,0.9,1.05,1.2/)
+    info@cn_LevelsDiff             = (/-.5,-.4,-.3,-.2,-.1,0.,.1,.2,.3,.4,.5/)
+    return(info)
+  end if
+
+  if (varName .eq. "BTRAN2") then
+    info@flux=False
+    info@longName="root zone soil moisture factor"
+    info@nativeUnits = "unitless"
+    ; -- global Total
+    info@globalTotal__units        = "unitless"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "unitless"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CLM" 
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,0.15,0.3,0.45,0.6,0.75,0.9,1.05,1.2/)
+    info@cn_LevelsDiff             = (/-.5,-.4,-.3,-.2,-.1,0.,.1,.2,.3,.4,.5/)
+    return(info)
+  end if
+
+  if (varName .eq. "BTRANMN") then
+    info@flux=False
+    info@longName="daily minimum of transpiration beta factor"
+    info@nativeUnits = "unitless"
+    ; -- global Total
+    info@globalTotal__units        = "unitless"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "unitless"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CLM" 
     info@derivedVariable           = False 
     info@clampVariable             = True
     ; -- contour intervals
@@ -6641,6 +7191,35 @@ if (varName .eq. "LITTERC_HR") then
   if (varName .eq. "QOVER") then
     info@flux=True
     info@longName="surface runoff"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-5.,-2.5,-1.,-.5,-.1,0.,.1,.5,1.,2.5,5./)
+    return(info)
+  end if
+
+  if (varName .eq. "QIRRIG") then
+    info@flux=True
+    info@longName="water added through irrig"
     info@nativeUnits = "mm/s"
     ; -- global Total
     info@globalTotal__units        = "NA"

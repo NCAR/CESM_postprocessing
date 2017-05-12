@@ -240,7 +240,8 @@ begin
 ;         not found in the file, then filevar will be ""
 
         plot_check = True
-        if (filevar .ne. "")then
+        if (filevar .ne. "" .and. info@derivedVariable .eq. False)then
+
            if (isvar("x1")) then
               delete(x1)
            end if
@@ -276,7 +277,7 @@ begin
 ;         not found in the file, then filevar will be ""
 
         plot_check = True
-        if (filevar .ne. "")then
+        if (filevar .ne. "" .and. info@derivedVariable .eq. False)then
            if (isvar("x2")) then
               delete(x2)
            end if
@@ -805,7 +806,7 @@ begin
 ;               Note:  Don't delete res here - save until after obs are posted.
               res@tiMainString    = cases(1) ; set case 2 titles
               res@gsnCenterString = " (yrs " + yrs_ave2 + ")"
-              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT" .or. vars(i) .eq. "CPOOL") then
+              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT" .or. vars(i) .eq. "CPOOL" .or. vars(i) .eq. "FERT" .or. vars(i) .eq. "FERT_TO_SMINN") then
                  if (isatt(res,"cnLabelBarEndStyle")) then
                     if (res@cnLabelBarEndStyle.eq."IncludeMinMaxLabels") then
                        res@cnLabelBarEndStyle = "IncludeOuterBoxes" ; temporarily turn off minmax labels.
