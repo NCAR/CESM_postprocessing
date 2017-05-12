@@ -2,31 +2,35 @@
 
 <config_definition version="1.0">
 
-<!-- ======================================================================= -->
-<!-- env_timeseries.xml                                                      -->
-<!--                                                                         -->
-<!-- XML Element descriptions:                                               -->
-<!-- comp_archive_spec: name=[model component name included in history file] -->
-<!-- rootdir: component rootdir in $DOUT_S_ROOT                              -->
-<!-- multi_instance: NOT CURRENLTY IMPLEMENTED                               -->
-<!-- default_calendar: use this setting if time variable calendar attribute  -->
-<!--                   is not defined                                        -->
-<!-- files:                                                                  -->
-<!--   file_extension: suffix regular expression for filename pattern match  -->
-<!--   subdir: location of history files $DOUT_S_ROOT/rootdir/subdir         -->
-<!--   tseries_create: flag to create history files for this suffix          -->
-<!--   tseries_output_format: netcdf output format must be one of            -->
-<!--                          netcdf, netcdf4, netcdf4c, netcdfLarge         -->
-<!--   tseries_tper: default time_period_freq if global attribute not set    -->
-<!--   tseries_filecat_tper: what time period to include in a variable       -->
-<!--                         timeseries chunk must be one of                 -->
-<!--                         years, months, weeks, days, hours, mins         -->
-<!--   tseries_filecat_n:    Number of concatenated tper chunks to include   -->
-<!--                         in output variable timeseries file              -->
-<!-- tseries_time_variant_variables: list of time variant variables to be    -->
-<!--                                 included in every output file           -->
-<!--   variable: name of time variant variable                               -->
-<!-- ======================================================================= -->
+<!-- ===========================================================================  -->
+<!-- env_timeseries.xml                                                           -->
+<!--                                                                              -->
+<!-- XML Element descriptions:                                                    -->
+<!-- comp_archive_spec: name=[model component name included in history file]      -->
+<!-- rootdir: component rootdir in $TIMESERIES_INPUT_ROOTDIR                      -->
+<!-- multi_instance: NOT CURRENLTY IMPLEMENTED                                    -->
+<!-- default_calendar: use this setting if time variable calendar attribute       -->
+<!--                   is not defined                                             -->
+<!-- files:                                                                       -->
+<!--   file_extension: suffix regular expression for filename pattern match       -->
+<!--   subdir: location of history files $TIMESERIES_INPUT_ROOTDIR/rootdir/subdir -->
+<!--   tseries_create: flag to create history files for this suffix               -->
+<!--         These settings are over-ridden using the env_postprocessing.xml      -->
+<!--         setting TIMESERIES_GENERATE_ALL set to True or False.                -->
+<!--   tseries_output_format: netcdf output format must be one of                 -->
+<!--                          netcdf, netcdf4, netcdf4c, netcdfLarge              -->
+<!--   tseries_tper: default time_period_freq if global attribute not set         -->
+<!--   tseries_filecat_tper: what time period to include in a variable            -->
+<!--                         timeseries chunk must be one of                      -->
+<!--                         years, months, weeks, days, hours, mins              -->
+<!--   tseries_filecat_n:    Number of concatenated tper chunks to include        -->
+<!--                         in output variable timeseries file                   -->
+<!-- tseries_time_variant_variables: list of time variant variables to be         -->
+<!--                                 included in every output file                -->
+<!--   variable: name of time variant variable                                    -->
+<!--                                                                              -->
+<!-- NOTE: all variable timeseries files are output to $TIMESERIES_OUTPUT_ROOTDIR -->
+<!-- ===========================================================================  -->
 
 <components>
   <comp_archive_spec name="cam">
@@ -36,7 +40,7 @@
     <files>
       <file_extension suffix=".h0.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>month_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -44,7 +48,7 @@
       </file_extension>
       <file_extension suffix=".h1.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>day_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -52,7 +56,7 @@
       </file_extension>
       <file_extension suffix=".h2.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_6</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -60,7 +64,7 @@
       </file_extension>
       <file_extension suffix=".h3.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_3</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -68,7 +72,7 @@
       </file_extension>
       <file_extension suffix=".h4.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -76,7 +80,7 @@
       </file_extension>
       <file_extension suffix=".h5.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>min_30</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -133,7 +137,7 @@
     <files>
       <file_extension suffix=".h0.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>month_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -141,7 +145,7 @@
       </file_extension>
       <file_extension suffix=".h1.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>day_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -149,7 +153,7 @@
       </file_extension>
       <file_extension suffix=".h2.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_6</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -157,7 +161,7 @@
       </file_extension>
       <file_extension suffix=".h3.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_3</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -165,7 +169,7 @@
       </file_extension>
       <file_extension suffix=".h4.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -173,7 +177,7 @@
       </file_extension>
       <file_extension suffix=".h5.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>min_30</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -200,7 +204,7 @@
     <files>
       <file_extension suffix=".h0.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>month_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -208,7 +212,7 @@
       </file_extension>
       <file_extension suffix=".h1.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>day_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -216,7 +220,7 @@
       </file_extension>
       <file_extension suffix=".h2.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_6</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -224,7 +228,7 @@
       </file_extension>
       <file_extension suffix=".h3.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_3</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -251,7 +255,7 @@
     <files>
       <file_extension suffix=".h0.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>month_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -259,7 +263,7 @@
       </file_extension>
       <file_extension suffix=".h1.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>day_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -267,7 +271,7 @@
       </file_extension>
       <file_extension suffix=".h2.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_6</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -275,7 +279,7 @@
       </file_extension>
       <file_extension suffix=".h3.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>hour_3</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -302,7 +306,7 @@
     <files>
       <file_extension suffix=".h.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>month_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -322,7 +326,7 @@
     <files>
       <file_extension suffix=".h.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>month_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -330,7 +334,7 @@
       </file_extension>
       <file_extension suffix=".h.nday1.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>day_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -338,7 +342,7 @@
       </file_extension>
       <file_extension suffix=".h.nyear1.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>year_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -354,7 +358,7 @@
       </file_extension>
       <file_extension suffix=".h.ecosys.nyear1.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>year_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -362,7 +366,7 @@
       </file_extension>
       <file_extension suffix=".h.ecosys.nday1.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>day_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
@@ -382,13 +386,16 @@
     <files>
       <file_extension suffix=".h.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>year_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
-        <tseries_filecat_n>10</tseries_filecat_n>
+        <tseries_filecat_n>100</tseries_filecat_n>
       </file_extension>
     </files>
+    <tseries_time_variant_variables>
+      <variable>time</variable>
+    </tseries_time_variant_variables>
   </comp_archive_spec>
 
   <comp_archive_spec name="ww3">
@@ -398,7 +405,7 @@
     <files>
       <file_extension suffix=".h.[0-9]">      
 	<subdir>hist</subdir> 
-	<tseries_create>TRUE</tseries_create>
+	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
 	<tseries_tper>month_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>

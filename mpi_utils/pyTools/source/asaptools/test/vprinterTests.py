@@ -4,12 +4,18 @@ Tests of the verbose printer utility
 Copyright 2016, University Corporation for Atmospheric Research
 See the LICENSE.txt file for details
 """
+
+from __future__ import print_function
+
 import unittest
 import sys
 
 from asaptools import vprinter
 from os import linesep
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 def test_message(name, data, actual, expected):
@@ -30,7 +36,7 @@ class VPrinterTests(unittest.TestCase):
         actual = self.vprint.to_str(*data)
         expected = ''.join([str(d) for d in data])
         msg = test_message('to_str(*data)', data, actual, expected)
-        print msg
+        print(msg)
         self.assertEqual(actual, expected, msg)
 
     def testToStrHeader(self):
@@ -38,7 +44,7 @@ class VPrinterTests(unittest.TestCase):
         actual = self.vprint.to_str(*data, header=True)
         expected = self.header + ''.join([str(d) for d in data])
         msg = test_message('to_str(*data)', data, actual, expected)
-        print msg
+        print(msg)
         self.assertEqual(actual, expected, msg)
 
     def testVPrint(self):
@@ -51,7 +57,7 @@ class VPrinterTests(unittest.TestCase):
         sys.stdout = backup
         expected = self.vprint.to_str(*data) + linesep
         msg = test_message('vprint(*data)', data, actual, expected)
-        print msg
+        print(msg)
         self.assertEqual(actual, expected, msg)
 
     def testVPrintHeader(self):
@@ -64,7 +70,7 @@ class VPrinterTests(unittest.TestCase):
         sys.stdout = backup
         expected = self.vprint.to_str(*data, header=True) + linesep
         msg = test_message('vprint(*data)', data, actual, expected)
-        print msg
+        print(msg)
         self.assertEqual(actual, expected, msg)
 
     def testVPrintVerbosityCut(self):
@@ -77,7 +83,7 @@ class VPrinterTests(unittest.TestCase):
         sys.stdout = backup
         expected = ''
         msg = test_message('vprint(*data)', data, actual, expected)
-        print msg
+        print(msg)
         self.assertEqual(actual, expected, msg)
 
 

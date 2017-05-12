@@ -9,6 +9,10 @@ cat $INPUT_FILES/set2_clm.txt                                         > ${WKDIR}
 cat $INPUT_FILES/set3_*.txt                                           > ${WKDIR}master_set3.txt
 cat $INPUT_FILES/set5_clm.txt    $INPUT_FILES/set5_hydReg.txt              > ${WKDIR}master_set5.txt
 cat $INPUT_FILES/set6_*.txt                                           > ${WKDIR}master_set6.txt
+cat $INPUT_FILES/set10_*.txt                                           > ${WKDIR}master_set10.txt
+cat $INPUT_FILES/set11_*.txt                                           > ${WKDIR}master_set11.txt
+cat $INPUT_FILES/set12_*.txt                                           > ${WKDIR}master_set12.txt
+
 
 # If CN is on, add all regular cn variables
 if ($CN == 1) then

@@ -131,15 +131,39 @@
       <entry id="TIMESERIES_COMPLETECHUNK" 
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="TRUE" 
+	     value="FALSE" 
 	     group="postprocess"
 	     desc="If TRUE, create only complete chunks of variable timeseries data files as determined by the env_timeseries.xml tseries_filecat_tper and tseries_filecat_n elements. If FALSE, then incomplete chunks of variable timeseries data will be created and appended to upon subsequent running of the timeseries script. Default is TRUE."
+	     ></entry> 
+
+      <entry id="TIMESERIES_GENERATE_ALL"
+	     type="logical"
+	     valid_values="TRUE,FALSE"  
+	     value="TRUE" 
+	     group="postprocess"
+	     desc="If TRUE, create all variable timeseries files for all history streams regardless of the settings listed in the env_timeseries.xml tseries_create element. If set to FALSE, then use the tseries_create element setting in env_timeseries.xml for customized generation of timeseries files based on the history stream."
+	     ></entry> 
+
+      <entry id="TIMESERIES_INPUT_ROOTDIR" 
+	     type="string"
+	     valid_values="/glade/scratch/$USER/archive/$CASE, $DOUT_S_ROOT"  
+	     value="$DOUT_S_ROOT" 
+	     group="postprocess"
+	     desc="Fully-qualified rootdir path to input raw history time-slice data. Note: [compname]/hist will be appended automatically."
+	     ></entry> 
+
+      <entry id="TIMESERIES_OUTPUT_ROOTDIR" 
+	     type="string"
+	     valid_values="/glade/scratch/$USER/archive/$CASE, $DOUT_S_ROOT"  
+	     value="$DOUT_S_ROOT" 
+	     group="postprocess"
+	     desc="Fully-qualified rootdir path to output variable time series data files. Note: [compname]/proc/tseries/[tper] will be appended automatically."
 	     ></entry> 
 
       <entry id="GENERATE_AVGS_ATM"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="TRUE" 
+	     value="FALSE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the atm_averages script which launches the parallel python wrapper script atm_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_atm.xml file."
 	     ></entry> 
@@ -147,7 +171,7 @@
       <entry id="GENERATE_DIAGS_ATM"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="TRUE" 
+	     value="FALSE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the atm_diagnostics script with launches the  AMWG diagnostics package parallel python wrapper script atm_diags_generator.py to generate climatological plots associated with the run job output. See the AMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_atm.xml file."
 	     ></entry> 
@@ -155,7 +179,7 @@
       <entry id="GENERATE_AVGS_ICE"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="TRUE" 
+	     value="FALSE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the ice_averages script which launches the parallel python wrapper script ice_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_ice.xml file."
 	     ></entry> 
@@ -163,7 +187,7 @@
       <entry id="GENERATE_DIAGS_ICE"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="TRUE" 
+	     value="FALSE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the ice_diagnostics script which launches the PCWG diagnostics package parallel python wrapper script ice_diags_generator.py to generate climatological plots associated with the run job output. See the PCWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_ice.xml file."
 	     ></entry> 
@@ -171,7 +195,7 @@
       <entry id="GENERATE_AVGS_LND"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="TRUE" 
+	     value="FALSE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the lnd_averages script which launches the parallel python wrapper script lnd_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_lnd.xml file."
 	     ></entry> 
@@ -187,7 +211,7 @@
       <entry id="GENERATE_DIAGS_LND"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="TRUE" 
+	     value="FALSE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the lnd_diagnostics script which launches the LMWG diagnostics package parallel python wrapper script lnd_diags_generator.py to generate climatological plots associated with the run job output. See the LMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_lnd.xml file."
 	     ></entry> 
@@ -195,7 +219,7 @@
       <entry id="GENERATE_AVGS_OCN"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="TRUE" 
+	     value="FALSE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the ocn_averages script which launches the parallel python wrapper script ocn_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_ocn.xml file."
 	     ></entry> 
@@ -203,7 +227,7 @@
       <entry id="GENERATE_DIAGS_OCN" 
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="TRUE" 
+	     value="FALSE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the OMWG diagnostics package parallel python wrapper script to generate climatological plots associated with the run job output. See the OMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_ocn.xml file."
 	     ></entry> 

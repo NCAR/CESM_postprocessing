@@ -214,8 +214,6 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
 
     else: # htype == series
         import glob
-
-##        glob_string = '{0}/{1}.{2}.'.format(in_dir,case_prefix,stream)
         glob_string = '{0}/{1}.'.format(in_dir,case_prefix)
         file_list = glob.glob(glob_string+'*')
         print (glob_string,'File list:',file_list)
@@ -457,11 +455,6 @@ def main(options, main_comm, debugMsg):
 
     if envDict['test_compute_climo'] == 'True':
         try:
-##            if test_time_series == 'True':
-##                h_path = envDict['test_path_history']+'/atm/proc/tseries/month_1/'
-##            else:
-##                h_path = envDict['test_path_history']+'/atm/hist/'
-
             h_path = envDict['test_path_history']+'/atm/'+envDict['test_path_history_subdir']
 
             # generate the climatology files used for all plotting types using the pyAverager
@@ -488,11 +481,6 @@ def main(options, main_comm, debugMsg):
                                                envDict['cntl_casename'], envDict['cntl_first_yr'], 
                                                cntl_end_year,'atm',suffix,filep,
                                                envDict['cntl_path_history_subdir'])
-
-##            if cntl_time_series == 'True':
-##                h_path = envDict['cntl_path_history']+'/atm/proc/tseries/month_1/'
-##            else:
-##                h_path = envDict['cntl_path_history']+'/atm/hist/'
 
             h_path = envDict['cntl_path_history']+'/atm/'+envDict['cntl_path_history_subdir']
  

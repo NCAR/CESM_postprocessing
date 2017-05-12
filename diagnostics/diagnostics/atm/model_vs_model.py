@@ -230,30 +230,41 @@ class modelVsModel(AtmosphereDiagnostic):
           
             # Create set dirs, copy plots to set dir, and create html file for set 
             requested_plot_sets.append('sets') # Add 'sets' to create top level html files
+            glob_set = list()
             for plot_set in requested_plot_sets:
                  if 'set_5' == plot_set or 'set_6' == plot_set:
-                     glob_set = plot_set.replace('_','')
+                     glob_set.append(plot_set.replace('_',''))
                      plot_set = 'set5_6'
+                 elif 'cset_1' == plot_set:
+                     glob_set.append('table_soa')
+                     glob_set.append('table_chem')
+                     plot_set = plot_set.replace('_','')     
                  elif 'set_1' == plot_set:
-                     glob_set = 'table_'
-                     plot_set = plot_set.replace('_','') 
+                     glob_set.append('table_GLBL')
+                     glob_set.append('table_NEXT')
+                     glob_set.append('table_SEXT')
+                     glob_set.append('table_TROP')
+                     plot_set = plot_set.replace('_','')
                  elif 'sets' == plot_set:
                      set_dir = web_dir + '/' 
                  else:
+                     glob_set.append(plot_set.replace('_',''))
                      plot_set = plot_set.replace('_','')
-                     glob_set = plot_set
+
                  if 'sets' not in plot_set: #'sets' is top level, don't create directory or copy images files
                      set_dir = web_dir + '/' + plot_set
                      # Create the plot set web directory
                      if not os.path.exists(set_dir):
                          os.makedirs(set_dir) 
                      # Copy plots into the correct web dir
-                     glob_string = env['test_path_diag']+'/'+glob_set+'*.*'
-                     imgs = glob.glob(glob_string) 
-                     if imgs > 0:
-                         for img in imgs:
-                             new_fn = set_dir + '/' + os.path.basename(img)
-                             os.rename(img,new_fn)
+                     for gs in glob_set:
+                         glob_string = env['test_path_diag']+'/'+gs+'*.*'
+                         imgs = glob.glob(glob_string) 
+                         if imgs > 0:
+                             for img in imgs:
+                                 new_fn = set_dir + '/' + os.path.basename(img)
+                                 os.rename(img,new_fn)
+
                  # Copy/Process html files
                  if 'sets' in plot_set:
                      orig_html = env['HTML_HOME']+'/'+plot_set 
@@ -295,6 +306,9 @@ class modelVsModel(AtmosphereDiagnostic):
                     diag_path = web_dir
                     move_files = False
 
+            print('DEBUG: model vs. model web_dir = {0}'.format(web_dir))
+            print('DEBUG: model vs. model diag_path = {0}'.format(diag_path))
+
             # move the files to the new diag_path 
             if move_files:
                 try:
@@ -308,7 +322,6 @@ class modelVsModel(AtmosphereDiagnostic):
             env_file = '{0}/env_diags_atm.xml'.format(env['PP_CASE_PATH'])
             key = 'ATMDIAG_WEBDIR_{0}'.format(self._name)
             value = diag_path
-            ##web_file = '{0}/web_dirs/{1}.{2}-{3}'.format(env['PP_CASE_PATH'], key, scomm.get_size(), scomm.get_rank() )
             web_file = '{0}/web_dirs/{1}.{2}'.format(env['PP_CASE_PATH'], key, datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S'))
             try:
                 diagUtilsLib.write_web_file(web_file, 'atm', key, value)

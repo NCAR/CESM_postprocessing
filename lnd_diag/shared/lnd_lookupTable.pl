@@ -27,6 +27,9 @@
   $set_6 = $ENV{'set_6'};
   $set_7 = $ENV{'set_7'};
   $set_8 = $ENV{'set_8'};
+  $set_9 = $ENV{'set_9'};
+  $set_10 = $ENV{'set_10'};
+  $set_11 = $ENV{'set_11'};
 
 # --------------------------------
 # define auxillary files 
@@ -38,14 +41,14 @@
 # --------------------------------
 #  start main loop 
 # --------------------------------
-  @setList = (1,2,3,4,5,6,7,8);
-  @status = ($set_1, $set_2, $set_3, $set_4, $set_5, $set_6, $set_7, $set_8);
+  @setList = (1,2,3,4,5,6,7,8,9,10,11);
+  @status = ($set_1, $set_2, $set_3, $set_4, $set_5, $set_6, $set_7, $set_8, $set_9, $set_10, $set_11);
 
 for $set (@setList)
 {
 
 print "set = $set status = @status[$set-1]\n";
-    if( @status[$set-1] == "True") { 
+    if( lc(@status[$set-1]) eq "true") { 
 
   	$mainFile = $webdir."/set".$set."/variableList_".$set.".html";
   	close(fp_main);
@@ -230,6 +233,14 @@ sub setDescription
         if ($set == 8)
         {
                 $l  = "Line and contour plots of Ocean/Land/Atmosphere CO2 exchange</b><br>";
+        }
+        if ($set == 10)
+        {
+                $l  = "Horizontal contour plots of DJF, MAM, JJA, SON, and ANN means, zoomed in on the Greenland ice sheet</b><br>";
+        }
+        if ($set == 11)
+        {
+                $l  = "Horizontal contour plots of DJF, MAM, JJA, SON, and ANN means, zoomed in on the Antarctic ice sheet</b><br>";
         }
 	return($l)
 }

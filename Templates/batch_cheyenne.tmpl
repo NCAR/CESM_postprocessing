@@ -1,0 +1,43 @@
+##########
+##
+## General rules for determining PE counts and distribution across nodes
+## ---------------------------------------------------------------------
+##
+## Averages:
+##
+## For ocean hi-resolution or atm data sets with a lot of variables, 
+## set the netcdf_format XML variable to netcdfLarge, change the queue to
+## either geyser (shared) or bigmem (exclusive). For geyser, set -n to 16
+## and ptile to 2 or more. Or, set -n < 16 and ptile to 1 which will 
+## allow for more memory usage. The -W setting may also need to be 
+## increased for large data sets.
+##
+##########
+##
+## Diagnostics:
+##
+## NOTE - geyser and caldera aren't accessible from cheyenne yet as of 1/31/2017.
+##
+## For diagnostics, the queue should always be set to small, geyser or caldera
+## with the number of mpi tasks not to exceed the number of plot sets to be created. 
+## The ptile can be adjusted depending on the size of the input climo
+## and average files. 
+##
+##########
+##
+## Variable Time series generation:
+##
+## Load balance depends on number of history streams, 
+## variables per stream and chunk sizes.
+##
+##########
+
+#PBS -N {{ processName }}
+#PBS -q {{ queue }}
+#PBS -l select={{ nodes }}:ncpus={{ ppn }}:mpiprocs={{ ppn }}
+#PBS -l walltime={{ wallclock }}
+#PBS -A {{ project }}
+
+. /glade/u/apps/ch/opt/lmod/7.2.1/lmod/lmod/init/bash
+
+export I_MPI_DEVICE=rdma

@@ -6,7 +6,7 @@ the PyReshaper code is specified.  Currently all types of supported
 operations for the PyReshaper are specified with derived dypes of the
 Specification class.
 
-Copyright 2015, University Corporation for Atmospheric Research
+Copyright 2016, University Corporation for Atmospheric Research
 See the LICENSE.rst file for details
 """
 
@@ -50,7 +50,10 @@ class Specifier(object):
                  compression=0,
                  prefix='tseries.',
                  suffix='.nc',
+                 timeseries=None,
                  metadata=[],
+                 meta1d=False,
+                 backend='netCDF4',
                  **kwargs):
         """
         Initializes the internal data with optional arguments.
@@ -72,9 +75,18 @@ class Specifier(object):
                 to all time-series output files
             suffix (str): String specifying the suffix common
                 to all time-series output files
+            timeseries (list): List of variable names to extract
+                out from the input time-slices into their own
+                time-series files.  If None, then all non-metadata
+                time-variant variables will be treated as time-series
+                variables.
             metadata (list): List of variable names specifying the
                 variables that should be included in every
                 time-series output file
+            meta1d (bool): True if 1D time-variant variables should
+                be treated as metadata variables, False otherwise.
+            backend (str): Which I/O backend to use ('Nio' for
+                PyNIO, 'netCDF4' for netCDF4-python)
             kwargs (dict): Optional arguments describing the
                 Reshaper run
         """
@@ -96,9 +108,17 @@ class Specifier(object):
         #  prefix + variable_name + suffix)
         self.output_file_suffix = suffix
 
-        # List of time-variant variables that should be included in all
-        #  output files.
+        # List of time-variant variables that should be given their own output file
+        self.time_series = timeseries
+
+        # List of time-variant variables that should be included in all output files.
         self.time_variant_metadata = metadata
+
+        # Whether all 1D time-variant variables should be treated as metadata
+        self.assume_1d_time_variant_metadata = meta1d
+
+        # Store the netCDF I/O backend name
+        self.io_backend = backend
 
         # Optional arguments associated with the reshaper operation
         self.options = kwargs
@@ -128,12 +148,12 @@ class Specifier(object):
 
         # Validate that each input file name is a string
         for ifile_name in self.input_file_list:
-            if not isinstance(ifile_name, str):
+            if not isinstance(ifile_name, basestring):
                 err_msg = "Input file names must be given as strings"
                 raise TypeError(err_msg)
 
         # Validate the netcdf format string
-        if not isinstance(self.netcdf_format, str):
+        if not isinstance(self.netcdf_format, basestring):
             err_msg = "NetCDF format must be given as a string"
             raise TypeError(err_msg)
 
@@ -143,14 +163,24 @@ class Specifier(object):
             raise TypeError(err_msg)
 
         # Validate the output file prefix
-        if not isinstance(self.output_file_prefix, str):
+        if not isinstance(self.output_file_prefix, basestring):
             err_msg = "Output file prefix must be given as a string"
             raise TypeError(err_msg)
 
         # Validate the output file suffix
-        if not isinstance(self.output_file_suffix, str):
+        if not isinstance(self.output_file_suffix, basestring):
             err_msg = "Output file suffix must be given as a string"
             raise TypeError(err_msg)
+
+        # Validate the type of the time-series variable list
+        if self.time_series is not None:
+            if not isinstance(self.time_series, list):
+                err_msg = "Time-series variables must be a list or None"
+                raise TypeError(err_msg)
+            for var_name in self.time_series:
+                if not isinstance(var_name, basestring):
+                    err_msg = "Time-series variable names must be given as strings"
+                    raise TypeError(err_msg)
 
         # Validate the type of the time-variant metadata list
         if not isinstance(self.time_variant_metadata, list):
@@ -159,10 +189,20 @@ class Specifier(object):
 
         # Validate the type of each time-variant metadata variable name
         for var_name in self.time_variant_metadata:
-            if not isinstance(var_name, str):
-                err_msg = "Time-variant metadata variable names must be " + \
-                          "given as strings"
+            if not isinstance(var_name, basestring):
+                err_msg = ("Time-variant metadata variable names must be "
+                           "given as strings")
                 raise TypeError(err_msg)
+
+        # Validate the type of assume_1d_time_variant_metadata
+        if not isinstance(self.assume_1d_time_variant_metadata, bool):
+            err_msg = "Flag to assume 1D time-variant metadata must be boolean"
+            raise TypeError(err_msg)
+
+        # Validate the type of the backend
+        if not isinstance(self.io_backend, basestring):
+            err_msg = "I/O backend must be given as a string"
+            raise TypeError(err_msg)
 
     def validate_values(self):
         """
@@ -173,7 +213,7 @@ class Specifier(object):
         We impose the (somewhat arbitrary) rule that the Specifier
         should not validate values what require "cracking" open the
         input files themselves.  Hence, we validate values that can
-        be checked without any PyNIO file I/O (including reading the
+        be checked without any NetCDF file I/O (including reading the
         header information).
 
         This method will correct some input if it is safe to do so.
@@ -223,6 +263,8 @@ class Specifier(object):
         # Validate the output file suffix string (should end in .nc)
         if (self.output_file_suffix[-3:] != '.nc'):
             self.output_file_suffix += '.nc'
+
+        # Backend validated when PyReshaper is run ONLY!
 
     def write(self, fname):
         """

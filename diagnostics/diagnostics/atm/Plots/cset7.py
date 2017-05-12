@@ -38,7 +38,7 @@ class CSet7(AtmosphereDiagnosticPlot):
         self._name = 'CSET 7 - Surface comparison ozone, co, improve'
         self._shortname = 'CSET7'
         self._template_file = 'cset7.tmpl'
-        self.ncl_scripts = ['plot_improve_scatter_pdf_mam3.ncl']
+        self.ncl_scripts = ['plot_improve_scatter_pdf.ncl']
         self.plot_env = env.copy() 
 
     def check_prerequisites(self, env):

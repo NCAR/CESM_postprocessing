@@ -6,7 +6,7 @@ This script is designed to run a specfile (i.e., a Pickled Specifier object).
 The specfile itself should be constructed from a hand-written Python script,
 or from the makes2sspec tool that accompanies this script.
 
-Copyright 2015, University Corporation for Atmospheric Research
+Copyright 2016, University Corporation for Atmospheric Research
 See the LICENSE.rst file for details
 """
 
@@ -32,6 +32,13 @@ def cli(argv=None):
                       action='store_true', dest='once',
                       help=('Whether to write a "once" file with all '
                             'metadata. [Default: False]'))
+    parser.add_option('-c', '--chunk', default=None, action='append', dest='chunks',
+                      help=('Chunk size for a named dimension.  This should '
+                            'be given as a comma-separated pair (e.g., NAME,SIZE) '
+                            'indicating the name of the dimension to chunk over '
+                            'and the chunk size.  Multiple chunk options can be '
+                            'given on the command line, each one enabling chunking '
+                            'over a new dimension.  [Default: None]'))
     parser.add_option('-l', '--limit', default=0, type='int',
                       help=('The limit on the number of time-series files per '
                             'processor to write.  Useful when debugging.  A '
@@ -60,6 +67,9 @@ def cli(argv=None):
     else:
         specfile = args[0]
     
+    if opts.chunks is not None:
+        opts.chunks = dict((c.split(',')[0],int(c.split(',')[1])) for c in opts.chunks)
+    
     return opts, specfile
 
 
@@ -85,7 +95,7 @@ def main(argv=None):
                                       once=opts.once)
 
     # Run the conversion (slice-to-series) process
-    reshpr.convert(output_limit=opts.limit)
+    reshpr.convert(output_limit=opts.limit, chunks=opts.chunks)
 
     # Print timing diagnostics
     reshpr.print_diagnostics()

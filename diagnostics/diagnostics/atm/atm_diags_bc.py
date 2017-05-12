@@ -72,6 +72,11 @@ class AtmosphereDiagnostic(object):
                     if not rc1:
                         os.symlink(climo_file,new_fn)
 
+        if (scomm.is_manager()):
+            print("DEBUG atm_diags_bc: workdir = %s"%workdir)
+            print("DEBUG atm_diags_bc: t = %s"%t)
+            print("DEBUG atm_diags_bc: env[t_path_climo] = %s"%env[t+'_path_climo'])
+
         return env
 
     def check_prerequisites(self, env, scomm):

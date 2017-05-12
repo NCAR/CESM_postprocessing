@@ -135,10 +135,8 @@ def commandline_options():
     parser.add_argument('-cesmtag', '--cesmtag', nargs=1, required=False,
                         help='CESM repository tag (optional)')
 
-    parser.add_argument('-completechunk', '--completechunk', nargs=1, required=False, type=int, default=1,
-                        help='timeseries control -  1: do not create incomplete chunks, '\
-                            ' 0: create an incomplete chunk.' \
-                            ' 1 is default.')
+    parser.add_argument('-project', '--project', nargs=1, required=False,
+                        help='Project code (optional). This setting will override the environment variable setting.')
 
     options = parser.parse_args()
         
@@ -283,7 +281,11 @@ def read_machine_xml(machineName, xmlFile):
             machine['timeseries_pes'] = tseries_pes.text
             machine['timeseries_queue'] = tseries_pes.get('queue').lower()
             machine['timeseries_ppn'] = tseries_pes.get('pes_per_node').lower()
+            machine['timeseries_nodes'] = ''
+            if 'nodes' in tseries_pes.attrib:
+                machine['timeseries_nodes'] = tseries_pes.get('nodes').lower()
             machine['timeseries_wallclock'] = tseries_pes.get('wallclock').lower()
+
 
             # get the mpi run command
             machine['mpi_command'] = xmlmachine.find('mpi_command').text
@@ -292,11 +294,6 @@ def read_machine_xml(machineName, xmlFile):
             machine['pythonpath'] = xmlmachine.find('pythonpath').text
             if machine['pythonpath'] is None:
                 machine['pythonpath'] = ''
-
-            # get the project from the XML first then override with env setting
-            machine['project'] = xmlmachine.find('project').text
-            if os.getenv('PROJECT') is not None:
-                machine['project'] = os.getenv('PROJECT')
 
             # loop through the reset_module list
             for mod in xmlmachine.findall("reset_modules/module"):
@@ -314,12 +311,18 @@ def read_machine_xml(machineName, xmlFile):
                 avg = comp.find('averages_pes')
                 machine['{0}_averages_pes'.format(compName)] = avg.text
                 machine['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
+                machine['{0}_averages_nodes'.format(compName)] = ''
+                if 'nodes' in avg.attrib:
+                    machine['{0}_averages_nodes'.format(compName)] = avg.get('nodes').lower()
                 machine['{0}_averages_ppn'.format(compName)] = avg.get('pes_per_node').lower()
                 machine['{0}_averages_wallclock'.format(compName)] = avg.get('wallclock').lower()
 
                 diags = comp.find('diagnostics_pes')
                 machine['{0}_diagnostics_pes'.format(compName)] = diags.text
                 machine['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
+                machine['{0}_diagnostics_nodes'.format(compName)] = ''
+                if 'nodes' in diags.attrib:
+                    machine['{0}_diagnostics_nodes'.format(compName)] = diags.get('nodes').lower()
                 machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
                 machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
 
@@ -327,6 +330,9 @@ def read_machine_xml(machineName, xmlFile):
                 if regrid is not None:
                     machine['{0}_regrid_pes'.format(compName)] = regrid.text
                     machine['{0}_regrid_queue'.format(compName)] = regrid.get('queue').lower()
+                    machine['{0}_regrid_nodes'.format(compName)] = ''
+                    if 'nodes' in regrid.attrib:
+                        machine['{0}_regrid_nodes'.format(compName)] = regrid.get('nodes').lower()
                     machine['{0}_regrid_ppn'.format(compName)] = regrid.get('pes_per_node').lower()
                     machine['{0}_regrid_wallclock'.format(compName)] = regrid.get('wallclock').lower()
                         
@@ -342,7 +348,8 @@ def read_machine_xml(machineName, xmlFile):
 # create_batch - create the batch files for post processing submission
 # -------------------------------------------------------------------------------
 def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName,
-                 project, pythonpath, caseRoot, reset_modules, modules, queue, ppn, wallclock, options, standalone):
+                 project, pythonpath, caseRoot, reset_modules, modules, queue, ppn, nodes,
+                 wallclock, options, standalone):
     """create the batch submission files for post processing
 
     Arguments:
@@ -359,6 +366,9 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     reset_modules (string) - module commands
     modules (string) - module commands
     queue (string) - queue for batch submission
+    ppn (string) - pes-per-node
+    nodes (string) - number of nodes
+    wallclock (string) - wallclock time
     options (object) - commandline options
     standalone (boolean) - indicate if this is postprocessing for a standalone case
     """
@@ -390,16 +400,13 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     if options.backtrace:
         backtrace = '--backtrace'
 
-    completechunk = ''
-    if postProcessCmd == 'cesm_tseries_generator.py':
-        completechunk = '--completechunk {0}'.format(options.completechunk)
-
     # all files look good so start parsing the template file starting with the batchTmpl
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(ppDir) )
     templateEnv = jinja2.Environment( loader=templateLoader )
     template = templateEnv.get_template( batchTmpl )
     templateVars = { 'pes' : pes,
                      'queue' : queue,
+                     'nodes' : nodes,
                      'processName' : processName,
                      'project' : project,
                      'ppn' : ppn,
@@ -414,11 +421,11 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
                      'reset_modules' : reset_modules,
                      'modules' : modules,
                      'pes' : pes,
+                     'nodes' : nodes,
                      'mpirun' : mpiCmd,
                      'pythonpath': pythonpath,
                      'processName' : processName,
                      'postProcessCmd' : postProcessCmd,
-                     'completechunk' : completechunk,
                      'caseRoot' : caseRoot,
                      'virtualEnvDir' : virtualEnvDir,
                      'debug' : debug,
@@ -488,6 +495,11 @@ def initialize_main(envDict, options, standalone):
     envDict['CESM_TAG'] = 'undefined'
     if options.cesmtag:
         envDict['CESM_TAG'] = options.cesmtag[0]
+
+    # set the project code
+    envDict['PROJECT'] = os.getenv('PROJECT')
+    if options.project:
+        envDict['PROJECT'] = options.project[0]
 
     return envDict
 
@@ -590,10 +602,10 @@ def main(options):
     outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
 
     create_batch(envDict['POSTPROCESS_PATH'], machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
-                 machine['mpi_command'], outFile, processName, machine['project'], machine['pythonpath'], 
+                 machine['mpi_command'], outFile, processName, envDict['PROJECT'], machine['pythonpath'], 
                  envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'], 
-                 machine['timeseries_queue'], machine['timeseries_ppn'], machine['timeseries_wallclock'], 
-                 options, standalone)
+                 machine['timeseries_queue'], machine['timeseries_ppn'], machine['timeseries_nodes'], 
+                 machine['timeseries_wallclock'], options, standalone)
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
@@ -603,10 +615,10 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_averages_pes'.format(comp)], batch_tmpl, 
                      run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
-                     machine['project'], machine['pythonpath'], envDict['PP_CASE_PATH'], 
+                     envDict['PROJECT'], machine['pythonpath'], envDict['PP_CASE_PATH'], 
                      machine['reset_modules'], machine['modules'], machine['{0}_averages_queue'.format(comp)], 
-                     machine['{0}_averages_ppn'.format(comp)], machine['{0}_averages_wallclock'.format(comp)],
-                     options, standalone)
+                     machine['{0}_averages_ppn'.format(comp)], machine['{0}_averages_nodes'.format(comp)], 
+                     machine['{0}_averages_wallclock'.format(comp)], options, standalone)
 
         # generate the diagnostics batch submit script
         postProcessCmd = '{0}_diags_generator.py'.format(comp)
@@ -614,10 +626,11 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, 
                      run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
-                     machine['project'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
+                     envDict['PROJECT'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
                      machine['reset_modules'], machine['modules'], 
                      machine['{0}_diagnostics_queue'.format(comp)],
                      machine['{0}_diagnostics_ppn'.format(comp)], 
+                     machine['{0}_diagnostics_nodes'.format(comp)], 
                      machine['{0}_diagnostics_wallclock'.format(comp)], options, standalone)
 
     # generate the regrid batch submit scripts from template files
@@ -628,10 +641,10 @@ def main(options):
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(envDict['POSTPROCESS_PATH'], machine['{0}_regrid_pes'.format(comp)], batch_tmpl, 
                      run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
-                     machine['project'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
+                     envDict['PROJECT'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
                      machine['reset_modules'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
-                     machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_wallclock'.format(comp)], 
-                     options, standalone)
+                     machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_nodes'.format(comp)],
+                     machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
 
     # copy some tools to the PP_CASE_PATH
     files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd']

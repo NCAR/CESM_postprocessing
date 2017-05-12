@@ -5,103 +5,60 @@ The PyReshaper User's Manual
 What is it?
 ===========
 
-The PyReshaper is a tool for converting NetCDF time-slice formatted
-files into time-series format. It is written in Python as an
-easy-to-install package consisting of 4 Python modules.
+The PyReshaper is a tool for converting time-slice (or history-file
+or synoptically) formatted NetCDF files into time-series (or single-field)
+format.
 
 Requirements
 ------------
 
-The PyReshaper is built upon 2 third-party Python packages, which
-separately depend upon other packages, as indicated below.
+The PyReshaper explicitly depends upon the following Python packages:
 
--  PyNIO (v1.4.1)
--  numpy (v1.4)
--  NetCDF
--  mpi4py (v1.3)
--  A dynamic/shared library installation of MPI or MPI-2
+-  PyNIO (v1.4.1+) or netCDF4-python (v1.2+)
+-  ASAPPyTools (v0.4+)
+
+These packages imply a dependency on the NumPy (v1.4+) and mpi4py (v1.3+) 
+packages, and the  libraries NetCDF and MPI/MPI-2.
+
+If using Python version 2.6, you will need to install the ``ordereddict``
+package, too.
 
 No thorough testing has been done to show whether earlier versions of
 these dependencies will work with the PyReshaper. The versions listed
 have been shown to work, and it is assumed that later versions will
 continue to work.
 
-How can I get it?
-=================
+How can I install it?
+=====================
 
-The best way to obtain the PyReshaper code is to check it out from the
-GitHub site, as shown below.
-
-::
-
-    $  git clone https://github.com/NCAR-CISL-ASAP/PyReshaper
-    $  cd PyReshaper
-
-This will download the most recent stable version of the source code.  If
-the most recent version of the non-stable source is desired, you may switch
-to the development branch.
-
-::
-
-    $  git checkout devel
-
-
-How do I set it up?
-===================
-
-Easy Installation
------------------
-
-The easiest way to install the PyReshaper is from the Python Package Index,
-PyPI.  To do this, use the ``pip`` tool like follows.
+The easiest way of obtaining the PyReshaper is from the Python Package
+Index (PyPI), using ``pip``:
 
 ::
 
     $  pip install [--user] PyReshaper
-    
-If you do not have the required dependencies installed, then ``pip`` will
-install them for you at this time.  The ``--user`` option will be necessary
-if you do not have system install privileges on the machine you are using.
-    
-Installation from Source
-------------------------
 
-In this section, we describe how to install the PyReshaper package on a
-unix-like system. The procedure is similar for a Mac, but we have not
-tested the package on Windows.
-
-As described in the previous section, first check out the source code
-from the subversion repository. On unix-like systems, the command is
-shown below.
+Alternatively, you can download the source from GitHub and install with
+``setuptools``:
 
 ::
 
-    $  git clone https://github.com/NCAR-CISL-ASAP/PyReshaper
-
-Enter into the newly created directory.
-
-::
-
+    $  git clone https://github.com/NCAR/PyReshaper
     $  cd PyReshaper
+    $  python setup.py install [--user] 
 
-The contents of the repository will look like the following.
-
-::
-
-    $  ls
-    CHANGES.rst README.rst  docs/       setup.py    tests/
-    LICENSE.rst bin/        setup.cfg   source/
-
-To install the package, type the following command from this directory.
+This will download and install the most recent stable version of the source
+code.  If the most recent version of the non-stable source is desired, you 
+may switch to the development branch before installing.
 
 ::
 
-    $  python setup.py install [--user]
-
-If you are a system administrator, you can leave off the ``--user``
-option, and the package will be installed in ``/usr/local``, by default.
-Alternatively, you may specify your own installation root directory with
-the ``--prefix`` option.
+    $  git checkout devel
+   
+When installing, the ``--user`` option to either ``pip`` or ``setup.py``
+will install the PyReshaper in the user's private workspace, as defined
+by the system on which the user is installing.  This is useful if you don't
+have permissions to install system-wide software.
 
 Generating the API Documentation
 --------------------------------
@@ -175,11 +132,16 @@ Before we describe the various ways you can use the PyReshaper, we must
 describe more about what, precisely, the PyReshaper is designed to do.
 
 As we've already mentioned, the PyReshaper is designed to convert a set
-of NetCDF files from time-slice (i.e., multiple time-dependent variables
-with one time-value per file) format to time-series (one time-dependent
-variable with multiple time-values per file) format, either in serial or
-parallel.  In serial, the PyReshaper will write each time-series variable
-to its own file in sequence.  In parallel, time-series variables will be 
+of NetCDF files from time-slice (i.e., synoptic or history-file) format 
+to time-series (or single-field) format, either in serial or parallel.  
+Time-slice files contain all of the model variables in one file, but typically
+only span 1 or a few time-steps per file.  Time-series files nominally contain
+only 1 single time-dependent variable spanning many time-steps, but they
+can additionally contain metadata used to describe the single-field variable
+contained by the file.
+
+In serial, the PyReshaper will write each time-series variable to its own 
+file in sequence.  In parallel, time-series variables will be 
 written simultaneously across the MPI processes allocated for the job.
 
 There are a number of assumptions that the PyReshaper makes regarding the
@@ -192,20 +154,24 @@ time-slice (input) data, which we list below.
    overlap with each other. (That is, each time-slice NetCDF file can
    contain data spanning a number of simulation time steps. However, the
    span of time contained in one time slice cannot overlap the span of
-   time in another time-slice.)
+   time in another time-slice.)  If the time-slices overlap, an error
+   will be given and execution will stop.
 3. Every time-slice NetCDF file contains the same time-dependent
    variables, just at differing times.
 
 Similarly, there are a number of assumptions made about the time-series
-(output) data produced by the PyReshaper conversion process.
+(output) data produced by the PyReshaper conversion process.  The variables 
+written to the output data can be time-series variables or metadata
+variables.  Time-series variables are written to one output file only.
+Metadata variables are written to all output files.
 
-1. By default, every time-dependent variable will be written to its own
-   time-series NetCDF file.
-2. Any time-dependent variables that should be included in every
-   time-series file (e.g., such as ``time`` itself), instead of getting
-   their own time-series file, must be specified by name.
-3. Every time-independent variable that appears in the time-slice files
-   will be written to every time-series file.
+1. By default, every time-dependent variable will be assumed to be a
+   time-series variable (i.e., written to its own time-series NetCDF file).
+2. Every time-independent variable that appears in the time-slice files
+   will be assumed to be a metadata variable (i.e., written to every 
+   time-series file).
+3. Users can explicitly specify any number of time-dependent variables
+   as metadata variables (e.g., such as ``time`` itself).
 4. Every time-series file written by the PyReshaper will span the total
    range of time spanned by all time-slice files specified.
 5. Every time-series file will be named with the same prefix and suffix,
@@ -213,7 +179,7 @@ Similarly, there are a number of assumptions made about the time-series
 
    time\_series\_filename = prefix + variable\_name + suffix
 
-where the variable\_name is the name of the time-dependent variable
+where the variable\_name is the name of the time-series variable
 associated with that time-series file.
 
 It is important to understand the implications of the last assumption on
@@ -223,10 +189,196 @@ file-name to contain information that pertains to the time-sampling
 frequency of the data in the file, or the range of time spanned by the
 time-series file, or any number of other things. To conform to such
 naming conventions, it may be required that the total set of time-slice
-files that the user which to convert to time-series be given to the
-PyReshaper in multiple subsets, or chunks. Throughout this manual, we
-will refer to such "chunks" as streams. As such, every single PyReshaper
+files that the user wishes to convert to time-series be given to the
+PyReshaper in multiple subsets, running the PyReshaper independently on
+each subset of time-slice files. Throughout this manual, we 
+will refer to such "subsets" as streams. As such, every single PyReshaper
 operation is designed to act on a single stream.
+
+Using the PyReshaper from the Unix Command-Line
+-----------------------------------------------
+
+While the most flexible way of using the PyReshaper is from within
+Python, as described above, the easiest way to use the PyReshaper is usually
+to run the PyReshaper command-line utilities.  In this section, we describe 
+how to use the command-line utilities ``s2smake`` and ``s2srun``, which 
+provide command-line interfaces (CLI) to the PyReshaper. (These scripts 
+will be installed in the ``$PREFIX/bin`` directory, where ``PREFIX`` is the
+installation root directory.  If you installed PyReshaper with the ``--user``
+flag, you may need to add this directpry to your path.)
+
+The ``s2smake`` utility is designed to generate a Specifier object file
+(*specfile*) that contains a specification of the PyReshaper job.
+The ``s2srun`` utility is then used to run the PyReshaper with the newly
+generated *specfile*.
+
+Below is an example of how to use the PyReshaper's ``s2smake`` utility, 
+with all options and parameters specified on the command line.
+
+::
+
+    $ s2smake \
+      --netcdf_format="netcdf4" \
+      --compression_level=1 \
+      --output_prefix="/path/to/outfile_prefix." \
+      --output_suffix=".000101-001012.nc" \
+      -m "time" -m "time_bounds" \
+      --specfile=example.s2s \
+      /path/to/infiles/*.nc
+
+In this example, you will note that we have specified each
+time-dependent metadata variable name with its own ``-m`` option. (In
+this case, there are only 2, ``time`` and ``time_bounds``.) We have also
+specified the list of input (time-slice) files using a wildcard, which
+the Unix shell fills in with a list of all filenames that match this *glob*
+*pattern*. In this case, we are specifying all files with the ``.nc`` file
+extension in the directory ``/path/to/infiles``. These command-line options
+and arguments specify all of the same input needed to run the PyReshaper.
+Running this command will save this PyReshaper *specfile* in a file called
+``example.s2s``.
+
+When using *glob patterns*, it is important to understand that the *shell*
+expands these glob patterns out into the full list of matching filenames 
+*before* running the ``s2smake`` command.  On many systems, the length of
+a shell command is limited to a fixed number of characters, and it is possible
+for the *glob pattern* to expand to a length that makes the command too long
+for the shell to execute!  If this is the case, you may contain your glob 
+pattern in quotation marks (i.e., ``"/path/to/infiles/*.nc"`` instead of
+``/path/to/infiles/*.nc``).  The ``s2smake`` command will then expand the
+glob pattern internally, allowing you to avoid the command-line character
+limit of the system.
+
+With the *specfile* created and saved using the ``s2smake`` utility,
+we can run the PyReshaper with this *specfile* using the ``s2srun`` utility,
+with all options and parameters specified on the command line.
+
+::
+
+    $ s2srun --serial --verbosity=2 example.s2s
+
+The example above shows the execution, in serial, of the PyReshaper job 
+specified by the ``example.s2s`` *specfile* with a verbosity 
+level of 2.
+
+For parallel operation, one must launch the ``s2srun`` script from
+the appropriate MPI launcher. On the NCAR Yellowstone system
+(``yellowstone.ucar.edu``), for example, this is done with the following
+command.
+
+::
+
+    $ mpirun.lsf s2srun --verbosity=3 example.s2s
+
+In the above example, this will launch the ``s2srun`` script into
+the MPI environment already created by either a request for an
+interactive session or from an LSF submission script.
+
+Arguments to the ``s2smake`` Script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The arguments to the ``s2smake`` utility are as follows.
+
+-  ``--backend BACKEND`` (``-b BACKEND``):  I/O backend to be used when
+   reading or writing from NetCDF files.  The parameter ``BACKEND`` can be one
+   of ``'Nio'`` or ``'netCDF4'``, indicating PyNIO or netCDF4-python, respectively.
+   The default value is ``'netCDF4'``.
+
+-  ``--compression_level C`` (``-c C``):  NetCDF compression level, when using the
+   netcdf4 file format, where ``C`` is an integer between 0 and 9, with 0 indicating
+   no compression at all and 9 indicating the highest level of compression. The 
+   default compression level is 1.
+
+-  ``--netcdf_format NCFORMAT`` (``-f NCFORMAT``):  NetCDF file format to be used
+   for all output files, where ``NCFORMAT`` can be ``'netcdf'``, ``'netcdf4'``, or
+   ``'netcdf4c'``, indicating NetCDF3 Classic format, NetCDF4 Classic format, or
+   NetCDF4 Classic format with forced compression level 1.  The default file format
+   is ``'netcdf4'``.
+
+-  ``--metadata VNAME`` (``-m VNAME``):  Indicate that the variable ``VNAME`` should
+   be treated as metadata, and written to all output files.  There may be more than
+   one ``--metadata`` (or ``-m``) options given, each one being added to a list.
+
+-  ``--meta1d`` (``-1``):  This flag forces all 1D time-variant variables to be treated
+   as metadata.  These variables need not be added explicitly to the list of metadata
+   variables (i.e., with the ``--metadata`` or ``-m`` argument).  These variables will
+   be added to the list when the PyReshaper runs.
+   
+-  ``--specfile SPECFILE`` (``-o SPECFILE``):  The name of the *specfile* to write,
+   containing the specification of the PyReshaper job.  The default *specfile* name
+   is ``'input.s2s'``.
+
+-  ``--output_prefix PREFIX`` (``-p PREFIX``):  A string specifying the prefix to be
+   given to all output filenames.  The output file will be named according to the 
+   rule:
+   
+   ``output_prefix + variable_name + output_suffix``
+   
+   The default output filename prefix is ``'tseries.'``.
+   
+-  ``--output_suffix SUFFIX`` (``-s SUFFIX``):  A string specifying the suffix to be
+   given to all output filenames.  The output file will be named according to the 
+   rule:
+   
+   ``output_prefix + variable_name + output_suffix``
+   
+   The default output filename suffix is ``'.nc'``.
+
+-  ``--time_series VNAME``:  Indicate that only the named ``VNAME`` variables should
+   be treated as time-series variables and extracted into their own time-series files.
+   This option works like the ``--metadata`` option, in that multiple occurrences of
+   this option can be used to extract out only the time-series variables given.  If
+   any variable names are given to both the ``--metadata`` and ``--time_series`` 
+   options, then the variable will be treated as metadata.  If the ``--time_series``
+   option is *not* used, then all time-dependent variables that are not specified to
+   be metadata (i.e., with the ``--metadata`` option) will be treated as time-series
+   variables and given their own output file.  **NOTE: If you use this option, data
+   can be left untransformed from time-slice to time-series output!  DO NOT DELETE
+   YOUR OLD TIME-SLICE FILES!**
+    
+Each input file should be listed in sequence, space separated, on the command line to
+the utility, nominally after all other options have been specified.
+
+   
+Arguments to the ``s2srun`` Script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+While the basic options shown in the previous examples above are
+sufficient for most purposes, additional options are available.
+
+-  ``--chunk NAME,SIZE`` (``-c NAME,SIZE``):  This command-line option can be used
+   to specify a maximum read/write chunk-size ``SIZE`` along a given named dimension
+   ``NAME``.  Multiple ``--chunk`` options can be given to specify chunk-sizes along
+   multiple dimensions.  This option determines the size of the data "chunk" read
+   from a single input file (and then written to an output file).  If the chunk-size
+   is greater than the given dimension size, then the entire dimension will be read
+   at once.  If the chunk-size is less than the given dimension size, then all variables
+   that depend on that dimension will be read in multiple parts, each "chunk" being written
+   before the next is read.  This can be important to control memory use.  By default,
+   chunking is done over the unlimited dimension with a chunk-size of 1.
+
+-  ``--limit L`` (``-l L``):  This command-line option can be used to set the 
+   ``output_limit`` argument of the PyReshaper ``convert()`` function, 
+   described below.  This can be used when testing to only output the first ``L``
+   files.  The default value is 0, which indicates no limit (normal operation).
+
+-  ``--write_mode M`` (``-m M``): This command-line option can be used to set
+   the ``wmode`` output file write-mode parameter of the ``create_reshaper()``
+   function, described below.  The default write mode is ``'w'``, which indicates
+   normal writing, which will error if the output files already exists (i.e.,
+   no overwriting).  Other options are ``'o'`` to overwrite existing output files,
+   ``'s'`` to skip existing output files, ``'a'`` to append to existing output
+   files.
+
+-  ``--serial`` (``-s``):  If this flag is used, it will run the PyReshaper in
+   serial mode.  By default, it will run PyReshaper in parallel mode.
+
+-  ``--verbosity V`` (``-v V``):  Sets the verbosity level for standard output
+   from the PyReshaper.  A level of 0 means no output, and a value of 1 or more
+   means increasingly more output.  The default verbosity level is 1.
+
+Nominally, the last argument given to the ``s2srun`` utility should be the name
+of the *specfile* to run.
+
 
 Using the PyReshaper from within Python
 ---------------------------------------
@@ -238,18 +390,15 @@ external third-party library. The library API for the PyReshaper is
 designed to be simple and light-weight, making it easy to use in your
 own Python tools or scripts.
 
-Single-Stream Usage
-~~~~~~~~~~~~~~~~~~~
-
 Below, we show an example of how to use the PyReshaper from within
-Python to convert a single stream from time-slice format to time-series
+Python to convert a stream from time-slice format to time-series
 format.
 
 .. code:: py
 
     from pyreshaper import specification, reshaper
 
-    # Create a Specifier object (that defined a single stream to be converted
+    # Create a Specifier object
     specifier = specification.create_specifier()
 
     # Specify the input needed to perform the PyReshaper conversion
@@ -258,7 +407,7 @@ format.
     specifier.compression_level = 1
     specifier.output_file_prefix = "/path/to/outfile_prefix."
     specifier.output_file_suffix = ".000101-001012.nc"
-    specifier.time_variant_metadata = ["time", "time_bounds", ...]
+    specifier.time_variant_metadata = ["time", "time_bounds"]
 
     # Create the PyReshaper object
     rshpr = reshaper.create_reshaper(specifier,
@@ -279,7 +428,7 @@ which is defined in the specification module). We will describe each
 attribute of the Specifier object below.
 
 Specifier Object Attributes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  ``input_file_list``: This specifies a list of input (time-slice) file
    paths that all conform to the input file assumptions (described
@@ -329,14 +478,62 @@ can include the full, absolute path information for the output
    time-invariant (time-independent) variables will be treat as metadata
    automatically.
 
-Even though the PyReshaper is designed to work on a single stream at a
-time, multiple streams can be defined as input to the PyReshaper. When
-running the PyReshaper with multiple stream, multiple Specifier objects
-must be created, one for each stream.  See the section on 
-Multiple Stream Usage.
+-  ``assume_1d_time_variant_metadata``: If set to ``True``, this indicates
+   that all 1D time-variant variables (i.e., variables that *only* depend
+   upon ``time``) should be added to the list of ``time_variant_metadata``
+   when the Reshaper runs.  The default for this option is ``False``.
 
+-  ``time_series``: If set to a list of string variable names, only these
+   variable names will be transformed into time-series format.  This is
+   equivalent to the ``--time_series`` option to the ``s2smake`` utility.
+   **NOTE: Setting this attribute can leave data untransformed from time-slice
+   to time-series format!  DO NOT DELETE YOUR OLD TIME-SLICE FILES!**
+   
+-  ``backend``: This specifies which I/O backend to use for reading
+   and writing NetCDF files.  The default backend is ``'netCDF4'``, but
+   the user can alternatively specify ``'Nio'`` to use PyNIO.
+
+Specifier Object Methods
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to the attributes above, the Specifier objects have some useful
+methods that can be called.
+
+-  ``validate()``:  Calling this function validates the attributes of the
+   Specifier, making sure their types and values appear correct.
+
+-  ``write(filename)``:  Calling this function with the argument ``filename``
+   will write the *specfile* matching the Specifier.
+
+
+Specfiles
+~~~~~~~~~
+
+*Specfiles* are simply *pickled* Specifier objects written to a file.  To
+create a *specfile*, one can simply call the Specifier's ``write()`` method,
+described above, or one can explicitly *pickle* the Specifier directly, as
+shown below.
+
+.. code:: py
+
+    import pickle
+    
+    # Assume "spec" is an existing Specifier instance
+    pickle.dump(spec, open("specfile.s2s", "wb"))
+
+This is equivalent to the call ``spec.write('specfile.s2s')``.
+
+A *specfile* can be read with the following Python code.
+
+.. code:: py
+
+    import pickle
+    
+    spec = pickle.load( open("specfile.s2s", "rb") )
+        
+    
 Arguments to the ``create_reshaper()`` Function
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In the example above, the PyReshaper object (rshpr) is created by
 passing the single Specifier instance to the *factory* function
@@ -398,191 +595,29 @@ takes the following parameters.
    may create their own ``SimpleComm`` object and force the PyReshaper to use
    it by setting this option equal to the user-created ``SimpleComm`` instance.
 
+
 Arguments to the ``convert()`` Function
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-While not shown in the above examples, there is an argument to the
-``convert()`` function of the PyReshaper object called ``output_limit``.
-This argument sets an integer limit on the number of time-series files
-generated during the ``convert()`` operation (per MPI process). This can
-be useful for debugging purposes, as it can greatly reduce the length of
-time consumed in the ``convert()`` function. A value of ``0`` indicates
-no limit, or all output files will be generated.
+While not shown in the above examples, there are named arguments that can
+be passed to the ``convert()`` function of the Reshaper object.
 
-Multiple Stream Usage
-~~~~~~~~~~~~~~~~~~~~~
+-  ``output_limit``:  This argument sets an integer limit on the number of
+   time-series files generated during the ``convert()`` operation (per MPI process).
+   This can be useful for debugging purposes, as it can greatly reduce the length
+   of time consumed in the ``convert()`` function. A value of ``0`` indicates
+   no limit, or all output files will be generated.
 
-In the example below, we show one way to define a multiple stream
-PyReshaper run.
+-  ``chunks``:  This argument sets a dictionary of dimension names to chunk-sizes.
+   This is equivalent to the ``--chunk`` command-line option to ``s2srun``.  This option
+   determines the size of the data "chunk" read from a single input file (and then written 
+   to an output file) along each given dimension.  If a chunk-size is greater than the given
+   dimension size, then the entire dimension will be read at once.  If a chunk-size is less
+   than the given dimension size, then all variables  that depend on that dimension will be 
+   read in multiple parts, each "chunk" being written before the next is read.  This can be 
+   important to control memory use.  By default, the ``chunks`` parameter is equal to 
+   ``None``, which means chunking is done over the unlimited dimension with a chunk-size of 1.
 
-.. code:: py
-
-    from pyreshaper import specification, reshaper
-
-    # Assuming all data defining each stream is contained 
-    # in a list called "streams"
-    specifiers = {}
-    for stream in streams:
-        specifier = specification.create_specifier()
-
-        # Define the Pyreshaper input for this stream
-        specifier.input_file_list = stream.input_file_list
-        specifier.netcdf_format = stream.netcdf_format
-        specifier.compression_level = stream.compression_level
-        specifier.output_file_prefix = stream.output_file_prefix
-        specifier.output_file_suffix = stream.output_file_suffix
-        specifier.time_variant_metadata = stream.time_variant_metadata
-
-        # Append this Specifier to the dictionary of specifiers
-        specifiers[stream.name] = specifier
-
-    # Create the PyReshaper object
-    rshpr = reshaper.create_reshaper(specifiers, serial=False, verbosity=1)
-
-    # Run the conversion (slice-to-series) process
-    rshpr.convert()
-
-    # Print timing diagnostics
-    rshpr.print_diagnostics()
-
-In the above example, we assume the properly formatted data (like the
-data shown in the single-stream example above) is contained in the list
-called ``streams``. In addition to the data needed by each Specifier
-(i.e., the data defining each ``stream`` instance), this example assumes that
-a name has been given to each stream, contained in the attribute 
-``stream.name``.  Each Specifier is then contained in a dictionary with keys
-corresponding to the stream name and values corresponding to the stream
-Specifier. This name will be used when printing diagnostic information during
-the ``convert()`` and ``print_diagnostics()`` operations of the PyReshaper.
-
-Alternatively, the specifiers object (in the above example) can be a
-Python list, instead of a Python dictionary. If this is the case, the
-list of Specifier objects will be converted to a dictionary, with the
-keys of the dictionary corresponding to the list index (i.e., an
-integer).
-
-It is important to note that when running multiple streams through one
-PyReshaper, however, load-balancing may not be ideal.  Some streams may only
-have a handful of time-series variables, while other streams may have a
-large number of time-series variables.  Since the PyReshaper parallelizes over
-time-series variables, this means that the ideal number of MPI processes for
-best performance of one stream may be very different than for another.  Hence,
-running multiple streams through one PyReshaper can lead to either a large number
-of MPI processes sitting idle (with no time-series variables to write) or
-not enough MPI processes to achieve optimal speed.
-
-Using the PyReshaper from the Unix Command-Line
------------------------------------------------
-
-While the most flexible way of using the PyReshaper is from within
-Python, as described above, it is also possible to run the PyReshaper
-from the command-line. In this section, we describe how to use the
-Python scripts ``s2smake`` and ``s2srun``, which provide command-line
-interfaces (CLI) to the PyReshaper. (These scripts will be installed in the
-``$PREFIX/bin`` directory, where ``PREFIX`` is the installation root
-directory.)
-
-The ``s2smake`` utility is designed to generate a Specifier object file
-(*specfile*) that contains a Specifier that can be used in a PyReshaper run.
-The ``s2srun`` utility is then used to run the PyReshaper with the newly
-generated Specifier.  The *specfile* is a convenient way of saving Specifier
-information for future use or reference.
-
-Below is an example of how to use the PyReshaper's ``s2smake`` utility, 
-with all options and parameters specified on the command line.
-
-::
-
-    $ s2smake \
-      --netcdf_format="netcdf4" \
-      --compression_level=1 \
-      --output_prefix="/path/to/outfile_prefix." \
-      --output_suffix=".000101-001012.nc" \
-      -m "time" -m "time_bounds" \
-      --specfile=example.s2s \
-      /path/to/infiles/*.nc
-
-In this example, you will note that we have specified each
-time-dependent metadata variable name with its own ``-m`` option. (In
-this case, there are only 2, ``time`` and ``time_bounds``.) We have also
-specified the list of input (time-slice) files using a wildcard, which
-the Unix shell fills in with a list of all filenames that match this *glob*
-*pattern*. In this case, we are specifying all files with the ``.nc`` file
-extension in the directory ``/path/to/infiles``. These command-line options
-and arguments specify all of the same input passed to the Specifier objects
-in the examples of the previous section.  This script will create a 
-Specifier object with the options passed via the command line, and it will
-save this Specifier object in *specfile* called ``example.s2s``.
-
-When using *glob patterns*, it is important to understand that the *shell*
-expands these glob patterns out into the full list of matching filenames 
-*before* running the ``s2smake`` command.  On many systems, the length of
-a shell command is limited to a fixed number of characters, and it is possible
-for the *glob pattern* to expand to a length that makes the command too long
-for the shell to execute!  If this is the case, you may contain your glob 
-pattern in quotation marks (i.e., ``"/path/to/infiles/*.nc"`` instead of
-``/path/to/infiles/*.nc``).  The ``s2smake`` command will then expand the
-glob pattern internally, allowing you to avoid the command-line character
-limit of the system.
-
-With the Specifier created and saved to file using the ``s2smake`` utility,
-we can run the PyReshaper with this Specifier using the ``s2srun`` utility,
-with all options and parameters specified on the command line.
-
-::
-
-    $ s2srun --serial --verbosity=2 example.s2s
-
-The example above shows the execution, in serial, of the PyReshaper job 
-specified by the ``example.s2s`` Specifier object file with a verbosity 
-level of 2.
-
-For parallel operation, one must launch the ``s2srun`` script from
-the appropriate MPI launcher. On the NCAR Yellowstone system
-(``yellowstone.ucar.edu``), for example, this is done with the following
-command.
-
-::
-
-    $ mpirun.lsf s2srun --verbosity=3 example.s2s
-
-In the above example, this will launch the ``s2srun`` script into
-the MPI environment already created by either a request for an
-interactive session or from an LSF submission script.
-
-The Specifier object files, or *specfiles*, described above can be generated
-from within Python, too.  These files are serialized instances of Specifier
-objects, saved to a file.  The serializing tool assumed is Python's ``pickle``
-library.  To generate your own *specfile* from within Python, do the following.
-
-.. code:: py
-
-    import pickle
-    
-    # Assume "spec" is an existing Specifier instance
-    pickle.dump(spec, open("specfile.s2s", "wb"))
-
-Similarly, a *specfile* can be read with the following Python code.
-
-.. code:: py
-
-    import pickle
-    
-    spec = pickle.load( open("specfile.s2s", "rb") )
-    
-Additional Arguments to the ``s2srun`` Script
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-While the basic options shown in the previous examples above are
-sufficient for most purposes, two a options are available.
-
--  ``--limit``:  This command-line option can be used to set the 
-   ``output_limit`` argument of the PyReshaper ``convert()`` function, 
-   described previously.
-
--  ``--write_mode``: This command-line option can be used to set
-   the ``wmode`` output file write mode parameter of the ``create_reshaper()``
-   function, described previously.
 
 Obtaining Best Performance with the PyReshaper
 ----------------------------------------------

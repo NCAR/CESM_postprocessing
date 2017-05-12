@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+
+<config_definition>
+
+<!-- ======================================================================= -->
+<!-- env_postprocess.xml                                                     -->
+<!-- ======================================================================= -->
+
+
+<!-- standalone postprocessing directory (True or False) -->
+<entry id="STANDALONE" value="TRUE" />
+
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings associated with the case to be post-processed. -->
+<!-- ======================================================================= -->
+       
+<!-- Description: location of caseroot directory on local disk. CASEROOT is the same as PP_CASE_PATH for stand-alone postprocessing cases --> 
+<entry id="CASEROOT" value="/glade/p/work/aliceb/sandboxes/runs/b.e11.BDP.f09_g16.1980-11.012_pp" />
+       
+<!-- Description: location of postprocess directory created in the caseroot on local disk --> 
+<entry id="PP_CASE_PATH" value="/glade/p/work/aliceb/sandboxes/runs/b.e11.BDP.f09_g16.1980-11.012_pp" />
+       
+<!-- Description: case name --> 
+<entry id="CASE" value="b.e11.BDP.f09_g16.1980-11.012" />
+       
+<!-- Description: post processing directory location on local machine where cesm-env2 python virtualenv is located. --> 
+<entry id="POSTPROCESS_PATH" value="/glade/p/work/aliceb/sandboxes/dev/postprocessing_ch" />
+       
+<!-- Description: Fully qualified path to the location of the short term archive output, DOUT_S_ROOT, on local disk where case history files reside. Assumes the adherence to the CESM file naming conventions. --> 
+<entry id="DOUT_S_ROOT" value="undefined" />
+       
+<!-- Description: Atmosphere model grid --> 
+<entry id="ATM_GRID" value="undefined" />
+       
+<!-- Description: Sea-Ice model grid --> 
+<entry id="ICE_GRID" value="undefined" />
+       
+<!-- Description: Sea-Ice model grid NX - default 320 for 1-degree ocean grid --> 
+<entry id="ICE_NX" value="undefined" />
+       
+<!-- Description: Sea-Ice model grid NY - default 384 for 1-degree ocean grid --> 
+<entry id="ICE_NY" value="undefined" />
+       
+<!-- Description: Land model grid --> 
+<entry id="LND_GRID" value="undefined" />
+       
+<!-- Description: Ocean model grid --> 
+<entry id="OCN_GRID" value="undefined" />
+       
+<!-- Description: CESM tag used to create this case --> 
+<entry id="CESM_TAG" value="undefined" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings to control postprocessing tasks. -->
+<!-- ======================================================================= -->
+       
+<!-- Description: Path to the post processing python virtual environment created by the create_python_env.sh script in the postprocessing directory. The create_python_env.sh script is run once per CESM source code installation. --> 
+<entry id="POSTPROCESS_VIRTUALENV" value="$POSTPROCESS_PATH/cesm-env2" />
+       
+<!-- Description: If TRUE, create the single variable time series files using the history time slice files. All the time invariant metadata is included in each variable time series file header. Rules for how the time series variable files are created are specified in the env_archive.xml file. --> 
+<entry id="GENERATE_TIMESERIES" value="TRUE" />
+       
+<!-- Description: If TRUE, create only complete chunks of variable timeseries data files as determined by the env_timeseries.xml tseries_filecat_tper and tseries_filecat_n elements. If FALSE, then incomplete chunks of variable timeseries data will be created and appended to upon subsequent running of the timeseries script. Default is TRUE. --> 
+<entry id="TIMESERIES_COMPLETECHUNK" value="FALSE" />
+       
+<!-- Description: Fully-qualified rootdir path to input raw history time-slice data. Note: [compname]/hist will be appended automatically. --> 
+<entry id="TIMESERIES_INPUT_ROOTDIR" value="/glade2/h2/acgd0004/DP/archive/b.e11.BDP.f09_g16.1980-11.012" />
+       
+<!-- Description: Fully-qualified rootdir path to output variable time series data files. Note: [compname]/proc/tseries/[tper] will be appended automatically. --> 
+<entry id="TIMESERIES_OUTPUT_ROOTDIR" value="/glade2/scratch2/$USER/$CASE" />
+       
+<!-- Description: If TRUE, this calls the atm_averages script which launches the parallel python wrapper script atm_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_atm.xml file. --> 
+<entry id="GENERATE_AVGS_ATM" value="TRUE" />
+       
+<!-- Description: If TRUE, this calls the atm_diagnostics script with launches the  AMWG diagnostics package parallel python wrapper script atm_diags_generator.py to generate climatological plots associated with the run job output. See the AMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_atm.xml file. --> 
+<entry id="GENERATE_DIAGS_ATM" value="TRUE" />
+       
+<!-- Description: If TRUE, this calls the ice_averages script which launches the parallel python wrapper script ice_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_ice.xml file. --> 
+<entry id="GENERATE_AVGS_ICE" value="TRUE" />
+       
+<!-- Description: If TRUE, this calls the ice_diagnostics script which launches the PCWG diagnostics package parallel python wrapper script ice_diags_generator.py to generate climatological plots associated with the run job output. See the PCWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_ice.xml file. --> 
+<entry id="GENERATE_DIAGS_ICE" value="TRUE" />
+       
+<!-- Description: If TRUE, this calls the lnd_averages script which launches the parallel python wrapper script lnd_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_lnd.xml file. --> 
+<entry id="GENERATE_AVGS_LND" value="TRUE" />
+       
+<!-- Description: If TRUE, this calls the lnd_regrid script which launches the parallel python wrapper script lnd_regrid_generator.py to regrid climatological files in parallel. Settings for creating the regridded files are specified in the env_diags_lnd.xml file. --> 
+<entry id="GENERATE_REGRID_LND" value="FALSE" />
+       
+<!-- Description: If TRUE, this calls the lnd_diagnostics script which launches the LMWG diagnostics package parallel python wrapper script lnd_diags_generator.py to generate climatological plots associated with the run job output. See the LMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_lnd.xml file. --> 
+<entry id="GENERATE_DIAGS_LND" value="TRUE" />
+       
+<!-- Description: If TRUE, this calls the ocn_averages script which launches the parallel python wrapper script ocn_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_ocn.xml file. --> 
+<entry id="GENERATE_AVGS_OCN" value="TRUE" />
+       
+<!-- Description: If TRUE, this calls the OMWG diagnostics package parallel python wrapper script to generate climatological plots associated with the run job output. See the OMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_ocn.xml file. --> 
+<entry id="GENERATE_DIAGS_OCN" value="TRUE" />
+       
+    
+  
+    
+  
+    
+  
+
+  
+    
+       
+    
+  
+    
+<!-- ======================================================================= -->
+<!-- Environment variable settings for transferring files to a remote web server. -->
+<!-- ======================================================================= -->
+       
+<!-- Description: Remote web host machine to serve HTML pages and diagnostics plots. --> 
+<entry id="GLOBAL_WEBHOST" value="" />
+       
+<!-- Description: Remote web host login name which can be used with ssh keys. If ssh key is not setup, then will prompt for login on remote web host machine. --> 
+<entry id="GLOBAL_WEBLOGIN" value="" />
+       
+<!-- Description: Remote machine path to diagnostics directory. --> 
+<entry id="GLOBAL_REMOTE_WEBDIR" value="" />
+       
+    
+  
+    
+  
+    
+  
+
+<!-- ====================================== -->
+</config_definition>

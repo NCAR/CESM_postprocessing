@@ -5,6 +5,27 @@ import netCDF4 as nc
 import cf_units
 import datetime
 
+def num2date(time_value, unit, calendar):
+    if ('common_year' in unit):
+        my_unit = unit.replace('common_year', 'day')
+##        my_time_value = time_value * 365
+        my_time_value = int(round(time_value)) * 365
+    else:
+        my_unit = unit
+        my_time_value = time_value
+    return cf_units.num2date(my_time_value, my_unit, calendar)
+
+
+def date2num(date, unit, calendar):
+    if ('common_year' in unit):
+        my_unit = unit.replace('common_year', 'day')
+        my_conversion = 365.
+    else:
+        my_unit = unit
+        my_conversion = 1.
+    num = cf_units.date2num(date, my_unit, calendar)
+    return num/my_conversion
+
 def get_input_dates(glob_str):
 
     '''
@@ -96,11 +117,16 @@ def get_cesm_date(fn,t=None):
            l = len(f.variables[att['bounds']])
            d = (f.variables[att['bounds']][l-1][1])
     else:
-        d = f.variables['time'][1]    
-        
+        # problem if time has only one value when units are common_year
+        try:
+            d = f.variables['time'][1]    
+        except:
+            d = f.variables['time'][0]    
+
     print 'after d = ',d
 
-    d1 = cf_units.num2date(d,att['units'],att['calendar'].lower())
+##    d1 = cf_units.num2date(d,att['units'],att['calendar'].lower())
+    d1 = num2date(d,att['units'],att['calendar'].lower())
 
     print 'd1.year = ',str(d1.year).zfill(4)
     print 'd1.month = ',str(d1.month).zfill(2)
@@ -128,7 +154,8 @@ def get_chunk_range(tper, size, start, cal, units):
     '''
 
     # Get the first date
-    d1 = cf_units.num2date(start, units, cal)
+##    d1 = cf_units.num2date(start, units, cal)
+    d1 = num2date(start, units, cal)
 
     # Figure out how many days each chunk should be
     if 'day' in tper: #day
@@ -144,11 +171,13 @@ def get_chunk_range(tper, size, start, cal, units):
             y2 = y2 + 1
             m2 = m2 - 12
         d2 = datetime.datetime(y2, m2, d1.day, d1.hour, d1.minute)
-        end = cf_units.date2num(d2, units, cal)
+##        end = cf_units.date2num(d2, units, cal)
+        end = date2num(d2, units, cal)
 
     elif 'year' in tper: #year
         d2 = datetime.datetime(int(size)+d1.year, d1.month, d1.day, d1.hour, d1.minute)
-        end = cf_units.date2num(d2, units, cal)
+##        end = cf_units.date2num(d2, units, cal)
+        end = date2num(d2, units, cal)
 
     return start, end 
 

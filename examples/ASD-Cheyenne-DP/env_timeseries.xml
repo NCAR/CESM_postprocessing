@@ -1,0 +1,422 @@
+<?xml version="1.0"?>
+
+<config_definition version="1.0">
+
+<!-- ===========================================================================  -->
+<!-- env_timeseries.xml                                                           -->
+<!--                                                                              -->
+<!-- XML Element descriptions:                                                    -->
+<!-- comp_archive_spec: name=[model component name included in history file]      -->
+<!-- rootdir: component rootdir in $TIMESERIES_INPUT_ROOTDIR                      -->
+<!-- multi_instance: NOT CURRENLTY IMPLEMENTED                                    -->
+<!-- default_calendar: use this setting if time variable calendar attribute       -->
+<!--                   is not defined                                             -->
+<!-- files:                                                                       -->
+<!--   file_extension: suffix regular expression for filename pattern match       -->
+<!--   subdir: location of history files $TIMESERIES_INPUT_ROOTDIR/rootdir/subdir -->
+<!--   tseries_create: flag to create history files for this suffix               -->
+<!--   tseries_output_format: netcdf output format must be one of                 -->
+<!--                          netcdf, netcdf4, netcdf4c, netcdfLarge              -->
+<!--   tseries_tper: default time_period_freq if global attribute not set         -->
+<!--   tseries_filecat_tper: what time period to include in a variable            -->
+<!--                         timeseries chunk must be one of                      -->
+<!--                         years, months, weeks, days, hours, mins              -->
+<!--   tseries_filecat_n:    Number of concatenated tper chunks to include        -->
+<!--                         in output variable timeseries file                   -->
+<!-- tseries_time_variant_variables: list of time variant variables to be         -->
+<!--                                 included in every output file                -->
+<!--   variable: name of time variant variable                                    -->
+<!--                                                                              -->
+<!-- NOTE: all variable timeseries files are output to $TIMESERIES_OUTPUT_ROOTDIR -->
+<!-- ===========================================================================  -->
+
+<components>
+  <comp_archive_spec name="cam">
+    <rootdir>atm</rootdir>
+    <multi_instance>True</multi_instance>
+    <default_calendar>noleap</default_calendar>
+    <files>
+      <file_extension suffix=".h0.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>month_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h1.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>day_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h2.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_6</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h3.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_3</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h4.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h5.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>min_30</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h6.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>undefined</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>10</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h7.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>undefined</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>10</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h8.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>undefined</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>10</tseries_filecat_n>
+      </file_extension>
+    </files>
+    <tseries_time_variant_variables>
+      <variable>ch4vmr</variable>
+      <variable>co2vmr</variable>
+      <variable>date</variable>
+      <variable>date_written</variable>
+      <variable>datesec</variable>
+      <variable>f11vmr</variable>
+      <variable>f12vmr</variable>
+      <variable>n2ovmr</variable>
+      <variable>ndcur</variable>
+      <variable>nscur</variable>
+      <variable>nsteph</variable>
+      <variable>sol_tsi</variable>
+      <variable>time</variable>
+      <variable>time_bnds</variable>
+      <variable>time_written</variable>
+    </tseries_time_variant_variables>
+  </comp_archive_spec>
+
+  <comp_archive_spec name="clm2">
+    <rootdir>lnd</rootdir>
+    <multi_instance>True</multi_instance>
+    <default_calendar>noleap</default_calendar>
+    <files>
+      <file_extension suffix=".h0.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>True</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>month_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h1.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>True</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>day_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h2.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_6</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h3.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_3</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h4.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h5.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>min_30</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+    </files>
+    <tseries_time_variant_variables>
+      <variable>date_written</variable>
+      <variable>mcdate</variable>
+      <variable>mcsec</variable>
+      <variable>mdcur</variable>
+      <variable>mscur</variable>
+      <variable>nstep</variable>
+      <variable>time</variable>
+      <variable>time_bounds</variable>
+      <variable>time_written</variable>
+    </tseries_time_variant_variables>
+  </comp_archive_spec>
+
+  <comp_archive_spec name="rtm">
+    <rootdir>rof</rootdir>
+    <multi_instance>True</multi_instance>
+    <default_calendar>noleap</default_calendar>
+    <files>
+      <file_extension suffix=".h0.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>True</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>month_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h1.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>True</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>day_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h2.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_6</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h3.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_3</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+    </files>
+    <tseries_time_variant_variables>
+      <variable>date_written</variable>
+      <variable>mcdate</variable>
+      <variable>mcsec</variable>
+      <variable>mdcur</variable>
+      <variable>mscur</variable>
+      <variable>nstep</variable>
+      <variable>time</variable>
+      <variable>time_bounds</variable>
+      <variable>time_written</variable>
+    </tseries_time_variant_variables>
+  </comp_archive_spec>
+
+  <comp_archive_spec name="mosart">
+    <rootdir>rof</rootdir>
+    <multi_instance>True</multi_instance>
+    <default_calendar>noleap</default_calendar>
+    <files>
+      <file_extension suffix=".h0.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>month_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>10</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h1.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>day_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>5</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h2.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_6</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h3.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>hour_3</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>1</tseries_filecat_n>
+      </file_extension>
+    </files>
+    <tseries_time_variant_variables>
+      <variable>date_written</variable>
+      <variable>mcdate</variable>
+      <variable>mcsec</variable>
+      <variable>mdcur</variable>
+      <variable>mscur</variable>
+      <variable>nstep</variable>
+      <variable>time</variable>
+      <variable>time_bounds</variable>
+      <variable>time_written</variable>
+    </tseries_time_variant_variables>
+  </comp_archive_spec>
+
+  <comp_archive_spec name="cice">
+    <rootdir>ice</rootdir>
+    <multi_instance>True</multi_instance>
+    <default_calendar>noleap</default_calendar>
+    <files>
+      <file_extension suffix=".h.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>True</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>month_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h1.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>day_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+    </files>
+    <tseries_time_variant_variables>
+      <variable>time</variable>
+      <variable>time_bounds</variable>
+    </tseries_time_variant_variables>
+  </comp_archive_spec>
+
+
+  <comp_archive_spec name="pop">
+    <rootdir>ocn</rootdir>
+    <multi_instance>True</multi_instance>
+    <default_calendar>noleap</default_calendar>
+    <files>
+      <file_extension suffix=".h.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>month_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h.nday5.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>day_5</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h.nyear1.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>year_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>10</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h.ecosys.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>month_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h.ecosys.nyear1.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>year_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h.ecosys.nday5.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>TRUE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>day_5</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+    </files>
+    <tseries_time_variant_variables>
+      <variable>time</variable>
+      <variable>time_bound</variable>
+    </tseries_time_variant_variables>
+  </comp_archive_spec>
+
+  <comp_archive_spec name="cism">
+    <rootdir>glc</rootdir>
+    <multi_instance>True</multi_instance>
+    <default_calendar>noleap</default_calendar>
+    <files>
+      <file_extension suffix=".h.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>year_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>10</tseries_filecat_n>
+      </file_extension>
+    </files>
+  </comp_archive_spec>
+
+  <comp_archive_spec name="ww3">
+    <rootdir>wav</rootdir>
+    <multi_instance>True</multi_instance>
+    <default_calendar>noleap</default_calendar>
+    <files>
+      <file_extension suffix=".h.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>month_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>10</tseries_filecat_n>
+      </file_extension>
+    </files>
+  </comp_archive_spec>
+</components>
+
+</config_definition>

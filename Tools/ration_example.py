@@ -1,8 +1,18 @@
 #!/usr/bin/env python
+import sys
 
-from asaptools import simplecomm
+try:
+    from asaptools import simplecomm
+except:
+    print 'asaptools not loaded. exiting...'
+    sys.exit(1)
 
-scomm = simplecomm.create_comm()
+try:
+    scomm = simplecomm.create_comm(serial=False)
+except:
+    print 'unable to create scomm. exiting...'
+    sys.exit(1)
+
 rank = scomm.get_rank()
 size = scomm.get_size()
 
@@ -30,3 +40,5 @@ print '{0}/{1}: Out of loop'.format(rank, size)
 scomm.sync()
 if scomm.is_manager():
     print 'Done.'
+
+sys.exit(0)
