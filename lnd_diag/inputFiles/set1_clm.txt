@@ -12,6 +12,7 @@ globalMeanNat   LAISHA
 globalMeanNat   BTRAN
 globalMeanDay   QINFL
 globalMeanDay   QOVER
+globalMeanDay   QIRRIG
 globalMeanDay   QRGWL
 globalMeanDay   QDRAI
 globalMeanDay   QINTR
@@ -22,6 +23,8 @@ globalMeanNat   SOILICE
 globalMeanNat   SOILPSI
 globalMeanNat   SNOWLIQ
 globalMeanNat   SNOWICE
+globalMeanNat   FSNO
+globalMeanNat   H2OSNO
 globalMeanNat   TOTSOILLIQ
 globalMeanNat   TOTSOILICE
 globalMeanNat   WA

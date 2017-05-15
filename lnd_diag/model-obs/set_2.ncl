@@ -219,7 +219,7 @@ begin
            delete(x1)
         end if
 
-        if (filevar .ne. "")then
+        if (filevar .ne. "" .and. info@derivedVariable .eq. False)then
            if (c13Flag(i) .eq. "C13_") then
               x1 = derive_del13C(vars(i),in1,scale_type(i),0,2)
            else

@@ -5,6 +5,6 @@ globalMeanDay   AR
 globalMeanDay   HR
 globalMeanDay   ER
 globalMeanDay   FCH4
-globalMeanDay   SMINN_LEACHED
+globalMeanNat   CUE
 globalMeanDay   SMIN_NO3_LEACHED
 globalMeanDay   SMIN_NO3_RUNOFF

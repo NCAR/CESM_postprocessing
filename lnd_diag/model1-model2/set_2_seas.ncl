@@ -241,7 +241,7 @@ begin
 ;         not found in the file, then filevar will be ""
 
         plot_check = True
-        if (filevar .ne. "")then
+        if (filevar .ne. "" .and. info@derivedVariable .eq. False)then
            if (isvar("x1")) then
               delete(x1)
            end if
@@ -277,7 +277,7 @@ begin
 ;         not found in the file, then filevar will be ""
 
         plot_check = True
-        if (filevar .ne. "")then
+        if (filevar .ne. "" .and. info@derivedVariable .eq. False)then
            if (isvar("x2")) then
               delete(x2)
            end if

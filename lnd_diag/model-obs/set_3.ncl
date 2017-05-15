@@ -109,7 +109,7 @@ do p=0,nplots-1
         titstr(4) = "Canopy Evaporation"
         titstr(5) = "Ground Evaporation"
         titstr(6) = "Ground Heat + Snow Melt"
-        titstr(7) = "Soil moisture factor (BTRAN)"
+        titstr(7) = "Soil moisture factor (BTRAN or BTRANMN)"
         titstr(8) = "Evaporative Fraction"
         titstr(9) = "Total LAI"
   end if
@@ -488,7 +488,7 @@ do p=0,nplots-1
 ; check for variables in case 1
      vcheck1(i) = True 
      info = var_init(vars(i))
-     if(isfilevar(in1,vars(i)))then
+     if(isfilevar(in1,vars(i)) .and. info@derivedVariable .eq. False)then
           x1 = in1->$vars(i)$
           plot_check = True
      else
@@ -1041,7 +1041,7 @@ if(plot_check.eq.True)then
                     end if
                     x1 = array1(i,:,:,:)
                     compare = "model"
-                    if (vars(i) .eq. "ALBEDO" .or. aFlag(i) .eq. 0) then        ; any albedo variable
+                    if (vars(i) .eq. "ALBEDO" .or. aFlag(i) .eq. 1) then        ; any albedo variable
                       var_plot1 = regional_albedo(x1,region,area1,fland1,scale_type(i),\
                               regions_file,nmons,compare)
                     else

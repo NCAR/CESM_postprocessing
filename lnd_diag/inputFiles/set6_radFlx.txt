@@ -5,3 +5,4 @@ globalMeanNat   FLDS
 globalMeanNat   FIRE
 globalMeanNat   FIRA
 globalMeanNat   RNET
+globalMeanNat   FSNO

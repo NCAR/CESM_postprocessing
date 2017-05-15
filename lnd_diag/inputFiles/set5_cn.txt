@@ -1,6 +1,8 @@
 globalTotlAnn   NEE
 globalTotlAnn   NEP
+globalTotlAnn   NBP
 globalTotlAnn   GPP
+globalMeanNat   CUE
 globalTotlAnn   PSNSUN_TO_CPOOL
 globalTotlAnn   PSNSHADE_TO_CPOOL
 globalTotlAnn   NPP
@@ -51,6 +53,8 @@ globalTotlNat   TOTCOLC
 globalMeanNat   FPG
 globalMeanNat   FPI
 globalTotlAnn   NDEP_TO_SMINN
+globalTotlAnn   FERT
+globalTotlAnn   FERT_TO_SMINN
 globalTotlAnn   POTENTIAL_IMMOB
 globalTotlAnn   ACTUAL_IMMOB
 globalTotlAnn   GROSS_NMIN
