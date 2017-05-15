@@ -60,7 +60,7 @@ begin
   if (cn .eq. 1) then
     vars     = (/"TSA","PREC","ASA","LHEAT","GPP","TLAI"/)	; prec = rain+snow
   else
-    vars     = (/"TSA","PREC","ASA","LHEAT","FPSN"/)		; prec = rain+snow
+    vars     = (/"TSA","PREC","ASA","LHEAT","FPSN","TLAI"/)	; prec = rain+snow
   end if
   seasons  = (/"ANN","DJF","MAM","JJA","SON"/)
   nvars = dimsizes(vars)

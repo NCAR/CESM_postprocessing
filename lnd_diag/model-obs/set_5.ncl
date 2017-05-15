@@ -165,7 +165,7 @@ do p=0,nplots-1
     landmask3 = new((/nvars,nlat3,nlon3/),"double")
     area3     = new((/nvars,nlat3,nlon3/),"double")
 
-    ptr_alb    = addfile(obsdata+"/T42_MODIS_ALLMONS_climo.070523.nc","r") ; precip
+    ptr_alb    = addfile(obsdata+"/T42_MODIS_ALLMONS_climo.070523.nc","r") ; VBSA, NBSA, VWSA, NWSA
     lat4      = ptr_alb->lat
     lon4      = ptr_alb->lon
     nlat4     = dimsizes(lat4)
@@ -173,6 +173,29 @@ do p=0,nplots-1
     landmask4 = new((/nvars,nlat4,nlon4/),"double")
     area4     = new((/nvars,nlat4,nlon4/),"double")
 
+    ptr_lai   = addfile(obsdata+"/MODIS_LAI_ANN_climo.nc","r") ; TLAI
+    lat5      = ptr_lai->lat
+    lon5      = ptr_lai->lon
+    nlat5     = dimsizes(lat5)
+    nlon5     = dimsizes(lon5)
+    landmask5 = new((/nvars,nlat5,nlon5/),"double")
+    area5     = new((/nvars,nlat5,nlon5/),"double")
+ 
+    ptr_gpp   = addfile(obsdata+"/MR_GPP_0.9x1.25_ANN_climo.nc","r") ; FPSN or GPP
+    lat6      = ptr_gpp->lat
+    lon6      = ptr_gpp->lon
+    nlat6     = dimsizes(lat6)
+    nlon6     = dimsizes(lon6)
+    landmask6 = new((/nvars,nlat6,nlon6/),"double")
+    area6     = new((/nvars,nlat6,nlon6/),"double")
+
+    ptr_lhf   = addfile(obsdata+"/MR_LHF_0.9x1.25_ANN_climo.nc","r") ; LHEAT
+    lat7      = ptr_lhf->lat
+    lon7      = ptr_lhf->lon
+    nlat7     = dimsizes(lat7)
+    nlon7     = dimsizes(lon7)
+    landmask7 = new((/nvars,nlat7,nlon7/),"double")
+    area7     = new((/nvars,nlat7,nlon7/),"double")
 
  months = 12
  mm = ispan(0,months-1,1)
@@ -186,6 +209,9 @@ do p=0,nplots-1
   array2    = new((/nvars, nlat2, nlon2/),"double")
   array3    = new((/nvars, nlat3, nlon3/),"double")
   array4    = new((/nvars, nlat4, nlon4/),"double")
+  array5    = new((/nvars, nlat5, nlon5/),"double")
+  array6    = new((/nvars, nlat6, nlon6/),"double")
+  array7    = new((/nvars, nlat7, nlon7/),"double")
   array13c1 = new((/nvars/),"double")
   array13c2 = new((/nvars/),"double")
 
@@ -206,7 +232,7 @@ do p=0,nplots-1
 ; check for variables in case 1
       info = var_init(vars(i))
       filevar = vars(i)
-      if(isfilevar(in1,filevar))then
+      if(isfilevar(in1,filevar) .and. info@derivedVariable .eq. False)then
           if (c13Flag(i) .eq. "C13_") then
                 x1 = derive_del13C(vars(i),in1,scale_type(i),nyrs,5)
       	        if(all(ismissing(x1)))then
@@ -241,6 +267,15 @@ do p=0,nplots-1
       end if
       if (isvar("x4")) then
 	  delete(x4)
+      end if
+      if (isvar("x5")) then
+	  delete(x5)
+      end if
+      if (isvar("x6")) then
+	  delete(x6)
+      end if
+      if (isvar("x7")) then
+	  delete(x7)
       end if
       if (vars(i) .eq. "TSA" ) then
         tmp        = ptr_wm->$vars(i)$
@@ -348,8 +383,41 @@ do p=0,nplots-1
                                 resoln(i)  = 4
 	                        delete(tmp)
 			    else
-             			obsFlag(i) = 0;
-             			resoln(i)  = 1;
+                              if (vars(i) .eq. "TLAI") then
+                                  x5 = ptr_lai->TLAI
+                                  l5 = ptr_lai->landmask
+                                  a5 = ptr_lai->area
+                                  x5@_FillValue = 1e36
+                                  obsFlag(i) = 1;
+                                  resoln(i)  = 5
+                              else
+                                if ((vars(i) .eq. "FPSN" .and. cn .eq. 0) .or. vars(i) .eq. "GPP") then
+                                    x6 = ptr_gpp->GPP  ; gC/m2/day
+                                    x6@_FillValue = -9999.
+                                    grams2Pgrams  = 1e-15
+                                    x6 = x6 * daysInYear * grams2Pgrams
+                                    l6 = ptr_gpp->datamask
+                                    a6 = ptr_gpp->area
+                                    km2tom2 = 1.e6
+                                    a6 = a6 * km2tom2
+                                    obsFlag(i) = 1;
+                                    resoln(i)  = 6
+                                else
+                                    if (vars(i) .eq. "LHEAT") then
+                                        x7 = ptr_lhf->LHF
+                                        l7 = ptr_lhf->datamask
+                                        a7 = ptr_lhf->area
+                                        x7@_FillValue = -9999.
+                                        km2tom2 = 1.e6
+                                        a7 = a7 * km2tom2
+                                        obsFlag(i) = 1;
+                                        resoln(i)  = 7
+                                    else
+             		      	        obsFlag(i) = 0;
+             			        resoln(i)  = 1;
+                                    end if
+                                end if
+                              end if
           		    end if
           		  end if
           	        end if
@@ -448,6 +516,84 @@ do p=0,nplots-1
           delete(a4)
           delete(x4)
 	end if
+        if (isvar("x5")) then
+          x5 = catchNaN(x5)
+          x5!0    = "lat"
+          x5&lat  = lat5
+          x5!1    = "lon"
+          x5&lon  = lon5
+          a5!0    = "lat"
+          a5!1    = "lon"
+          l5!0    = "lat"
+          l5!1    = "lon"
+          a5&lat  = lat5
+          a5&lon  = lon5
+          l5&lat  = lat5
+          l5&lon  = lon5
+          if (min(x5&lon) .ge. 0) then
+               x5 = lonFlip(x5)
+               a5 = lonFlip(a5)
+               l5 = lonFlip(l5)
+          end if
+          array5(i,:,:)    = x5           ; Wrapper fcn that copies coord Vars
+          landmask5(i,:,:) = l5
+          area5(i,:,:)     = a5           
+          delete(l5)
+          delete(a5)
+          delete(x5)
+	end if
+        if (isvar("x6")) then
+          x6 = catchNaN(x6)
+          x6!0    = "lat"
+          x6&lat  = lat6
+          x6!1    = "lon"
+          x6&lon  = lon6
+          a6!0    = "lat"
+          a6!1    = "lon"
+          l6!0    = "lat"
+          l6!1    = "lon"
+          a6&lat  = lat6
+          a6&lon  = lon6
+          l6&lat  = lat6
+          l6&lon  = lon6
+          if (min(x6&lon) .ge. 0) then
+               x6 = lonFlip(x6)
+               a6 = lonFlip(a6)
+               l6 = lonFlip(l6)
+          end if
+          array6(i,:,:)    = x6           ; Wrapper fcn that copies coord Vars
+          landmask6(i,:,:) = l6
+          area6(i,:,:)     = a6           
+          delete(l6)
+          delete(a6)
+          delete(x6)
+	end if
+       	if (isvar("x7")) then
+          x7 = catchNaN(x7)
+          x7!0    = "lat"
+          x7&lat  = lat7
+          x7!1    = "lon"
+          x7&lon  = lon7
+          a7!0    = "lat"
+          a7!1    = "lon"
+          l7!0    = "lat"
+          l7!1    = "lon"
+          a7&lat  = lat7
+          a7&lon  = lon7
+          l7&lat  = lat7
+          l7&lon  = lon7
+          if (min(x7&lon) .ge. 0) then
+               x7 = lonFlip(x7)
+               a7 = lonFlip(a7)
+               l7 = lonFlip(l7)
+          end if
+          array7(i,:,:)    = x7           ; Wrapper fcn that copies coord Vars
+          landmask7(i,:,:) = l7
+          area7(i,:,:)     = a7           
+          delete(l7)
+          delete(a7)
+          delete(x7)
+	end if
       end if
 
       ; catch NaNs
@@ -524,7 +670,25 @@ do region=startNumber,nreg-1
 		  		 regions_file,time1,nTime,compare)
 	                delete(x4)
 		end if
-	        ; print("processing Variable " + vars(i) + " value = " + value2)
+ 		if (resoln(i) .eq. 5) then
+ 	   	        x5 = array5(i,:,:)
+            		value2 = regional_values(x5,region,area5(i,:,:),landmask5(i,:,:),scale_type(i),\
+ 		  		 regions_file,time1,nTime,compare)
+ 	                delete(x5)
+ 		end if
+ 		if (resoln(i) .eq. 6) then
+ 	   	        x6 = array6(i,:,:)
+            		value2 = regional_values(x6,region,area6(i,:,:),landmask6(i,:,:),scale_type(i),\
+ 		  		 regions_file,time1,nTime,compare)
+ 	                delete(x6)
+ 		end if
+ 		if (resoln(i) .eq. 7) then
+ 	   	        x7 = array7(i,:,:)
+            		value2 = regional_values(x7,region,area7(i,:,:),landmask7(i,:,:),scale_type(i),\
+ 		  		 regions_file,time1,nTime,compare)
+ 	                delete(x7)
+ 		end if
+ 	        ;       print("processing Variable " + vars(i) + " value = " + value2)
 	      else 
 	           value2 = -999.
 	      end if
@@ -583,9 +747,15 @@ do region=startNumber,nreg-1
    delete(area2)
    delete(area3)
    delete(area4)
+   delete(area5)
+   delete(area6)
+   delete(area7)
    delete(landmask2)
    delete(landmask3)
    delete(landmask4)
+   delete(landmask5)
+   delete(landmask6)
+   delete(landmask7)
    delete(vv)
    delete(vars)
    delete(c13Flag)
@@ -597,6 +767,9 @@ do region=startNumber,nreg-1
    delete(array2)
    delete(array3)
    delete(array4)
+   delete(array5)
+   delete(array6)
+   delete(array7)
    delete(array13c1)
    delete(array13c2)
    delete(scale_type)

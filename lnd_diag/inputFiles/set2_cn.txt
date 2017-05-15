@@ -1,6 +1,9 @@
 globalMeanDay0  NEE
 globalMeanDay0  NEP
+globalMeanDay0  NBP
 globalMeanDay0  GPP
+globalMeanNat0  CUE
+globalMeanNat0  BTRAN2
 globalMeanDay0  PSNSUN_TO_CPOOL
 globalMeanDay0  PSNSHADE_TO_CPOOL
 globalMeanDay0  NPP
@@ -55,6 +58,8 @@ globalMeanNat0  TOTCOLC
 globalMeanNat0  FPG
 globalMeanNat0  FPI
 globalMeanAnn0  NDEP_TO_SMINN
+globalMeanAnn0  FERT
+globalMeanAnn0  FERT_TO_SMINN
 globalMeanAnn0  POTENTIAL_IMMOB
 globalMeanAnn0  ACTUAL_IMMOB
 globalMeanAnn0  GROSS_NMIN

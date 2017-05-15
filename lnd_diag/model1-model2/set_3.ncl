@@ -106,7 +106,7 @@ print("Now printing plot #" + p)
  	titstr(4) = "Canopy Evaporation"
  	titstr(5) = "Ground Evaporation"
  	titstr(6) = "Ground Heat + Snow Melt"
- 	titstr(7) = "Soil moisture factor (BTRAN)"
+ 	titstr(7) = "Soil moisture factor (BTRAN or BTRANMN)"
  	titstr(8) = "Evaporative Fraction"
  	titstr(9) = "Total LAI"
   end if
@@ -516,7 +516,7 @@ print(" p = " + p + "  nvars = " + nvars)
      vcheck1(i) = True
      vcheck2(i) = True
      info = var_init(vars(i))
-     if(isfilevar(in1,vars(i)))then
+     if(isfilevar(in1,vars(i)) .and. info@derivedVariable .eq. False)then
           x1 = in1->$vars(i)$
           plot_check = True
      else
@@ -529,7 +529,8 @@ print(" p = " + p + "  nvars = " + nvars)
           end if
      end if
 ; check for variables in case 2
-     if(isfilevar(in2,vars(i)))then
+     if(isfilevar(in2,vars(i)) .and. info@derivedVariable .eq. False)then
+
           x2 = in2->$vars(i)$
           plot_check = True
      else
