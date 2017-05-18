@@ -21,9 +21,10 @@ cesm-env2/
 *.mod
 *.so
 
-# Ignore zonal average binary and link
+# Ignore zonal average binary, makefile and link
 ocn_diag/tool_lib/za
 ocn_diag/tool_lib/zon_avg/za
+ocn_diag/tool_lib/zon_avg/makefile
 
 # ignore any .svn files
 .svn*
