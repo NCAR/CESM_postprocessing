@@ -312,6 +312,14 @@
         <tseries_filecat_tper>years</tseries_filecat_tper>
         <tseries_filecat_n>10</tseries_filecat_n>
       </file_extension>
+      <file_extension suffix=".h1.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>day_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>10</tseries_filecat_n>
+      </file_extension>
     </files>
     <tseries_time_variant_variables>
       <variable>time</variable>
@@ -391,6 +399,14 @@
 	<tseries_tper>year_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
         <tseries_filecat_n>100</tseries_filecat_n>
+      </file_extension>
+      <file_extension suffix=".h1.[0-9]">      
+	<subdir>hist</subdir> 
+	<tseries_create>FALSE</tseries_create>
+	<tseries_output_format>netcdf4c</tseries_output_format>
+	<tseries_tper>month_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>10</tseries_filecat_n>
       </file_extension>
     </files>
     <tseries_time_variant_variables>
