@@ -264,6 +264,7 @@ def main(options, main_comm, debugMsg):
         # set the template variables
         templateVars = { 'casename' : envDict['CASE'],
                          'tagname' : envDict['CESM_TAG'],
+                         'username' : envDict['USER_NAME'],
                          'diag_dict' : diag_dict,
                          'control_casename' : envDict['CNTRLCASE'],
                          'start_year' : envDict['YEAR0'],

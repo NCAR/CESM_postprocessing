@@ -101,10 +101,18 @@
 
       <entry id="CESM_TAG"
 	     type="string"
-	     valid_values="cesm2_0_beta05"  
+	     valid_values="cesm2_0"  
 	     value="inherit"
 	     group="case_info"
 	     desc="CESM tag used to create this case"
+	     ></entry> 
+
+      <entry id="USER_NAME"
+	     type="string"
+	     valid_values=""  
+	     value="inherit"
+	     group="case_info"
+	     desc="User name of person running this set of diagnostics"
 	     ></entry> 
     </group>
 

@@ -138,6 +138,9 @@ def commandline_options():
     parser.add_argument('-project', '--project', nargs=1, required=False,
                         help='Project code (optional). This setting will override the environment variable setting.')
 
+    parser.add_argument('-username', '--username', nargs=1, required=False,
+                        help='User name (optional). Defaults to user login name.')
+
     options = parser.parse_args()
         
     return options
@@ -500,6 +503,11 @@ def initialize_main(envDict, options, standalone):
     envDict['PROJECT'] = os.getenv('PROJECT')
     if options.project:
         envDict['PROJECT'] = options.project[0]
+
+    # set the user name
+    envDict['USER_NAME'] = os.getlogin()
+    if options.username:
+        envDict['USER_NAME'] = options.username[0]
 
     return envDict
 
