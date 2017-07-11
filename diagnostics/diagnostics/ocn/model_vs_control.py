@@ -161,6 +161,7 @@ class modelVsControl(OceanDiagnostic):
 
             # set the template variables
             templateVars = { 'casename' : env['CASE'],
+                             'username' : env['USER_NAME'],
                              'control_casename' : env['CNTRLCASE'],
                              'tagname' : env['CESM_TAG'],
                              'start_year' : env['YEAR0'],

@@ -37,7 +37,7 @@ begin
      jst = 1635
   end if
 
-  if (gridres.eq."gx1v5".or.gridres.eq."gx1v6".or.gridres.eq."gx1v3") then 
+  if (gridres.eq."gx1v5".or.gridres.eq."gx1v6".or.gridres.eq."gx1v3".or.gridres.eq."gx1v7") then 
      ist = 309
      ien = 317
      jst = 308
@@ -67,7 +67,7 @@ begin
   if (gridres.eq."tx0.1v2".or.gridres.eq."tx0.1v2_62lev") then 
      ulon = ulon
   end if
-  if (gridres.eq."gx1v5".or.gridres.eq."gx1v6".or.gridres.eq."gx1v3") then 
+  if (gridres.eq."gx1v5".or.gridres.eq."gx1v6".or.gridres.eq."gx1v3".or.gridres.eq."gx1v7") then 
      ulon = ulon-360.
   end if
   if (gridres.eq."gx3v5".or.gridres.eq."gx3v6".or.gridres.eq."gx3v7") then
