@@ -1,0 +1,10 @@
+.gitignore
+RDict.db
+RDict.log
+*.pyc
+*~
+*.orig
+#*#
+*#
+*.DS_Store
+*build*
