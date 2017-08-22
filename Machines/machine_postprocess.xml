@@ -55,6 +55,11 @@
 	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">16</diagnostics_pes>
 	<obs_root>/glade/p/cesm/</obs_root>
       </component>
+      <component name="ilamb">
+	<averages_pes queue="regular" pes_per_node="0" wallclock="02:00">0</averages_pes>
+	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="02:00">2</diagnostics_pes>
+	<obs_root>/glade/p/cesm/lmwg/ilamb/ILAMB_ROOT</obs_root>
+      </component>
     </components>
   </machine>
 

@@ -44,6 +44,10 @@ echo "******************************************"
 {{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/logs/{{ processName }}.log.$today 2>&1
 {% endif %}
 
+{% if imb_run %}
+{{ imb_run }} --config {{ imb_config }} --model_root {{ obs_root }}/MODELS/ {{ imb_options }} --regions global
+{% endif %}
+
 echo "******************************************"
 echo "End {{ processName }} generation $(date)"
 echo "******************************************"

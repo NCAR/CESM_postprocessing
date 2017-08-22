@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+
+<!-- =========================================================================== -->
+<!-- ILAMB Wrapper XML                                                           -->
+<!-- =========================================================================== -->
+
+<config_definition version="1.0">
+
+  <!-- =========================================================================== -->
+  <!-- ilamb_settings - general settings to be applied to all diagnostics routines   -->
+  <!-- NOTE: case specific environment variables from env_*.xml will be            -->
+  <!-- gathered at runtime by the ilamb_diags_generator.py python script.            -->
+  <!-- They do not need to be specified in this XML file.                          -->
+  <!-- The full $PATH variable will be set in the ilamb_diags_generator.py file      -->
+  <!-- using all the path settings defined here.                                   -->
+  <!-- =========================================================================== -->
+
+  <groups>
+    
+    <group name="global">
+      <order>0</order>
+      <comment>Environment variables to control ILAMB</comment>
+
+      <entry id="ILAMBDIAG_VERSION"
+             type="char"
+             valid_values=""
+             value="ilamb_version"
+             group="diags_ilamb"
+             desc="Package Version"
+             ></entry>
+
+    </group>
+    
+    <group name="ilamb_env">
+      <order>1</order>
+      <comment>ILAMB Environment Variables</comment>
+
+      <entry id="ILAMBDIAG_MPLBACKEND"
+             type="char"
+             valid_values="Agg"
+             value="Agg"
+             group="ilamb_config"
+             desc="matplotlib backend for generating graphics, should be exported to the environment!"
+             ></entry>
+    </group>
+
+    <group name="ilamb_opt">
+      <order>1</order>
+      <comment>ILAMB Options</comment>
+
+      <entry id="ILAMBDIAG_CONFIG_TYPE"
+             type="char"
+             valid_values="standard,template"
+             value="standard"
+             group="ilamb_opt"
+             desc="whether to use a standard or templated configuration file"
+             ></entry>
+
+      <entry id="ILAMBDIAG_CONFIG_NAME"
+             type="char"
+             value="sample.cfg"
+             group="ilamb_opt"
+             desc="name of the standard or template filename to use"
+             ></entry>
+    </group>
+
+  </groups>
+</config_definition>
+
