@@ -1,7 +1,7 @@
 all : develop
 
 test : FORCE
-	cd ilamb/test; nosetests test_run_script.py
+	cd ilamb/test; python -c "import ILAMB; print ILAMB.__version__"
 
 develop : install
 

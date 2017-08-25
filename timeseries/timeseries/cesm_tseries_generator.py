@@ -254,15 +254,9 @@ def divide_comm(scomm, l_spec):
     if l_spec == 1:
         num_of_groups = 1
     else:
-## this integer division causes an error!
         num_of_groups = size/min_procs_per_spec
     if l_spec < num_of_groups:
         num_of_groups = l_spec
-
-    print('size = {0}'.format(size))
-    print('rank = {0}'.format(rank))
-    print('l_spec = {0}'.format(l_spec))
-    print('num_of_groups = {0}'.format(num_of_groups))
     
     # the global master needs to be in its own subcommunicator
     # ideally it would not be in any, but the divide function 
@@ -271,7 +265,6 @@ def divide_comm(scomm, l_spec):
         temp_color = 0
     else:
         temp_color = (rank % num_of_groups)+1 
-        print('temp_color = {0}'.format(temp_color))
     groups = []
     for g in range(0,num_of_groups+1):
         groups.append(g)
