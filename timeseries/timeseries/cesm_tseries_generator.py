@@ -218,6 +218,8 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             spec.output_file_prefix = tseries_output_prefix
                             spec.output_file_suffix = tseries_output_suffix
                             spec.time_variant_metadata = variable_list
+                            # setting the default backend
+                            spec.backend = 'netCDF4'
 
                             # print the specifier
                             if debug:
@@ -255,8 +257,7 @@ def divide_comm(scomm, l_spec):
         num_of_groups = size/min_procs_per_spec
     if l_spec < num_of_groups:
         num_of_groups = l_spec
-
-
+    
     # the global master needs to be in its own subcommunicator
     # ideally it would not be in any, but the divide function 
     # requires all ranks to participate in the call
