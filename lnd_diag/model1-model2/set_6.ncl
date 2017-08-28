@@ -343,23 +343,42 @@ nplots = 12
   prefix(1)  = getenv(name22)
   in1       = addfile(ptmpdir1+"/"+prefix(0)+"ANN_ALL.nc","r")
   in2       = addfile(ptmpdir2+"/"+prefix(1)+"ANN_ALL.nc","r")
+; Follow logic of set_1 because now both levsoi and levgrnd may be present
   nlev1 = 0
+  if (isfilevar(in1,"levsoi")) then
+     nlev1       = getfilevardimsizes(in1,"levsoi")
+     levsoi1     = in1->levsoi
+  end if
+  if (isfilevar(in1,"levgrnd")) then
+     nlev1       = getfilevardimsizes(in1,"levgrnd")
+     levsoi1     = in1->levgrnd
+  end if
+  if (nlev1 .eq. 0)
+     print("FATAL ERROR:  nlev1 = 0")
+     exit
+  end if
+; truncate soil layers if needed
+  if (nlev1 .gt. 10) then
+;    print("Truncating soil levels to 10 levels [caseid: "+prefix(0)+"  nlev:  " + nlev +"]")
+     nlev1 = 10
+  end if
   nlev2 = 0
-  if(isfilevar(in1,"levsoi")) then
-        nlev1 = getfilevardimsizes(in1,"levsoi")
+  if (isfilevar(in2,"levsoi")) then
+     nlev2       = getfilevardimsizes(in2,"levsoi")
+     levsoi2     = in2->levsoi
   end if
-  if(isfilevar(in1,"levgrnd")) then
-        nlev1 = getfilevardimsizes(in1,"levgrnd")
+  if (isfilevar(in2,"levgrnd")) then
+     nlev2 = getfilevardimsizes(in2,"levgrnd")
+     levsoi2     = in2->levgrnd
   end if
-  if(isfilevar(in2,"levsoi")) then
-        nlev2 = getfilevardimsizes(in2,"levsoi")
+  if (nlev2 .eq. 0)
+     print("FATAL ERROR:  nlev2 = 0")
+     exit
   end if
-  if(isfilevar(in2,"levgrnd")) then
-        nlev2 = getfilevardimsizes(in2,"levgrnd")
-  end if
-  if (nlev1 .eq. 0 .or. nlev2 .eq. 0)
-        print("FATAL ERROR Set6:  nlev1 or nlev2 = 0")
-        exit
+; truncate soil layers if needed
+  if (nlev2 .gt. 10) then
+;    print("Truncating soil levels to 10 levels [caseid: "+prefix(1)+"  nlev:  " + nlev +"]")
+     nlev2 = 10
   end if
 
   fland1     = in1->landfrac
@@ -517,7 +536,7 @@ nplots = 12
                 array1(i,offset1:(offset1+nyrs1-1),:,:) = x1
           end if
           if (rank .eq. 4) then
-                array1_3(offset1:(offset1+nyrs1-1),:,:,:) = x1
+                array1_3(offset1:(offset1+nyrs1-1),:,:,:) = x1(:,0:nlev1-1,:,:)
           end if 	
           units(i)        = x1@units
           long_name(i)    = x1@long_name
@@ -535,7 +554,7 @@ nplots = 12
                 array2(i,offset2:(offset2+nyrs2-1),:,:) = x2
           end if
           if (rank .eq. 4) then
-                array2_3(offset2:(offset2+nyrs2-1),:,:,:) = x2
+                array2_3(offset2:(offset2+nyrs2-1),:,:,:) = x2(:,0:nlev2-1,:,:)
           end if 	
           units(i)        = x2@units
           long_name(i)    = x2@long_name

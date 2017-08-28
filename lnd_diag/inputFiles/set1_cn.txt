@@ -63,8 +63,8 @@ globalTotlNat   TOTECOSYSN
 globalTotlAnn   NDEP_TO_SMINN
 globalTotlAnn   FERT
 globalTotlAnn   FERT_TO_SMINN
+globalTotlAnn   NFERTILIZATION
 globalTotlAnn   NFIX_TO_SMINN
-globalTotlAnn   NACTIVE
 globalTotlAnn   NAM
 globalTotlAnn   NECM
 globalTotlAnn   NFIX

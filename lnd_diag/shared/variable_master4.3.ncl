@@ -3194,6 +3194,35 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "NFERTILIZATION") then
+    info@flux=True
+    info@longName="fertilizer added"
+    info@nativeUnits = "gN/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "TgN/y"
+    info@globalTotal_Annual__SF    = grams2Tgrams * secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "gN/m^2/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m^2/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m^2/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.01, 0.03, 0.05, 0.08, 0.10, 0.13, 0.15, 0.18, 0.2/)
+    info@cn_LevelsDiff             = (/-.01, -0.008, -0.006, -0.004, -0.002, 0, 0.002, 0.004, 0.006, 0.008, 0.01/)
+    return(info)
+  end if
+
   if (varName .eq. "RETRANSN_TO_NPOOL") then
     info@flux=True
     info@longName="Retranslocated N to NPool"
@@ -5774,6 +5803,64 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "FSH_TO_COUPLER") then
+    info@flux=True
+    info@longName="sensible heat sent to coupler"
+    info@nativeUnits = "W/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "W/m^2"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-40.,-20.,0.,20.,40.,60.,80.,100.,120./)
+    info@cn_LevelsDiff             = (/-50.,-25.,-10.,-5.,-1.,0.,1.,5.,10.,25.,50./)
+    return(info)
+  end if
+
+  if (varName .eq. "FSH_PRECIP_CONVERSION") then
+    info@flux=True
+    info@longName="Sensible heat flux from conversion of rain/snow atm forcing"
+    info@nativeUnits = "W/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "W/m^2"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-40.,-20.,0.,20.,40.,60.,80.,100.,120./)
+    info@cn_LevelsDiff             = (/-50.,-25.,-10.,-5.,-1.,0.,1.,5.,10.,25.,50./)
+    return(info)
+  end if
+
   if (varName .eq. "LATENT") then
     info@flux=True
     info@longName="Latent Heat Flux"
@@ -6472,6 +6559,36 @@ if (varName .eq. "LITTERC_HR") then
   if (varName .eq. "H2OSNO") then
     info@flux=False
     info@longName="total snow water equiv (SNOWICE + SNOWLIQ)"
+    info@nativeUnits = "mm"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "mm"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,25.,50.,75.,100.,125.,150.,175.,200./)
+    info@cn_LevelsDiff             = (/-50.,-40.,-30.,-20.,-10.,0.,10.,20.,30.,40.,50./)
+    info@cn_LevelsDiffObs          = (/-50.,0.,50.,100.,150.,200.,250.,300.,350.,400.,450./)
+    return(info)
+  end if
+
+  if (varName .eq. "H2OSNO_ICE") then
+    info@flux=False
+    info@longName="total snow water equiv (SNOWICE + SNOWLIQ) over glacier units"
     info@nativeUnits = "mm"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -7482,6 +7599,35 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "QSNOMELT_ICE") then
+    info@flux=True
+    info@longName="snow melt over glacier units"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-5.,-2.5,-1.,-.5,-.1,0.,.1,.5,1.,2.5,5./)
+    return(info)
+  end if
+
   if (varName .eq. "SOIL_EVAPORATION") then
     info@flux=True
     info@longName="Soil Evaporation"
@@ -7514,6 +7660,35 @@ if (varName .eq. "LITTERC_HR") then
   if (varName .eq. "QSOIL") then
     info@flux=True
     info@longName="ground evaporation"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-5.,-2.5,-1.,-.5,-.1,0.,.1,.5,1.,2.5,5./)
+    return(info)
+  end if
+
+  if (varName .eq. "QSOIL_ICE") then
+    info@flux=True
+    info@longName="ground evaporation over glacier units"
     info@nativeUnits = "mm/s"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -7919,6 +8094,64 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+
+  if (varName .eq. "SNOW_REPARTITIONED") then
+    info@flux=True
+    info@longName="atmospheric snow after repartitioning"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-1.25,-1.,-0.75,-0.5,-0.25,0.,0.25,0.5,0.75,1.,1.25/)
+    return(info)
+  end if
+
+  if (varName .eq. "RAIN_REPARTITIONED") then
+    info@flux=True
+    info@longName="atmospheric rain after repartitioning"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-1.25,-1.,-0.75,-0.5,-0.25,0.,0.25,0.5,0.75,1.,1.25/)
+    return(info)
+  end if
   if (varName .eq. "WIND") then
     info@flux=True
     info@longName="atmospheric wind velocity magnitude"

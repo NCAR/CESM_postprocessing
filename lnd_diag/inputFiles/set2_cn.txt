@@ -60,6 +60,7 @@ globalMeanNat0  FPI
 globalMeanAnn0  NDEP_TO_SMINN
 globalMeanAnn0  FERT
 globalMeanAnn0  FERT_TO_SMINN
+globalMeanAnn0  NFERTILIZATION
 globalMeanAnn0  POTENTIAL_IMMOB
 globalMeanAnn0  ACTUAL_IMMOB
 globalMeanAnn0  GROSS_NMIN
@@ -71,7 +72,6 @@ globalMeanAnn0  DENIT
 globalMeanNat0  SOIL3N
 globalMeanNat0  SOIL4N
 globalMeanAnn0  NFIX_TO_SMINN
-globalMeanAnn0  NACTIVE
 globalMeanAnn0  NAM
 globalMeanAnn0  NECM
 globalMeanAnn0  NFIX

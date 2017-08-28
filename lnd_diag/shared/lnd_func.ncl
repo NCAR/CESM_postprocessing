@@ -145,28 +145,6 @@ begin
     return(var)
   end if
 
-  if(var_name.eq."TOTSOILLIQ")then
-    var = ptr ->SOILLIQ        ; derivation is merely sum over levels
-    if(isfilevar(ptr,"levsoi")) then
-    	new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levsoi|:))
-    end if
-    if(isfilevar(ptr,"levgrnd")) then
-    	new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levgrnd|:))
-    end if
-    return(new_var)
-  end if
-
-  if(var_name.eq."TOTSOILICE")then
-    var = ptr ->SOILICE        ; derivation is merely sum over levels
-    if(isfilevar(ptr,"levsoi")) then
-    	new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levsoi|:))
-    end if
-    if(isfilevar(ptr,"levgrnd")) then
-    	new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levgrnd|:))
-    end if
-    return(new_var)
-  end if
-
   if(var_name.eq."VBSA")then
     fsdsvdln = ptr ->FSDSVDLN
     fsrvdln  = ptr ->FSRVDLN
@@ -413,22 +391,24 @@ begin
 
   if(var_name.eq."TOTSOILLIQ" .or. var_name .eq. "TOTAL_SOIL_LIQUID" )then
     var = ptr ->SOILLIQ        ; derivation is merely sum over levels
-    if(isfilevar(ptr,"levsoi")) then
-    	new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levsoi|:))
-    end if
-    if(isfilevar(ptr,"levgrnd")) then
-    	new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levgrnd|:))
+    if(isfilevardim(ptr,"SOILLIQ","levsoi")) then
+        new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levsoi|:))
+    else
+        if(isfilevardim(ptr,"SOILLIQ","levgrnd")) then
+            new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levgrnd|:))
+        end if
     end if
     return(new_var)
   end if
 
   if(var_name.eq."TOTSOILICE" .or. var_name .eq. "TOTAL_SOIL_ICE" )then
     var = ptr ->SOILICE        ; derivation is merely sum over levels
-    if(isfilevar(ptr,"levsoi")) then
-    	new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levsoi|:))
-    end if
-    if(isfilevar(ptr,"levgrnd")) then
-    	new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levgrnd|:))
+    if(isfilevardim(ptr,"SOILICE","levsoi")) then
+        new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levsoi|:))
+    else
+        if(isfilevardim(ptr,"SOILICE","levgrnd")) then
+            new_var = dim_sum_Wrap(var(time|:,lat|:,lon|:,levgrnd|:))
+        end if
     end if
     return(new_var)
   end if
