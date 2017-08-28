@@ -12,6 +12,8 @@ globalMeanNat   NWSA
 globalMeanNat   RNET
 globalMeanNat   LHEAT
 globalMeanNat   FSH
+globalMeanNat   FSH_TO_COUPLER
+globalMeanNat   FSH_PRECIP_CONVERSION
 globalMeanNat   FSDS
 globalMeanNat   FSA
 globalMeanNat   FLDS
