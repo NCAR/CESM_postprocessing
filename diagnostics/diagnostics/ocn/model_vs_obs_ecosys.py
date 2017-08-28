@@ -141,6 +141,7 @@ class modelVsObsEcosys(OceanDiagnostic):
 
             # test the template variables
             templateVars = { 'casename' : env['CASE'],
+                             'username' : env['USER_NAME'],
                              'tagname' : env['CESM_TAG'],
                              'start_year' : env['YEAR0'],
                              'stop_year' : env['YEAR1'],

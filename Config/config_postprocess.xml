@@ -101,16 +101,24 @@
 
       <entry id="CESM_TAG"
 	     type="string"
-	     valid_values="cesm2_0_beta05"  
+	     valid_values="cesm2_0"  
 	     value="inherit"
 	     group="case_info"
 	     desc="CESM tag used to create this case"
+	     ></entry> 
+
+      <entry id="USER_NAME"
+	     type="string"
+	     valid_values=""  
+	     value="inherit"
+	     group="case_info"
+	     desc="User name of person running this set of diagnostics"
 	     ></entry> 
     </group>
 
     <group name="postprocess">
       <order>1</order>
-      <comment>Environment variable settings to control postprocessing tasks.</comment>
+      <comment>Environment variable settings to control postprocessing tasks. These variables are used by the cylc workflow manager and the copy_html utility.</comment>
 
       <entry id="POSTPROCESS_VIRTUALENV" 
 	     type="string"
@@ -163,7 +171,7 @@
       <entry id="GENERATE_AVGS_ATM"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="FALSE" 
+	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the atm_averages script which launches the parallel python wrapper script atm_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_atm.xml file."
 	     ></entry> 
@@ -171,7 +179,7 @@
       <entry id="GENERATE_DIAGS_ATM"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="FALSE" 
+	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the atm_diagnostics script with launches the  AMWG diagnostics package parallel python wrapper script atm_diags_generator.py to generate climatological plots associated with the run job output. See the AMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_atm.xml file."
 	     ></entry> 
@@ -179,7 +187,7 @@
       <entry id="GENERATE_AVGS_ICE"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="FALSE" 
+	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the ice_averages script which launches the parallel python wrapper script ice_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_ice.xml file."
 	     ></entry> 
@@ -187,7 +195,7 @@
       <entry id="GENERATE_DIAGS_ICE"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="FALSE" 
+	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the ice_diagnostics script which launches the PCWG diagnostics package parallel python wrapper script ice_diags_generator.py to generate climatological plots associated with the run job output. See the PCWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_ice.xml file."
 	     ></entry> 
@@ -195,7 +203,7 @@
       <entry id="GENERATE_AVGS_LND"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="FALSE" 
+	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the lnd_averages script which launches the parallel python wrapper script lnd_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_lnd.xml file."
 	     ></entry> 
@@ -203,7 +211,7 @@
       <entry id="GENERATE_REGRID_LND"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="FALSE" 
+	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the lnd_regrid script which launches the parallel python wrapper script lnd_regrid_generator.py to regrid climatological files in parallel. Settings for creating the regridded files are specified in the env_diags_lnd.xml file."
 	     ></entry> 
@@ -211,7 +219,7 @@
       <entry id="GENERATE_DIAGS_LND"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="FALSE" 
+	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the lnd_diagnostics script which launches the LMWG diagnostics package parallel python wrapper script lnd_diags_generator.py to generate climatological plots associated with the run job output. See the LMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_lnd.xml file."
 	     ></entry> 
@@ -219,7 +227,7 @@
       <entry id="GENERATE_AVGS_OCN"  
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="FALSE" 
+	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the ocn_averages script which launches the parallel python wrapper script ocn_avg_generator.py to generate climatological files using the pyAverager tool. Settings for creating the averages are specified in the env_diags_ocn.xml file."
 	     ></entry> 
@@ -227,7 +235,7 @@
       <entry id="GENERATE_DIAGS_OCN" 
 	     type="logical"
 	     valid_values="TRUE,FALSE"  
-	     value="FALSE" 
+	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the OMWG diagnostics package parallel python wrapper script to generate climatological plots associated with the run job output. See the OMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_ocn.xml file."
 	     ></entry> 

@@ -138,6 +138,9 @@ def commandline_options():
     parser.add_argument('-project', '--project', nargs=1, required=False,
                         help='Project code (optional). This setting will override the environment variable setting.')
 
+    parser.add_argument('-username', '--username', nargs=1, required=False,
+                        help='User name (optional). Defaults to user login name.')
+
     options = parser.parse_args()
         
     return options
@@ -501,6 +504,11 @@ def initialize_main(envDict, options, standalone):
     if options.project:
         envDict['PROJECT'] = options.project[0]
 
+    # set the user name
+    envDict['USER_NAME'] = os.getlogin()
+    if options.username:
+        envDict['USER_NAME'] = options.username[0]
+
     return envDict
 
 # -------------------------------------------------------------------------------
@@ -645,6 +653,8 @@ def main(options):
                      machine['reset_modules'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
                      machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_nodes'.format(comp)],
                      machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
+
+    # TODO - generate the ILAMB and IOMB batch submit scripts from template files
 
     # copy some tools to the PP_CASE_PATH
     files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd']

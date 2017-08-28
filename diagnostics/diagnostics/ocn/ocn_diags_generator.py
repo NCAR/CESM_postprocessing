@@ -244,7 +244,7 @@ def main(options, main_comm, debugMsg):
             os.makedirs(envDict['WORKDIR'])
         except OSError as exception:
             if exception.errno != errno.EEXIST:
-                err_msg = 'ERROR: {0} problem accessing the working directory {1}'.format(envDict['WORKDIR'])
+                err_msg = 'ERROR: ocn_diags_generator.py problem accessing the working directory {0}'.format(envDict['WORKDIR'])
                 raise OSError(err_msg)
 
         debugMsg('Ocean diagnostics - Creating main index.html page', header=True, verbosity=2)
@@ -264,6 +264,7 @@ def main(options, main_comm, debugMsg):
         # set the template variables
         templateVars = { 'casename' : envDict['CASE'],
                          'tagname' : envDict['CESM_TAG'],
+                         'username' : envDict['USER_NAME'],
                          'diag_dict' : diag_dict,
                          'control_casename' : envDict['CNTRLCASE'],
                          'start_year' : envDict['YEAR0'],

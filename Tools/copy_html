@@ -479,6 +479,7 @@ def create_index(env, compList, activeList, comp_lookup):
     # set the template variables
     templateVars = { 'casename' : env['CASE'],
                      'tagname' : env['CESM_TAG'],
+                     'username' : env['USER_NAME'],
                      'diag_dict' : collections.OrderedDict(sorted(diag_dict.items())),
                      'ocn_link_dict': ocn_link_dict,
                      'today': now,

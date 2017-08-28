@@ -81,6 +81,7 @@ def get_input_dates(glob_str):
             except:
                 print 'Global attribute time_period_freq not found - set to XML tseries_tper element'
             first = False
+        f.close()
 
     return stream_dates,file_slices,att['calendar'].lower(),att['units'],time_period_freq
 
@@ -287,8 +288,9 @@ def write_log(log_fn, log):
     log(dictionary) - keys->file streams, values->the dates that have been 
                          converted and next indexes to use for size and tper lists 
     '''
-    with open(log_fn, 'w') as f:
+    with open(log_fn, 'a+') as f:
         json.dump(log, f)
+    f.close()
 
 
 def read_log(log_fn):
@@ -307,6 +309,7 @@ def read_log(log_fn):
     if os.path.isfile(log_fn):
         with open(log_fn, 'r') as f:
             d = json.load(f)
+        f.close()
         return d
     else:
         return {}

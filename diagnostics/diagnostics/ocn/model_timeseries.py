@@ -310,6 +310,7 @@ class modelTimeseries(OceanDiagnostic):
             # test the template variables
             templateVars = { 'casename' : env['CASE'],
                              'tagname' : env['CESM_TAG'],
+                             'username' : env['USER_NAME'],
                              'start_year' : env['TSERIES_YEAR0'],
                              'stop_year' : env['TSERIES_YEAR1'],
                              'today': now
