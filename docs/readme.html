@@ -1,0 +1,371 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The PyReshaper &mdash; PyReshaper 1.0.4 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="PyReshaper 1.0.4 documentation" href="index.html"/>
+        <link rel="next" title="The PyReshaper User’s Manual" href="manual.html"/>
+        <link rel="prev" title="Welcome to PyReshaper’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyReshaper
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The PyReshaper</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#easy-installation-with-pip">Easy Installation with PIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#obtaining-the-source-code">Obtaining the Source Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-installing-from-source">Building &amp; Installing from Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#before-using-the-pyreshaper-package">Before Using the PyReshaper Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instructions-use">Instructions &amp; Use</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual.html">The PyReshaper User’s Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pyreshaper.html">The PyReshaper Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">PyReshaper Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Product License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyReshaper</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>The PyReshaper</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-pyreshaper">
+<h1>The PyReshaper<a class="headerlink" href="#the-pyreshaper" title="Permalink to this headline">¶</a></h1>
+<p>A package for converting NetCDF files from time-slice (history) format
+to time-series (single-variable) format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">AUTHORS:</th><td class="field-body">John Dennis, Sheri Mickelson, Kevin Paul, Haiying Xu</td>
+</tr>
+<tr class="field-even field"><th class="field-name">COPYRIGHT:</th><td class="field-body">2017, University Corporation for Atmospheric Research</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">LICENSE:</th><td class="field-body">See the LICENSE.rst file for details</td>
+</tr>
+</tbody>
+</table>
+<p>Send questions and comments to Kevin Paul (<a class="reference external" href="mailto:kpaul&#37;&#52;&#48;ucar&#46;edu">kpaul<span>&#64;</span>ucar<span>&#46;</span>edu</a>).</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The PyReshaper is a tool for converting time-slice (or history-file
+or synoptically) formatted NetCDF files into time-series (or single-field)
+format.  The PyReshaper package is designed to run in parallel (MPI) to
+maximize performance, with the parallelism implemented over variables
+(i.e., task parallelism).  This means that the maximum parallelism
+achieveable for a given operation is one core/processor per variables in
+the time-slice NetCDF files.</p>
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>The PyReshaper directly depends upon the ASAP Python Toolbox (ASAPTools)
+and either PyNIO or netcdf4-python.  Access and manipulation of the NetCDF
+files is done through PyNIO or netcdf4-python, and the parallelism is
+implimented using the ASAPTools SimpleComm, which uses mpi4py.  Implicit
+dependencies exist as a result of these direct dependencies.</p>
+<p>The PyReshaper explicitly depends upon the following Python packages:</p>
+<ul class="simple">
+<li>PyNIO (v1.5+) or netCDF4-python (v1.2+)</li>
+<li>ASAPPyTools (v0.4+)</li>
+</ul>
+<p>These packages imply a dependency on the NumPy (v1.4+) and mpi4py (v1.3+)
+packages, and the  libraries NetCDF and MPI/MPI-2.</p>
+<p>The version requirements have not been rigidly tested, so earlier versions
+may actually work.  No version requirement is made during installation, though,
+so problems might occur if an earlier versions of these packages have been
+installed.</p>
+</div>
+<div class="section" id="easy-installation-with-pip">
+<h2>Easy Installation with PIP<a class="headerlink" href="#easy-installation-with-pip" title="Permalink to this headline">¶</a></h2>
+<p>The easiest way to install the ASAP Python Toolbox is from the Python
+Package Index (PyPI) with the pip package manager:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$  pip install [--user] PyReshaper
+</pre></div>
+</div>
+<p>The optional ‘–user’ argument can be used to install the package in the
+local user’s directory, which is useful if the user doesn’t have root
+privileges.</p>
+<p>One should be careful, however, as the PyPI packages may not always be up
+to date.  We recommend obtaining the most recent versions of the PyReshaper
+from the GitHub site shown in the section below.</p>
+</div>
+<div class="section" id="obtaining-the-source-code">
+<h2>Obtaining the Source Code<a class="headerlink" href="#obtaining-the-source-code" title="Permalink to this headline">¶</a></h2>
+<p>Currently, the most up-to-date development source code is available
+via git from the site:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NCAR</span><span class="o">/</span><span class="n">PyReshaper</span>
+</pre></div>
+</div>
+<p>You may then check out the most recent stable tag.  The source is available in
+read-only mode to everyone.  Developers are welcome to update the source
+and submit Pull Requests via GitHub.</p>
+</div>
+<div class="section" id="building-installing-from-source">
+<h2>Building &amp; Installing from Source<a class="headerlink" href="#building-installing-from-source" title="Permalink to this headline">¶</a></h2>
+<p>Installation of the PyReshaper is very simple.  After checking out the source
+from the above svn link, via:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/NCAR/PyReshaper
+</pre></div>
+</div>
+<p>Enter the newly cloned directory:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ cd PyReshaper
+</pre></div>
+</div>
+<p>Then, run the Python setuptools setup script.  On unix, this involves:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$  python setup.py install [--prefix=/path/to/install/location]
+</pre></div>
+</div>
+<p>The prefix is optional, as the default prefix is typically /usr/local on
+linux machines.  However, you must have permissions to write to the prefix
+location, so you may want to choose a prefix location where you have write
+permissions.  Like most distutils installations, you can alternatively
+install the PyReshaper with the ‘–user’ option, which will automatically
+select (and create if it does not exist) the $HOME/.local directory in which
+to install.  To do this, type (on unix machines):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$  python setup.py install --user
+</pre></div>
+</div>
+<p>This can be handy since the site-packages directory will be common for all
+user installs, and therefore only needs to be added to the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> once.</p>
+</div>
+<div class="section" id="before-using-the-pyreshaper-package">
+<h2>Before Using the PyReshaper Package<a class="headerlink" href="#before-using-the-pyreshaper-package" title="Permalink to this headline">¶</a></h2>
+<p>Before the PyReshaper package can be used, you must make sure that the
+site-packages directory containing the ‘pyreshaper’ source directory is in
+your PYTHONPATH.  Depending on the PREFIX used during installation, this
+path will be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$PREFIX/lib/python2.X/site-packages
+</pre></div>
+</div>
+<p>where X will be 6 or 7 (or other) depending on the version of Python that you
+are using to install the package.</p>
+<p>To use the PyReshaper scripts (e.g., ‘s2smake’ and ‘s2srun’), you must add the
+script binary directory to your PATH.  Depending on the PREFIX used during
+installation, this path will be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$PREFIX/bin/
+</pre></div>
+</div>
+<p>Once the script binary directory has been added to your PATH and the
+site-packages directory has been added to your PYTHONPATH, you may use the
+PyReshaper package without issue.</p>
+</div>
+<div class="section" id="instructions-use">
+<h2>Instructions &amp; Use<a class="headerlink" href="#instructions-use" title="Permalink to this headline">¶</a></h2>
+<p>Please see the more detailed instructions found in the docs/ directory for
+usage and examples.  See the ‘Building &amp; Installing from Source’ section
+for how to build the documentation with Sphinx.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="manual.html" class="btn btn-neutral float-right" title="The PyReshaper User’s Manual" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to PyReshaper’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University Corporation for Atmospheric Research.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0.4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
