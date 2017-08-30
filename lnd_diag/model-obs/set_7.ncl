@@ -39,16 +39,26 @@ begin
  print("case1 = "+case1)
  print("ptmpdir = "+ptmpdir)
 
- if (rmodel1 .eq. "False") then
-   inptr1a = addfile(ptmpdir+"/"+"/rof/"+case1+".rtm.h0._ANN_climo.nc","r")
-   inptr1m = addfile(ptmpdir+"/"+"/rof/"+case1+".rtm.h0.MONS_climo.nc","r")
-   print("inptr1a = "+ptmpdir+"/"+"/rof/"+case1+".rtm.h0._ANN_climo.nc")
-   print("inptr1m = "+ptmpdir+"/"+"/rof/"+case1+".rtm.h0.MONS_climo.nc")
- else
-   inptr1a = addfile(ptmpdir+"/"+"/rof/"+case1+".mosart.h0._ANN_climo.nc","r")
-   inptr1m = addfile(ptmpdir+"/"+"/rof/"+case1+".mosart.h0.MONS_climo.nc","r")
-   print("inptr1a = "+ptmpdir+"/"+"/rof/"+case1+".mosart.h0._ANN_climo.nc")
-   print("inptr1m = "+ptmpdir+"/"+"/rof/"+case1+".mosart.h0.MONS_climo.nc")
+ if ((rmodel1 .eq. "False") .and. (rtm1 .eq. "False"))  then
+; river variables on clm history files
+   inptr1a = addfile(ptmpdir1+"/"+prefix1+"_ANN_climo.nc","r")
+   inptr1m = addfile(ptmpdir1+"/"+prefix1+"MONS_climo.nc","r")
+   print("inptr1a = "+ptmpdir1+"/"+prefix1+"_ANN_climo.nc")
+   print("inptr1m = "+ptmpdir1+"/"+prefix1+"MONS_climo.nc")
+ end if
+ if ((rmodel1 .eq. "False") .and. (rtm1 .eq. "True" )) then
+; river variables on rtm history files
+   inptr1a = addfile(ptmpdir1+"/"+"/rof/"+case1+".rtm.h0._ANN_climo.nc","r")
+   inptr1m = addfile(ptmpdir1+"/"+"/rof/"+case1+".rtm.h0.MONS_climo.nc","r")
+   print("inptr1a = "+ptmpdir1+"/"+"/rof/"+case1+".rtm.h0._ANN_climo.nc")
+   print("inptr1m = "+ptmpdir1+"/"+"/rof/"+case1+".rtm.h0.MONS_climo.nc")
+ end if
+ if (rmodel1 .eq. "True") then
+; river variables on mosart history files
+   inptr1a = addfile(ptmpdir1+"/"+"/rof/"+case1+".mosart.h0._ANN_climo.nc","r")
+   inptr1m = addfile(ptmpdir1+"/"+"/rof/"+case1+".mosart.h0.MONS_climo.nc","r")
+   print("inptr1a = "+ptmpdir1+"/"+"/rof/"+case1+".mosart.h0._ANN_climo.nc")
+   print("inptr1m = "+ptmpdir1+"/"+"/rof/"+case1+".mosart.h0.MONS_climo.nc")
  end if
 
  if (useCommon1 .eq. "True") then

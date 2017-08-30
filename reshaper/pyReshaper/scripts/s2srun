@@ -6,7 +6,7 @@ This script is designed to run a specfile (i.e., a Pickled Specifier object).
 The specfile itself should be constructed from a hand-written Python script,
 or from the makes2sspec tool that accompanies this script.
 
-Copyright 2016, University Corporation for Atmospheric Research
+Copyright 2017, University Corporation for Atmospheric Research
 See the LICENSE.rst file for details
 """
 
@@ -24,8 +24,7 @@ from pyreshaper import reshaper
 # Command-line Interface
 #==============================================================================
 def cli(argv=None):
-    desc = """This tool is designed to run a PyReshaper Specifier as read
-              from a pickled Specifier object (specfile)"""
+    desc = """This tool is designed to run a PyReshaper Specifier as read from a pickled Specifier object (specfile)"""
 
     parser = optparse.OptionParser(prog='s2srun', description=desc)
     parser.add_option('-1', '--once', default=False,
@@ -83,16 +82,12 @@ def main(argv=None):
     try:
         spec = pickle.load(open(specfile, 'rb'))
     except:
-        err_msg = ("Specifier File '{}' could not be "
-                   "opened and read").format(specfile)
+        err_msg = "Specifier File '{}' could not be opened and read".format(specfile)
         raise RuntimeError(err_msg)
 
     # Create the PyReshaper object
-    reshpr = reshaper.create_reshaper(spec,
-                                      serial=opts.serial,
-                                      verbosity=opts.verbosity,
-                                      wmode=opts.write_mode,
-                                      once=opts.once)
+    reshpr = reshaper.create_reshaper(spec, serial=opts.serial, verbosity=opts.verbosity,
+                                      wmode=opts.write_mode, once=opts.once)
 
     # Run the conversion (slice-to-series) process
     reshpr.convert(output_limit=opts.limit, chunks=opts.chunks)
