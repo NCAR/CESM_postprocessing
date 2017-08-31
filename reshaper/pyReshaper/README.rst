@@ -5,7 +5,7 @@ A package for converting NetCDF files from time-slice (history) format
 to time-series (single-variable) format.
 
 :AUTHORS: John Dennis, Sheri Mickelson, Kevin Paul, Haiying Xu
-:COPYRIGHT: 2016, University Corporation for Atmospheric Research
+:COPYRIGHT: 2017, University Corporation for Atmospheric Research
 :LICENSE: See the LICENSE.rst file for details
 
 Send questions and comments to Kevin Paul (kpaul@ucar.edu).
@@ -34,15 +34,11 @@ dependencies exist as a result of these direct dependencies.
 
 The PyReshaper explicitly depends upon the following Python packages:
 
--  PyNIO (v1.4.1+) or netCDF4-python (v1.2+)
+-  PyNIO (v1.5+) or netCDF4-python (v1.2+)
 -  ASAPPyTools (v0.4+)
 
 These packages imply a dependency on the NumPy (v1.4+) and mpi4py (v1.3+) 
 packages, and the  libraries NetCDF and MPI/MPI-2.
-    
-Additionally, the entire package is designed to work with Python v2.6 and up
-to (but not including) Python v3.0.  If using Python version 2.6, you will
-need to install the ``ordereddict`` package, too.
  
 The version requirements have not been rigidly tested, so earlier versions
 may actually work.  No version requirement is made during installation, though,
@@ -108,21 +104,6 @@ to install.  To do this, type (on unix machines)::
     
 This can be handy since the site-packages directory will be common for all
 user installs, and therefore only needs to be added to the ``PYTHONPATH`` once.
-
-To install the documentation, you must have Sphinx installed on your system.
-Sphinx can be easily installed with pip, via::
-
-    $  pip install Sphinx
-    
-Once Sphinx is installed, you can build the PyReshaper HTML documentation
-with::
-
-    $  cd docs
-    $  make html
-
-The resulting HTML documentation will be placed in the docs/build/html
-directory, and the main page can be loaded with any browser pointing to
-'docs/build/html/index.html'.
 
 
 Before Using the PyReshaper Package

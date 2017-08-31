@@ -55,12 +55,23 @@ begin
  print("case2 = "+case2)
  print("ptmpdir2 = "+ptmpdir2)
 
- if (rmodel1 .eq. "False") then
+
+ if ((rmodel1 .eq. "False") .and. (rtm1 .eq. "False"))  then
+; river variables on clm history files
+   inptr1a = addfile(ptmpdir1+"/"+prefix1+"_ANN_climo.nc","r")
+   inptr1m = addfile(ptmpdir1+"/"+prefix1+"MONS_climo.nc","r")
+   print("inptr1a = "+ptmpdir1+"/"+prefix1+"_ANN_climo.nc")
+   print("inptr1m = "+ptmpdir1+"/"+prefix1+"MONS_climo.nc")
+ end if
+ if ((rmodel1 .eq. "False") .and. (rtm1 .eq. "True" )) then
+; river variables on rtm history files
    inptr1a = addfile(ptmpdir1+"/"+"/rof/"+case1+".rtm.h0._ANN_climo.nc","r")
    inptr1m = addfile(ptmpdir1+"/"+"/rof/"+case1+".rtm.h0.MONS_climo.nc","r")
    print("inptr1a = "+ptmpdir1+"/"+"/rof/"+case1+".rtm.h0._ANN_climo.nc")
    print("inptr1m = "+ptmpdir1+"/"+"/rof/"+case1+".rtm.h0.MONS_climo.nc")
- else
+ end if
+ if (rmodel1 .eq. "True") then
+; river variables on mosart history files
    inptr1a = addfile(ptmpdir1+"/"+"/rof/"+case1+".mosart.h0._ANN_climo.nc","r")
    inptr1m = addfile(ptmpdir1+"/"+"/rof/"+case1+".mosart.h0.MONS_climo.nc","r")
    print("inptr1a = "+ptmpdir1+"/"+"/rof/"+case1+".mosart.h0._ANN_climo.nc")
@@ -100,12 +111,22 @@ begin
  print("case2 = "+case2)
  print("ptmpdir2 = "+ptmpdir2)
 
- if (rmodel2 .eq. "False") then
+ if ((rmodel2 .eq. "False") .and. (rtm2 .eq. "False"))  then
+; river variables on clm history files
+   inptr2a = addfile(ptmpdir2+"/"+prefix2+"_ANN_climo.nc","r")
+   inptr2m = addfile(ptmpdir2+"/"+prefix2+"MONS_climo.nc","r")
+   print("inptr2a = "+ptmpdir2+"/"+prefix2+"_ANN_climo.nc")
+   print("inptr2m = "+ptmpdir2+"/"+prefix2+"MONS_climo.nc")
+ end if
+ if ((rmodel2 .eq. "False") .and. (rtm2 .eq. "True" )) then
+; river variables on rtm history files
    inptr2a = addfile(ptmpdir2+"/"+"/rof/"+case2+".rtm.h0._ANN_climo.nc","r")
    inptr2m = addfile(ptmpdir2+"/"+"/rof/"+case2+".rtm.h0.MONS_climo.nc","r")
    print("inptr2a = "+ptmpdir2+"/"+"/rof/"+case2+".rtm.h0._ANN_climo.nc")
    print("inptr2m = "+ptmpdir2+"/"+"/rof/"+case2+".rtm.h0.MONS_climo.nc")
- else
+ end if
+ if (rmodel2 .eq. "True") then
+; river variables on mosart history files
    inptr2a = addfile(ptmpdir2+"/"+"/rof/"+case2+".mosart.h0._ANN_climo.nc","r")
    inptr2m = addfile(ptmpdir2+"/"+"/rof/"+case2+".mosart.h0.MONS_climo.nc","r")
    print("inptr2a = "+ptmpdir2+"/"+"/rof/"+case2+".mosart.h0._ANN_climo.nc")
@@ -238,7 +259,9 @@ begin
 
  if (rmodel1 .eq. "False") then
    if (isfilevar(inptr1a,"QCHOCNR")) then
+     print("QCHOCNR 1.1")
      qchocnr_A  = inptr1a->QCHOCNR(0,:,:)
+     print("dimsize qhcocnr_A = "+dimsizes(qchocnr_A))
    else
      qchocnr_A  = inptr1a->QCHOCNR_LIQ(0,:,:)
    end if
@@ -247,6 +270,7 @@ begin
  end if
  if (rmodel2 .eq. "False") then
    if (isfilevar(inptr2a,"QCHOCNR")) then
+     print("QCHOCNR 2.1")
      qchocnr_B  = inptr2a->QCHOCNR(0,:,:)
    else
      qchocnr_B  = inptr2a->QCHOCNR_LIQ(0,:,:)
@@ -257,6 +281,7 @@ begin
 
  if (rmodel1 .eq. "False") then
    if (isfilevar(inptr1m,"QCHOCNR")) then
+     print("QCHOCNR 1.2")
      qchocnr_mA = inptr1m->QCHOCNR(:,:,:)
    else
      qchocnr_mA = inptr1m->QCHOCNR_LIQ(:,:,:)
@@ -266,6 +291,7 @@ begin
  end if
  if (rmodel2 .eq. "False") then
    if (isfilevar(inptr2m,"QCHOCNR")) then
+     print("QCHOCNR 2.2")
      qchocnr_mB = inptr2m->QCHOCNR(:,:,:)
    else
      qchocnr_mB = inptr2m->QCHOCNR_LIQ(:,:,:)

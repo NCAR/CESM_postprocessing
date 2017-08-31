@@ -3194,6 +3194,35 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "NFERTILIZATION") then
+    info@flux=True
+    info@longName="fertilizer added"
+    info@nativeUnits = "gN/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "TgN/y"
+    info@globalTotal_Annual__SF    = grams2Tgrams * secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "gN/m^2/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gN/m^2/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gN/m^2/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.01, 0.03, 0.05, 0.08, 0.10, 0.13, 0.15, 0.18, 0.2/)
+    info@cn_LevelsDiff             = (/-.01, -0.008, -0.006, -0.004, -0.002, 0, 0.002, 0.004, 0.006, 0.008, 0.01/)
+    return(info)
+  end if
+
   if (varName .eq. "RETRANSN_TO_NPOOL") then
     info@flux=True
     info@longName="Retranslocated N to NPool"
@@ -5764,6 +5793,64 @@ if (varName .eq. "LITTERC_HR") then
     ; -- Origin 
     info@model		           = "CN" 
     info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-40.,-20.,0.,20.,40.,60.,80.,100.,120./)
+    info@cn_LevelsDiff             = (/-50.,-25.,-10.,-5.,-1.,0.,1.,5.,10.,25.,50./)
+    return(info)
+  end if
+
+  if (varName .eq. "FSH_TO_COUPLER") then
+    info@flux=True
+    info@longName="sensible heat sent to coupler"
+    info@nativeUnits = "W/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "W/m^2"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-40.,-20.,0.,20.,40.,60.,80.,100.,120./)
+    info@cn_LevelsDiff             = (/-50.,-25.,-10.,-5.,-1.,0.,1.,5.,10.,25.,50./)
+    return(info)
+  end if
+
+  if (varName .eq. "FSH_PRECIP_CONVERSION") then
+    info@flux=True
+    info@longName="Sensible heat flux from conversion of rain/snow atm forcing"
+    info@nativeUnits = "W/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "W/m^2"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True

@@ -55,6 +55,7 @@ globalMeanNat   FPI
 globalTotlAnn   NDEP_TO_SMINN
 globalTotlAnn   FERT
 globalTotlAnn   FERT_TO_SMINN
+globalTotlAnn   NFERTILIZATION
 globalTotlAnn   POTENTIAL_IMMOB
 globalTotlAnn   ACTUAL_IMMOB
 globalTotlAnn   GROSS_NMIN
@@ -66,7 +67,6 @@ globalTotlAnn   DENIT
 globalTotlNat   SOIL3N
 globalTotlNat   SOIL4N
 globalTotlAnn   NFIX_TO_SMINN
-globalTotlAnn   NACTIVE
 globalTotlAnn   NAM
 globalTotlAnn   NECM
 globalTotlAnn   NFIX

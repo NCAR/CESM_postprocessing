@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyreshaper.reshaper module &mdash; PyReshaper 1.0.4 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="PyReshaper 1.0.4 documentation" href="index.html"/>
+        <link rel="up" title="The PyReshaper Package" href="pyreshaper.html"/>
+        <link rel="next" title="pyreshaper.iobackend module" href="iobackend.html"/>
+        <link rel="prev" title="pyreshaper.specification module" href="specification.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyReshaper
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">The PyReshaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual.html">The PyReshaper User’s Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pyreshaper.html">The PyReshaper Package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyreshaper.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="specification.html">pyreshaper.specification module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pyreshaper.reshaper module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iobackend.html">pyreshaper.iobackend module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">PyReshaper Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Product License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyReshaper</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="pyreshaper.html">The PyReshaper Package</a> &raquo;</li>
+        
+      <li>pyreshaper.reshaper module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/reshaper.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pyreshaper.reshaper">
+<span id="pyreshaper-reshaper-module"></span><h1>pyreshaper.reshaper module<a class="headerlink" href="#module-pyreshaper.reshaper" title="Permalink to this headline">¶</a></h1>
+<p>The module containing the Reshaper class</p>
+<p>This is the main reshaper module.  This is where the specific operations
+are defined.  Currently, only one operation has been implemented (i.e.,
+the time-slice to time-series operation).</p>
+<p>Copyright 2017, University Corporation for Atmospheric Research
+See the LICENSE.rst file for details</p>
+<dl class="class">
+<dt id="pyreshaper.reshaper.Reshaper">
+<em class="property">class </em><code class="descclassname">pyreshaper.reshaper.</code><code class="descname">Reshaper</code><span class="sig-paren">(</span><em>specifier</em>, <em>serial=False</em>, <em>verbosity=1</em>, <em>wmode='w'</em>, <em>once=False</em>, <em>simplecomm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyreshaper.reshaper.Reshaper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The time-slice to time-series Reshaper class</p>
+<p>This is the class that defines how the time-slice to time-series
+reshaping operation is to be performed.</p>
+<dl class="method">
+<dt id="pyreshaper.reshaper.Reshaper.convert">
+<code class="descname">convert</code><span class="sig-paren">(</span><em>output_limit=0</em>, <em>chunks=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyreshaper.reshaper.Reshaper.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to perform the Reshaper’s designated operation.</p>
+<p>In this case, convert a list of time-slice files to time-series files.</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd><dl class="first last docutils">
+<dt>output_limit (int): Limit on the number of output (time-series) files to write during the</dt>
+<dd>convert() operation.  If set to 0, no limit is placed.  This limits the number of output files
+produced by each processor in a parallel run.</dd>
+<dt>chunks (dict): A dictionary of dimension names mapped to chunk sizes along that named</dt>
+<dd>dimension</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyreshaper.reshaper.Reshaper.print_diagnostics">
+<code class="descname">print_diagnostics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyreshaper.reshaper.Reshaper.print_diagnostics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print out timing and I/O information collected up to this point</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pyreshaper.reshaper.create_reshaper">
+<code class="descclassname">pyreshaper.reshaper.</code><code class="descname">create_reshaper</code><span class="sig-paren">(</span><em>specifier</em>, <em>serial=False</em>, <em>verbosity=1</em>, <em>wmode='w'</em>, <em>once=False</em>, <em>simplecomm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyreshaper.reshaper.create_reshaper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for Reshaper class instantiations.</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd><dl class="first last docutils">
+<dt>specifier (Specifier): An instantiation of a Specifier class that</dt>
+<dd>defines the type of operation to be performed.  (That is, a
+Slice2SeriesSpecifier will invoke the creation of a
+matching Slice2SeriesReshaper object.)
+Alternatively, this can be a list of Specifier objects,
+or dictionary of named Specifier objects.
+In this case, a reshaper will be created for each
+specifier in the list, and each reshaper will be
+created and run in sequence.</dd>
+<dt>serial (bool): True or False, indicating whether the Reshaper object</dt>
+<dd>should perform its operation in serial (True) or
+parallel (False).</dd>
+<dt>verbosity (int): Level of printed output (stdout).  A value of 0 means</dt>
+<dd>no output, and a higher value means more output.  The
+default value is 1.</dd>
+<dt>wmode (str): The mode to use for writing output.  Can be ‘w’ for</dt>
+<dd>normal write operation, ‘s’ to skip the output generation for
+existing time-series files, ‘o’ to overwrite existing time-series
+files, ‘a’ to append to existing time-series files.</dd>
+<dt>once (bool): True or False, indicating whether the Reshaper should</dt>
+<dd>write all metadata to a ‘once’ file (separately).</dd>
+<dt>simplecomm (SimpleComm): A SimpleComm object to handle the parallel</dt>
+<dd>communication, if necessary</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Reshaper: An instance of the Reshaper object requested</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="iobackend.html" class="btn btn-neutral float-right" title="pyreshaper.iobackend module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="specification.html" class="btn btn-neutral" title="pyreshaper.specification module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University Corporation for Atmospheric Research.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0.4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

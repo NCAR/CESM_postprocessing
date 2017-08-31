@@ -21,15 +21,16 @@
     </reset_modules>
     <modules>
       <module>module load python/2.7.7</module>
-      <module>module load numpy/1.8.1</module>
-      <module>module load scipy/0.15.1</module>
+      <module>module load numpy/1.11.0</module>
+      <module>module load scipy/0.18.1</module>
       <module>module load mpi4py/2.0.0</module>
       <module>module load pynio/1.4.1</module>
-      <module>module load matplotlib/1.4.3</module>
+      <module>module load pyside/1.1.2</module>
+      <module>module load matplotlib/1.5.1</module>
       <module>module load intel/12.1.5</module>
       <module>module load netcdf/4.3.0</module>
       <module>module load nco/4.4.4</module>
-      <module>module load netcdf4python/1.1.1</module>
+      <module>module load netcdf4python/1.2.4</module>
       <module>module load ncl/6.4.0</module>
       <module>module load pyngl</module>
     </modules>

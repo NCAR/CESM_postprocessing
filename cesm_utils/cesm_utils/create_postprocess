@@ -693,6 +693,8 @@ def main(options):
                      machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_nodes'.format(comp)],
                      machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
 
+    # TODO - generate the ILAMB and IOMB batch submit scripts from template files
+
     # copy some tools to the PP_CASE_PATH
     files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd']
     for file_to_copy in files_to_copy:

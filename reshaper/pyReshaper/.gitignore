@@ -1,3 +1,4 @@
+*.nc
 *.pyc
 dist/
 build/

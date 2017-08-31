@@ -279,17 +279,26 @@ print("Now printing plot #" + p)
   prefix1   = getenv(name11)
   in1       = addfile(ptmpdir + "/" + prefix1 +"ANN_ALL.nc","r")
   print ("DEBUG file in1 = "+ptmpdir+"/"+prefix1+"ANN_ALL.nc")	
+; Follow logic of set_1 because now both levsoi and levgrnd may be present
   nlev1 = 0
-  if(isfilevar(in1,"levsoi")) then
-  	nlev1  = getfilevardimsizes(in1,"levsoi")
+  if (isfilevar(in1,"levsoi")) then
+     nlev1       = getfilevardimsizes(in1,"levsoi")
+     levsoi1     = in1->levsoi
   end if
-  if(isfilevar(in1,"levgrnd")) then
-  	nlev1  = getfilevardimsizes(in1,"levgrnd")
+  if (isfilevar(in1,"levgrnd")) then
+     nlev1       = getfilevardimsizes(in1,"levgrnd")
+     levsoi1     = in1->levgrnd
   end if
   if (nlev1 .eq. 0)
-        print("FATAL ERROR:  nlev1 = 0")
-        exit
+     print("FATAL ERROR:  nlev1 = 0")
+     exit
   end if
+; truncate soil layers if needed
+  if (nlev1 .gt. 10) then
+;    print("Truncating soil levels to 10 levels [caseid: "+prefix(0)+"  nlev:  " + nlev +"]")
+     nlev1 = 10
+  end if
+
   fland1     = in1->landfrac
   area1      = in1->area
   lat1       = in1->lat
@@ -379,7 +388,7 @@ print("processing " + vars(i) + " for plot " + p)
            if (rank .eq. 3) then
                 array1(i,:,:,:) = x1
            else     
-                array1_3(:,:,:,:) = x1
+                array1_3(:,:,:,:) = x1(:,0:nlev1-1,:,:)
            end if   
            units(i)        = x1@units
            long_name(i)    = x1@long_name

@@ -12,6 +12,7 @@
 averager/pyAverager/build/
 mpi_utils/pyTools/build/
 mpi_utils/pyTools/dist/
+ilamb/ilamb/dist/
 
 # Ignore cesm-env2
 cesm-env2/
