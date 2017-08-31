@@ -77,7 +77,7 @@ def commandline_options():
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
 #==============================================================================================
 def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone, completechunk, 
-                   generate_all, debug, debugMsg):
+                   generate_all, debug, debugMsg, comm, rank, size):
     """ reads the $CASEROOT/env_timeseries.xml file and builds a fully defined list of 
          reshaper specifications to be passed to the pyReshaper tool.
 
@@ -156,11 +156,11 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                         if file_spec.find("tseries_filecat_tper") is not None:
                             tper = file_spec.find("tseries_filecat_tper").text
                         if file_spec.find("tseries_filecat_n") is not None:
-                            size = file_spec.find("tseries_filecat_n").text
+                            size_n = file_spec.find("tseries_filecat_n").text
                         comp_name = comp
                         stream = file_extension.split('.[')[0]
 
-                        stream_dates,file_slices,cal,units,time_period_freq = chunking.get_input_dates(in_file_path+'/*'+file_extension+'*.nc')
+                        stream_dates,file_slices,cal,units,time_period_freq = chunking.get_input_dates(in_file_path+'/*'+file_extension+'*.nc', comm, rank, size)
                         # check if the calendar attribute was read or not
                         if cal is None or cal == "none":
                             cal = default_calendar
@@ -176,7 +176,7 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             log[comp+stream] = {'slices':[],'index':0}
                         ts_log_dates = log[comp+stream]['slices']
                         index = log[comp+stream]['index']
-                        files,dates,index = chunking.get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, completechunk)
+                        files,dates,index = chunking.get_chunks(tper, index, size_n, stream_dates, ts_log_dates, cal, units, completechunk)
                         for d in dates:
                             log[comp+stream]['slices'].append(float(d))
                         log[comp+stream]['index']=index
@@ -209,7 +209,8 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                                 raise TypeError(err_msg)
                             debugMsg("tseries_output_suffix = {0}".format(tseries_output_suffix), header=True)
 
-                            # get a reshaper specification object
+                            # get a reshaper specification object/
+
                             spec = specification.create_specifier()
 
                             # populate the spec object with data for this history stream
@@ -293,24 +294,22 @@ def main(options, scomm, rank, size, debug, debugMsg):
     # initialize the specifiers list to contain the list of specifier classes
     specifiers = list()
 
-    # loading the specifiers from the env_timeseries.xml  only needs to run on the master task (rank=0) 
-    if rank == 0:
-        tseries_input_rootdir = cesmEnv['TIMESERIES_INPUT_ROOTDIR'] 
-        tseries_output_rootdir = cesmEnv['TIMESERIES_OUTPUT_ROOTDIR'] 
-        case = cesmEnv['CASE']
-        completechunk = cesmEnv['TIMESERIES_COMPLETECHUNK']
-        generate_all = cesmEnv['TIMESERIES_GENERATE_ALL']
-        if completechunk.upper() in ['T','TRUE']:
-            completechunk = 1
-        else:
-            completechunk = 0
-        specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir, 
-                                        case, options.standalone, completechunk, generate_all,
-                                        debug, debugMsg)
+    tseries_input_rootdir = cesmEnv['TIMESERIES_INPUT_ROOTDIR'] 
+    tseries_output_rootdir = cesmEnv['TIMESERIES_OUTPUT_ROOTDIR'] 
+    case = cesmEnv['CASE']
+    completechunk = cesmEnv['TIMESERIES_COMPLETECHUNK']
+    generate_all = cesmEnv['TIMESERIES_GENERATE_ALL']
+    if completechunk.upper() in ['T','TRUE']:
+        completechunk = 1
+    else:
+        completechunk = 0
+    specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir, 
+                                    case, options.standalone, completechunk, generate_all,
+                                    debug, debugMsg, scomm, rank, size)
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
-    specifiers = scomm.partition(specifiers, func=partition.Duplicate(), involved=True)
+#    specifiers = scomm.partition(specifiers, func=partition.Duplicate(), involved=True)
     if rank == 0:
         debugMsg("# of Specifiers: "+str(len(specifiers)), header=True, verbosity=1)
 
