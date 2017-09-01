@@ -1,0 +1,8 @@
+*.spec
+*.pyc
+*.nc
+.DS_Store
+temp
+build
+dist
+PyConform.egg-info
