@@ -1,0 +1,67 @@
+{
+    "attributes": {
+        "name": "Calculator",
+        "category": "Simple"
+    },
+    "variables": {
+        "x": {
+            "attributes": {
+                "standard_name": "horizontal distance",
+                "units": "meters"
+            },
+            "datatype": "float64",
+            "definition": "HORZ",
+            "dimensions": [
+                "X"
+            ]
+        },
+        "y": {
+            "attributes": {
+                "standard_name": "vertical distance",
+                "units": "km"
+            },
+            "datatype": "float64",
+            "definition": "VERT",
+            "dimensions": [
+                "Y"
+            ]
+        },
+        "t": {
+            "attributes": {
+                "standard_name": "time",
+                "units": "seconds"
+            },
+            "datatype": "float64",
+            "definition": "TIME",
+            "dimensions": [
+                "T"
+            ]
+        },
+        "u": {
+            "attributes": {
+                "standard_name": "variable sum",
+                "units": "grams",
+                "valid_min": -1.0,
+                "valid_max": 1.0
+            },
+            "datatype": "float32",
+            "definition": "U+V",
+            "dimensions": [
+                "X", "Y", "T"
+            ],
+            "filename": "output/u.nc"
+        },
+        "v": {
+            "attributes": {
+                "standard_name": "variable diff",
+                "units": "mg"
+            },
+            "datatype": "float32",
+            "definition": "U-V",
+            "dimensions": [
+                "X", "Y", "T"
+            ],
+            "filename": "output/v.nc"
+        }
+    }
+}

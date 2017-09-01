@@ -1,0 +1,53 @@
+activity_id = 
+#  branch_method
+branch_time_in_child = 
+branch_time_in_parent = 
+# comment 
+contact = cesm_cmip6@ucar.edu
+Conventions = CF-1.7 CMIP-6.0
+creation_date = 
+data_specs_version = 
+experiment = 
+#  experiment_id
+external_variables = 
+#  forcing_index
+frequency = 
+further_info_url = 
+grids = aerosol,atmos,atmosChem,land,landIce:native 0.9x1.25 finite volume grid; ocean,ocnBgChem,seaIce:native gx1v7 displaced pole grid
+grid = 
+grid_label = gn 
+#  history 
+#  initialization_index
+institution = National Center for Atmospheric Research, Boulder, CO 80301, USA
+institution_id = NCAR
+license = CMIP6 model data produced by the National Center for Atmospheric Research is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License (https://creativecommons.org/licenses/). Consult https://pcmdi.llnl.gov/CMIP6/TermsOfUse for terms of use governing CMIP6 output, including citation requirements and proper acknowledgment. Further information about this data, including some limitations, can be found via the further_info_url (recorded as a global attribute in this file)[ and at <some URL maintained by modeling group>]. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
+mip_era = CMIP6
+nominal_resolution = 100 km 
+#  parent_activity_id 
+#  parent_experiment_id
+parent_mip_era = 
+parent_source_id = 
+parent_time_units = 
+#  parent_variant_label
+#  physics_index 
+product = model-output
+#  realization_index 
+realm = 
+references = Gent P. R., et.al. 2011, The Community Climate System Model version 4. J. Climate, doi:10.1175/2011JCLI4083.1
+source = CESM2 (2017): atmosphere: CAM5 (cam5_4, FV1L26); ocean: POP (pop2_1, 2x3L15); sea_ice: CICE5; land: CLM4.5
+source_id = CESM2
+#  source_type
+#  sub_experiment
+#  sub_experiment_id
+table_id = 
+#  title 
+tracking_id =
+variable_id = 
+#  variant_info
+#  variant_label
+
+netcdf_type = NETCDF4 
+compression = 2
+shuffle = on
+
+

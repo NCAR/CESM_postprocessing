@@ -1,0 +1,12 @@
+"agesno=UNAVAILABLE"
+"hfdsn=FGR"
+"lwsnl=SNOWLIQ no change"
+"pflw=UNAVAILABLE"
+"sbl=would be QFLX_SUB_SNOW"
+"snc=FSNO, mulitply by 100 to get percentage"
+"snd=SNOWDP unchanged"
+"snm=QMELT, unit change from mm s-1 to kg m-2 s-1, same numerical value"(where (indat2a /= var_info(var_found(1,1))%missing_value), else 0)
+"snw=H2OSNO, unit change from mm to kg m-2, same numerical value"
+"sootsn=SNOBCMSL + SNODSTMSL + SNOOCMSL"
+"tpf=UNAVAILABLE"
+"tsn=would be SNOTTOPL"

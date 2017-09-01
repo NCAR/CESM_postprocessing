@@ -1,0 +1,22 @@
+clt = CLDTOT
+hfls = LHFLX
+hfss = SHFLX
+huss = QREFHT
+lat = lat
+lat_bnds = bounds(lat, endpoints=0)
+lon = lon
+lon_bnds = bounds(lon)
+pr = PRECC + PRECL
+prc = PRECC
+prsn = PRECSC + PRECSL
+ps = PS
+rlds = FLDS
+rldscs = FLDSC
+rlus = FLDS + FLNS
+rsds = FSDS
+rsdscs = FSDSC
+rsus = FSDS - FSNS
+rsuscs = FSDSC - FSNSC
+tas = TREFHT
+time = mean(time, "tbnd")
+time_bnds = time_bnds

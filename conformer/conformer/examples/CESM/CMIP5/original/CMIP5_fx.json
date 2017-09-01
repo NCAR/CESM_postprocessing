@@ -1,0 +1,13 @@
+"areacella=AREA"
+"areacello=TAREA convert cm2 to m2"
+"basin=REGION_MASK"
+"deptho=HT convert cm to m"
+"hfgeou=Always set to zero in POP namelist"
+"mrsofc=WATSAT"
+"orog=Divide PHIS by g where LANDFRAC ne zero" (where (landfrac .ne. 0)->phis/shr_const_g, shr_const_g  = 9.80616)
+"rootd=UNKNOWN"
+"sftgif=PCT_GLACIER"
+"sftlf=LANDFRAC no change"
+"sftof=0 where KMT = 0, 100 elsewhere"
+"thkcello=dz at each gridcell"
+"volcello=TAREA times dz, convert cm3 to m3"
