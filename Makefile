@@ -24,6 +24,8 @@ SUBDIRS = \
 	reshaper \
 	averager \
 	timeseries \
+        conformer \
+        conform \
 	diagnostics \
 	ilamb \
 

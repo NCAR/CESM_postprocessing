@@ -5,6 +5,7 @@
   <machine name="yellowstone" hostname="yslogin">
     <!-- restricting to geyser for CMIP6 and problem with scaling of the chunking -->
     <timeseries_pes queue="geyser" pes_per_node="4" wallclock="02:00">32</timeseries_pes>
+    <xconform_pes queue="geyser" pes_per_node="4" wallclock="06:00">32</xconform_pes>
     <mpi_command>mpirun.lsf</mpi_command>
     <pythonpath>/glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/lib/python2.7/site-packages</pythonpath>
     <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
@@ -31,6 +32,7 @@
       <module>module load nco/4.4.4</module>
       <module>module load netcdf4python/1.2.4</module>
       <module>module load ncl/6.4.0</module>
+      <module>module load pyngl</module>
     </modules>
     <components>
       <component name="atm">
@@ -60,6 +62,7 @@
 
   <machine name="cheyenne" hostname="cheyenne">
     <timeseries_pes queue="regular" nodes="2" pes_per_node="36" wallclock="00:30:00">72</timeseries_pes>
+    <xconform_pes queue="regular" nodes="2" pes_per_node="36" wallclock="06:00:00">72</xconform_pes>
     <mpi_command>mpiexec_mpt dplace -s 1</mpi_command>
     <pythonpath></pythonpath>
     <f2py fcompiler="gfortran" f77exec="/glade/u/apps/ch/opt/gnu/6.2.0/bin/gfortran" 
@@ -116,6 +119,7 @@
 <!-- TODO - Edison settings need to be updated -->
   <machine name="edison" hostname="edison">
     <timeseries_pes queue="regular" wallclock="02:00">144</timeseries_pes>
+    <xconform_pes queue="regular" wallclock="06:00">144</xconform_pes>
     <mpi_command>aprun -n {{ pes }}</mpi_command>
     <pythonpath>/global/project/projectdirs/ccsm1/pythonlib/lib/python2.7/site-packages/PyNIO</pythonpath>
     <f2py fcompiler="intelem" f77exec="/opt/intel/composer_xe_2015.1.133/bin/intel64/ifort">f2py</f2py>

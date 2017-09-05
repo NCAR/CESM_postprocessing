@@ -260,6 +260,7 @@ using the create_postprocess --caseroot [caseroot] script. These tools include:
     [lnd,atm]_regrid
     [component]_diagnostics
     env_diags_[component].xml
+    env_conform.xml
 
 **********************************************************************************************"
 print_result $status "$info"
