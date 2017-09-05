@@ -305,6 +305,10 @@ def main(options, scomm, rank, size, debug, debugMsg):
             completechunk = 1
         else:
             completechunk = 0
+        # setting completechunk to always be false (0) so we avoid the situation
+        # where TIMESERIES_COMPLETECHUNK is changed between case resubmissions
+        completechunk = 0
+
         specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir, 
                                         case, options.standalone, completechunk, generate_all,
                                         debug, debugMsg)
