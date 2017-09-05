@@ -1,0 +1,15 @@
+{
+    "branch_method": "hybrid",
+    "branch_time_in_child": "365.0D0",
+    "branch_time_in_parent": "365.0D0",
+    "experiment_id": "historical",
+    "parent_activity_id": "CMIP",
+    "parent_experiment_id": "piControl",
+    "parent_variant_label": "r1i1p1",
+    "source_type": "AOGCM",
+    "sub_experiment": "none",
+    "sub_experiment_id": "none",
+    "variant_info": " ",
+    "variant_label": "r15i10p3f2"
+}
+

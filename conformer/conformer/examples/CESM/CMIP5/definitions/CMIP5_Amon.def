@@ -1,0 +1,64 @@
+a = hyam
+a_bnds = bounds(hyam)
+b = hybm
+b_bnds = bounds(hybm)
+ch4 = vinth2p(CH4, hyam, hybm, plev, PS, P0)
+ci = chunits(FREQZM, units="1")
+cl = chunits(CLOUD, units="%")
+cli = CLDICE
+clivi = TGCLDIWP
+clt = chunits(CLDTOT, units="1")
+clw = CLDLIQ
+clwvi = TGCLDLWP
+co2 = vinth2p(CO2, hyam, hybm, plev, PS, P0) * (28.966/44.0)
+evspsbl = QFLX
+hfls = up(LHFLX)
+hfss = up(SHFLX)
+hur = vinth2p(RELHUM, hyam, hybm, plev, PS, P0)
+hurs = chunits(RHREFHT, units="%")
+hus = vinth2p(Q, hyam, hybm, plev, PS, P0)
+huss = QREFHT
+lat = lat
+lat_bnds = bounds(lat, endpoints=0)
+lev = lev
+lev_bnds = bounds(lev)
+lon = lon
+lon_bnds = bounds(lon)
+mc = up(CMFMC + CMFMCDZM)
+n2o = vinth2p(N2O, hyam, hybm, plev, PS, P0)
+p0 = P0
+pr = chunits(PRECC + PRECL, units="kg m-2 s-1")
+prc = chunits(PRECC, units="kg m-2 s-1")
+prsn = chunits(PRECSC + PRECSL, units="kg m-2 s-1")
+prw = TMQ
+ps = PS
+psl = PSL
+rlds = down(FLDS)
+rldscs = down(FLDSC)
+rlus = up(FLDS + FLNS)
+rlut = up(FSNTOA-FSNT+FLNT)
+rlutcs = up(FLUTC)
+rsds = down(FSDS)
+rsdscs = down(FSDSC)
+rsdt = down(SOLIN)
+rsus = up(FSDS - FSNS)
+rsuscs = up(FSDSC - FSNSC)
+rsut = up(SOLIN - FSNTOA)
+rsutcs = up(SOLIN - FSNTOAC)
+rtmt = down(FSNT - FLNT)
+sci = chunits(FREQSH, units="1")
+sfcWind = U10
+ta = vinth2p(T, hyam, hybm, plev, PS, P0)
+tas = TREFHT
+tasmax = TREFMXAV
+tasmin = TREFMNAV
+tauu = up(TAUX)
+tauv = up(TAUY)
+time = chunits(mean(time_bnds, "tbnd"), units=time)
+time_bnds = time_bnds
+tro3 = vinth2p(O3, hyam, hybm, plev, PS, P0)
+ts = TS
+ua = vinth2p(U, hyam, hybm, plev, PS, P0)
+va = vinth2p(V, hyam, hybm, plev, PS, P0)
+wap = vinth2p(OMEGA, hyam, hybm, plev, PS, P0)
+zg = vinth2p(Z3, hyam, hybm, plev, PS, P0)

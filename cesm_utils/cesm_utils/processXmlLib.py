@@ -80,10 +80,15 @@ class PostProcessingXML_v1(PostProcessingXML):
         env_file = '{0}/env_postprocess.xml'.format(envDict['PP_CASE_PATH'])
 
         if len(comp) > 0:
-            # a component name was included in the entry_id so update env_diags_[comp].xml
-            config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
-            template_file = 'env_diags.tmpl'
-            env_file = '{0}/env_diags_{1}.xml'.format(envDict['PP_CASE_PATH'], comp)
+            if 'con' in comp:
+                config_file = '{0}/Config/config_conform.xml'.format(envDict['POSTPROCESS_PATH'])
+                template_file = 'env_postprocess.tmpl'
+                env_file = '{0}/env_conform.xml'.format(envDict['PP_CASE_PATH'])
+            else:
+                # a component name was included in the entry_id so update env_diags_[comp].xml
+                config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
+                template_file = 'env_diags.tmpl'
+                env_file = '{0}/env_diags_{1}.xml'.format(envDict['PP_CASE_PATH'], comp)
 
         # write out the correct file
         self.write_env_file(envDict, config_file, template_file, env_file, comp, new_entry_id, new_entry_value)
@@ -120,7 +125,7 @@ class PostProcessingXML_v1(PostProcessingXML):
         rc, err_msg = cesmEnvLib.checkFile(envFile, 'write')
         if not rc:
             raise OSError(err_msg)
-
+         
         # read in the original env file
         orig_xml_tree = etree.ElementTree()
         orig_xml_tree.parse(envFile)
@@ -163,7 +168,7 @@ class PostProcessingXML_v1(PostProcessingXML):
         # add an additional entry for machine dependent input
         # observation files root path
         xml_list = list()
-        if len(comp) > 0:
+        if len(comp) > 0 and 'con' not in comp:
             if 'DIAGOBSROOT' in new_entry_id:
                 xml_obs = XmlEntry('{0}DIAG_DIAGOBSROOT'.format(comp.upper()), 
                                    new_entry_value, 

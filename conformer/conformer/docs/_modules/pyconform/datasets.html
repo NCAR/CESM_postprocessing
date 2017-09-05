@@ -1,0 +1,1066 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyconform.datasets &mdash; PyConform 0.2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="PyConform 0.2.2 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PyConform
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">PyConform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../manual.html">The PyConform User’s Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyconform.html">The PyConform Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">PyConform ChangeLog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">Product License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyConform</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyconform.datasets</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyconform.datasets</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">DatasetDesc Interface Class</span>
+
+<span class="sd">This file contains the interface classes to the input and output multi-file</span>
+<span class="sd">datasets.</span>
+
+<span class="sd">Copyright 2017, University Corporation for Atmospheric Research</span>
+<span class="sd">LICENSE: See the LICENSE.rst file for details</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">linesep</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">exists</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">dtype</span>
+<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="k">import</span> <span class="n">Dataset</span> <span class="k">as</span> <span class="n">NC4Dataset</span>
+<span class="kn">from</span> <span class="nn">cf_units</span> <span class="k">import</span> <span class="n">Unit</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">pyconform.physarray</span> <span class="k">import</span> <span class="n">PhysArray</span>
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># DefinitionWarning</span>
+<span class="c1">#===================================================================================================</span>
+<div class="viewcode-block" id="DefinitionWarning"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.DefinitionWarning">[docs]</a><span class="k">class</span> <span class="nc">DefinitionWarning</span><span class="p">(</span><span class="ne">Warning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Warning to indicate that a variable definition might be bad&quot;&quot;&quot;</span></div>
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># _group_by_name_</span>
+<span class="c1">#===================================================================================================</span>
+<span class="k">def</span> <span class="nf">_group_by_name_</span><span class="p">(</span><span class="o">*</span><span class="n">descs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a dictionary of the objects elements, grouped by name</span>
+<span class="sd">    </span>
+<span class="sd">    This is a simple group-by implementation for the Desc objects, used when making the</span>
+<span class="sd">    objects unique by name.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        descs: A list of Desc objects (with a &#39;name&#39; attribute)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grp</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">descs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">desc</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">grp</span><span class="p">:</span>
+            <span class="n">grp</span><span class="p">[</span><span class="n">desc</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">grp</span><span class="p">[</span><span class="n">desc</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">desc</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">grp</span>
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># _is_list_of_type_</span>
+<span class="c1">#===================================================================================================</span>
+<span class="k">def</span> <span class="nf">_is_list_of_type_</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">typ</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check that an object is a list/tuple of a given type</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        obj:  A list or tuple of objects</span>
+<span class="sd">        typ:  The type of objects that should be in the list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">typ</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">])</span>
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># DimensionDesc</span>
+<span class="c1">#===================================================================================================</span>
+<div class="viewcode-block" id="DimensionDesc"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.DimensionDesc">[docs]</a><span class="k">class</span> <span class="nc">DimensionDesc</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Descriptor for a dimension in a DatasetDesc</span>
+<span class="sd">    </span>
+<span class="sd">    Contains the name of the dimensions, its size, and whether the dimension is limited or</span>
+<span class="sd">    unlimited.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unlimited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stringlen</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializer</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            name (str): Dimension name</span>
+<span class="sd">            size (int): Dimension size</span>
+<span class="sd">            unlimited (bool): Whether the dimension is unlimited or not</span>
+<span class="sd">            stringlen (bool): Whether the dimension represents a string length or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unlimited</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">unlimited</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stringlen</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">stringlen</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Name of the dimension&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Numeric size of the dimension (if set)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unlimited</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Boolean indicating whether the dimension is unlimited or not&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unlimited</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stringlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Boolean indicating whether the dimension represents a string length or not&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stringlen</span>
+
+<div class="viewcode-block" id="DimensionDesc.is_set"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.DimensionDesc.is_set">[docs]</a>    <span class="k">def</span> <span class="nf">is_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return True if the dimension size and unlimited status is set, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DimensionDesc.unset"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.DimensionDesc.unset">[docs]</a>    <span class="k">def</span> <span class="nf">unset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unset the dimension&#39;s size and unlimited status</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unlimited</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="DimensionDesc.set"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.DimensionDesc.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the size and unlimited status from another DimensionDesc</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            dd (DimensionDesc): The DimensionDesc from which to set the size and unlimited status</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dd</span><span class="p">,</span> <span class="n">DimensionDesc</span><span class="p">):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Cannot set dimension </span><span class="si">{!r}</span><span class="s1"> from object of type </span><span class="si">{!r}</span><span class="s1">, needs to be a &#39;</span>
+                       <span class="s1">&#39;DimensionDesc.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">dd</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unlimited</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">unlimited</span></div>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DimensionDesc</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unlimited</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">unlimited</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{!r}</span><span class="s1"> [</span><span class="si">{}{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="s1">&#39;+&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unlimited</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DimensionDesc.unique"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.DimensionDesc.unique">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">unique</span><span class="p">(</span><span class="n">descs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a mapping of names to unique DimensionDescs</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            descs: A list of DimensionDesc objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ugrp</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">DimensionDesc</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">descs</span><span class="p">]):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;All arguments to unique must be DimensionDesc objects: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">descs</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+        <span class="n">grp</span> <span class="o">=</span> <span class="n">_group_by_name_</span><span class="p">(</span><span class="o">*</span><span class="n">descs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ndescs</span> <span class="ow">in</span> <span class="n">grp</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">setdescs</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ndescs</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">is_set</span><span class="p">()]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">setdescs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ugrp</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">setdescs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">ugrp</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">setdescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">d</span> <span class="o">==</span> <span class="n">setdescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">setdescs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]):</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Multiple DimensionDescs of same name but different settings: &#39;</span>
+                               <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">setdescs</span><span class="p">]))</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+                <span class="n">ugrp</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">setdescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ugrp</span></div></div>
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># VariableDesc</span>
+<span class="c1">#===================================================================================================</span>
+<div class="viewcode-block" id="VariableDesc"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.VariableDesc">[docs]</a><span class="k">class</span> <span class="nc">VariableDesc</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Descriptor for a variable in a dataset</span>
+<span class="sd">    </span>
+<span class="sd">    Contains the variable name, string datatype, dimensions tuple, attributes dictionary,</span>
+<span class="sd">    and a string definition (how to construct the data for the variable) or data array (if</span>
+<span class="sd">    the data is contained in the variable declaration).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Elemental NetCDF datatypes</span>
+    <span class="n">_NTYPES_</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;byte&#39;</span><span class="p">,</span> <span class="s1">&#39;ubyte&#39;</span><span class="p">,</span> <span class="s1">&#39;char&#39;</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">,</span> <span class="s1">&#39;ushort&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;uint&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;uint64&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;real&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">)</span>
+    <span class="n">_DTYPES_</span> <span class="o">=</span> <span class="p">(</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;u1&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;S1&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;i2&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;u2&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;i4&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;u4&#39;</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;i8&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;u8&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;f4&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;f4&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;f8&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(),</span> <span class="n">definition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializer</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            name (str): Name of the variable</span>
+<span class="sd">            datatype (str): NetCDF datatype or NumPy dtype of the variable data</span>
+<span class="sd">            dimensions (tuple): Tuple of DimensionDesc objects for the variable</span>
+<span class="sd">            definition: String or data definition of variable</span>
+<span class="sd">            attributes (dict): Dictionary of variable attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datatype</span><span class="p">,</span> <span class="n">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="n">datatype</span> <span class="ow">in</span> <span class="n">VariableDesc</span><span class="o">.</span><span class="n">_NTYPES_</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ntype</span> <span class="o">=</span> <span class="n">datatype</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">VariableDesc</span><span class="o">.</span><span class="n">_DTYPES_</span><span class="p">[</span><span class="n">VariableDesc</span><span class="o">.</span><span class="n">_NTYPES_</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">datatype</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datatype</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="ow">and</span> <span class="n">datatype</span> <span class="ow">in</span> <span class="n">VariableDesc</span><span class="o">.</span><span class="n">_DTYPES_</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ntype</span> <span class="o">=</span> <span class="n">VariableDesc</span><span class="o">.</span><span class="n">_NTYPES_</span><span class="p">[</span><span class="n">VariableDesc</span><span class="o">.</span><span class="n">_DTYPES_</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">datatype</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">datatype</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Invalid variable datatype </span><span class="si">{}</span><span class="s1"> for variable </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">datatype</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="o">=</span> <span class="n">definition</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_list_of_type_</span><span class="p">(</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">DimensionDesc</span><span class="p">):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Dimensions for variable </span><span class="si">{!r}</span><span class="s1"> must be a list or tuple of type &#39;</span>
+                       <span class="s1">&#39;DimensionDesc&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span> <span class="o">=</span> <span class="n">DimensionDesc</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Attributes for variable </span><span class="si">{!r}</span><span class="s1"> not dict&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="n">attributes</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Name of the variable&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">datatype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String datatype of the variable&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ntype</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;NumPy dtype of the variable data&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Variable attributes dictionary&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary of dimension descriptors for dimensions on which the variable depends&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary of file descriptors for files containing this variable&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">VariableDesc</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datatype</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">datatype</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">strvals</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Variable: </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span>
+        <span class="n">strvals</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;   datatype: </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datatype</span><span class="p">)]</span>
+        <span class="n">strvals</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;   dimensions: </span><span class="si">{!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">definition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">strvals</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;   definition: </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">definition</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">strvals</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;   attributes:&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">aname</span><span class="p">,</span> <span class="n">avalue</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">strvals</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;      </span><span class="si">{}</span><span class="s1">: </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">aname</span><span class="p">,</span> <span class="n">avalue</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">strvals</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;   files:&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+                <span class="n">strvals</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;      </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">linesep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">strvals</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VariableDesc.units"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.VariableDesc.units">[docs]</a>    <span class="k">def</span> <span class="nf">units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve the units attribute, if it exists, otherwise 1&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;units&#39;</span><span class="p">,</span> <span class="s1">&#39;no unit&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VariableDesc.calendar"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.VariableDesc.calendar">[docs]</a>    <span class="k">def</span> <span class="nf">calendar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve the calendar attribute, if it exists, otherwise None&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;calendar&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VariableDesc.cfunits"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.VariableDesc.cfunits">[docs]</a>    <span class="k">def</span> <span class="nf">cfunits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a cf_units.Unit object from the units/calendar attributes&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Unit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">(),</span> <span class="n">calendar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">calendar</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="VariableDesc.unique"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.VariableDesc.unique">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">unique</span><span class="p">(</span><span class="n">descs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a mapping of names to unique VariableDescs</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            descs: A list of VariableDesc objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">VariableDesc</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">descs</span><span class="p">]):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;All arguments to unique must be VariableDesc objects: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">descs</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+        <span class="n">ugrp</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ndescs</span> <span class="ow">in</span> <span class="n">_group_by_name_</span><span class="p">(</span><span class="o">*</span><span class="n">descs</span><span class="p">)</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ndescs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;No VariableDesc objects found with given name </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ndescs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">ugrp</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">d</span> <span class="o">==</span> <span class="n">ndescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ndescs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]):</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Multiple VariableDescs of same name but different settings: &#39;</span>
+                               <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ndescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+                <span class="n">ugrp</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ugrp</span></div></div>
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># FileDesc</span>
+<span class="c1">#===================================================================================================</span>
+<div class="viewcode-block" id="FileDesc"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.FileDesc">[docs]</a><span class="k">class</span> <span class="nc">FileDesc</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class describing the contents of a single dataset file</span>
+<span class="sd">    </span>
+<span class="sd">    In simplest terms, the FileDesc contains the header information for a single NetCDF file.  It</span>
+<span class="sd">    contains the name of the file, the type of the file, a dictionary of global attributes in the</span>
+<span class="sd">    file, a dict of DimensionDesc objects, and a dict of VariableDesc objects. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;NETCDF4_CLASSIC&#39;</span><span class="p">,</span> <span class="n">deflate</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">(),</span> <span class="n">attributes</span><span class="o">=</span><span class="p">{}):</span>  <span class="c1"># @ReservedAssignment</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializer</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            name (str): String name of the file (i.e., a path name or file name)</span>
+<span class="sd">            fmt (str):  String defining the NetCDF file format (one of &#39;NETCDF4&#39;,</span>
+<span class="sd">                &#39;NETCDF4_CLASSIC&#39;, &#39;NETCDF3_CLASSIC&#39;, &#39;NETCDF3_64BIT_OFFSET&#39; or </span>
+<span class="sd">                &#39;NETCDF3_64BIT_DATA&#39;)</span>
+<span class="sd">            deflate (int): Level of lossless compression to use in all variables within the file (0-9)</span>
+<span class="sd">            variables (tuple):  Tuple of VariableDesc objects describing the file variables            </span>
+<span class="sd">            attributes (dict):  Dict of global attributes in the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="nb">format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;NETCDF4&#39;</span><span class="p">,</span> <span class="s1">&#39;NETCDF4_CLASSIC&#39;</span><span class="p">,</span> <span class="s1">&#39;NETCDF3_CLASSIC&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;NETCDF3_64BIT_OFFSET&#39;</span><span class="p">,</span> <span class="s1">&#39;NETCDF3_64BIT_DATA&#39;</span><span class="p">,</span> <span class="s1">&#39;NETCDF3_64BIT&#39;</span><span class="p">):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;NetCDF file format </span><span class="si">{!r}</span><span class="s1"> unrecognized in file </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format</span> <span class="o">=</span> <span class="nb">format</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">deflate</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Deflate value must be an integer, not </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">deflate</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">deflate</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">deflate</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Deflate value must be in the range 0-9, not </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">deflate</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_deflate</span> <span class="o">=</span> <span class="n">deflate</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_list_of_type_</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">VariableDesc</span><span class="p">):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Variables in file </span><span class="si">{!r}</span><span class="s1"> must be a list or tuple of type &#39;</span>
+                       <span class="s1">&#39;VariableDesc&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+        <span class="n">dimensions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">vdesc</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="n">dimensions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span> <span class="o">=</span> <span class="n">DimensionDesc</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">vdesc</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+                <span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span> <span class="o">=</span> <span class="n">VariableDesc</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">vdesc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+            <span class="n">vdesc</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Attributes in file </span><span class="si">{!r}</span><span class="s1"> cannot be of type </span><span class="si">{!r}</span><span class="s1">, needs to be a &#39;</span>
+                       <span class="s1">&#39;dict&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">attributes</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="n">attributes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Name of the file&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+<div class="viewcode-block" id="FileDesc.exists"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.FileDesc.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether the file exists or not&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Format of the file&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">deflate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deflate level for variables in the file&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deflate</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary of global attributes of the file&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary of dimension descriptors associated with the file&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary of variable descriptors associated with the file&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">FileDesc</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FileDesc.unique"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.FileDesc.unique">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">unique</span><span class="p">(</span><span class="n">descs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a mapping of names to unique FileDescs</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            descs: A list of FileDesc objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">FileDesc</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">descs</span><span class="p">]):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;All arguments to unique must be FileDesc objects: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">descs</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+        <span class="n">ugrp</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ndescs</span> <span class="ow">in</span> <span class="n">_group_by_name_</span><span class="p">(</span><span class="o">*</span><span class="n">descs</span><span class="p">)</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ndescs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;No FileDesc objects found with given name </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ndescs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">ugrp</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">d</span> <span class="o">==</span> <span class="n">ndescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ndescs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]):</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Multiple FileDesc of same name but different settings: &#39;</span>
+                               <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ndescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+                <span class="n">ugrp</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndescs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ugrp</span></div></div>
+
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># DatasetDesc</span>
+<span class="c1">#===================================================================================================</span>
+<div class="viewcode-block" id="DatasetDesc"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.DatasetDesc">[docs]</a><span class="k">class</span> <span class="nc">DatasetDesc</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class describing a self-consistent set of dimensions and variables in one or more files</span>
+<span class="sd">    </span>
+<span class="sd">    In simplest terms, a single NetCDF file is a dataset.  Hence, the DatasetDesc object can be</span>
+<span class="sd">    viewed as a simple container for the header information of a NetCDF file.  However, the</span>
+<span class="sd">    DatasetDesc can span multiple files, as long as dimensions and variables are consistent across</span>
+<span class="sd">    all of the files in the DatasetDesc.</span>
+<span class="sd">    </span>
+<span class="sd">    Self-consistency is defined as:</span>
+<span class="sd">        1. Dimensions with names that appear in multiple files must all have the same size and</span>
+<span class="sd">           limited/unlimited status, and</span>
+<span class="sd">        2. Variables with names that appear in multiple files must have the same datatype and</span>
+<span class="sd">           dimensions, and they must refer to the same data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializer</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            name (str): String name to optionally give to a dataset</span>
+<span class="sd">            files (tuple): Tuple of FileDesc objects contained in the dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_list_of_type_</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">FileDesc</span><span class="p">):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;File descriptors in DatasetDesc </span><span class="si">{!r}</span><span class="s1"> must be a list or tuple of type &#39;</span>
+                       <span class="s1">&#39;FileDesc&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+        <span class="n">dimensions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fdesc</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">dimensions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">fdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span> <span class="o">=</span> <span class="n">DimensionDesc</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">fdesc</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">fdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+                <span class="n">fdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">vdesc</span> <span class="ow">in</span> <span class="n">fdesc</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+                    <span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span>
+
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fdesc</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">variables</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">fdesc</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span> <span class="o">=</span> <span class="n">VariableDesc</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">fdesc</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">fdesc</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                <span class="n">fdesc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="o">=</span> <span class="n">FileDesc</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">fdesc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">vdesc</span> <span class="ow">in</span> <span class="n">fdesc</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+                <span class="n">vdesc</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdesc</span>     
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Name of the dataset (optional)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dicitonary of dimension descriptors contained in the dataset&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary of variable descriptors contained in the dataset&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary of file descriptors contained in the dataset&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span></div>
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># InputDatasetDesc</span>
+<span class="c1">#===================================================================================================</span>
+<div class="viewcode-block" id="InputDatasetDesc"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.InputDatasetDesc">[docs]</a><span class="k">class</span> <span class="nc">InputDatasetDesc</span><span class="p">(</span><span class="n">DatasetDesc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DatasetDesc that can be used as input (i.e., can be read from file)</span>
+<span class="sd">    </span>
+<span class="sd">    The InputDatasetDesc is a kind of DatasetDesc where all of the DatasetDesc information is read from </span>
+<span class="sd">    the headers of existing NetCDF files.  The files must be self-consistent according to the</span>
+<span class="sd">    standard DatasetDesc definition.</span>
+<span class="sd">    </span>
+<span class="sd">    Variables in an InputDatasetDesc must have unset &quot;definition&quot; parameters, and the &quot;filenames&quot;</span>
+<span class="sd">    parameter will contain the names of files from which the variable data can be read.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="n">filenames</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializer</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            name (str): String name to optionally give to a dataset</span>
+<span class="sd">            filenames (list): List of filenames in the dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Loop over all of the input filenames</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">NC4Dataset</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">ncfile</span><span class="p">:</span>
+
+                <span class="c1"># Get file format</span>
+                <span class="n">ffmt</span> <span class="o">=</span> <span class="n">ncfile</span><span class="o">.</span><span class="n">file_format</span>
+
+                <span class="c1"># Get global attributes</span>
+                <span class="n">fattrs</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">aname</span> <span class="ow">in</span> <span class="n">ncfile</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">():</span>
+                    <span class="n">fattrs</span><span class="p">[</span><span class="n">aname</span><span class="p">]</span> <span class="o">=</span> <span class="n">ncfile</span><span class="o">.</span><span class="n">getncattr</span><span class="p">(</span><span class="n">aname</span><span class="p">)</span>
+
+                <span class="c1"># Parse variables and their dimensions</span>
+                <span class="n">fvars</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">fdims</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">vname</span><span class="p">,</span> <span class="n">vobj</span> <span class="ow">in</span> <span class="n">ncfile</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+
+                    <span class="n">vattrs</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">vattr</span> <span class="ow">in</span> <span class="n">vobj</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">():</span>
+                        <span class="n">vattrs</span><span class="p">[</span><span class="n">vattr</span><span class="p">]</span> <span class="o">=</span> <span class="n">vobj</span><span class="o">.</span><span class="n">getncattr</span><span class="p">(</span><span class="n">vattr</span><span class="p">)</span>
+
+                    <span class="k">for</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">vobj</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">dname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fdims</span><span class="p">:</span>
+                            <span class="n">dobj</span> <span class="o">=</span> <span class="n">ncfile</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span>
+                            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dobj</span><span class="p">)</span>
+                            <span class="n">unlimited</span> <span class="o">=</span> <span class="n">dobj</span><span class="o">.</span><span class="n">isunlimited</span><span class="p">()</span>
+                            <span class="n">slen</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">dname</span> <span class="o">==</span> <span class="n">vobj</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">vobj</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;S1&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+                            <span class="n">fdims</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span> <span class="o">=</span> <span class="n">DimensionDesc</span><span class="p">(</span><span class="n">dname</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">unlimited</span><span class="o">=</span><span class="n">unlimited</span><span class="p">,</span> <span class="n">stringlen</span><span class="o">=</span><span class="n">slen</span><span class="p">)</span>
+
+                    <span class="n">vdims</span> <span class="o">=</span> <span class="p">[</span><span class="n">fdims</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span> <span class="k">for</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">vobj</span><span class="o">.</span><span class="n">dimensions</span><span class="p">]</span>
+
+                    <span class="n">fvars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">VariableDesc</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="n">vobj</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="n">vdims</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="n">vattrs</span><span class="p">))</span>
+
+                <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FileDesc</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">ffmt</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="n">fattrs</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">fvars</span><span class="p">))</span>
+
+        <span class="c1"># Call the base class initializer to check self-consistency</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">InputDatasetDesc</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span></div>
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># OutputDatasetDesc</span>
+<span class="c1">#===================================================================================================</span>
+<div class="viewcode-block" id="OutputDatasetDesc"><a class="viewcode-back" href="../../datasets.html#pyconform.datasets.OutputDatasetDesc">[docs]</a><span class="k">class</span> <span class="nc">OutputDatasetDesc</span><span class="p">(</span><span class="n">DatasetDesc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DatasetDesc that can be used for output (i.e., to be written to files)</span>
+<span class="sd">    </span>
+<span class="sd">    The OutputDatasetDesc contains all of the header information needed to write a DatasetDesc to</span>
+<span class="sd">    files.  Unlike the InputDatasetDesc, it is not assumed that all of the variable and dimension</span>
+<span class="sd">    information can be found in existing files.  Instead, the OutputDatasetDesc contains a minimal</span>
+<span class="sd">    subset of the output file headers, and information about how to construct the variable data</span>
+<span class="sd">    and dimensions by using the &#39;definition&#39; parameter of the variables.</span>
+
+<span class="sd">    The information to define an OutputDatasetDesc must be specified as a nested dictionary,</span>
+<span class="sd">    where the first level of the dictionary are unique names of variables in the dataset.  Each</span>
+<span class="sd">    named variable defines another nested dictionary.</span>
+<span class="sd">    </span>
+<span class="sd">    Each &#39;variable&#39; dictionary is assued to contain the following:</span>
+<span class="sd">        1. &#39;attributes&#39;: A dictionary of the variable&#39;s attributes</span>
+<span class="sd">        2. &#39;datatype&#39;: A string specifying the type of the variable&#39;s data</span>
+<span class="sd">        3. &#39;dimensions&#39;: A tuple of names of dimensions upon which the variable depends</span>
+<span class="sd">        4. &#39;definition&#39;: Either a string mathematical expression representing how to construct</span>
+<span class="sd">            the variable&#39;s data from input variables or functions, or an array declaring the actual</span>
+<span class="sd">            data from which to construct the variable</span>
+<span class="sd">        5. &#39;file&#39;: A dictionary containing a string &#39;filename&#39;, a string &#39;format&#39; (which can be</span>
+<span class="sd">            one of &#39;NETCDF4&#39;, &#39;NETCDF4_CLASSIC&#39;, &#39;NETCDF3_CLASSIC&#39;, &#39;NETCDF3_64BIT_OFFSET&#39; or </span>
+<span class="sd">            &#39;NETCDF3_64BIT_DATA&#39;), a dictionary of &#39;attributes&#39;, and a list of &#39;metavars&#39; specifying</span>
+<span class="sd">            the names of other variables that should be added to the file, in addition to obvious</span>
+<span class="sd">            metadata variables and the variable containing the &#39;file&#39; section.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_NC_TYPES_</span> <span class="o">=</span> <span class="p">{</span><span class="mi">3</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;byte&#39;</span><span class="p">,</span> <span class="s1">&#39;char&#39;</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">],</span>
+                  <span class="mi">4</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;byte&#39;</span><span class="p">,</span> <span class="s1">&#39;char&#39;</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">,</span> <span class="s1">&#39;ushort&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;uint&#39;</span><span class="p">,</span> <span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;uint64&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;real&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">]}</span>
+    <span class="n">_NC_FORMATS_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;NETCDF4&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;NETCDF4_CLASSIC&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;NETCDF3_CLASSIC&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                    <span class="s1">&#39;NETCDF3_64BIT_OFFSET&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;NETCDF3_64BIT_DATA&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;NETCDF3_64BIT&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">dsdict</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializer</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            name (str): String name to optionally give to a dataset</span>
+<span class="sd">            dsdict (dict): Dictionary describing the dataset variables</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Initialize a dictionary of file sections</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Look over all variables in the dataset dictionary</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">metavars</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">vname</span><span class="p">,</span> <span class="n">vdict</span> <span class="ow">in</span> <span class="n">dsdict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">vkwds</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="c1"># Get the variable attributes, if they are defined</span>
+            <span class="k">if</span> <span class="s1">&#39;attributes&#39;</span> <span class="ow">in</span> <span class="n">vdict</span><span class="p">:</span>
+                <span class="n">vkwds</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vdict</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Get the datatype of the variable, otherwise defaults to VariableDesc default</span>
+            <span class="n">vkwds</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;float&#39;</span>
+            <span class="k">if</span> <span class="s1">&#39;datatype&#39;</span> <span class="ow">in</span> <span class="n">vdict</span><span class="p">:</span>
+                <span class="n">vkwds</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vdict</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Get either the &#39;definition&#39; (string definition or data) of the variables</span>
+            <span class="n">def_wrn</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">if</span> <span class="s1">&#39;definition&#39;</span> <span class="ow">in</span> <span class="n">vdict</span><span class="p">:</span>
+                <span class="n">vdef</span> <span class="o">=</span> <span class="n">vdict</span><span class="p">[</span><span class="s1">&#39;definition&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vdef</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vdef</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">vshape</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">def_wrn</span> <span class="o">=</span> <span class="s1">&#39;Empty definition for output variable </span><span class="si">{!r}</span><span class="s1"> in dataset </span><span class="si">{!r}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">vshape</span> <span class="o">=</span> <span class="n">PhysArray</span><span class="p">(</span><span class="n">vdef</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
+                <span class="n">vkwds</span><span class="p">[</span><span class="s1">&#39;definition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vdef</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">def_wrn</span> <span class="o">=</span> <span class="s1">&#39;No definition given for output variable </span><span class="si">{!r}</span><span class="s1"> in dataset </span><span class="si">{!r}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">def_wrn</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> Skipping output variable </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">def_wrn</span><span class="p">,</span> <span class="n">vname</span><span class="p">),</span> <span class="n">DefinitionWarning</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Get the dimensions of the variable (REQUIRED)</span>
+            <span class="k">if</span> <span class="s1">&#39;dimensions&#39;</span> <span class="ow">in</span> <span class="n">vdict</span><span class="p">:</span>
+                <span class="n">vdims</span> <span class="o">=</span> <span class="n">vdict</span><span class="p">[</span><span class="s1">&#39;dimensions&#39;</span><span class="p">]</span>
+                <span class="n">sldim</span> <span class="o">=</span> <span class="n">vdims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">vkwds</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;char&#39;</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">vshape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">vkwds</span><span class="p">[</span><span class="s1">&#39;dimensions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">DimensionDesc</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">stringlen</span><span class="o">=</span><span class="p">(</span><span class="n">sldim</span><span class="o">==</span><span class="n">d</span><span class="p">))</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">vdims</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">vkwds</span><span class="p">[</span><span class="s1">&#39;dimensions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">DimensionDesc</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">stringlen</span><span class="o">=</span><span class="p">(</span><span class="n">sldim</span><span class="o">==</span><span class="n">d</span><span class="p">))</span> <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vdims</span><span class="p">,</span> <span class="n">vshape</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;Dimensions are required for variable </span><span class="si">{!r}</span><span class="s1"> in dataset </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+            <span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">VariableDesc</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="o">**</span><span class="n">vkwds</span><span class="p">)</span>
+
+            <span class="c1"># Parse the file section (if present)</span>
+            <span class="k">if</span> <span class="s1">&#39;file&#39;</span> <span class="ow">in</span> <span class="n">vdict</span><span class="p">:</span>
+                <span class="n">fdict</span> <span class="o">=</span> <span class="n">vdict</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="s1">&#39;filename&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fdict</span><span class="p">:</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Filename is required in file section of variable </span><span class="si">{!r}</span><span class="s1"> in dataset &#39;</span>
+                               <span class="s1">&#39;</span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+                <span class="n">fname</span> <span class="o">=</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Variable </span><span class="si">{!r}</span><span class="s1"> in dataset </span><span class="si">{!r}</span><span class="s1"> claims to own file &#39;</span>
+                               <span class="s1">&#39;</span><span class="si">{!r}</span><span class="s1">, but this file is already owned by variable &#39;</span>
+                               <span class="s1">&#39;</span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">][</span><span class="s1">&#39;variables&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+                <span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+                <span class="k">if</span> <span class="s1">&#39;format&#39;</span> <span class="ow">in</span> <span class="n">fdict</span><span class="p">:</span>
+                    <span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">][</span><span class="s1">&#39;format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">]</span>
+                
+                <span class="k">if</span> <span class="s1">&#39;deflate&#39;</span> <span class="ow">in</span> <span class="n">fdict</span><span class="p">:</span>
+                    <span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">][</span><span class="s1">&#39;deflate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;deflate&#39;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="s1">&#39;attributes&#39;</span> <span class="ow">in</span> <span class="n">fdict</span><span class="p">:</span>
+                    <span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span>
+
+                <span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">][</span><span class="s1">&#39;variables&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="s1">&#39;metavars&#39;</span> <span class="ow">in</span> <span class="n">fdict</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">mvname</span> <span class="ow">in</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;metavars&#39;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">mvname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">][</span><span class="s1">&#39;variables&#39;</span><span class="p">]:</span>
+                            <span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">][</span><span class="s1">&#39;variables&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mvname</span><span class="p">)</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">metavars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vname</span><span class="p">)</span>
+
+        <span class="c1"># Loop through all character type variables and get the </span>
+        <span class="c1"># Loop through all found files and create the file descriptors</span>
+        <span class="n">filedescs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">fdict</span> <span class="ow">in</span> <span class="n">files</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+
+            <span class="c1"># Get the variable descriptors for each variable required to be in the file</span>
+            <span class="n">vlist</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">vname</span><span class="p">,</span> <span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">])</span> <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;variables&#39;</span><span class="p">]])</span>
+
+            <span class="c1"># Get the unique list of dimension names for required by these variables</span>
+            <span class="n">fdims</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">vlist</span><span class="p">:</span>
+                <span class="n">vdesc</span> <span class="o">=</span> <span class="n">vlist</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+                    <span class="n">fdims</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dname</span><span class="p">)</span>
+
+            <span class="c1"># Loop through all the variable names identified as metadata (i.e., no &#39;file&#39;)</span>
+            <span class="k">for</span> <span class="n">mvname</span> <span class="ow">in</span> <span class="n">metavars</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">mvname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;variables&#39;</span><span class="p">]:</span>
+                    <span class="n">vdesc</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="n">mvname</span><span class="p">]</span>
+
+                    <span class="c1"># Include this variable in the file only if all of its dimensions are included</span>
+                    <span class="c1"># (Scalar variables are excluded and must be included as metadata explicitly)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">fdims</span><span class="p">):</span>
+                        <span class="n">vlist</span><span class="p">[</span><span class="n">mvname</span><span class="p">]</span> <span class="o">=</span> <span class="n">vdesc</span>
+            
+            <span class="c1"># Loop through the current list of variables and check for any &quot;bounds&quot; or &quot;coordinates&quot; attributes</span>
+            <span class="n">mvnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">vlist</span><span class="p">:</span>
+                <span class="n">vdesc</span> <span class="o">=</span> <span class="n">vlist</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;bounds&#39;</span> <span class="ow">in</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
+                    <span class="n">mvname</span> <span class="o">=</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;bounds&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">mvname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Variable </span><span class="si">{}</span><span class="s1"> references a bounds variable </span><span class="si">{}</span><span class="s1"> that is not &#39;</span>
+                                          <span class="s1">&#39;found&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mvname</span><span class="p">))</span>
+                    <span class="n">mvnames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">mvname</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;coordinates&#39;</span> <span class="ow">in</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">mvname</span> <span class="ow">in</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">mvname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Variable </span><span class="si">{}</span><span class="s1"> references a coordinates variable </span><span class="si">{}</span><span class="s1"> that is not &#39;</span>
+                                              <span class="s1">&#39;found&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mvname</span><span class="p">))</span>
+                        <span class="n">mvnames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">mvname</span><span class="p">)</span>
+            
+            <span class="c1"># Add the bounds and coordinates to the list of variables</span>
+            <span class="k">for</span> <span class="n">mvname</span> <span class="ow">in</span> <span class="n">mvnames</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">mvname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vlist</span><span class="p">:</span>
+                    <span class="n">vlist</span><span class="p">[</span><span class="n">mvname</span><span class="p">]</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="n">mvname</span><span class="p">]</span>
+
+            <span class="c1"># Create the file descriptor</span>
+            <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;variables&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">vlist</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">vlist</span><span class="p">]</span>
+            <span class="n">fdesc</span> <span class="o">=</span> <span class="n">FileDesc</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="o">**</span><span class="n">fdict</span><span class="p">)</span>
+            
+            <span class="c1"># Validate the variable types for the file descriptor</span>
+            <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">vlist</span><span class="p">:</span>
+                <span class="n">vdesc</span> <span class="o">=</span> <span class="n">vlist</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+                <span class="n">vdtype</span> <span class="o">=</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">datatype</span>
+                <span class="n">fformat</span> <span class="o">=</span> <span class="n">fdesc</span><span class="o">.</span><span class="n">format</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">OutputDatasetDesc</span><span class="o">.</span><span class="n">_validate_netcdf_type_</span><span class="p">(</span><span class="n">vdtype</span><span class="p">,</span> <span class="n">fformat</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">vname</span> <span class="o">=</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">name</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;File </span><span class="si">{!r}</span><span class="s1"> of format </span><span class="si">{!r}</span><span class="s1"> cannot write variable </span><span class="si">{!r}</span><span class="s1"> with &#39;</span>
+                                      <span class="s1">&#39;datatype </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">fformat</span><span class="p">,</span> <span class="n">vname</span><span class="p">,</span> <span class="n">vdtype</span><span class="p">))</span>
+                
+            <span class="c1"># Append the validated file descriptor to the list</span>
+            <span class="n">filedescs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fdesc</span><span class="p">)</span>
+                             
+        <span class="c1"># Call the base class to run self-consistency checks</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OutputDatasetDesc</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">filedescs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_validate_netcdf_type_</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if a given type is valid for the given file format</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            t (str): The string-type to check</span>
+<span class="sd">            f (str): The file format of the file in whi</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">OutputDatasetDesc</span><span class="o">.</span><span class="n">_NC_FORMATS_</span><span class="p">:</span>
+            <span class="n">NC_VER</span> <span class="o">=</span> <span class="n">OutputDatasetDesc</span><span class="o">.</span><span class="n">_NC_FORMATS_</span><span class="p">[</span><span class="n">f</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unrecognized NetCDF file format </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OutputDatasetDesc</span><span class="o">.</span><span class="n">_NC_TYPES_</span><span class="p">[</span><span class="n">NC_VER</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Data type </span><span class="si">{!r}</span><span class="s1"> unrecognized in NetCDF file format </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University Corporation for Atmospheric Research.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.2.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

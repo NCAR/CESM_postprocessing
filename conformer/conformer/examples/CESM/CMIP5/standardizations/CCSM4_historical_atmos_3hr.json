@@ -1,0 +1,1175 @@
+{
+    "a": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: a(k)",
+            "bounds": "a_bnds"
+        }, 
+        "datatype": "float64", 
+        "definition": "hyam", 
+        "dimensions": [
+            "lev"
+        ]
+    }, 
+    "a_bnds": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: a(k+1/2)"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(hyam, bdim=\"tbnd\", idata=hyai)", 
+        "dimensions": [
+            "lev", 
+            "bnds"
+        ]
+    }, 
+    "b": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: b(k)",
+            "bounds": "b_bnds"
+        }, 
+        "datatype": "float64", 
+        "definition": "hybm", 
+        "dimensions": [
+            "lev"
+        ]
+    }, 
+    "b_bnds": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: b(k+1/2)"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(hybm, bdim=\"tbnd\", idata=hybi)",
+        "dimensions": [
+            "lev", 
+            "bnds"
+        ]
+    }, 
+    "clt": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: mean (interval: 3 hours)", 
+            "comment": "CLDTOT unit conversion, CMIP5_table_comment: for the whole atmospheric column, as seen from the surface or the top of the atmosphere. Include both large-scale and convective cloud.  This is a 3-hour mean.", 
+            "history": "2017-04-03T21:51:50Z altered by CMOR: Converted units from '1' to '%'. 2017-04-03T21:51:50Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Total Cloud Fraction", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "CLDTOT", 
+            "original_units": "1", 
+            "standard_name": "cloud_area_fraction", 
+            "units": "%"
+        }, 
+        "datatype": "float32", 
+        "definition": "chunits(CLDTOT, units=\"1\")", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-03T21:52:06Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-03T21:52:06Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -155150.941", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "1149757f-28b4-4de3-b688-d46957d4d69d"
+            }, 
+            "filename": "clt_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "height": {
+        "attributes": {
+            "axis": "Z", 
+            "long_name": "height", 
+            "positive": "up", 
+            "standard_name": "height", 
+            "units": "m"
+        }, 
+        "datatype": "float64", 
+        "definition": 2.0, 
+        "dimensions": []
+    }, 
+    "hfls": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: mean (interval: 3 hours)", 
+            "comment": "LHFLX no change, CMIP5_table_comment: This is the 3-hour mean flux.", 
+            "history": "2017-04-03T22:13:14Z altered by CMOR: Converted units from 'W/m2' to 'W m-2'. 2017-04-03T22:13:14Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Surface Upward Latent Heat Flux", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "LHFLX", 
+            "original_units": "W/m2", 
+            "standard_name": "surface_upward_latent_heat_flux", 
+            "units": "W m-2"
+        }, 
+        "datatype": "float32", 
+        "definition": "up(LHFLX)", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-03T22:13:27Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-03T22:13:27Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -161314.576", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "4892a802-7752-4642-8afa-63ca111952d8"
+            }, 
+            "filename": "hfls_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "hfss": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: mean (interval: 3 hours)", 
+            "comment": "SHFLX no change, CMIP5_table_comment: This is the 3-hour mean flux.", 
+            "history": "2017-04-03T22:34:22Z altered by CMOR: Converted units from 'W/m2' to 'W m-2'. 2017-04-03T22:34:22Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Surface Upward Sensible Heat Flux", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "SHFLX", 
+            "original_units": "W/m2", 
+            "standard_name": "surface_upward_sensible_heat_flux", 
+            "units": "W m-2"
+        }, 
+        "datatype": "float32", 
+        "definition": "up(SHFLX)", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-03T22:34:33Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-03T22:34:33Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -163422.280", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "0a1fe380-6ae1-46da-ad6e-616bc237dd37"
+            }, 
+            "filename": "hfss_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "huss": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: point (interval: 3 hours)", 
+            "comment": "QREFHT no change, CMIP5_table_comment: This is sampled synoptically.", 
+            "coordinates": "height", 
+            "history": "2017-04-03T22:56:33Z altered by CMOR: Converted units from 'kg/kg' to '1'. 2017-04-03T22:56:33Z altered by CMOR: Treated scalar dimension: 'height'. 2017-04-03T22:56:33Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Near-Surface Specific Humidity", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "QREFHT", 
+            "original_units": "kg/kg", 
+            "standard_name": "specific_humidity", 
+            "units": "1"
+        }, 
+        "datatype": "float32", 
+        "definition": "QREFHT", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-03T22:56:45Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-03T22:56:45Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -165633.894", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "b6dea610-dd40-4cd1-9d67-3ec2b75ab1ee"
+            }, 
+            "filename": "huss_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "ilev": {
+        "attributes": {
+            "axis": "Z", 
+            "bounds": "ilev_bnds",
+            "direction": "decreasing",
+            "long_name": "hybrid sigma pressure coordinate at intermediate levels", 
+            "positive": "down", 
+            "standard_name": "atmosphere_hybrid_sigma_pressure_coordinate", 
+            "units": "1"
+        }, 
+        "datatype": "float64", 
+        "definition": "ilev * 0.001", 
+        "dimensions": [
+            "ilev"
+        ]
+    }, 
+    "ilev_bnds": {
+        "attributes": {
+            "standard_name": "atmosphere_hybrid_sigma_pressure_coordinate", 
+            "units": "1"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(ilev * 0.001, bdim=\"tbnd\", idata=lev * 0.001)", 
+        "dimensions": [
+            "ilev", 
+            "bnds"
+        ]
+    }, 
+    "lat": {
+        "attributes": {
+            "axis": "Y", 
+            "bounds": "lat_bnds", 
+            "long_name": "latitude", 
+            "standard_name": "latitude", 
+            "units": "degrees_north"
+        }, 
+        "datatype": "float64", 
+        "definition": "lat", 
+        "dimensions": [
+            "lat"
+        ]
+    }, 
+    "lat_bnds": {
+        "attributes": {
+            "units": "degrees_north"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(lat, bdim=\"tbnd\", endpoints=0)", 
+        "dimensions": [
+            "lat", 
+            "bnds"
+        ]
+    }, 
+    "lev": {
+        "attributes": {
+            "axis": "Z", 
+            "bounds": "lev_bnds", 
+            "direction": "decreasing",
+            "formula": "p = a*p0 + b*ps", 
+            "formula_terms": "p0: p0 a: a b: b ps: ps", 
+            "long_name": "hybrid sigma pressure coordinate", 
+            "positive": "down", 
+            "standard_name": "atmosphere_hybrid_sigma_pressure_coordinate", 
+            "units": "1"
+        }, 
+        "datatype": "float64", 
+        "definition": "lev * 0.001", 
+        "dimensions": [
+            "lev"
+        ]
+    }, 
+    "lev_bnds": {
+        "attributes": {
+            "formula": "p = a*p0 + b*ps", 
+            "formula_terms": "p0: p0 a: a_bnds b: b_bnds ps: ps", 
+            "standard_name": "atmosphere_hybrid_sigma_pressure_coordinate", 
+            "units": "1"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(lev * 0.001, bdim=\"tbnd\", idata=ilev*0.001)", 
+        "dimensions": [
+            "lev", 
+            "bnds"
+        ]
+    }, 
+    "lon": {
+        "attributes": {
+            "axis": "X", 
+            "bounds": "lon_bnds", 
+            "long_name": "longitude", 
+            "standard_name": "longitude", 
+            "units": "degrees_east"
+        }, 
+        "datatype": "float64", 
+        "definition": "lon", 
+        "dimensions": [
+            "lon"
+        ]
+    }, 
+    "lon_bnds": {
+        "attributes": {
+             "units": "degrees_east"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(lon, bdim=\"tbnd\")", 
+        "dimensions": [
+            "lon", 
+            "bnds"
+        ]
+    }, 
+    "p0": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: reference pressure", 
+            "units": "Pa"
+        }, 
+        "datatype": "float32", 
+        "definition": "P0", 
+        "dimensions": []
+    }, 
+    "plev": {
+        "attributes": {
+            "axis": "Z", 
+            "long_name": "pressure", 
+            "positive": "down", 
+            "standard_name": "air_pressure", 
+            "units": "Pa"
+        }, 
+        "datatype": "float64", 
+        "definition": [
+            100000, 
+            92500, 
+            85000, 
+            70000, 
+            60000, 
+            50000, 
+            40000, 
+            30000, 
+            25000, 
+            20000, 
+            15000, 
+            10000, 
+            7000, 
+            5000, 
+            3000, 
+            2000, 
+            1000
+        ], 
+        "dimensions": [
+            "plev"
+        ]
+    }, 
+    "pr": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time:mean (interval: 3 hours)", 
+            "comment": "PRECC + PRECL and unit conversion, CMIP5_table_comment: at surface; includes both liquid and solid phases.  This is the 3-hour mean precipitation flux.", 
+            "history": "2017-04-03T23:19:52Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Precipitation", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "PRECC,PRECL", 
+            "standard_name": "precipitation_flux", 
+            "units": "kg m-2 s-1"
+        }, 
+        "datatype": "float32", 
+        "definition": "chunits(1000*(PRECC + PRECL), units=\"kg m-2 s-1\")", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-03T23:20:02Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-03T23:20:02Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -171952.627", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "936519c2-62bd-4f4c-8344-d5f8d68d52f2"
+            }, 
+            "filename": "pr_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "prc": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time:mean (interval: 3 hours)", 
+            "comment": "PRECC unit conversion, CMIP5_table_comment: at surface.  This is a 3-hour mean convective precipitation flux.", 
+            "history": "2017-04-03T23:43:28Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Convective Precipitation", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "PRECC", 
+            "standard_name": "convective_precipitation_flux", 
+            "units": "kg m-2 s-1"
+        }, 
+        "datatype": "float32", 
+        "definition": "chunits(1000*(PRECC), units=\"kg m-2 s-1\")", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-03T23:43:39Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-03T23:43:39Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -174328.853", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "f7df425f-da9d-4d70-94b5-223c2c691252"
+            }, 
+            "filename": "prc_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "prsn": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time:mean (interval: 3 hours)", 
+            "comment": "PRECSC + PRECSL and unit conversion, CMIP5_table_comment: at surface.  Includes precipitation of all forms water in the solid phase.  This is the 3-hour mean snowfall flux.", 
+            "history": "2017-04-04T00:04:39Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Snowfall Flux", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "PRECSC,PRECSL", 
+            "standard_name": "snowfall_flux", 
+            "units": "kg m-2 s-1"
+        }, 
+        "datatype": "float32", 
+        "definition": "chunits(1000*(PRECSC + PRECSL), units=\"kg m-2 s-1\")", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-04T00:04:50Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-04T00:04:50Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -180439.905", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "483509cc-1eac-4732-9a0e-9cf2011d7e12"
+            }, 
+            "filename": "prsn_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "ps": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: point (interval: 3 hours)", 
+            "comment": "PS no change, CMIP5_table_comment: sampled synoptically to diagnose atmospheric tides, this is better than mean sea level pressure.", 
+            "history": "2017-04-04T00:28:07Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Surface Air Pressure", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "PS", 
+            "standard_name": "surface_air_pressure", 
+            "units": "Pa"
+        }, 
+        "datatype": "float32", 
+        "definition": "PS", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-04T00:28:18Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-04T00:28:18Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -182807.034", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "fe8c57d9-5e42-40ff-b322-e8d5e21417c8"
+            }, 
+            "filename": "ps_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "rlds": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: mean (interval: 3 hours)", 
+            "comment": "FLDS no change, CMIP5_table_comment: This is the 3-hour mean flux.", 
+            "history": "2017-04-04T00:48:18Z altered by CMOR: Converted units from 'W/m2' to 'W m-2'. 2017-04-04T00:48:18Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Surface Downwelling Longwave Radiation", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "FLDS", 
+            "original_units": "W/m2", 
+            "standard_name": "surface_downwelling_longwave_flux_in_air", 
+            "units": "W m-2"
+        }, 
+        "datatype": "float32", 
+        "definition": "down(FLDS)", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-04T00:48:29Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-04T00:48:29Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -184818.107", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "e0a95437-0c4c-4d4e-ab5d-ce2dab5d4d98"
+            }, 
+            "filename": "rlds_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "rldscs": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: mean (interval: 3 hours)", 
+            "comment": "FLDSC no change, CMIP5_table_comment: This is a 3-hour mean flux.", 
+            "history": "2017-04-04T01:12:17Z altered by CMOR: Converted units from 'W/m2' to 'W m-2'. 2017-04-04T01:12:17Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Surface Downwelling Clear-Sky Longwave Radiation", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "FLDSC", 
+            "original_units": "W/m2", 
+            "standard_name": "surface_downwelling_longwave_flux_in_air_assuming_clear_sky", 
+            "units": "W m-2"
+        }, 
+        "datatype": "float32", 
+        "definition": "down(FLDSC)", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-04T01:12:28Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-04T01:12:28Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -191217.497", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "c333d270-3ac4-4d9a-bbac-6634b6a4dafa"
+            }, 
+            "filename": "rldscs_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "rlus": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: mean (interval: 3 hours)", 
+            "comment": "FLDS + FLNS, CMIP5_table_comment: This is the 3-hour mean flux.", 
+            "history": "2017-04-04T01:35:26Z altered by CMOR: Converted units from 'W/m2' to 'W m-2'. 2017-04-04T01:35:26Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Surface Upwelling Longwave Radiation", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "FLDS,FLNS", 
+            "original_units": "W/m2", 
+            "standard_name": "surface_upwelling_longwave_flux_in_air", 
+            "units": "W m-2"
+        }, 
+        "datatype": "float32", 
+        "definition": "up(FLDS + FLNS)", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-04T01:35:37Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-04T01:35:37Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -193526.025", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "32e85cea-2d1f-4643-b4eb-013a83c7a858"
+            }, 
+            "filename": "rlus_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "rsds": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: mean (interval: 3 hours)", 
+            "comment": "FSDS no change, CMIP5_table_comment: This is the 3-hour mean flux.", 
+            "history": "2017-04-04T01:59:58Z altered by CMOR: Converted units from 'W/m2' to 'W m-2'. 2017-04-04T01:59:58Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Surface Downwelling Shortwave Radiation", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "FSDS", 
+            "original_units": "W/m2", 
+            "standard_name": "surface_downwelling_shortwave_flux_in_air", 
+            "units": "W m-2"
+        }, 
+        "datatype": "float32", 
+        "definition": "down(FSDS)", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-04T02:00:11Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-04T02:00:11Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -195958.857", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "b480552d-0991-43e2-b977-2bbaf72e6034"
+            }, 
+            "filename": "rsds_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "rsdscs": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: mean (interval: 3 hours)", 
+            "comment": "FSDSC no change, CMIP5_table_comment: This is a 3-hour mean flux.", 
+            "history": "2017-04-04T02:21:09Z altered by CMOR: Converted units from 'W/m2' to 'W m-2'. 2017-04-04T02:21:09Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Surface Downwelling Clear-Sky Shortwave Radiation", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "FSDSC", 
+            "original_units": "W/m2", 
+            "standard_name": "surface_downwelling_shortwave_flux_in_air_assuming_clear_sky", 
+            "units": "W m-2"
+        }, 
+        "datatype": "float32", 
+        "definition": "down(FSDSC)", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-04T02:21:20Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-04T02:21:20Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -202109.108", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "2f99275b-618f-4f40-8df7-1c4596021fcd"
+            }, 
+            "filename": "rsdscs_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "rsus": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: mean (interval: 3 hours)", 
+            "comment": "FSDS - FSNS, CMIP5_table_comment: This is the 3-hour mean flux.", 
+            "history": "2017-04-04T02:42:18Z altered by CMOR: Converted units from 'W/m2' to 'W m-2'. 2017-04-04T02:42:18Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Surface Upwelling Shortwave Radiation", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "FSDS,FSNS", 
+            "original_units": "W/m2", 
+            "standard_name": "surface_upwelling_shortwave_flux_in_air", 
+            "units": "W m-2"
+        }, 
+        "datatype": "float32", 
+        "definition": "up(FSDS - FSNS)", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-04T02:42:29Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-04T02:42:29Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -204218.656", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "0b04327a-75aa-4eaf-a9ad-cdad111e8831"
+            }, 
+            "filename": "rsus_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "tas": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20, 
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc", 
+            "cell_measures": "area: areacella", 
+            "cell_methods": "time: point (interval: 3 hours)", 
+            "comment": "TREFHT no change, CMIP5_table_comment: This is sampled synoptically.", 
+            "coordinates": "height", 
+            "history": "2017-04-04T03:06:56Z altered by CMOR: Treated scalar dimension: 'height'. 2017-04-04T03:06:56Z altered by CMOR: replaced missing value flag (-1e+32) with standard missing value (1e+20).", 
+            "long_name": "Near-Surface Air Temperature", 
+            "missing_value": 1.0000000200408773e+20, 
+            "original_name": "TREFHT", 
+            "standard_name": "air_temperature", 
+            "units": "K"
+        }, 
+        "datatype": "float32", 
+        "definition": "TREFHT", 
+        "dimensions": [
+            "time", 
+            "lat", 
+            "lon"
+        ], 
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4", 
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.", 
+                "branch_time": 953.0, 
+                "cesm_casename": "b40.20th.track1.1deg.012", 
+                "cesm_compset": "B20TRCN", 
+                "cesm_repotag": "ccsm4_0_beta53", 
+                "cmor_version": "2.9.1", 
+                "comment": "CESM home page: http://www.cesm.ucar.edu", 
+                "contact": "cesm_data@ucar.edu", 
+                "creation_date": "2017-04-04T03:07:08Z", 
+                "experiment": "historical", 
+                "experiment_id": "historical", 
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU", 
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information", 
+                "frequency": "3hr", 
+                "history": "2017-04-04T03:07:08Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.", 
+                "initialization_method": 1, 
+                "institute_id": "NCAR", 
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA", 
+                "model_id": "CCSM4", 
+                "modeling_realm": "atmos", 
+                "parent_experiment": "pre-industrial control", 
+                "parent_experiment_id": "piControl", 
+                "parent_experiment_rip": "r1i1p1", 
+                "physics_version": 1, 
+                "processed_by": "kpaul on pronghorn06 at 20170403  -210656.003", 
+                "product": "output", 
+                "project_id": "CMIP5", 
+                "realization": 6, 
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1", 
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)", 
+                "source": "CCSM4", 
+                "table_id": "Table 3hr (17 July 2013) 09fc6805844997a47b81e14e64eed4d3", 
+                "title": "CCSM4 model output prepared for CMIP5 historical", 
+                "tracking_id": "b9d7a74a-5f21-46a2-984d-f4bae57183cd"
+            }, 
+            "filename": "tas_3hr_CCSM4_historical_r6i1p1_YYYYMM.nc"
+        }
+    }, 
+    "time": {
+        "attributes": {
+            "axis": "T", 
+            "bounds": "time_bnds", 
+            "calendar": "noleap", 
+            "long_name": "time", 
+            "standard_name": "time", 
+            "units": "days since 1850-01-01 00:00:00"
+        }, 
+        "datatype": "float64", 
+        "definition": "chunits(mean(time_bnds, \"tbnd\"), units=time)", 
+        "dimensions": [
+            "time"
+        ]
+    }, 
+    "time_bnds": {
+        "attributes": {}, 
+        "datatype": "float64", 
+        "definition": "time_bnds", 
+        "dimensions": [
+            "time", 
+            "bnds"
+        ]
+    }
+}
