@@ -71,11 +71,14 @@
       <libs>-L/glade/u/apps/ch/opt/netcdf/4.4.1.1/intel/16.0.3/lib -lnetcdff -lnetcdf</libs>
     </za>
     <reset_modules>
-      <module>module restore system</module>
+      <module>module purge</module>
+      <module>module load ncarenv/1.2</module>
+      <module>module load intel/17.0.1</module>
+      <module>module load ncarcompilers/0.4.1</module>
+      <module>module load mpt/2.15f</module>
       <module>module load python/2.7.13</module>
     </reset_modules>
     <modules>
-      <module>module load python/2.7.13</module>
       <module>module load numpy/1.12.0</module>
       <module>module load scipy/0.18.1</module>
       <module>module load mpi4py/2.0.0-mpt</module>

@@ -4,7 +4,12 @@ echo "Python boot-strap modules for machine cheyenne"
 . /glade/u/apps/ch/opt/lmod/7.2.1/lmod/lmod/init/bash
 
 ## Order is important!
-module restore system
+##module restore system
+module purge
+module load ncarenv/1.2
+module load intel/17.0.1
+module load ncarcompilers/0.4.1
+module load mpt/2.15f
 module load python/2.7.13
 module load numpy/1.12.0
 module load scipy/0.18.1
@@ -13,7 +18,7 @@ module load netcdf/4.4.1.1
 module load pynio/1.4.1
 module load matplotlib/2.0.0
 module load nco/4.6.2
-module load ncl/6.3.0
+module load ncl/6.4.0
 module load netcdf4-python/1.2.7
 module load cf_units/1.1.3
 
