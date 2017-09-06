@@ -1,0 +1,232 @@
+{
+    "a": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: a(k)",
+            "bounds": "a_bnds"
+        }, 
+        "datatype": "float64", 
+        "definition": "hyam", 
+        "dimensions": [
+            "lev"
+        ]
+    }, 
+    "a_bnds": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: a(k+1/2)"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(hyam, bdim=\"nbnd\", idata=hyai)", 
+        "dimensions": [
+            "lev", 
+            "bnds"
+        ]
+    }, 
+    "b": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: b(k)",
+            "bounds": "b_bnds"
+        }, 
+        "datatype": "float64", 
+        "definition": "hybm", 
+        "dimensions": [
+            "lev"
+        ]
+    }, 
+    "b_bnds": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: b(k+1/2)"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(hybm, bdim=\"nbnd\", idata=hybi)",
+        "dimensions": [
+            "lev", 
+            "bnds"
+        ]
+    }, 
+    "ilev": {
+        "attributes": {
+            "axis": "Z", 
+            "bounds": "ilev_bnds",
+            "direction": "decreasing",
+            "long_name": "hybrid sigma pressure coordinate at intermediate levels", 
+            "positive": "down", 
+            "standard_name": "atmosphere_hybrid_sigma_pressure_coordinate", 
+            "units": "hPa"
+        }, 
+        "datatype": "float64", 
+        "definition": "ilev * 0.001", 
+        "dimensions": [
+            "ilev"
+        ]
+    }, 
+    "ilev_bnds": {
+        "attributes": {
+            "standard_name": "atmosphere_hybrid_sigma_pressure_coordinate", 
+            "units": "hPa"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(ilev * 0.001, bdim=\"nbnd\", idata=lev * 0.001)", 
+        "dimensions": [
+            "ilev", 
+            "bnds"
+        ]
+    }, 
+    "lat": {
+        "attributes": {
+            "axis": "Y", 
+            "bounds": "lat_bnds", 
+            "long_name": "latitude", 
+            "standard_name": "latitude", 
+            "units": "degrees_north"
+        }, 
+        "datatype": "float64", 
+        "definition": "lat", 
+        "dimensions": [
+            "lat"
+        ]
+    }, 
+    "lat_bnds": {
+        "attributes": {
+            "units": "degrees_north"
+        },
+        "datatype": "float64", 
+        "definition": "bounds(lat, bdim=\"nbnd\", endpoints=0)", 
+        "dimensions": [
+            "lat", 
+            "bnds"
+        ]
+    },
+    "lev": {
+        "attributes": {
+            "axis": "Z", 
+            "bounds": "lev_bnds", 
+            "direction": "decreasing",
+            "formula": "p = a*p0 + b*ps", 
+            "formula_terms": "p0: p0 a: a b: b ps: ps", 
+            "long_name": "hybrid sigma pressure coordinate", 
+            "positive": "down", 
+            "standard_name": "atmosphere_hybrid_sigma_pressure_coordinate", 
+            "units": "hPa"
+        }, 
+        "datatype": "float64", 
+        "definition": "lev * 0.001", 
+        "dimensions": [
+            "lev"
+        ]
+    }, 
+    "lev_bnds": {
+        "attributes": {
+            "formula": "p = a*p0 + b*ps", 
+            "formula_terms": "p0: p0 a: a_bnds b: b_bnds ps: ps", 
+            "standard_name": "atmosphere_hybrid_sigma_pressure_coordinate", 
+            "units": "hPa"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(lev * 0.001, bdim=\"nbnd\", idata=ilev*0.001)", 
+        "dimensions": [
+            "lev", 
+            "bnds"
+        ]
+    }, 
+    "lon": {
+        "attributes": {
+            "axis": "X", 
+            "bounds": "lon_bnds", 
+            "long_name": "longitude", 
+            "standard_name": "longitude", 
+            "units": "degrees_east"
+        }, 
+        "datatype": "float64", 
+        "definition": "lon", 
+        "dimensions": [
+            "lon"
+        ]
+    }, 
+    "lon_bnds": {
+        "attributes": {
+            "units": "degrees_east"
+        }, 
+        "datatype": "float64", 
+        "definition": "bounds(lon, bdim=\"nbnd\")", 
+        "dimensions": [
+            "lon", 
+            "bnds"
+        ]
+    }, 
+    "p0": {
+        "attributes": {
+            "long_name": "vertical coordinate formula term: reference pressure", 
+            "units": "Pa"
+        }, 
+        "datatype": "float32", 
+        "definition": "P0", 
+        "dimensions": []
+    },
+    "mc": {
+        "attributes": {
+            "_FillValue": 1.0000000200408773e+20,
+            "associated_files": "baseURL: http://cmip-pcmdi.llnl.gov/CMIP5/dataLocation gridspecFile: gridspec_atmos_fx_CCSM4_historical_r0i0p0.nc areacella: areacella_fx_CCSM4_historical_r0i0p0.nc",
+            "cell_measures": "area: areacella",
+            "cell_methods": "time: mean (interval: 30 days)",
+            "comment": "CMFMC + CMFMCDZM on model levels, no change, CMIP5_table_comment: The net mass flux should represent the difference between the updraft and downdraft components.  The flux is computed as the mass divided by the area of the grid cell.",
+            "history": "2017-04-03T19:54:09Z altered by CMOR: Converted units from 'kg/m2/s' to 'kg m-2 s-1'. 2017-04-03T19:55:09Z altered by CMOR: Inverted axis: lev.",
+            "long_name": "Convective Mass Flux",
+            "missing_value": 1.0000000200408773e+20,
+            "original_name": "CMFMC,CMFMCDZM,PS",
+            "original_units": "kg/m2/s",
+            "standard_name": "atmosphere_net_upward_convective_mass_flux",
+            "units": "kg m-2 s-1"
+        },
+        "datatype": "float32",
+        "definition": "up(CMFMC + CMFMCDZM)",
+        "dimensions": [
+            "time",
+            "ilev",
+            "lat",
+            "lon"
+        ],
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.4",
+                "acknowledgements": "The CESM project is supported by the National Science Foundation and the Office of Science (BER) of the U.S. Department of Energy. NCAR is sponsored by the National Science Foundation. Computing resources were provided by the Climate Simulation Laboratory at the NCAR Computational and Information Systems Laboratory (CISL), sponsored by the National Science Foundation and other agencies.",
+                "branch_time": 953.0,
+                "cesm_casename": "b40.20th.track1.1deg.012",
+                "cesm_compset": "B20TRCN",
+                "cesm_repotag": "ccsm4_0_beta53",
+                "cmor_version": "2.9.1",
+                "comment": "CESM home page: http://www.cesm.ucar.edu",
+                "contact": "cesm_data@ucar.edu",
+                "creation_date": "2017-04-03T19:55:09Z",
+                "experiment": "historical",
+                "experiment_id": "historical",
+                "forcing": "Sl GHG Vl SS Ds SD BC MD OC Oz AA LU",
+                "forcing_note": "Additional information on the external forcings used in this experiment can be found at http://www.cesm.ucar.edu/CMIP5/forcing_information",
+                "frequency": "mon",
+                "history": "2017-04-03T19:55:09Z CMOR rewrote data to comply with CF standards and CMIP5 requirements.",
+                "initialization_method": 1,
+                "institute_id": "NCAR",
+                "institution": "NCAR (National Center for Atmospheric Research) Boulder, CO, USA",
+                "model_id": "CCSM4",
+                "modeling_realm": "atmos",
+                "parent_experiment": "pre-industrial control",
+                "parent_experiment_id": "piControl",
+                "parent_experiment_rip": "r1i1p1",
+                "physics_version": 1,
+                "processed_by": "kpaul on pronghorn06 at 20170403  -135409.961",
+                "product": "output",
+                "project_id": "CMIP5",
+                "realization": 6,
+                "references": "Gent P. R., et.al. 2011: The Community Climate System Model version 4. J. Climate, doi: 10.1175/2011JCLI4083.1",
+                "resolution": "f09_g16 (0.9x1.25_gx1v6)",
+                "source": "CCSM4",
+                "table_id": "Table Amon (17 July 2013) 5992a3604d550e2b32d76ba32b8b7278",
+                "title": "CCSM4 model output prepared for CMIP5 historical",
+                "tracking_id": "b840b426-0f20-4893-aeab-5c969fab2dd2"
+            },
+            "filename": "192x288x32.nc",
+            "metavars": ["p0", "a", "b"]
+        }
+    } 
+}
+
+

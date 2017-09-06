@@ -4,6 +4,7 @@ import glob, json, os
 import netCDF4 as nc
 import cf_units
 import datetime
+from asaptools import partition
 
 def num2date(time_value, unit, calendar):
     if ('common_year' in unit):
@@ -26,7 +27,7 @@ def date2num(date, unit, calendar):
     num = cf_units.date2num(date, my_unit, calendar)
     return num/my_conversion
 
-def get_input_dates(glob_str):
+def get_input_dates(glob_str, comm, rank, size):
 
     '''
     Open up all of the files that match the search string and get
@@ -48,15 +49,15 @@ def get_input_dates(glob_str):
     stream_dates = {}
     file_slices = {}
     att = {}
-    print glob_str
 
     if len(stream_files) < 1:
         return stream_dates, file_slices, None, None, None
 
     time_period_freq = None
     first = True
-    for fn in sorted(stream_files):
-        print 'opening ',fn
+    stream_files_l = comm.partition(stream_files,func=partition.EqualLength(),involved=True)
+    for fn in sorted(stream_files_l):
+        print rank,'/',size,' opening ',fn
         # open file and get time dimension
         f = nc.Dataset(fn,"r")    
         all_t = f.variables['time']
@@ -75,15 +76,47 @@ def get_input_dates(glob_str):
 
         # get the time_period_freq global attribute from the first file
         if first:
-            try:
-                time_period_freq = f.getncattr('time_period_freq')
-                print 'time_period_freq = ',time_period_freq
-            except:
-                print 'Global attribute time_period_freq not found - set to XML tseries_tper element'
+            #try:
+            #    time_period_freq = f.getncattr('time_period_freq')
+            #    print 'time_period_freq = ',time_period_freq
+            #except:
+            #    print 'Global attribute time_period_freq not found - set to XML tseries_tper element'
             first = False
         f.close()
 
-    return stream_dates,file_slices,att['calendar'].lower(),att['units'],time_period_freq
+    g_stream_dates = {}
+    g_file_slices = {}
+    if size > 1:
+        T1 = 31
+        T2 = 32 
+        if rank==0:
+            g_stream_dates = stream_dates
+            g_file_slices = file_slices
+            for i in range(0,size-1):
+                r,l_stream_dates = comm.collect(data=None, tag=T1)
+                g_stream_dates.update(l_stream_dates)               
+ 
+                r,l_file_slices = comm.collect(data=None, tag=T2)
+                g_file_slices.update(l_file_slices)
+
+            comm.partition(g_stream_dates, func=partition.Duplicate(), involved=True)
+            comm.partition(g_file_slices, func=partition.Duplicate(), involved=True)
+        else:
+            comm.collect(data=stream_dates, tag=T1) 
+            comm.collect(data=file_slices, tag=T2)
+  
+            g_stream_dates = comm.partition(func=partition.Duplicate(), involved=True)
+            g_file_slices = comm.partition(func=partition.Duplicate(), involved=True)
+        if 'calendar' in att.keys():
+            calendar = att['calendar'] 
+        else:
+            calendar = "noleap"
+        if 'units' in att.keys():
+            units = att['units'] 
+        else:
+            units = "days since 0000-01-01 00:00:00"     
+    comm.sync()
+    return g_stream_dates,g_file_slices,calendar.lower(),units,time_period_freq
 
 def get_cesm_date(fn,t=None):
 
@@ -124,15 +157,9 @@ def get_cesm_date(fn,t=None):
         except:
             d = f.variables['time'][0]    
 
-    print 'after d = ',d
 
 ##    d1 = cf_units.num2date(d,att['units'],att['calendar'].lower())
     d1 = num2date(d,att['units'],att['calendar'].lower())
-
-    print 'd1.year = ',str(d1.year).zfill(4)
-    print 'd1.month = ',str(d1.month).zfill(2)
-    print 'd1.day = ',str(d1.day).zfill(2)
-    print 'd1.hour = ',str(d1.hour).zfill(2)
 
     return [str(d1.year).zfill(4),str(d1.month).zfill(2),str(d1.day).zfill(2),str(d1.hour).zfill(2)]
 
@@ -239,7 +266,6 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s):
                 if fn not in cfiles:
                     cfiles.append(fn) 
                 cdates.append(to_do[i])
-                print 'adding ',fn,to_do[i]
                 i = i + 1
                 # am I passed the dates I have?  If so, exit loop and don't add to list.
                 # these will be converted when more data exists
@@ -248,7 +274,6 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s):
                     if fn not in cfiles:
                         cfiles.append(fn)
                     cdates.append(to_do[i])
-                    print 'adding ',fn,to_do[i]
                     if s==1:
                         print '#################################'
                         print 'Not appending: '

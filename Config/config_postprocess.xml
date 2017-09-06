@@ -238,7 +238,16 @@
 	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the OMWG diagnostics package parallel python wrapper script to generate climatological plots associated with the run job output. See the OMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_ocn.xml file."
-	     ></entry> 
+	     ></entry>
+
+      <entry id="STANDARDIZE_TIMESERIES" 
+             type="logical"
+             valid_values="TRUE,FALSE"  
+             value="FALSE" 
+             group="postprocess"
+             desc="If TRUE, standardize the data.  This option will conform the data to CMIP experiment specifications."
+             ></entry>
+ 
     </group>
 
     <group name="web_options">

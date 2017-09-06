@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+
+<config_definition version="1.0">
+
+  <!-- ======================================================================= -->
+  <!-- env_postprocess.xml                                                     -->
+  <!-- ======================================================================= -->
+
+  <groups>
+    <group name="conform_info">
+      <order>0</order>
+      <comment>Environment variable settings associated with the conform tool.</comment>
+
+      <entry id="CONFORM_GLOBAL_ATTRIBUTES"
+             type="string"
+             valid_values=""  
+             value="/glade/p/cesm/conform-input/cmip6_input/CESM_CMIP6.ga,/glade/p/cesm/conform-input/cmip6_input/db.json"
+             group="conform_info"
+             desc="The full path file name to the global attributes files.  This file contains the attributes that will be added to all files."
+             ></entry>
+
+      <entry id="CONFORM_CESM_DEFINITIONS"
+             type="string"
+             valid_values=""  
+             value="/glade/p/cesm/conform-input/cmip6_input/CESM_MastList.def"
+             group="conform_info"
+             desc="The full path file name to the CESM definitions file.  This file contains the definitions to go from CESM raw output to the standardized variable name."
+             ></entry>
+
+      <entry id="CONFORM_EXP_NAME"
+             type="string"
+             valid_values=""  
+             value=""
+             group="conform_info"
+             desc="The CMIP experiment name to generate the needed input for."
+             ></entry>
+
+      <entry id="CONFORM_JSON_DIRECTORY"
+             type="string"
+             valid_values=""  
+             value="$PP_CASE_PATH"
+             group="conform_info"
+             desc="The directory to create the conform input files into."
+             ></entry>
+
+      <entry id="CONFORM_OUTPUT_DIR"
+             type="string"
+             valid_values=""  
+             value=""
+             group="conform_info"
+             desc="The base directory for the conform output."
+             ></entry>
+
+      <entry id="CONFORM_EXTRA_FIELD_JSON"
+             type="string"
+             valid_values=""  
+             value="/glade/p/cesm/conform-input/extra_field_input/extra_vars.json"
+             group="conform_info"
+             desc="JSON file which contains the variable information for extra fields to add."
+             ></entry>
+
+      <entry id="CONFORM_EXTRA_FIELD_NETCDF_DIR"
+             type="string"
+             valid_values=""  
+             value="/glade/p/cesm/conform-input/extra_field_input/"
+             group="conform_info"
+             desc="The base directory for extra conform input.  This is usually reserved for netcdf files that contain grid information."
+             ></entry>
+    </group>
+  </groups>
+</config_definition>
+      
