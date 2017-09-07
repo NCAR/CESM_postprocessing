@@ -312,10 +312,11 @@ def main(options, scomm, rank, size, debug, debugMsg):
 
         specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir, 
                                         case, options.standalone, completechunk, generate_all,
+                                        debug, debugMsg, scomm, rank, size)
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
-#   specifiers = scomm.partition(specifiers, func=partition.Duplicate(), involved=True)
+    ##   specifiers = scomm.partition(specifiers, func=partition.Duplicate(), involved=True)
     if rank == 0:
         debugMsg("# of Specifiers: "+str(len(specifiers)), header=True, verbosity=1)
 
