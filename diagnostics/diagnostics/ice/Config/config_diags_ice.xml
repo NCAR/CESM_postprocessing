@@ -330,7 +330,7 @@ Applies to both model and control cases."
          valid_values=""
          value=""
          group="date_ranges"
-         desc="Number of years to avg (for contour plots)."
+         desc="Number of years to avg (for contour plots). This uses the last yrs_to_avg years from the BEGYR to ENDYR for both CONT and DIFF."
          ></entry>
 
   </group>
