@@ -51,6 +51,7 @@ setup(
     packages=['conform'],
     version=get_version(),
     scripts=['conform/cesm_conform_generator.py','conform/cesm_conform_initialize.py','conform/cesm_extras'],
+    install_requires=get_requires(),
     include_package_data=True,
     zip_safe=True,
     test_suite="conform.tests",

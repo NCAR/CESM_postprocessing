@@ -78,7 +78,7 @@ def run_initialization(caseroot, debug):
 
     """
     # setup envDict['id'] = 'value' parsed from the CASEROOT/[env_file_list] files
-    env_file_list =  ['env_conform.xml']
+    env_file_list =  ['env_conform.xml','env_postprocess.xml']
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
