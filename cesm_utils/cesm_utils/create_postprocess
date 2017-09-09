@@ -42,7 +42,6 @@ import collections
 import errno
 import os
 import platform
-#import pprint
 from operator import itemgetter
 import re
 import shutil
