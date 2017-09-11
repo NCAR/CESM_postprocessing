@@ -6,7 +6,7 @@ This script is used to generate Specifier object files ("specfiles") that
 can then be run directly from the command-line with the corresponding
 "runs2sspec" tool.
 
-Copyright 2016, University Corporation for Atmospheric Research
+Copyright 2017, University Corporation for Atmospheric Research
 See the LICENSE.rst file for details
 """
 

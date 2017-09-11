@@ -1,0 +1,48 @@
+#! /usr/bin/env bash
+#
+# template to activate the virtualenv, call post process program, deactivate virtualenv
+#
+
+{{ batchdirectives }}
+
+if [ ! -e {{ virtualEnvDir }} ]; then
+    echo "*************************************************************************************"
+    echo "CESM {{ processName }} exiting due to non-existant python virtual environment in"
+    echo "    {{ virtualEnvDir }}"
+    echo "You must first run:"
+    echo "$SRCROOT/postprocessing/create_python_env.sh -machine [machine] -cimeroot [$CIMEROOT]"
+    echo "*************************************************************************************"
+    exit
+fi
+
+{% for module in reset_modules %}
+{{ module }}
+{% endfor %}
+
+source {{virtualEnvDir}}/activate
+
+
+{% for module in modules %}
+{{ module }}
+{% endfor %}
+
+{% if pythonpath|length > 0 %}
+PYTHONPATH={{ pythonpath }}:$PYTHONPATH
+export PYTHONPATH
+{% endif %}
+
+today="$(date '+%Y%m%d-%H%M%S')"
+
+echo "******************************************"
+echo "Start {{ processName }} generation $(date)"
+echo "******************************************"
+
+{{ postProcessCmd }}  --caseroot {{ caseRoot }} >> {{ caseRoot }}/logs/{{ processName }}.log.$today 2>&1
+
+echo "******************************************"
+echo "End {{ processName }} generation $(date)"
+echo "******************************************"
+
+deactivate
+cd {{ caseRoot }}
+

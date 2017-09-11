@@ -18,6 +18,9 @@ globalMeanDay   QDRAI
 globalMeanDay   QINTR
 globalMeanDay   QSOIL
 globalMeanDay   QVEGT
+globalMeanNat   FSH
+globalMeanNat   FSH_TO_COUPLER
+globalMeanNat   FSH_PRECIP_CONVERSION
 globalMeanNat   SOILLIQ
 globalMeanNat   SOILICE
 globalMeanNat   SOILPSI

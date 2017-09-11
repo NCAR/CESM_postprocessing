@@ -21,7 +21,7 @@ Created on April, 2015
 Author: CSEG <cseg@cgd.ucar.edu>
 """
 
-from __future__ import print_function
+#from __future__ import print_function
 
 import sys
 
@@ -43,7 +43,6 @@ import errno
 import itertools
 import os
 import platform
-import pprint
 from operator import itemgetter
 import re
 import shutil
@@ -289,6 +288,16 @@ def read_machine_xml(machineName, xmlFile):
             if 'nodes' in tseries_pes.attrib:
                 machine['timeseries_nodes'] = tseries_pes.get('nodes').lower()
             machine['timeseries_wallclock'] = tseries_pes.get('wallclock').lower()
+
+            # get the conform pes 
+            xconform_pes = xmlmachine.find('xconform_pes')
+            machine['xconform_pes'] = xconform_pes.text
+            machine['conform_queue'] = xconform_pes.get('queue').lower()
+            machine['conform_ppn'] = xconform_pes.get('pes_per_node').lower()
+            machine['conform_nodes'] = ''
+            if 'nodes' in xconform_pes.attrib:
+                machine['conform_nodes'] = xconform_pes.get('nodes').lower()
+            machine['conform_wallclock'] = xconform_pes.get('wallclock').lower()
 
 
             # get the mpi run command
@@ -616,6 +625,13 @@ def main(options):
     env_file = '{0}/env_timeseries.xml'.format(envDict['PP_CASE_PATH'])
     shutil.copy2(config_file, env_file)
 
+    # generate the env_conform.xml file
+    config_file = '{0}/Config/config_conform.xml'.format(envDict['POSTPROCESS_PATH'])
+    env_file = '{0}/env_conform.xml'.format(envDict['PP_CASE_PATH'])
+#    shutil.copy2(config_file, env_file)
+    tmpl_file = 'env_postprocess.tmpl'
+    create_env_file(envDict, config_file, tmpl_file, env_file, '', '', standalone)
+
     # generate the env_diags_[component].xml files
     for comp in itertools.chain(compList, imbList):
         config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
@@ -638,6 +654,28 @@ def main(options):
                  envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'], 
                  machine['timeseries_queue'], machine['timeseries_ppn'], machine['timeseries_nodes'], 
                  machine['timeseries_wallclock'], options, standalone)
+
+    # generate the xconform batch submit script from template files
+    postProcessCmd = 'cesm_conform_generator.py'
+    processName = 'xconform'
+    outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
+    xconform_tmpl = 'xconform.tmpl'
+    create_batch(envDict['POSTPROCESS_PATH'], machine['xconform_pes'], batch_tmpl, xconform_tmpl, postProcessCmd,
+                 machine['mpi_command'], outFile, processName, envDict['PROJECT'], machine['pythonpath'],
+                 envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'],
+                 machine['conform_queue'], machine['conform_ppn'], machine['conform_nodes'],
+                 machine['conform_wallclock'], options, standalone)
+
+    # generate the iconform batch submit script from template files
+    postProcessCmd = 'cesm_conform_initialize.py'
+    processName = 'iconform'
+    outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
+    iconform_tmpl = 'iconform.tmpl'
+    create_batch(envDict['POSTPROCESS_PATH'], machine['xconform_pes'], batch_tmpl, iconform_tmpl, postProcessCmd,
+                 machine['mpi_command'], outFile, processName, envDict['PROJECT'], machine['pythonpath'],
+                 envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'],
+                 machine['conform_queue'], machine['conform_ppn'], machine['conform_nodes'],
+                 machine['conform_wallclock'], options, standalone)
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:

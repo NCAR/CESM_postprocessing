@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyconform.flownodes &mdash; PyConform 0.2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="PyConform 0.2.2 documentation" href="index.html"/>
+        <link rel="up" title="The PyConform Package" href="pyconform.html"/>
+        <link rel="next" title="pyconform.dataflow" href="dataflow.html"/>
+        <link rel="prev" title="pyconform.datasets" href="datasets.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyConform
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">PyConform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual.html">The PyConform User’s Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pyconform.html">The PyConform Package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyconform.html#modules">Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="physarray.html">pyconform.physarray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="functions.html">pyconform.functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="datasets.html">pyconform.datasets</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pyconform.flownodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataflow.html">pyconform.dataflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indexing.html">pyconform.indexing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parsing.html">pyconform.parsing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">PyConform ChangeLog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Product License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyConform</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="pyconform.html">The PyConform Package</a> &raquo;</li>
+        
+      <li>pyconform.flownodes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/flownodes.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pyconform.flownodes">
+<span id="pyconform-flownodes"></span><h1>pyconform.flownodes<a class="headerlink" href="#module-pyconform.flownodes" title="Permalink to this headline">¶</a></h1>
+<p>Data Flow Node Classes and Functions</p>
+<p>This module contains the classes and functions needed to define nodes in Data Flows.</p>
+<p>Copyright 2017, University Corporation for Atmospheric Research
+LICENSE: See the LICENSE.rst file for details</p>
+<dl class="class">
+<dt id="pyconform.flownodes.DataNode">
+<em class="property">class </em><code class="descclassname">pyconform.flownodes.</code><code class="descname">DataNode</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#DataNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.DataNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyconform.flownodes.FlowNode" title="pyconform.flownodes.FlowNode"><code class="xref py py-class docutils literal"><span class="pre">pyconform.flownodes.FlowNode</span></code></a></p>
+<p>FlowNode class to create data in memory</p>
+<p>This is a “source” FlowNode.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyconform.flownodes.EvalNode">
+<em class="property">class </em><code class="descclassname">pyconform.flownodes.</code><code class="descname">EvalNode</code><span class="sig-paren">(</span><em>label</em>, <em>func</em>, <em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#EvalNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.EvalNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyconform.flownodes.FlowNode" title="pyconform.flownodes.FlowNode"><code class="xref py py-class docutils literal"><span class="pre">pyconform.flownodes.FlowNode</span></code></a></p>
+<p>FlowNode class for evaluating a function on input from neighboring DataNodes</p>
+<p>The EvalNode is constructed with a function reference and any number of arguments to
+that function.  The number of arguments supplied must match the number of arguments accepted
+by the function.  The arguments can be any type, and the order of the arguments will be
+preserved in the call signature of the function.  If the arguments are of type FlowNode,
+then a reference to the FlowNode will be stored.  If the arguments are of any other type, the
+argument will be stored by the EvalNode.</p>
+<p>This is a “non-source”/”non-sink” FlowNode.</p>
+<dl class="attribute">
+<dt id="pyconform.flownodes.EvalNode.sumlike_dimensions">
+<code class="descname">sumlike_dimensions</code><a class="headerlink" href="#pyconform.flownodes.EvalNode.sumlike_dimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of sum-like dimensions registered by the node’s function</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyconform.flownodes.FlowNode">
+<em class="property">class </em><code class="descclassname">pyconform.flownodes.</code><code class="descname">FlowNode</code><span class="sig-paren">(</span><em>label</em>, <em>*inputs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#FlowNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.FlowNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The base class for objects that can appear in a data flow</p>
+<p>The FlowNode object represents a point in the directed acyclic graph where multiple
+edges meet.  It represents a functional operation on the DataArrays coming into it from
+its adjacent DataNodes.  The FlowNode itself outputs the result of this operation
+through the __getitem__ interface (i.e., FlowNode[item]), returning a slice of a
+PhysArray.</p>
+<dl class="attribute">
+<dt id="pyconform.flownodes.FlowNode.inputs">
+<code class="descname">inputs</code><a class="headerlink" href="#pyconform.flownodes.FlowNode.inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inputs into this FlowNode</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyconform.flownodes.FlowNode.label">
+<code class="descname">label</code><a class="headerlink" href="#pyconform.flownodes.FlowNode.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>The FlowNode’s label</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyconform.flownodes.MapNode">
+<em class="property">class </em><code class="descclassname">pyconform.flownodes.</code><code class="descname">MapNode</code><span class="sig-paren">(</span><em>label</em>, <em>dnode</em>, <em>dmap={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#MapNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.MapNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyconform.flownodes.FlowNode" title="pyconform.flownodes.FlowNode"><code class="xref py py-class docutils literal"><span class="pre">pyconform.flownodes.FlowNode</span></code></a></p>
+<p>FlowNode class to map input data from a neighboring FlowNode to new dimension names and units</p>
+<p>The MapNode can rename the dimensions of a FlowNode’s output data.  It does not change the
+data itself, however.  The input dimension names will be changed according to the dimension
+map given.  If an input dimension name is not referenced by the map, then the input dimension
+name does not change.</p>
+<p>This is a “non-source”/”non-sink” FlowNode.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyconform.flownodes.ReadNode">
+<em class="property">class </em><code class="descclassname">pyconform.flownodes.</code><code class="descname">ReadNode</code><span class="sig-paren">(</span><em>variable</em>, <em>index=slice(None</em>, <em>None</em>, <em>None)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#ReadNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.ReadNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyconform.flownodes.FlowNode" title="pyconform.flownodes.FlowNode"><code class="xref py py-class docutils literal"><span class="pre">pyconform.flownodes.FlowNode</span></code></a></p>
+<p>FlowNode class for reading data from a NetCDF file</p>
+<p>This is a “source” FlowNode.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pyconform.flownodes.UnitsWarning">
+<em class="property">exception </em><code class="descclassname">pyconform.flownodes.</code><code class="descname">UnitsWarning</code><a class="reference internal" href="_modules/pyconform/flownodes.html#UnitsWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.UnitsWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<p>Warning for units errors</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyconform.flownodes.ValidateNode">
+<em class="property">class </em><code class="descclassname">pyconform.flownodes.</code><code class="descname">ValidateNode</code><span class="sig-paren">(</span><em>label</em>, <em>dnode</em>, <em>dimensions=None</em>, <em>dtype=None</em>, <em>attributes={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#ValidateNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.ValidateNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyconform.flownodes.FlowNode" title="pyconform.flownodes.FlowNode"><code class="xref py py-class docutils literal"><span class="pre">pyconform.flownodes.FlowNode</span></code></a></p>
+<p>FlowNode class to validate input data from a neighboring FlowNode</p>
+<p>The ValidateNode takes additional attributes in its initializer that can effect the
+behavior of its __getitem__ method.  The special attributes are:</p>
+<blockquote>
+<div>‘valid_min’: The minimum value the data should have, if valid
+‘valid_max’: The maximum value the data should have, if valid
+‘min_mean_abs’: The minimum acceptable value of the mean of the absolute value of the data
+‘max_mean_abs’: The maximum acceptable value of the mean of the absolute value of the data</div></blockquote>
+<p>If these attributes are supplied to the ValidateNode at construction time, then the
+associated validation checks will be made on the data when __getitem__ is called.</p>
+<p>Additional attributes may be added to the ValidateNode that do not affect functionality.
+These attributes may be named however the user wishes and can be retrieved from the FlowNode
+as a dictionary with the ‘attributes’ property.</p>
+<p>This is a “non-source”/”non-sink” FlowNode.</p>
+<dl class="attribute">
+<dt id="pyconform.flownodes.ValidateNode.attributes">
+<code class="descname">attributes</code><a class="headerlink" href="#pyconform.flownodes.ValidateNode.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attributes dictionary of the variable returned by the ValidateNode</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyconform.flownodes.ValidateNode.dimensions">
+<code class="descname">dimensions</code><a class="headerlink" href="#pyconform.flownodes.ValidateNode.dimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dimensions tuple of the variable returned by the ValidateNode</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pyconform.flownodes.ValidationWarning">
+<em class="property">exception </em><code class="descclassname">pyconform.flownodes.</code><code class="descname">ValidationWarning</code><a class="reference internal" href="_modules/pyconform/flownodes.html#ValidationWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.ValidationWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<p>Warning for validation errors</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyconform.flownodes.WriteNode">
+<em class="property">class </em><code class="descclassname">pyconform.flownodes.</code><code class="descname">WriteNode</code><span class="sig-paren">(</span><em>filedesc</em>, <em>inputs=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#WriteNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.WriteNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyconform.flownodes.FlowNode" title="pyconform.flownodes.FlowNode"><code class="xref py py-class docutils literal"><span class="pre">pyconform.flownodes.FlowNode</span></code></a></p>
+<p>FlowNode that writes validated data to a file.</p>
+<p>This is a “sink” node, meaning that the __getitem__ (i.e., [index]) interface does not return
+anything.  Rather, the data “retrieved” through the __getitem__ interface is sent directly to
+file.</p>
+<p>For this reason, it is possible to “retrieve” data multiple times, resulting in writing and
+overwriting of data.  To eliminate this inefficiency, it is advised that you use the ‘execute’
+method to write data efficiently once (and only once).</p>
+<dl class="method">
+<dt id="pyconform.flownodes.WriteNode.disable_history">
+<code class="descname">disable_history</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#WriteNode.disable_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.WriteNode.disable_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disable writing of the history attribute to the file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyconform.flownodes.WriteNode.enable_history">
+<code class="descname">enable_history</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#WriteNode.enable_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.WriteNode.enable_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable writing of the history attribute to the file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyconform.flownodes.WriteNode.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>chunks={}</em>, <em>deflate=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#WriteNode.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.WriteNode.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the writing of the WriteNode file at once</p>
+<p>This method efficiently writes all of the data for each file only once, chunking
+the data according to the ‘chunks’ parameter, as needed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>chunks</strong> (<em>dict</em>) – A dictionary of output dimension names and chunk sizes for each
+dimension given.  Output dimensions not included in the dictionary will not be
+chunked.  (Use OrderedDict to preserve order of dimensions, where the first
+dimension will be assumed to correspond to the fastest-varying index and the last
+dimension will be assumed to correspond to the slowest-varying index.)</li>
+<li><strong>deflate</strong> (<em>int</em>) – Override the output file deflate level with given value</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pyconform.flownodes.iter_bfs">
+<code class="descclassname">pyconform.flownodes.</code><code class="descname">iter_bfs</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#iter_bfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.iter_bfs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate through graph of FlowNodes from a starting node using a Breadth-First Search</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<a class="reference internal" href="#pyconform.flownodes.FlowNode" title="pyconform.flownodes.FlowNode"><em>FlowNode</em></a>) – the starting node from where to begin iterating</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyconform.flownodes.iter_dfs">
+<code class="descclassname">pyconform.flownodes.</code><code class="descname">iter_dfs</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyconform/flownodes.html#iter_dfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyconform.flownodes.iter_dfs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate through graph of FlowNodes from a starting node using a Depth-First Search</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<a class="reference internal" href="#pyconform.flownodes.FlowNode" title="pyconform.flownodes.FlowNode"><em>FlowNode</em></a>) – the starting node from where to begin iterating</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dataflow.html" class="btn btn-neutral float-right" title="pyconform.dataflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="datasets.html" class="btn btn-neutral" title="pyconform.datasets" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University Corporation for Atmospheric Research.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.2.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

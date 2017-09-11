@@ -9,6 +9,8 @@ globalMeanDay1  FPSN
 globalMeanNat0  FSH
 globalMeanNat0  FSH_V
 globalMeanNat0  FSH_G
+globalMeanNat0  FSH_TO_COUPLER
+globalMeanNat0  FSH_PRECIP_CONVERSION
 globalMeanNat0  TV
 globalMeanNat0  TG
 globalMeanNat0  FSA
@@ -104,4 +106,4 @@ globalMeanNat0  PCT_BSOIL_PFT
 globalMeanNat0  PCT_TREE_PFT
 globalMeanNat0  PCT_GRASS_PFT
 globalMeanNat0  PCT_SHRUB_PFT
-GLobalMeanNat0  PCT_CROP_PFT
+globalMeanNat0  PCT_CROP_PFT

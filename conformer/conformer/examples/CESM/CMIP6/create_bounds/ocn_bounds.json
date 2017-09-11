@@ -1,0 +1,110 @@
+{
+    "olevel": {
+        "attributes": {
+            "axis": "Z",
+            "bounds": "olevel_bnds",
+            "positive": "down",
+            "standard_name": "olevel",
+            "title": "ocean model level",
+            "type": "double",
+            "units": "centimeters"
+        },
+        "datatype": "real",
+        "definition": "z_t",
+        "dimensions": [
+            "olevel"
+        ]
+    },
+    "olevel_bnds": {
+        "attributes": {
+            "units": "centimeters"
+        },
+        "datatype": "real",
+        "definition": "bounds(z_t, bdim=\"d2\")",
+        "dimensions": [
+            "olevel",
+            "d2"
+        ]
+    },
+    "agessc": {
+        "attributes": {
+            "cell_measures": "area: areacello volume: volcello",
+            "cell_methods": "area: mean where sea time: mean",
+            "frequency": "mon",
+            "id": "agessc",
+            "long_name": "Sea Water Age Since Surface Contact",
+            "mipTable": "Omon",
+            "out_name": "agessc",
+            "prov": "Omon ((isd.003))",
+            "realm": "ocean",
+            "standard_name": "sea_water_age_since_surface_contact",
+            "time": "time",
+            "time_label": "time-mean",
+            "time_title": "Temporal mean",
+            "title": "Sea Water Age Since Surface Contact",
+            "type": "real",
+            "units": "yr",
+            "variable_id": "agessc"
+        },
+        "datatype": "real",
+        "definition": "IAGE",
+        "dimensions": [
+            "time",
+            "olevel",
+            "latitude",
+            "longitude"
+        ],
+        "file": {
+            "attributes": {
+                "Conventions": "CF-1.7 CMIP-6.0",
+                "activity_id": "CMIP",
+                "branch_method": "hybrid",
+                "branch_time_in_child": "365.0D0",
+                "branch_time_in_parent": "365.0D0",
+                "contact": "cesm_cmip6@ucar.edu",
+                "creation_date": "",
+                "data_specs_version": "01.00.14",
+                "experiment": "all-forcing simulation of the recent past",
+                "experiment_id": "historical",
+                "external_variables": "areacello",
+                "forcing_index": "2",
+                "frequency": "mon",
+                "further_info_url": "http://furtherinfo.es-doc.org/CMIP6.NCAR.CESM2.historical.none.r15i10p3f2",
+                "grid": "native gx1v7 displaced pole grid",
+                "grid_label": "gn",
+                "initialization_index": "10",
+                "institution": "National Center for Atmospheric Research, Boulder, CO 80301, USA",
+                "institution_id": "NCAR",
+                "license": "CMIP6 model data produced by the National Center for Atmospheric Research is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License (https://creativecommons.org/licenses/). Consult https://pcmdi.llnl.gov/CMIP6/TermsOfUse for terms of use governing CMIP6 output, including citation requirements and proper acknowledgment. Further information about this data, including some limitations, can be found via the further_info_url (recorded as a global attribute in this file)[ and at <some URL maintained by modeling group>]. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.",
+                "mip_era": "CMIP6",
+                "nominal_resolution": "100 km",
+                "parent_activity_id": "CMIP",
+                "parent_experiment_id": "piControl",
+                "parent_mip_era": "CMIP6",
+                "parent_source_id": "CESM2",
+                "parent_time_units": "days since 0000-01-01 00:00:00",
+                "parent_variant_label": "r1i1p1",
+                "physics_index": "3",
+                "product": "model-output",
+                "realization_index": "15",
+                "realm": "ocean",
+                "references": "Gent P. R., et.al. 2011, The Community Climate System Model version 4. J. Climate, doi:10.1175/2011JCLI4083.1",
+                "source": "CESM2 (2017): atmosphere: CAM5 (cam5_4, FV1L26); ocean: POP (pop2_1, 2x3L15); sea_ice: CICE5; land: CLM4.5",
+                "source_id": "CESM2",
+                "source_type": "AOGCM",
+                "sub_experiment": "none",
+                "sub_experiment_id": "none",
+                "table_id": "Omon",
+                "tracking_id": "hdl:21.14100/83d24c7b-ef71-47fe-81bf-53189569c5d2",
+                "variable_id": "agessc",
+                "variant_info": " ",
+                "variant_label": "r15i10p3f2"
+            },
+            "compression": "2",
+            "filename": "384x320x60.nc",
+            "format": "NETCDF4",
+            "metavars": [],
+            "shuffle": "on"
+        }
+    }
+}

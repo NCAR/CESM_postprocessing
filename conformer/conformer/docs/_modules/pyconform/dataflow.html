@@ -1,0 +1,588 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyconform.dataflow &mdash; PyConform 0.2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="PyConform 0.2.2 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PyConform
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">PyConform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../manual.html">The PyConform User’s Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyconform.html">The PyConform Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">PyConform ChangeLog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">Product License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyConform</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyconform.dataflow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyconform.dataflow</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data Flow Classes and Functions</span>
+
+<span class="sd">This module contains the classes and functions needed to define Data Flows.</span>
+
+<span class="sd">A Data Flow is a directed acyclic graph (DAG) that describes the flow of data</span>
+<span class="sd">from one node in the graph to another.  Each node in the flow represents a</span>
+<span class="sd">data action of some sort, such as reading data from file, transposing data,</span>
+<span class="sd">unit conversion, addition, subtraction, etc.  The data transmitted along the</span>
+<span class="sd">graph edges is assumed to a Numpy.NDArray-like object.</span>
+
+<span class="sd">The action associated with each node is not performed until the data is</span>
+<span class="sd">&quot;requested&quot; with the __getitem__ interface, via Node[key].  </span>
+
+<span class="sd">Copyright 2017, University Corporation for Atmospheric Research</span>
+<span class="sd">LICENSE: See the LICENSE.rst file for details</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pyconform.datasets</span> <span class="k">import</span> <span class="n">InputDatasetDesc</span><span class="p">,</span> <span class="n">OutputDatasetDesc</span><span class="p">,</span> <span class="n">DefinitionWarning</span>
+<span class="kn">from</span> <span class="nn">pyconform.parsing</span> <span class="k">import</span> <span class="n">parse_definition</span>
+<span class="kn">from</span> <span class="nn">pyconform.parsing</span> <span class="k">import</span> <span class="n">ParsedVariable</span><span class="p">,</span> <span class="n">ParsedFunction</span><span class="p">,</span> <span class="n">ParsedUniOp</span><span class="p">,</span> <span class="n">ParsedBinOp</span>
+<span class="kn">from</span> <span class="nn">pyconform.functions</span> <span class="k">import</span> <span class="n">find_operator</span><span class="p">,</span> <span class="n">find_function</span>
+<span class="kn">from</span> <span class="nn">pyconform.physarray</span> <span class="k">import</span> <span class="n">PhysArray</span>
+<span class="kn">from</span> <span class="nn">pyconform.flownodes</span> <span class="k">import</span> <span class="n">DataNode</span><span class="p">,</span> <span class="n">ReadNode</span><span class="p">,</span> <span class="n">EvalNode</span><span class="p">,</span> <span class="n">iter_dfs</span>
+<span class="kn">from</span> <span class="nn">pyconform.flownodes</span> <span class="k">import</span> <span class="n">MapNode</span><span class="p">,</span> <span class="n">ValidateNode</span><span class="p">,</span> <span class="n">WriteNode</span>
+<span class="kn">from</span> <span class="nn">asaptools.simplecomm</span> <span class="k">import</span> <span class="n">create_comm</span><span class="p">,</span> <span class="n">SimpleComm</span>
+<span class="kn">from</span> <span class="nn">asaptools.partition</span> <span class="k">import</span> <span class="n">WeightBalanced</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+
+<span class="c1">#=======================================================================================================================</span>
+<span class="c1"># VariableNotFoundError</span>
+<span class="c1">#=======================================================================================================================</span>
+<div class="viewcode-block" id="VariableNotFoundError"><a class="viewcode-back" href="../../dataflow.html#pyconform.dataflow.VariableNotFoundError">[docs]</a><span class="k">class</span> <span class="nc">VariableNotFoundError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Indicate if an input variable could not be found during construction&quot;&quot;&quot;</span></div>
+
+
+<span class="c1">#===================================================================================================</span>
+<span class="c1"># DataFlow</span>
+<span class="c1">#===================================================================================================</span>
+<div class="viewcode-block" id="DataFlow"><a class="viewcode-back" href="../../dataflow.html#pyconform.dataflow.DataFlow">[docs]</a><span class="k">class</span> <span class="nc">DataFlow</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An object describing the flow of data from input to output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inpds</span><span class="p">,</span> <span class="n">outds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializer</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            inpds (InputDatasetDesc): The input dataset to use as reference when</span>
+<span class="sd">                parsing variable definitions</span>
+<span class="sd">            outds (OutputDatasetDesc): The output dataset defining the output variables and</span>
+<span class="sd">                their definitions or data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Input dataset</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inpds</span><span class="p">,</span> <span class="n">InputDatasetDesc</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Input dataset must be of InputDatasetDesc type&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ids</span> <span class="o">=</span> <span class="n">inpds</span>
+
+        <span class="c1"># Output dataset</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outds</span><span class="p">,</span> <span class="n">OutputDatasetDesc</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Output dataset must be of OutputDatasetDesc type&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span> <span class="o">=</span> <span class="n">outds</span>
+
+        <span class="c1"># Create a dictionary of DataNodes from variables with non-string definitions</span>
+        <span class="n">datnodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_data_nodes_</span><span class="p">()</span>
+
+        <span class="c1"># Create a dictionary to store FlowNodes for variables with string definitions</span>
+        <span class="n">defnodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_definition_nodes_</span><span class="p">(</span><span class="n">datnodes</span><span class="p">)</span>
+
+        <span class="c1"># Compute the definition node info objects (zero-sized physarrays)</span>
+        <span class="n">definfos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_node_infos_</span><span class="p">(</span><span class="n">defnodes</span><span class="p">)</span>
+        
+        <span class="c1"># Construct the dimension map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_i2omap</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_o2imap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_dimension_maps_</span><span class="p">(</span><span class="n">definfos</span><span class="p">)</span>
+        
+        <span class="c1"># Create the map nodes</span>
+        <span class="n">defnodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_map_nodes_</span><span class="p">(</span><span class="n">defnodes</span><span class="p">,</span> <span class="n">definfos</span><span class="p">)</span>
+
+        <span class="c1"># Create the validate nodes for each valid output variable</span>
+        <span class="n">valnodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_validate_nodes_</span><span class="p">(</span><span class="n">datnodes</span><span class="p">,</span> <span class="n">defnodes</span><span class="p">)</span>
+        
+        <span class="c1"># Get the set of all sum-like dimensions (dimensions that cannot be broken into chunks)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sumlike_dimensions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_sumlike_dimensions_</span><span class="p">(</span><span class="n">valnodes</span><span class="p">)</span>
+
+        <span class="c1"># Create the WriteNodes for each time-series output file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_writenodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_write_nodes_</span><span class="p">(</span><span class="n">valnodes</span><span class="p">)</span>
+
+        <span class="c1"># Compute the bytesizes of each output variable</span>
+        <span class="n">varsizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_variable_sizes_</span><span class="p">(</span><span class="n">valnodes</span><span class="p">)</span>
+
+        <span class="c1"># Compute the file sizes for each output file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filesizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_file_sizes</span><span class="p">(</span><span class="n">varsizes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_data_nodes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">datnodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="n">vdesc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">definition</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">datatype</span> <span class="o">==</span> <span class="s1">&#39;char&#39;</span><span class="p">:</span>
+                    <span class="n">vdata</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">definition</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;S&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">vdata</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">definition</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">vdesc</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+                <span class="n">vunits</span> <span class="o">=</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">cfunits</span><span class="p">()</span>
+                <span class="n">vdims</span> <span class="o">=</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="n">varray</span> <span class="o">=</span> <span class="n">PhysArray</span><span class="p">(</span><span class="n">vdata</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">vname</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">vunits</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="n">vdims</span><span class="p">)</span>
+                <span class="n">datnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataNode</span><span class="p">(</span><span class="n">varray</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">datnodes</span>
+
+    <span class="k">def</span> <span class="nf">_create_definition_nodes_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datnodes</span><span class="p">):</span>        
+        <span class="n">defnodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="n">vdesc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">definition</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">vnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_flow_</span><span class="p">(</span><span class="n">parse_definition</span><span class="p">(</span><span class="n">vdesc</span><span class="o">.</span><span class="n">definition</span><span class="p">),</span> <span class="n">datnodes</span><span class="o">=</span><span class="n">datnodes</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">VariableNotFoundError</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">. Skipping output variable </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">),</span> <span class="n">vname</span><span class="p">),</span> <span class="n">DefinitionWarning</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">defnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">vnode</span>
+        <span class="k">return</span> <span class="n">defnodes</span>      
+
+    <span class="k">def</span> <span class="nf">_construct_flow_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">datnodes</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">ParsedVariable</span><span class="p">):</span>
+            <span class="n">vname</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">key</span>
+            <span class="k">if</span> <span class="n">vname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ReadNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">datnodes</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">datnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">VariableNotFoundError</span><span class="p">(</span><span class="s1">&#39;Input variable </span><span class="si">{!r}</span><span class="s1"> not found or cannot be used as input&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vname</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">ParsedUniOp</span><span class="p">,</span> <span class="n">ParsedBinOp</span><span class="p">)):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">key</span>
+            <span class="n">nargs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">find_operator</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">numargs</span><span class="o">=</span><span class="n">nargs</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_construct_flow_</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">datnodes</span><span class="o">=</span><span class="n">datnodes</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">EvalNode</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">ParsedFunction</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">key</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">find_function</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_construct_flow_</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">datnodes</span><span class="o">=</span><span class="n">datnodes</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+            <span class="n">kwds</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">_construct_flow_</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">kwds</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">datnodes</span><span class="o">=</span><span class="n">datnodes</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">kwds</span><span class="p">}</span>
+            <span class="k">return</span> <span class="n">EvalNode</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span>
+
+    <span class="k">def</span> <span class="nf">_compute_node_infos_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+        <span class="c1"># Gather information about each FlowNode&#39;s metadata (via empty PhysArrays)</span>
+        <span class="n">infos</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> 
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">info</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">ndef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">definition</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;Failure in variable </span><span class="si">{!r}</span><span class="s1"> with definition </span><span class="si">{!r}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">ndef</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">infos</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span>
+        <span class="k">return</span> <span class="n">infos</span>
+        
+    <span class="k">def</span> <span class="nf">_compute_dimension_maps_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">definfos</span><span class="p">):</span>
+        <span class="c1"># Each output variable FlowNode must be mapped to its output dimensions.</span>
+        <span class="c1"># To aid with this, we sort by number of dimensions:</span>
+        <span class="n">nodeorder</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">dimensions</span><span class="p">),</span> <span class="n">vname</span><span class="p">)</span> <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">definfos</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Now, we construct the dimension maps</span>
+        <span class="n">i2omap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">o2imap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">nodeorder</span><span class="p">:</span>
+            <span class="n">out_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">inp_dims</span> <span class="o">=</span> <span class="n">definfos</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span><span class="o">.</span><span class="n">dimensions</span>
+
+            <span class="n">unmapped_out</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">out_dims</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">o2imap</span><span class="p">)</span>
+            <span class="n">mapped_inp</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">o2imap</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">out_dims</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">o2imap</span><span class="p">)</span>
+            <span class="n">unmapped_inp</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">inp_dims</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mapped_inp</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unmapped_out</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unmapped_inp</span><span class="p">):</span>
+                <span class="n">map_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">--&gt;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">i2omap</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">i2omap</span><span class="p">)</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Cannot map dimensions </span><span class="si">{}</span><span class="s1"> to dimensions </span><span class="si">{}</span><span class="s1"> in output variable </span><span class="si">{}</span><span class="s1"> &#39;</span>
+                           <span class="s1">&#39;(MAP: </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">inp_dims</span><span class="p">,</span> <span class="n">out_dims</span><span class="p">,</span> <span class="n">vname</span><span class="p">,</span> <span class="n">map_str</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unmapped_out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">out_dim</span><span class="p">,</span> <span class="n">inp_dim</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">unmapped_out</span><span class="p">,</span> <span class="n">unmapped_inp</span><span class="p">):</span>
+                <span class="n">o2imap</span><span class="p">[</span><span class="n">out_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">inp_dim</span>
+                <span class="n">i2omap</span><span class="p">[</span><span class="n">inp_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_dim</span>
+
+        <span class="c1"># Now that we know how dimensions are mapped, compute the output dimension sizes</span>
+        <span class="k">for</span> <span class="n">dname</span><span class="p">,</span> <span class="n">ddesc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">o2imap</span><span class="p">:</span>
+                <span class="n">idd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">o2imap</span><span class="p">[</span><span class="n">dname</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">ddesc</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span> <span class="ow">and</span> <span class="n">ddesc</span><span class="o">.</span><span class="n">stringlen</span> <span class="ow">and</span> <span class="n">ddesc</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="n">idd</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ddesc</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                    <span class="n">ddesc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">idd</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">i2omap</span><span class="p">,</span> <span class="n">o2imap</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dimension_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The internally generated input-to-output dimension name map&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_i2omap</span>
+
+    <span class="k">def</span> <span class="nf">_create_map_nodes_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defnodes</span><span class="p">,</span> <span class="n">definfos</span><span class="p">):</span>
+        <span class="n">mapnodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">defnodes</span><span class="p">:</span>
+            <span class="n">dnode</span> <span class="o">=</span> <span class="n">defnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+            <span class="n">dinfo</span> <span class="o">=</span> <span class="n">definfos</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+            <span class="n">map_dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_i2omap</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dinfo</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;map(</span><span class="si">{!s}</span><span class="s1">, to=</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">map_dims</span><span class="p">)</span>
+            <span class="n">mapnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">MapNode</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">dnode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_i2omap</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mapnodes</span>
+
+    <span class="k">def</span> <span class="nf">_create_validate_nodes_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datnodes</span><span class="p">,</span> <span class="n">defnodes</span><span class="p">):</span>
+        <span class="n">valid_vars</span> <span class="o">=</span> <span class="n">datnodes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">+</span> <span class="n">defnodes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>          
+        <span class="n">valnodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">valid_vars</span><span class="p">:</span>
+            <span class="n">vdesc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+            <span class="n">vnode</span> <span class="o">=</span> <span class="n">datnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="k">if</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">datnodes</span> <span class="k">else</span> <span class="n">defnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">validnode</span> <span class="o">=</span> <span class="n">ValidateNode</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">vnode</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                                         <span class="n">attributes</span><span class="o">=</span><span class="n">vdesc</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">vdesc</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">vdef</span> <span class="o">=</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">definition</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;Failure in variable </span><span class="si">{!r}</span><span class="s1"> with definition </span><span class="si">{!r}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span> <span class="n">vdef</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+            <span class="n">valnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">validnode</span>
+        <span class="k">return</span> <span class="n">valnodes</span>
+    
+    <span class="k">def</span> <span class="nf">_find_sumlike_dimensions_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valnodes</span><span class="p">):</span>
+        <span class="n">unmapped_sumlike_dimensions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">valnodes</span><span class="p">:</span>
+            <span class="n">vnode</span> <span class="o">=</span> <span class="n">valnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">iter_dfs</span><span class="p">(</span><span class="n">vnode</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nd</span><span class="p">,</span> <span class="n">EvalNode</span><span class="p">):</span>
+                    <span class="n">unmapped_sumlike_dimensions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">nd</span><span class="o">.</span><span class="n">sumlike_dimensions</span><span class="p">)</span>
+        
+        <span class="c1"># Map the sum-like dimensions to output dimensions</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_i2omap</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">unmapped_sumlike_dimensions</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_i2omap</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_write_nodes_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valnodes</span><span class="p">):</span>
+        <span class="n">writenodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+            <span class="n">fdesc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span>
+            <span class="n">vmissing</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">vname</span> <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">fdesc</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">vname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valnodes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">vmissing</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Skipping output file </span><span class="si">{}</span><span class="s1"> due to missing required variables: &#39;</span>
+                     <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">vmissing</span><span class="p">))),</span> <span class="n">DefinitionWarning</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vnodes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">valnodes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">fdesc</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+                <span class="n">wnode</span> <span class="o">=</span> <span class="n">WriteNode</span><span class="p">(</span><span class="n">fdesc</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">vnodes</span><span class="p">)</span>
+                <span class="n">writenodes</span><span class="p">[</span><span class="n">wnode</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">wnode</span>
+        <span class="k">return</span> <span class="n">writenodes</span>
+
+    <span class="k">def</span> <span class="nf">_compute_variable_sizes_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valnodes</span><span class="p">):</span>
+        <span class="n">bytesizes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">valnodes</span><span class="p">:</span>
+            <span class="n">vdesc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ods</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span>
+            <span class="n">vsize</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ddesc</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">ddesc</span> <span class="ow">in</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">dimensions</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
+            <span class="n">vsize</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">vsize</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">vsize</span>
+            <span class="n">bytesizes</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="o">=</span> <span class="n">vsize</span> <span class="o">*</span> <span class="n">vdesc</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span>
+        <span class="k">return</span> <span class="n">bytesizes</span>
+    
+    <span class="k">def</span> <span class="nf">_compute_file_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varsizes</span><span class="p">):</span>
+        <span class="n">filesizes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">wnode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writenodes</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">filesizes</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">varsizes</span><span class="p">[</span><span class="n">vnode</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">vnode</span> <span class="ow">in</span> <span class="n">wnode</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filesizes</span>
+
+<div class="viewcode-block" id="DataFlow.execute"><a class="viewcode-back" href="../../dataflow.html#pyconform.dataflow.DataFlow.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="p">{},</span> <span class="n">serial</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scomm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deflate</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the Data Flow</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            chunks (dict): A dictionary of output dimension names and chunk sizes for each</span>
+<span class="sd">                dimension given.  Output dimensions not included in the dictionary will not be</span>
+<span class="sd">                chunked.  (Use OrderedDict to preserve order of dimensions, where the first</span>
+<span class="sd">                dimension will be assumed to correspond to the fastest-varying index and the last</span>
+<span class="sd">                dimension will be assumed to correspond to the slowest-varying index.)</span>
+<span class="sd">            serial (bool): Whether to run in serial (True) or parallel (False)</span>
+<span class="sd">            history (bool): Whether to write a history attribute generated during execution</span>
+<span class="sd">                for each variable in the file</span>
+<span class="sd">            scomm (SimpleComm): An externally created SimpleComm object to use for managing</span>
+<span class="sd">                parallel operation</span>
+<span class="sd">            deflate (int): Override all output file deflate levels with given value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check chunks type</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chunks</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Chunks must be specified with a dictionary&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Make sure that the specified chunking dimensions are valid</span>
+        <span class="k">for</span> <span class="n">odname</span><span class="p">,</span> <span class="n">odsize</span> <span class="ow">in</span> <span class="n">chunks</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">odname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_o2imap</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot chunk over unknown output dimension </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">odname</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">odsize</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">((</span><span class="s1">&#39;Chunk size invalid for output dimension </span><span class="si">{!r}</span><span class="s1">: &#39;</span>
+                                 <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">odname</span><span class="p">,</span> <span class="n">odsize</span><span class="p">))</span>
+        
+        <span class="c1"># Check that we are not chunking over any &quot;sum-like&quot; dimensions</span>
+        <span class="n">sumlike_chunk_dims</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">chunks</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sumlike_dimensions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sumlike_chunk_dims</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Cannot chunk over dimensions that are summed over (or &quot;sum-like&quot;)&#39;</span>
+                              <span class="s1">&#39;: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sumlike_chunk_dims</span><span class="p">))))</span>
+
+        <span class="c1"># Create the simple communicator, if necessary</span>
+        <span class="k">if</span> <span class="n">scomm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">scomm</span> <span class="o">=</span> <span class="n">create_comm</span><span class="p">(</span><span class="n">serial</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">serial</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scomm</span><span class="p">,</span> <span class="n">SimpleComm</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">scomm</span><span class="o">.</span><span class="n">is_manager</span><span class="p">():</span>
+                <span class="nb">print</span> <span class="s1">&#39;Inheriting SimpleComm object from parent.  (Ignoring serial argument.)&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Communication object is not a SimpleComm!&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Start general output</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scomm</span><span class="o">.</span><span class="n">get_rank</span><span class="p">(),</span> <span class="n">scomm</span><span class="o">.</span><span class="n">get_size</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">scomm</span><span class="o">.</span><span class="n">is_manager</span><span class="p">():</span>
+            <span class="nb">print</span> <span class="s1">&#39;Beginning execution of data flow...&#39;</span>
+            <span class="nb">print</span> <span class="s1">&#39;Mapping Input Dimensions to Output Dimensions:&#39;</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_i2omap</span><span class="p">):</span>
+                <span class="nb">print</span> <span class="s1">&#39;   </span><span class="si">{}</span><span class="s1"> --&gt; </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_i2omap</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s1">&#39;Chunking over Output Dimensions:&#39;</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
+                    <span class="nb">print</span> <span class="s1">&#39;   </span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">chunks</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s1">&#39;Not chunking output.&#39;</span>
+
+        <span class="c1"># Partition the output files/variables over available parallel (MPI) ranks</span>
+        <span class="n">fnames</span> <span class="o">=</span> <span class="n">scomm</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filesizes</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">func</span><span class="o">=</span><span class="n">WeightBalanced</span><span class="p">(),</span> <span class="n">involved</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">scomm</span><span class="o">.</span><span class="n">is_manager</span><span class="p">():</span>
+            <span class="nb">print</span> <span class="s1">&#39;Writing </span><span class="si">{}</span><span class="s1"> files across </span><span class="si">{}</span><span class="s1"> MPI processes.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filesizes</span><span class="p">),</span> <span class="n">scomm</span><span class="o">.</span><span class="n">get_size</span><span class="p">())</span>
+        <span class="n">scomm</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+
+        <span class="c1"># Standard output</span>
+        <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: Writing </span><span class="si">{}</span><span class="s1"> files: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnames</span><span class="p">),</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fnames</span><span class="p">))</span>
+        <span class="n">scomm</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+        
+        <span class="c1"># Loop over output files and write using given chunking</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">fnames</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: Writing file: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">history</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_writenodes</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span><span class="o">.</span><span class="n">enable_history</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_writenodes</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span><span class="o">.</span><span class="n">disable_history</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_writenodes</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="n">chunks</span><span class="p">,</span> <span class="n">deflate</span><span class="o">=</span><span class="n">deflate</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: Finished writing file: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+
+        <span class="n">scomm</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">scomm</span><span class="o">.</span><span class="n">is_manager</span><span class="p">():</span>
+            <span class="nb">print</span> <span class="s1">&#39;All output variables written.&#39;</span>
+            <span class="nb">print</span></div></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, University Corporation for Atmospheric Research.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.2.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

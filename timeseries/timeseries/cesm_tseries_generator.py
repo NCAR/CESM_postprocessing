@@ -26,7 +26,6 @@ if sys.hexversion < 0x02070000:
 import argparse
 import glob
 import os
-import pprint
 import re
 import string
 import sys
@@ -77,7 +76,7 @@ def commandline_options():
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
 #==============================================================================================
 def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone, completechunk, 
-                   generate_all, debug, debugMsg):
+                   generate_all, debug, debugMsg, comm, rank, size):
     """ reads the $CASEROOT/env_timeseries.xml file and builds a fully defined list of 
          reshaper specifications to be passed to the pyReshaper tool.
 
@@ -113,7 +112,8 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
             rootdir = comp_archive_spec.find("rootdir").text
             multi_instance = comp_archive_spec.find("multi_instance").text
             default_calendar = comp_archive_spec.find("default_calendar").text
-            debugMsg("default_calendar = {0}".format(default_calendar), header=True)
+            if rank == 0:
+                debugMsg("default_calendar = {0}".format(default_calendar), header=True, verbosity=1)
 
             # for now, set instance value to empty string implying only 1 instance
             instance = ""
@@ -156,27 +156,29 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                         if file_spec.find("tseries_filecat_tper") is not None:
                             tper = file_spec.find("tseries_filecat_tper").text
                         if file_spec.find("tseries_filecat_n") is not None:
-                            size = file_spec.find("tseries_filecat_n").text
+                            size_n = file_spec.find("tseries_filecat_n").text
                         comp_name = comp
                         stream = file_extension.split('.[')[0]
 
-                        stream_dates,file_slices,cal,units,time_period_freq = chunking.get_input_dates(in_file_path+'/*'+file_extension+'*.nc')
+                        stream_dates,file_slices,cal,units,time_period_freq = chunking.get_input_dates(in_file_path+'/*'+file_extension+'*.nc', comm, rank, size)
                         # check if the calendar attribute was read or not
                         if cal is None or cal == "none":
                             cal = default_calendar
-                        debugMsg("calendar = {0}".format(cal), header=True)
+                        if rank == 0:
+                            debugMsg("calendar = {0}".format(cal), header=True, verbosity=1)
 
                         # the tseries_tper should be set in using the time_period_freq global file attribute if it exists
                         if time_period_freq is not None:
                             tseries_tper = time_period_freq
                         tseries_output_dir = '/'.join( [output_rootdir, rootdir, 'proc/tseries', tseries_tper] )
-                        debugMsg("tseries_output_dir = {0}".format(tseries_output_dir), header=True)
+                        if rank == 0:
+                            debugMsg("tseries_output_dir = {0}".format(tseries_output_dir), header=True, verbosity=1)
 
                         if comp+stream not in log.keys():
                             log[comp+stream] = {'slices':[],'index':0}
                         ts_log_dates = log[comp+stream]['slices']
                         index = log[comp+stream]['index']
-                        files,dates,index = chunking.get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, completechunk)
+                        files,dates,index = chunking.get_chunks(tper, index, size_n, stream_dates, ts_log_dates, cal, units, completechunk)
                         for d in dates:
                             log[comp+stream]['slices'].append(float(d))
                         log[comp+stream]['index']=index
@@ -191,7 +193,8 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
 
                             # create the tseries output prefix needs to end with a "."
                             tseries_output_prefix = "{0}/{1}.{2}{3}.".format(tseries_output_dir,casename,comp_name,stream)
-                            debugMsg("tseries_output_prefix = {0}".format(tseries_output_prefix), header=True)
+                            if rank == 0:
+                                debugMsg("tseries_output_prefix = {0}".format(tseries_output_prefix), header=True, verbosity=1)
 
                             # format the time series variable output suffix based on the 
                             # tseries_tper setting suffix needs to start with a "."
@@ -207,9 +210,10 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             else:
                                 err_msg = "cesm_tseries_generator.py error: invalid tseries_tper = {0}.".format(tseries_tper)
                                 raise TypeError(err_msg)
-                            debugMsg("tseries_output_suffix = {0}".format(tseries_output_suffix), header=True)
+                            if rank == 0:
+                                debugMsg("tseries_output_suffix = {0}".format(tseries_output_suffix), header=True, verbosity=1)
 
-                            # get a reshaper specification object
+                            # get a reshaper specification object/
                             spec = specification.create_specifier()
 
                             # populate the spec object with data for this history stream
@@ -218,13 +222,16 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             spec.output_file_prefix = tseries_output_prefix
                             spec.output_file_suffix = tseries_output_suffix
                             spec.time_variant_metadata = variable_list
+                            # setting the default backend
+                            spec.backend = 'netCDF4'
 
-                            # print the specifier
-                            if debug:
-                                dbg = list()
-                                pp = pprint.PrettyPrinter(indent=5)
-                                dbg = [comp_name, spec.input_file_list, spec.netcdf_format, spec.output_file_prefix, spec.output_file_suffix, spec.time_variant_metadata]
-                                pp.pprint(dbg)
+                            if rank == 0:
+                                debugMsg("specifier: comp_name = {0}".format(comp_name), header=True, verbosity=1)
+                                debugMsg("    input_file_list = {0}".format(spec.input_file_list), header=True, verbosity=1)
+                                debugMsg("    netcdf_format = {0}".format(spec.netcdf_format), header=True, verbosity=1)
+                                debugMsg("    output_file_prefix = {0}".format(spec.output_file_prefix), header=True, verbosity=1)
+                                debugMsg("    output_file_suffix = {0}".format(spec.output_file_suffix), header=True, verbosity=1)
+                                debugMsg("    time_variant_metadata = {0}".format(spec.time_variant_metadata), header=True, verbosity=1)
                             
                             # append this spec to the list of specifiers
                             specifiers.append(spec)
@@ -255,8 +262,7 @@ def divide_comm(scomm, l_spec):
         num_of_groups = size/min_procs_per_spec
     if l_spec < num_of_groups:
         num_of_groups = l_spec
-
-
+    
     # the global master needs to be in its own subcommunicator
     # ideally it would not be in any, but the divide function 
     # requires all ranks to participate in the call
@@ -293,24 +299,21 @@ def main(options, scomm, rank, size, debug, debugMsg):
     # initialize the specifiers list to contain the list of specifier classes
     specifiers = list()
 
-    # loading the specifiers from the env_timeseries.xml  only needs to run on the master task (rank=0) 
-    if rank == 0:
-        tseries_input_rootdir = cesmEnv['TIMESERIES_INPUT_ROOTDIR'] 
-        tseries_output_rootdir = cesmEnv['TIMESERIES_OUTPUT_ROOTDIR'] 
-        case = cesmEnv['CASE']
-        completechunk = cesmEnv['TIMESERIES_COMPLETECHUNK']
-        generate_all = cesmEnv['TIMESERIES_GENERATE_ALL']
-        if completechunk.upper() in ['T','TRUE']:
-            completechunk = 1
-        else:
-            completechunk = 0
-        specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir, 
-                                        case, options.standalone, completechunk, generate_all,
-                                        debug, debugMsg)
+    tseries_input_rootdir = cesmEnv['TIMESERIES_INPUT_ROOTDIR'] 
+    tseries_output_rootdir = cesmEnv['TIMESERIES_OUTPUT_ROOTDIR'] 
+    case = cesmEnv['CASE']
+    completechunk = cesmEnv['TIMESERIES_COMPLETECHUNK']
+    generate_all = cesmEnv['TIMESERIES_GENERATE_ALL']
+    if completechunk.upper() in ['T','TRUE']:
+        completechunk = 1
+    else:
+        completechunk = 0
+    specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir, 
+                                    case, options.standalone, completechunk, generate_all,
+                                    debug, debugMsg, scomm, rank, size)
     scomm.sync()
 
     # specifiers is a list of pyreshaper specification objects ready to pass to the reshaper
-    specifiers = scomm.partition(specifiers, func=partition.Duplicate(), involved=True)
     if rank == 0:
         debugMsg("# of Specifiers: "+str(len(specifiers)), header=True, verbosity=1)
 

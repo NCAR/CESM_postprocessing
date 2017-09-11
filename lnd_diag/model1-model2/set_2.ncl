@@ -806,7 +806,8 @@ begin
 ;               Note:  Don't delete res here - save until after obs are posted.
               res@tiMainString    = cases(1) ; set case 2 titles
               res@gsnCenterString = " (yrs " + yrs_ave2 + ")"
-              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT" .or. vars(i) .eq. "CPOOL" .or. vars(i) .eq. "FERT" .or. vars(i) .eq. "FERT_TO_SMINN") then
+;             Fix an apparent bug in cnLabelBarEndStyle for certain variables
+              if (vars(i) .eq. "CH4PROD" .or. vars(i) .eq. "CH4_SURF_EBUL_SAT" .or. vars(i) .eq. "CH4_SURF_EBUL_UNSAT" .or. vars(i) .eq. "CPOOL" .or. vars(i) .eq. "FERT" .or. vars(i) .eq. "FERT_TO_SMINN" .or. vars(i) .eq. "FFIX_TO_SMINN") then
                  if (isatt(res,"cnLabelBarEndStyle")) then
                     if (res@cnLabelBarEndStyle.eq."IncludeMinMaxLabels") then
                        res@cnLabelBarEndStyle = "IncludeOuterBoxes" ; temporarily turn off minmax labels.

@@ -1,9 +1,25 @@
 PyReshaper Change Log
 =====================
 
-Copyright 2016, University Corporation for Atmospheric Research
+Copyright 2017, University Corporation for Atmospheric Research
 See the LICENSE.rst file for details
 
+VERSION 1.0.3
+-------------
+
+ - Bugfixes
+ - Disabling use of PyNIO backend (for now) due to unknown problems
+ - Fixes and ease of use with I/O backend utilities
+ 
+VERSION 1.0.2
+-------------
+
+ - Bugfixes
+ 
+VERSION 1.0.1
+-------------
+
+ - Bugfixes
 
 VERSION 1.0.0
 -------------

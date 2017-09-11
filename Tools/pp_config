@@ -2,7 +2,7 @@
 """Python program used to get and set XML variables
 """
 
-from __future__ import print_function
+#from __future__ import print_function
 
 import sys
 
@@ -92,7 +92,7 @@ from asaptools import vprinter
 import jinja2
 
 # global variables
-_scripts = ['timeseries','averages','regrid','diagnostics']
+_scripts = ['timeseries','averages','regrid','diagnostics','xconform']
 _machines = ['yellowstone','cheyenne','edison']
 _comps = ['atm','ice','lnd','ocn']
 
@@ -167,6 +167,16 @@ def get_batch(pp_path, script, mach, comp, project, debugMsg):
                 nodes = ''
                 if 'nodes' in tseries_pes.attrib:
                     nodes = tseries_pes.get('nodes').lower()
+                found = True
+            elif script == 'xconform':
+                xconform_pes = xmlmachine.find('xconform_pes')
+                pes = xconform_pes.text
+                queue = xconform_pes.get('queue').lower()
+                ppn = xconform_pes.get('pes_per_node').lower()
+                wallclock = xconform_pes.get('wallclock').lower()
+                nodes = ''
+                if 'nodes' in xconform_pes.attrib:
+                    nodes = xconform_pes.get('nodes').lower()
                 found = True
             elif script in ['averages','regrid','diagnostics'] and len(comp) > 0:
                 for comp_xml in xmlmachine.findall("components/component"):
@@ -282,7 +292,7 @@ def main(options):
         # get the component name based on the entry_id 
         entry_parts = new_entry_id.split('_')
         comp = entry_parts[0][:3]
-        if comp.upper() not in ['ATM','ICE','LND','OCN'] or len(entry_parts[0]) == 3:
+        if comp.upper() not in ['ATM','ICE','LND','OCN','CON'] or len(entry_parts[0]) == 3:
             comp = ''
 
         xml_processor.write(envDict, comp.lower(), new_entry_id, new_entry_value)
@@ -295,7 +305,7 @@ def main(options):
             return 1
         mach = options.machine[0]
         comp = ''
-        if script != 'timeseries':
+        if script != 'timeseries' and script != 'xconform':
             if not options.comp:
                 print("Option --getbatch with script not set to 'timeseries' requires --comp option be spcified")
                 return 1
