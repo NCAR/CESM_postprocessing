@@ -42,8 +42,8 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
                                 'LWDN_F', 'QFLUX', 'SFWF_TOTAL', 'EVAP_F', 'PREC_F',
                                 'SNOW_F', 'MELT_F', 'SALT_F', 'ROFF_F', 'TAUX',
                                 'TAUY', 'CURL' ]
-        self._expectedPlots_za = [ 'SHF_TOTAL_GLO_za', 'SHF_QSW_GLO_za', 'MELTH_F_GLO_za', 'SENH_F_GLO_za',
-                                   'LWUP_F_GLO_za', 'LWDN_F_GLO_za', 'QFLUX_GLO_za', 'SFWF_TOTAL_GLO_za',
+        self._expectedPlots_za = [ 'SHF_GLO_za', 'SHF_QSW_GLO_za', 'MELTH_F_GLO_za', 'SENH_F_GLO_za',
+                                   'LWUP_F_GLO_za', 'LWDN_F_GLO_za', 'QFLUX_GLO_za', 'SFWF_GLO_za',
                                    'EVAP_F_GLO_za', 'PREC_F_GLO_za', 'SNOW_F_GLO_za', 'MELT_F_GLO_za',
                                    'SALT_F_GLO_za', 'ROFF_F_GLO_za' ]
 

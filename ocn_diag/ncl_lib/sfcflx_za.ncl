@@ -8,9 +8,9 @@ file_netcdf_za   = "za_"+file_netcdf
 file_flux_obs_za = "za_"+file_flux_obs
 file_wind_obs_za = "za_"+file_wind_obs
 
-print("file_netcdf_za = "+file_netcdf_za)
-print("file_flux_obs_za = "+file_flux_obs_za)
-print("file_wind_obs_za = "+file_wind_obs_za)
+;;print("*** file_netcdf_za = "+file_netcdf_za)
+;;print("*** file_flux_obs_za = "+file_flux_obs_za)
+;;print("*** file_wind_obs_za = "+file_wind_obs_za)
 
 fileid = addfile(file_netcdf,"r")
 f_za   = addfile(file_netcdf_za,"r")
@@ -37,7 +37,7 @@ n_reg = dimsizes(region_index)
 
 varsinfile = getfilevarnames(f_za)
 
-if (any(varsinfile.eq."SHF") .or. any(varsinfile.eq."SFWF")) then
+if (any(varsinfile.eq."SHF") .and. any(varsinfile.eq."SFWF")) then
    field_name = (/ "SHF", "SHF_QSW", "SFWF", "PREC_F",  \
    	      	   "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
 		   "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
@@ -149,23 +149,25 @@ do n=0, n_fields-1
   else
      if ( field_name(n) .eq. "SHF_TOTAL" .or. \
           field_name(n) .eq. "SHF") then 
-	print("**************")
-        print("computing SHF_TOTAL")
+;;	print("**************")
+;;      print("*** computing SHF_TOTAL")
         field_q = f_za->QFLUX
-        field   = f_za->SHF
+        ;;field   = f_za->SHF
+	field   = f_za->$field_name(n)$
         field   = where(field .lt. 1e10 .and. field_q .lt. 1e10, field + field_q, field@_FillValue)
-      	printVarSummary(field)
-	print("**************")
+;;     	printVarSummary(field)
+;;	print("**************")
      end if
      if ( field_name(n) .eq. "SFWF_TOTAL" .or. \
           field_name(n) .eq. "SFWF") then
-	print("**************")
-        print("computing SFWF_TOTAL")
+;;	print("**************")
+;;      print("*** computing SFWF_TOTAL")
         field_q = f_za->QFLUX
-        field   = f_za->SFWF
+        ;;field   = f_za->SFWF
+	field   = f_za->$field_name(n)$
         field   = tofloat(where(field .lt. 1e10 .and. field_q .lt. 1e10, field - field_q/l_f, field@_FillValue))
-      	printVarSummary(field)
-	print("**************")
+;;     	printVarSummary(field)
+;;	print("**************")
      end if
    end if
 
@@ -198,7 +200,7 @@ do n=0, n_fields-1
 
    ;wks = gsn_open_wks("x11",field_name(n))
    wks = gsn_open_wks(img_format,field_name(n)+ "_GLO_za")
-   gsn_define_colormap(wks,"table42")
+   ;;gsn_define_colormap(wks,"table42")
 
    case_info = field_name(n) +" ZONAL-AVE (GLO) " \
                + case_number + " " + time_info
@@ -224,14 +226,16 @@ do n=0, n_fields-1
    res@xyLineColors = (/"blue", "red"/)
    res@xyDashPatterns = (/ 0, 1 /)
    res@xyLineThicknessF = 4
-   res@gsnYRefLine = 0.0
+;; Commenting out this resource due to bug in NCL6.4.0
+;;   res@gsnYRefLine = 0.0
    res@gsnPaperOrientation = "portrait"
 
    if (obsvar .eq. "") then
        ; printVarSummary(field)
-       print("plot with obsvar is null")
+       ;;print("*** plot with obsvar is null")
        plot = gsn_csm_xy(wks,lat_t,field(0,global,:),res)
    else
+       ;;print("*** plot with obsvar ="+obsvar)
        if (cpl .eq. 7) then
          data = new((/2,dimsizes(lat_t)/),double)
        else
@@ -243,7 +247,9 @@ do n=0, n_fields-1
        else
          data(1,:) = (/ field_obs(global,:) /)
        end if
-       print("plot with obsvar ="+obsvar)
+       ;;print("**** data var summary")
+       ;;printVarSummary(data)
+       ;;print("*** before gsn_csm_xy call")
        plot = gsn_csm_xy(wks,lat_t,data,res)
        delete(data)
        delete(field_obs)
