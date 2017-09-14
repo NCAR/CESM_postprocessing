@@ -226,8 +226,7 @@ do n=0, n_fields-1
    res@xyLineColors = (/"blue", "red"/)
    res@xyDashPatterns = (/ 0, 1 /)
    res@xyLineThicknessF = 4
-;; Commenting out this resource due to bug in NCL6.4.0
-;;   res@gsnYRefLine = 0.0
+   res@gsnYRefLine = 0.0
    res@gsnPaperOrientation = "portrait"
 
    if (obsvar .eq. "") then
