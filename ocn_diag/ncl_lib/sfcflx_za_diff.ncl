@@ -23,17 +23,23 @@ begin
   fileid_1 = addfile(file_netcdf,"r")
   fileid_2 = addfile(cntrl_netcdf,"r")
 
+  varsinfile_1 = getfilevarnames(fileid_1)
+  varsinfile_2 = getfilevarnames(fileid_2)
+
   if (isfilevar(fileid_1,"QFLUX")) then
-
-  field_name = (/ "SHF_TOTAL", "SHF_QSW", "SFWF_TOTAL", "PREC_F",  \
-     "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
-     "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
-     "QFLUX", "SNOW_F" /)
-
+     if (any(varsinfile_1.eq."SHF") .and. any(varsinfile_1.eq."SFWF")) then
+        field_name = (/ "SHF", "SHF_QSW", "SFWF", "PREC_F",  \
+           "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
+           "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
+           "QFLUX", "SNOW_F" /)
+     else
+        field_name = (/ "SHF_TOTAL", "SHF_QSW", "SFWF_TOTAL", "PREC_F",  \
+           "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
+           "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
+           "QFLUX", "SNOW_F" /)
+     end if
   else
-
-  field_name = (/ "SHF", "SFWF" /)
-
+     field_name = (/ "SHF", "SFWF" /)
   end if
 
   days_in_norm_year = fileid_1->days_in_norm_year
@@ -126,7 +132,8 @@ begin
     res@xyLineColors = (/"blue", "red"/)
     res@xyMonoDashPattern = True
     res@xyDashPattern = 0
-    res@gsnYRefLine = 0.0
+;; Commenting out this resource due to bug in NCL6.4.0
+;;    res@gsnYRefLine = 0.0
     res@gsnPaperOrientation = "portrait"
 
     data = new((/2,dimsizes(lat_t)/),float)
