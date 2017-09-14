@@ -42,8 +42,13 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
                                 'LWDN_F', 'QFLUX', 'SFWF_TOTAL', 'EVAP_F', 'PREC_F',
                                 'SNOW_F', 'MELT_F', 'SALT_F', 'ROFF_F', 'TAUX',
                                 'TAUY', 'CURL' ]
-        self._expectedPlots_za = [ 'SHF_TOTAL_GLO_za', 'SHF_GLO_za', 'SHF_QSW_GLO_za', 'MELTH_F_GLO_za', 'SENH_F_GLO_za',
-                                   'LWUP_F_GLO_za', 'LWDN_F_GLO_za', 'QFLUX_GLO_za', 'SFWF_TOTAL_GLO_za', 'SFWF_GLO_za',
+        self._expectedPlots_za = [ 'SHF_TOTAL_GLO_za', 'SHF_QSW_GLO_za', 'MELTH_F_GLO_za', 'SENH_F_GLO_za',
+                                   'LWUP_F_GLO_za', 'LWDN_F_GLO_za', 'QFLUX_GLO_za', 'SFWF_TOTAL_GLO_za',
+                                   'EVAP_F_GLO_za', 'PREC_F_GLO_za', 'SNOW_F_GLO_za', 'MELT_F_GLO_za',
+                                   'SALT_F_GLO_za', 'ROFF_F_GLO_za' ]
+
+        self._expectedPlots_za_new = [ 'SHF_GLO_za', 'SHF_QSW_GLO_za', 'MELTH_F_GLO_za', 'SENH_F_GLO_za',
+                                   'LWUP_F_GLO_za', 'LWDN_F_GLO_za', 'QFLUX_GLO_za', 'SFWF_GLO_za',
                                    'EVAP_F_GLO_za', 'PREC_F_GLO_za', 'SNOW_F_GLO_za', 'MELT_F_GLO_za',
                                    'SALT_F_GLO_za', 'ROFF_F_GLO_za' ]
 
@@ -97,11 +102,13 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         """
         self._convert_plots(workdir, imgFormat, self._expectedPlots)
         self._convert_plots(workdir, imgFormat, self._expectedPlots_za)
+        self._convert_plots(workdir, imgFormat, self._expectedPlots_za_new)
 
     def _create_html(self, workdir, templatePath, imgFormat):
         """Creates and renders html that is returned to the calling wrapper
         """
         plot_table = []
+        expectedPlots_za = []
         num_cols = 7
 
         num_plots = len(self._expectedPlots)
@@ -143,7 +150,18 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         # work on the global zonal average 2d flux plots
         plot_za_table = []
 
-        num_plots = len(self._expectedPlots_za)
+        # check which set of plots to link to for SHF and SFWF za totals
+        img_file = 'SHF_TOTAL_GLO_za.{0}'.format(imgFormat)
+        rc1, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir,img_file), 'read' )
+
+        img_file = 'SFWF_TOTAL_GLO_za.{0}'.format(imgFormat)
+        rc2, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir,img_file), 'read' )
+
+        expectedPlots_za = self._expectedPlots_za
+        if not rc1 and not rc2:
+            expectedPlots_za = self._expectedPlots_za_new
+            
+        num_plots = len(expectedPlots_za)
         num_last_row = num_plots % num_cols
         num_rows = num_plots//num_cols
         index = 0
@@ -151,7 +169,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         for i in range(num_rows):
             plot_list = []
             for j in range(num_cols):
-                plot_file = self._expectedPlots_za[index]
+                plot_file = expectedPlots_za[index]
                 img_file = '{0}.{1}'.format(plot_file, imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
@@ -165,7 +183,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         if num_last_row > 0:
             plot_list = []
             for i in range(num_last_row):
-                plot_file = self._expectedPlots_za[index]
+                plot_file = expectedPlots_za[index]
                 img_file = '{0}.{1}'.format(plot_file, imgFormat)
                 rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
                 if not rc:
