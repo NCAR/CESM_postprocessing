@@ -44,7 +44,7 @@ echo "******************************************"
 {{ mpirun }} {{ imb_run }} {{ imb_options }}
 
 {% elif standalone %}
-{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --standalone >> {{ caseRoot }}/logs/{{ processName }}.log.$today 2>&1
+{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --standalone {{ cmdl_opt }} >> {{ caseRoot }}/logs/{{ processName }}.log.$today 2>&1
 {% else %}
 {{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/logs/{{ processName }}.log.$today 2>&1
 {% endif %}

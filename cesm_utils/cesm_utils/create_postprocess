@@ -372,7 +372,8 @@ def read_machine_xml(machineName, xmlFile):
 # -------------------------------------------------------------------------------
 def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName,
                  project, pythonpath, caseRoot, reset_modules, modules, queue, ppn, nodes,
-                 wallclock, options, standalone, imb_run=None, imb_env_vars=None, imb_options=None):
+                 wallclock, options, standalone,
+                 imb_name=None, imb_run=None, imb_env_vars=None, imb_options=None):
     """create the batch submission files for post processing
 
     Arguments:
@@ -394,6 +395,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     wallclock (string) - wallclock time
     options (object) - commandline options
     standalone (boolean) - indicate if this is postprocessing for a standalone case
+    imb_name (string) - the name of the imb suite, e.g. ilamb or iomb
     imb_run (string) - executable for IMB, International Modeling Benchmarks, diags
     imb_env_vars (string) - jinja template string or data for imb environment variables
     imb_options (string) - jinja template string or data for imb command line options
@@ -426,6 +428,11 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     if options.backtrace:
         backtrace = '--backtrace'
 
+    # other command line options that should be passed to the process
+    cmdl_opt = ''
+    if imb_name:
+        cmdl_opt = '{0} --imb-name {1}'.format(cmdl_opt, imb_name)
+        
     # all files look good so start parsing the template file starting with the batchTmpl
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(ppDir) )
     templateEnv = jinja2.Environment( loader=templateLoader )
@@ -456,7 +463,8 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
                      'virtualEnvDir' : virtualEnvDir,
                      'debug' : debug,
                      'backtrace' : backtrace,
-                     'standalone' : standalone }
+                     'standalone' : standalone,
+                     'cmdl_opt': cmdl_opt, }
 
 
     if imb_run:
@@ -639,7 +647,10 @@ def main(options):
 
     # generate the env_diags_[component].xml files
     for comp in itertools.chain(compList, imbList):
-        config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
+        dir_name = comp
+        if dir_name in imbList:
+            dir_name = 'imb'
+        config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{2}.xml'.format(envDict['POSTPROCESS_PATH'], dir_name, comp)
         tmpl_file = 'env_diags.tmpl'
         env_file = '{0}/env_diags_{1}.xml'.format(envDict['PP_CASE_PATH'], comp)
         create_env_file(envDict, config_file, tmpl_file, env_file, machine['{0}_obs_root'.format(comp)], 
@@ -724,7 +735,7 @@ def main(options):
     # TODO - generate the ILAMB and IOMB batch submit scripts from template files
     for imb in imbList:
         # generate the serial script that sets up the imb config file.
-        postProcessCmd = 'imb_initialize.py'.format(imb)
+        postProcessCmd = 'imb_initialize.py'
         processName = '{0}_initialize'.format(imb)
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(ppDir=envDict['POSTPROCESS_PATH'],
@@ -742,9 +753,9 @@ def main(options):
                      ppn=machine['{0}_initialize_ppn'.format(imb)],
                      nodes=machine['{0}_initialize_nodes'.format(imb)],
                      wallclock=machine['{0}_initialize_wallclock'.format(imb)],
-                     options=options, standalone=standalone)
+                     options=options, standalone=standalone, imb_name=imb)
 
-        postProcessCmd = '{0}_diags_generator.py'.format(imb)
+        postProcessCmd = 'imb_diags_generator.py'
         processName = '{0}_diagnostics'.format(imb)
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
         create_batch(ppDir=envDict['POSTPROCESS_PATH'],
@@ -763,6 +774,7 @@ def main(options):
                      nodes=machine['{0}_diagnostics_nodes'.format(imb)],
                      wallclock=machine['{0}_diagnostics_wallclock'.format(imb)],
                      options=options, standalone=standalone,
+                     imb_name=imb,
                      imb_run='ilamb-run',
                      imb_env_vars='{% for env in imb_env_vars %}\n{{ env }}\n{% endfor %}',
                      imb_options='{{ imb_options }}')

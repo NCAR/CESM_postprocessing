@@ -66,14 +66,14 @@
 
       <entry id="ILAMBDIAG_CONFIG_DIRECTORY"
              type="char"
-             value="$POSTPROCESS_PATH/diagnostics/diagnostics/ilamb/Config/"
+             value="$POSTPROCESS_PATH/diagnostics/diagnostics/imb/Config/"
              group="ilamb_opt"
              desc="name of the directory containing the standard or template configuration file"
              ></entry>
 
       <entry id="ILAMBDIAG_CONFIG_NAME"
              type="char"
-             value="sample.cfg"
+             value="ilamb-sample.cfg"
              group="ilamb_opt"
              desc="name of the standard or template filename to use"
              ></entry>
