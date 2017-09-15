@@ -339,6 +339,16 @@ def read_machine_xml(machineName, xmlFile):
                 machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
                 machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
 
+                init = comp.find('initialize_pes')
+                if init is not None:
+                    machine['{0}_initialize_pes'.format(compName)] = init.text
+                    machine['{0}_initialize_queue'.format(compName)] = init.get('queue').lower()
+                    machine['{0}_initialize_nodes'.format(compName)] = ''
+                    if 'nodes' in init.attrib:
+                        machine['{0}_initialize_nodes'.format(compName)] = init.get('nodes').lower()
+                    machine['{0}_initialize_ppn'.format(compName)] = init.get('pes_per_node').lower()
+                    machine['{0}_initialize_wallclock'.format(compName)] = init.get('wallclock').lower()
+
                 regrid = comp.find('regrid_pes')
                 if regrid is not None:
                     machine['{0}_regrid_pes'.format(compName)] = regrid.text
@@ -362,7 +372,7 @@ def read_machine_xml(machineName, xmlFile):
 # -------------------------------------------------------------------------------
 def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName,
                  project, pythonpath, caseRoot, reset_modules, modules, queue, ppn, nodes,
-                 wallclock, options, standalone, imb_run=None, imb_config=None, imb_options=None, obs_root=None):
+                 wallclock, options, standalone, imb_run=None, imb_env_vars=None, imb_options=None):
     """create the batch submission files for post processing
 
     Arguments:
@@ -385,8 +395,8 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     options (object) - commandline options
     standalone (boolean) - indicate if this is postprocessing for a standalone case
     imb_run (string) - executable for IMB, International Modeling Benchmarks, diags
-    imb_config (string) - configuration filename for IMB run
-    obs_root (string) - observation root
+    imb_env_vars (string) - jinja template string or data for imb environment variables
+    imb_options (string) - jinja template string or data for imb command line options
     """
     # first check if outFile already exists, if so delete and recreate
     rc, err_msg = cesmEnvLib.checkFile(outFile, 'read')
@@ -451,21 +461,16 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
 
     if imb_run:
         templateVars['imb_run'] = imb_run
-        # FIXME(bja, 2017-08) need error checking that config and obs_were passed!
-        if imb_config:
-            templateVars['imb_config'] = imb_config
+        if imb_env_vars:
+            templateVars['imb_env_vars'] = imb_env_vars
         else:
-            print('WARNING: create_batch: imb_run specified, but obs_root was undefined!')
+            print('WARNING: create_batch: imb_run specified, but imb_env_vars was undefined!')
 
         if imb_options:
             templateVars['imb_options'] = imb_options
         else:
-            print('WARNING: create_batch: imb_run specified, but obs_root was undefined!')
+            print('WARNING: create_batch: imb_run specified, but imb_options was undefined!')
 
-        if obs_root:
-            templateVars['obs_root'] = obs_root
-        else:
-            print('WARNING: create_batch: imb_run specified, but imb_config was undefined!')
 
     # render this template into the runScript string
     runScript = template.render( templateVars )
@@ -718,6 +723,27 @@ def main(options):
 
     # TODO - generate the ILAMB and IOMB batch submit scripts from template files
     for imb in imbList:
+        # generate the serial script that sets up the imb config file.
+        postProcessCmd = 'imb_initialize.py'.format(imb)
+        processName = '{0}_initialize'.format(imb)
+        outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
+        create_batch(ppDir=envDict['POSTPROCESS_PATH'],
+                     pes=machine['{0}_initialize_pes'.format(imb)],
+                     batchTmpl=batch_tmpl, runTmpl=run_tmpl,
+                     postProcessCmd=postProcessCmd,
+                     mpiCmd='', outFile=outFile,
+                     processName=processName,
+                     project=envDict['PROJECT'],
+                     pythonpath=machine['pythonpath'],
+                     caseRoot=envDict['PP_CASE_PATH'],
+                     reset_modules=machine['reset_modules'],
+                     modules=machine['modules'],
+                     queue=machine['{0}_initialize_queue'.format(imb)],
+                     ppn=machine['{0}_initialize_ppn'.format(imb)],
+                     nodes=machine['{0}_initialize_nodes'.format(imb)],
+                     wallclock=machine['{0}_initialize_wallclock'.format(imb)],
+                     options=options, standalone=standalone)
+
         postProcessCmd = '{0}_diags_generator.py'.format(imb)
         processName = '{0}_diagnostics'.format(imb)
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
@@ -738,10 +764,9 @@ def main(options):
                      wallclock=machine['{0}_diagnostics_wallclock'.format(imb)],
                      options=options, standalone=standalone,
                      imb_run='ilamb-run',
-                     imb_config='{0}.cfg'.format(imb),
-                     imb_options='{{ imb_options }}',
-                     obs_root=machine['{0}_obs_root'.format(imb)])
-                     
+                     imb_env_vars='{% for env in imb_env_vars %}\n{{ env }}\n{% endfor %}',
+                     imb_options='{{ imb_options }}')
+        
 
     # copy some tools to the PP_CASE_PATH
     files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd']

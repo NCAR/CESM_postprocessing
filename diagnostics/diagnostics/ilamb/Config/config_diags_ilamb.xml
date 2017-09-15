@@ -39,8 +39,16 @@
              type="char"
              valid_values="Agg"
              value="Agg"
-             group="ilamb_config"
+             group="ilamb_env"
              desc="matplotlib backend for generating graphics, should be exported to the environment!"
+             ></entry>
+
+      <entry id="ILAMBDIAG_ILAMB_ROOT"
+             type="char"
+             valid_values="Agg"
+             value="/glade/p/work/aliceb/sandboxes/tests/ILAMB"
+             group="ilamb_env"
+             desc="environment variable model data root path"
              ></entry>
     </group>
 
@@ -50,10 +58,17 @@
 
       <entry id="ILAMBDIAG_CONFIG_TYPE"
              type="char"
-             valid_values="standard,template"
+             valid_values="standard"
              value="standard"
              group="ilamb_opt"
-             desc="whether to use a standard or templated configuration file"
+             desc="whether to use a standard or templated configuration file. Templated not implemented."
+             ></entry>
+
+      <entry id="ILAMBDIAG_CONFIG_DIRECTORY"
+             type="char"
+             value="$POSTPROCESS_PATH/diagnostics/diagnostics/ilamb/Config/"
+             group="ilamb_opt"
+             desc="name of the directory containing the standard or template configuration file"
              ></entry>
 
       <entry id="ILAMBDIAG_CONFIG_NAME"
@@ -62,6 +77,20 @@
              group="ilamb_opt"
              desc="name of the standard or template filename to use"
              ></entry>
+
+    </group>
+
+    <group name="ilamb_cli">
+      <order>1</order>
+      <comment>ILAMB Command-line Interface Options</comment>
+
+      <entry id="ILAMBDIAG_CLI_OPTIONS"
+             type="char"
+             value=" --config $CASEROOT/$ILAMBDIAG_CONFIG_NAME --model_root $ILAMBDIAG_DIAGOBSROOT/MODELS/ --regions global --filter _historical_ --models CLM50r243GSWP3 "
+             group="ilamb_cli"
+             desc="User specified list of command line options to pass to imb_run."
+             ></entry>
+
     </group>
 
   </groups>

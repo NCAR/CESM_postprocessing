@@ -54,7 +54,7 @@ setup(
              'diagnostics/atm/atm_diags_generator.py','diagnostics/atm/atm_avg_generator.py',
              'diagnostics/ice/ice_diags_generator.py','diagnostics/ice/ice_avg_generator.py',
              'diagnostics/lnd/lnd_diags_generator.py','diagnostics/lnd/lnd_avg_generator.py',
-             'diagnostics/ilamb/ilamb_diags_generator.py',
+             'diagnostics/ilamb/ilamb_diags_generator.py', 'diagnostics/ilamb/imb_initialize.py',
              'diagnostics/lnd/lnd_regrid_generator.py'],
     install_requires=get_requires(),
     #dependency_links=get_dependencies(),
