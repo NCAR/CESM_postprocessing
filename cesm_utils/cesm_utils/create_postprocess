@@ -775,7 +775,7 @@ def main(options):
                      wallclock=machine['{0}_diagnostics_wallclock'.format(imb)],
                      options=options, standalone=standalone,
                      imb_name=imb,
-                     imb_run='ilamb-run',
+                     imb_run='{{ imb_exe }}',
                      imb_env_vars='{% for env in imb_env_vars %}\n{{ env }}\n{% endfor %}',
                      imb_options='{{ imb_options }}')
         

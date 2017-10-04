@@ -155,7 +155,12 @@ def expand_batch_vars(envDict, imb_name):
     """
     templateVars = {}
     try:
-        templateVars['imb_options'] = envDict["CLI_OPTIONS"]
+        templateVars['imb_exe'] = envDict["EXENAME"]
+    except:
+        raise RuntimeError('EXENAME must be specified in the imb env xml file.')
+
+    try:
+        templateVars['imb_options'] = envDict["CLI"]
     except:
         raise RuntimeError('CLI_OPTIONS must be specified in the imb env xml file.')
 

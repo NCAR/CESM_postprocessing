@@ -19,7 +19,7 @@
     
     <group name="global">
       <order>0</order>
-      <comment>Environment variables to control ILAMB</comment>
+      <comment>Run provenance</comment>
 
       <entry id="ILAMBDIAG_VERSION"
              type="char"
@@ -33,7 +33,7 @@
     
     <group name="ilamb_env">
       <order>1</order>
-      <comment>ILAMB Environment Variables</comment>
+      <comment>ILAMB Environment Variables, must be exported prior to executing imb_run</comment>
 
       <entry id="ILAMBDIAG_MPLBACKEND"
              type="char"
@@ -45,50 +45,91 @@
 
       <entry id="ILAMBDIAG_ILAMB_ROOT"
              type="char"
-             valid_values="Agg"
-             value="/glade/p/work/aliceb/sandboxes/tests/ILAMB"
+             valid_values="/path/to/ILAMB_ROOT"
+             value="$ILAMBDIAG_DIAGOBSROOT"
              group="ilamb_env"
-             desc="environment variable model data root path"
+             desc="Environment variable for the model data root path. These are data files downloaded using the ilamb-fetch command. NOTE: this is machine and / or user dependent."
              ></entry>
     </group>
 
-    <group name="ilamb_opt">
-      <order>1</order>
-      <comment>ILAMB Options</comment>
+    <group name="ilamb_config">
+      <order>2</order>
+      <comment>ILAMB Configuration Options</comment>
 
       <entry id="ILAMBDIAG_CONFIG_TYPE"
              type="char"
              valid_values="standard"
              value="standard"
-             group="ilamb_opt"
-             desc="whether to use a standard or templated configuration file. Templated not implemented."
+             group="ilamb_config"
+             desc="whether to use a standard or templated configuration file. NOTE: Templated is not implemented at this time."
              ></entry>
 
       <entry id="ILAMBDIAG_CONFIG_DIRECTORY"
              type="char"
              value="$POSTPROCESS_PATH/diagnostics/diagnostics/imb/Config/"
-             group="ilamb_opt"
+             group="ilamb_config"
              desc="name of the directory containing the standard or template configuration file"
              ></entry>
 
       <entry id="ILAMBDIAG_CONFIG_NAME"
              type="char"
              value="ilamb-sample.cfg"
-             group="ilamb_opt"
+             group="ilamb_config"
              desc="name of the standard or template filename to use"
              ></entry>
 
     </group>
 
+
     <group name="ilamb_cli">
-      <order>1</order>
+      <order>3</order>
       <comment>ILAMB Command-line Interface Options</comment>
 
-      <entry id="ILAMBDIAG_CLI_OPTIONS"
+      <entry id="ILAMBDIAG_EXENAME"
              type="char"
-             value=" --config $CASEROOT/$ILAMBDIAG_CONFIG_NAME --model_root $ILAMBDIAG_DIAGOBSROOT/MODELS/ --regions global --filter _historical_ --models CLM50r243GSWP3 "
+             valid_values="ilamb-run"
+             value="ilamb-run"
              group="ilamb_cli"
-             desc="User specified list of command line options to pass to imb_run."
+             desc="imb diagnostics executable name. Must be an absolute path or available in the virtualenv or in the users path."
+             ></entry>
+
+      <entry id="ILAMBDIAG_MODELROOT"
+             type="char"
+             valid_values="/path/to/model/root"
+             value="$ILAMBDIAG_DIAGOBSROOT/MODELS"
+             group="ilamb_config"
+             desc="root directory containing the model data"
+             ></entry>
+
+      <entry id="ILAMBDIAG_MODELNAME"
+             type="char"
+             valid_values=""
+             value="CLM50r243GSWP3"
+             group="ilamb_config"
+             desc="model directory name"
+             ></entry>
+
+      <entry id="ILAMBDIAG_CLI_REQUIRED"
+             type="char"
+             value=" --config $CASEROOT/$ILAMBDIAG_CONFIG_NAME --model_root $ILAMBDIAG_MODELROOT/  --models $ILAMBDIAG_MODELNAME"
+             group="ilamb_cli"
+             desc="required command line options passed to ILAMBDIAG_EXENAME"
+             ></entry>
+
+      <entry id="ILAMBDIAG_CLI_OPTIONAL"
+             type="char"
+             valid_values=""
+             value="--regions global --filter _historical_"
+             group="ilamb_cli"
+             desc="optional command line options passed to ILAMBDIAG_EXENAME"
+             ></entry>
+      <!-- "- -disable_logging" -->
+
+      <entry id="ILAMBDIAG_CLI"
+             type="char"
+             value="$ILAMBDIAG_CLI_REQUIRED $ILAMBDIAG_CLI_OPTIONAL"
+             group="ilamb_cli"
+             desc="Complete list of command line options to pass to ILAMBDIAG_EXENAME"
              ></entry>
 
     </group>
