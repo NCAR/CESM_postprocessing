@@ -170,15 +170,16 @@ def expand_batch_vars(envDict, imb_name):
     env_vars.append("export {0}={1}".format(diag_root, envDict[diag_root]))
     templateVars['imb_env_vars'] = env_vars
 
-    batch_filename = '{0}_diagnostics'.format(imb_name)
+    template_filename = '{0}_diagnostics.tmpl'.format(imb_name)
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}'.format(envDict["CASEROOT"]) )
     templateEnv = jinja2.Environment( loader=templateLoader )
-    template = templateEnv.get_template( batch_filename )
+    template = templateEnv.get_template( template_filename )
     
     # render this template into the runScript string
     runScript = template.render( templateVars )
 
     # write the runScript to the outFile
+    batch_filename = '{0}_diagnostics'.format(imb_name)
     outFile = os.path.join(envDict["CASEROOT"], batch_filename)
     with open( outFile, 'w') as fh:
         fh.write(runScript)
