@@ -144,6 +144,9 @@ def initialize_main(envDict, caseroot, debugMsg, standalone, imb_name):
     # enviroment to allow for compatibility with all the diag routine calls
     envDict = diagUtilsLib.strip_prefix(envDict, diag_name)
 
+    # ILAMB requires output directory to already exist
+    if not os.path.exists(envDict['OUTPUTROOT']):
+        os.makedirs(envDict['OUTPUTROOT'])
 
     # setup the working directories
     sys.path.append(envDict['PATH'])
