@@ -184,8 +184,10 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                         log[comp+stream]['index']=index
                         for cn,cf in files.iteritems():
 
-                            if not os.path.exists(tseries_output_dir):
-                                os.makedirs(tseries_output_dir)
+                            if rank == 0:
+                                if not os.path.exists(tseries_output_dir):
+                                    os.makedirs(tseries_output_dir)
+                            comm.sync()
 
                             history_files = cf['fn']
                             start_time_parts = cf['start']

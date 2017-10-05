@@ -10,7 +10,7 @@ field_name  = (/ "SHF",     "SHF_TOTAL",  "SHF_QSW", "MELTH_F", \
                 "SFWF",    "SFWF_TOTAL", "PREC_F",  "MELT_F",  \
                 "ROFF_F",  "SALT_F", "TAUX", "TAUY", "CURL",  \
                 "QFLUX",   "SNOW_F" /)
-if (resolution .eq. "gx1v6") then
+if ((resolution .eq. "gx1v6") .or. (resolution .eq. "gx1v7")) then
   obs_var_name = (/  "", "Foxx_nethflx",  "Foxx_swnet", "", \
 		"Foxx_sen", "Foxx_lwup", "Foxx_lwdn","Foxx_evap", \
 		"", "Foxx_netfwflx","Foxx_rain","", \
@@ -30,14 +30,14 @@ print( " the number of fields to be processed is " + n_fields)
 
 missing = default_fillvalue("float")
 
+
+;;print("file_netcdf = "+file_netcdf)
+;;print("file_flux_obs = "+file_flux_obs)
+;;print("file_wind_obs = "+file_wind_obs)
+
 fileid     = addfile(file_netcdf,"r")
-;print(fileid)
-
 fileid_obs = addfile(file_flux_obs,"r")
-;print(fileid_obs)
 fileid_windobs = addfile(file_wind_obs,"r")
-;print(fileid_windobs)
-
 
 days_in_norm_year = fileid->days_in_norm_year
 sflux_factor = fileid->sflux_factor
@@ -75,7 +75,7 @@ do n = 0, n_fields-1
         end if
   end if
   if (obs_var_name(n) .ne. "") then
-         ;print("" + obs_prefix + obs_var_name(n))
+        ;;print("" + obs_prefix + obs_var_name(n))
 	obsvar = obs_prefix + obs_var_name(n)
 	field_obs = obsfile->$obsvar$
   end if
@@ -403,8 +403,10 @@ do n = 0, n_fields-1
   end if
   
    if ( obsvar .ne. "") then 
-    ;printVarSummary(field)
-    ;printVarSummary(field_obs)
+    ;;print("*** before field")
+    ;;printVarSummary(field)
+    ;;print("*** before field_obs")
+    ;;printVarSummary(field_obs)
     field_diff = field - field_obs
     if ( dmin_diff .eq. missing  .or.  dmax_diff .eq. missing ) then \ 
         print(" user must set the contour limits .... ")
@@ -456,12 +458,12 @@ do n = 0, n_fields-1
   else
      opt@do_panel = False
   end if
-  ;print("drawing plot1")
+  ;;print("drawing plot1")
   plot1 = contour_plot(wks, field, tlon, tlat, kmt, region_mask, area, case_info, \
             	       missing, units, dlev, lev, coltab, opt)
 
   if (opt@do_panel) then
-     ;print("drawing plot2")
+     ;;print("drawing plot2")
      if (field_name(n) .eq. "CURL") then
 	opt@contourline = 2
      else
@@ -470,7 +472,7 @@ do n = 0, n_fields-1
      plot2 = contour_plot(wks, field_diff, tlon, tlat, kmt, region_mask, area, case_info_diff, \
                           missing, units, dlev_diff, lev_diff, coltab, opt)
     
-     ;print("panelling")
+     ;;print("panelling")
      gsn_panel(wks,(/plot1,plot2/), (/2,1/),False)
  end if
 

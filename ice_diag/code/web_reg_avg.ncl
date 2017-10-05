@@ -486,11 +486,9 @@ end if
 
       res@tmXBLabelFontColor = "blue"
 
-;;      res@trYMinF = min((/min(y1),min(y1b)/))
-      res@trYMinF = 0.
+      res@trYMinF = min((/min(y1),min(y1b)/))
       res@trYMaxF = max((/max(y1),max(y1b)/))
-;;      resb@trYMinF = min((/min(y1),min(y1b)/))
-      resb@trYMinF = 0.
+      resb@trYMinF = min((/min(y1),min(y1b)/))
       resb@trYMaxF = max((/max(y1),max(y1b)/))
 
       resb@gsnRightString = " "
@@ -508,14 +506,14 @@ end if
       plot1 = gsn_csm_x2y2(wks1,x1,x2,y1,y1b,res,resb)
       res@gsnRightString = " "
       res@gsnLeftString = " "
-;;      res@trYMinF = min((/min(y2),min(y2b)/))
+      res@trYMinF = min((/min(y2),min(y2b)/))
       res@trYMaxF = max((/max(y2),max(y2b)/))
-;;      resb@trYMinF = min((/min(y2),min(y2b)/))
+      resb@trYMinF = min((/min(y2),min(y2b)/))
       resb@trYMaxF = max((/max(y2),max(y2b)/))
       plot2 = gsn_csm_x2y2(wks1,x1,x2,y2,y2b,res,resb)
-;;      res@trYMinF = min((/min(y3),min(y3b)/))
+      res@trYMinF = min((/min(y3),min(y3b)/))
       res@trYMaxF = max((/max(y3),max(y3b)/))
-;;      resb@trYMinF = min((/min(y3),min(y3b)/))
+      resb@trYMinF = min((/min(y3),min(y3b)/))
       resb@trYMaxF = max((/max(y3),max(y3b)/))
       plot3 = gsn_csm_x2y2(wks1,x1,x2,y3,y3b,res,resb)
    else

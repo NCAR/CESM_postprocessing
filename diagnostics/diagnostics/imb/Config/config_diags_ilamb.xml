@@ -101,6 +101,14 @@
              desc="root directory containing the model data"
              ></entry>
 
+      <entry id="ILAMBDIAG_OUTPUTROOT"
+             type="char"
+             valid_values="/path/to/model/output/root"
+             value="$DOUT_S_ROOT/lnd/proc/ilamb"
+             group="ilamb_config"
+             desc="output root directory containing the html and diagnostics plots"
+             ></entry>
+
       <entry id="ILAMBDIAG_MODELNAME"
              type="char"
              valid_values=""
@@ -111,7 +119,7 @@
 
       <entry id="ILAMBDIAG_CLI_REQUIRED"
              type="char"
-             value=" --config $CASEROOT/$ILAMBDIAG_CONFIG_NAME --model_root $ILAMBDIAG_MODELROOT/  --models $ILAMBDIAG_MODELNAME"
+             value=" --config $CASEROOT/$ILAMBDIAG_CONFIG_NAME --model_root $ILAMBDIAG_MODELROOT/  --models $ILAMBDIAG_MODELNAME --build_dir $ILAMBDIAG_OUTPUTROOT"
              group="ilamb_cli"
              desc="required command line options passed to ILAMBDIAG_EXENAME"
              ></entry>
@@ -119,11 +127,10 @@
       <entry id="ILAMBDIAG_CLI_OPTIONAL"
              type="char"
              valid_values=""
-             value="--regions global --filter _historical_"
+             value="--regions global --filter _historical_ --disable_logging"
              group="ilamb_cli"
              desc="optional command line options passed to ILAMBDIAG_EXENAME"
              ></entry>
-      <!-- "- -disable_logging" -->
 
       <entry id="ILAMBDIAG_CLI"
              type="char"
