@@ -53,3 +53,4 @@ for year in range(2010,2015):
     casename = 'f.e20.FCHIST.f09_f09_mg17.alpha07c_cam5_4_138.002.cam.h7'
     filename = '{0}.{1}-01-01-00000.nc'.format(casename,year)
     os.symlink(os.path.join(srcdir, filename), os.path.join(linkdir, filename))
+
