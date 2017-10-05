@@ -69,7 +69,22 @@ of how this may be accomplished.
    :template: class.rst
 
    ConfNBP
- 
+
+Regions
+-------
+
+This class unifies treatment of regions in ILAMB by allowing regions
+to be defined by latitude and longitude bounds as well by netCDF4
+files containing integer indices.
+
+.. currentmodule:: ILAMB.Regions
+.. autosummary::
+   :toctree: _generated
+   :nosignatures:
+   :template: class.rst
+
+   Regions
+
 ilamblib
 --------
 

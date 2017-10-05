@@ -239,6 +239,7 @@ Rhea @ OLCF
   module load udunits
   module load geos
   module load python
+  module load python_setuptools
   module load python_pip
   module load python_numpy
   module load python_matplotlib

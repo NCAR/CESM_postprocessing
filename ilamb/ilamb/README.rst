@@ -20,6 +20,21 @@ the goals of ILAMB are to:
 It is the last of these goals to which this repository is
 concerned. We have developed a python-based generic benchmarking
 system, initially focused on assessing land model performance.
+  
+Useful Information
+------------------
+
+* `Documentation <http://ilamb.ornl.gov/doc/>`_ - installation and
+  basic usage tutorials
+* Sample Output
+  
+  * `CLM <http://ilamb.ornl.gov/CLM/>`_ - land comparison against 3 CLM versions and 2 forcings
+  * `CMIP5 <http://ilamb.ornl.gov/CMIP5/>`_ - land comparison against a collection of CMIP5 models
+  * `IOMB <http://ilamb.ornl.gov/IOMB/>`_ - ocean comparison against a few ocean models
+    
+* If you find the package or the ouput helpful in your research or
+  development efforts, we kindly ask you to cite the following
+  reference (DOI:10.18139/ILAMB.v002.00/1251621).
 
 ILAMB 2.1 Release
 -----------------
@@ -81,20 +96,6 @@ with the following new features:
   * Fixed code which triggers depracation warnings from numpy and
     matplotlib.
   
-
-  
-Useful Information
-------------------
-
-* `Documentation
-  <http://climate.ornl.gov/~ncf/ILAMB/docs/index.html>`_ of the public
-  API is included in the repository, but also hosted if you follow the
-  link.
-* `Sample output
-  <http://www.climatemodeling.org/~nate/ILAMB/index.html>`_ gives you
-  an idea of the scope and magnitude of the package capabilities.
-* You may cite the software package by using the following reference (DOI:10.18139/ILAMB.v002.00/1251621).
-
 Funding
 -------
 
