@@ -1,6 +1,7 @@
 import ilamblib as il
 from Variable import *
-from constants import four_code_regions,space_opts,time_opts,mid_months,bnd_months
+from Regions import Regions
+from constants import space_opts,time_opts,mid_months,bnd_months
 import os,glob,re
 from netCDF4 import Dataset
 import Post as post
@@ -8,6 +9,7 @@ import pylab as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpi4py import MPI
+from sympy import sympify
 
 import logging
 logger = logging.getLogger("%i" % MPI.COMM_WORLD.rank)	
@@ -65,7 +67,7 @@ class Confrontation(object):
     land : str, bool
         enable to force the masking of areas with no land (default is False)
     limit_type : str
-        change the types of plot limits, one of ['minmax' (default), '99per']
+        change the types of plot limits, one of ['minmax', '99per' (default)]
     """
     def __init__(self,**keywords):
         
@@ -89,6 +91,7 @@ class Confrontation(object):
         self.space_mean     = keywords.get("space_mean",True)        
         self.relationships  = keywords.get("relationships",None)
         self.keywords       = keywords
+        self.extents        = np.asarray([[-90.,+90.],[-180.,+180.]])
         
         # Make sure the source data exists
         try:
@@ -98,13 +101,53 @@ class Confrontation(object):
             msg += "%s\n\nbut I cannot find it. " % self.source
             msg += "Did you download the data? Have you set the ILAMB_ROOT envronment variable?\n"
             raise il.MisplacedData(msg)
-
+                
         # Setup a html layout for generating web views of the results
         pages = []
+        
+        # Mean State page
         pages.append(post.HtmlPage("MeanState","Mean State"))
         pages[-1].setHeader("CNAME / RNAME / MNAME")
         pages[-1].setSections(["Temporally integrated period mean",
                               "Spatially integrated regional mean"])
+
+        # Datasites page
+        self.hasSites = False
+        self.lbls     = None
+        y0 = None; yf = None
+        with Dataset(self.source) as dataset:
+            if dataset.dimensions.has_key("data"):
+                #self.hasSites = True
+                if "site_name" in dataset.ncattrs():
+                    self.lbls = dataset.site_name.split(",")
+                else:
+                    self.lbls = ["site%d" % s for s in range(len(dataset.dimensions["data"]))]
+            if dataset.dimensions.has_key("time"):
+                t = dataset.variables["time"]
+                if "bounds" in t.ncattrs():
+                    t  = dataset.variables[t.bounds][...]
+                    y0 = int(t[ 0,0]/365.+1850.)
+                    yf = int(t[-1,1]/365.+1850.)-1
+                else:
+                    y0 = int(round(t[ 0]/365.)+1850.)
+                    yf = int(round(t[-1]/365.)+1850.)-1
+
+        if self.hasSites:
+            pages.append(post.HtmlSitePlotsPage("SitePlots","Site Plots"))
+            pages[-1].setHeader("CNAME / RNAME / MNAME")
+            pages[-1].setSections([])
+            var = Variable(filename       = self.source,
+                           variable_name  = self.variable,
+                           alternate_vars = self.alternate_vars).integrateInTime(mean=True)
+            if self.plot_unit is not None: var.convert(self.plot_unit)
+            pages[-1].lat   = var.lat
+            pages[-1].lon   = var.lon
+            pages[-1].vname = self.variable
+            pages[-1].unit  = var.unit
+            pages[-1].vals  = var.data
+            pages[-1].sites = self.lbls
+            
+        # Relationships page
         if self.relationships is not None:
             pages.append(post.HtmlPage("Relationships","Relationships"))
             pages[-1].setHeader("CNAME / RNAME / MNAME")
@@ -119,7 +162,7 @@ class Confrontation(object):
         with Dataset(self.source) as dset:
             for attr in dset.ncattrs():
                 pages[-1].text += "<p><b>&nbsp;&nbsp;%s:&nbsp;</b>%s</p>\n" % (attr,dset.getncattr(attr).encode('ascii','ignore'))
-        self.layout = post.HtmlLayout(pages,self.longname)
+        self.layout = post.HtmlLayout(pages,self.longname,years=(y0,yf))
 
         # Define relative weights of each score in the overall score
         # (FIX: need some way for the user to modify this)
@@ -129,23 +172,15 @@ class Confrontation(object):
                        "Interannual Variability Score" :1.,
                        "Spatial Distribution Score"    :1.}
 
-    def _checkRegions(self,var):
-        """
-        """
-        data = (var.data.mask == 0).any(axis=0) # flagged 1 if data present at all
-        to_remove = []
-        for region in self.regions:
-            lats,lons = ILAMBregions[region]
-            if var.ndata is None:
-                rdata = np.outer((var.lat>lats[0])*(var.lat<lats[1]),
-                                 (var.lon>lons[0])*(var.lon<lons[1]))            
-            else:
-                rdata  = (var.lat>lats[0])*(var.lat<lats[1])
-                rdata *= (var.lon>lons[0])*(var.lon<lons[1])
-            if ((data*rdata).sum() == 0): to_remove.append(region)
-        for region in to_remove: self.regions.remove(region)
-        
-        
+    def requires(self):
+        if self.derived is not None:
+            ands = [arg.name for arg in sympify(self.derived).free_symbols]
+            ors  = []
+        else:
+            ands = []
+            ors  = [self.variable] + self.alternate_vars
+        return ands,ors
+    
     def stageData(self,m):
         r"""Extracts model data which matches the observational dataset.
         
@@ -180,8 +215,8 @@ class Confrontation(object):
                        variable_name  = self.variable,
                        alternate_vars = self.alternate_vars)
         if obs.time is None: raise il.NotTemporalVariable()
-        self._checkRegions(obs)
-
+        self.pruneRegions(obs)
+        
         # Try to extract a commensurate quantity from the model
         mod = m.extractTimeSeries(self.variable,
                                   alt_vars     = self.alternate_vars,
@@ -193,6 +228,7 @@ class Confrontation(object):
         obs,mod = il.MakeComparable(obs,mod,
                                     mask_ref  = True,
                                     clip_ref  = True,
+                                    extents   = self.extents,
                                     logstring = "[%s][%s]" % (self.longname,m.name))
         
         # Check the order of magnitude of the data and convert to help avoid roundoff errors
@@ -214,6 +250,11 @@ class Confrontation(object):
 
         return obs,mod
 
+    def pruneRegions(self,var):
+        # remove regions if there is no data from the input variable
+        r = Regions()
+        self.regions = [region for region in self.regions if r.hasData(region,var)]
+
     def confront(self,m):
         r"""Confronts the input model with the observational data.
 
@@ -231,10 +272,9 @@ class Confrontation(object):
         """
         # Grab the data
         obs,mod = self.stageData(m)
-
-                
-        mod_file = "%s/%s_%s.nc"        % (self.output_path,self.name,m.name)
-        obs_file = "%s/%s_Benchmark.nc" % (self.output_path,self.name       )
+        
+        mod_file = os.path.join(self.output_path,"%s_%s.nc"        % (self.name,m.name))
+        obs_file = os.path.join(self.output_path,"%s_Benchmark.nc" % (self.name,      ))
         with FileContextManager(self.master,mod_file,obs_file) as fcm:
 
             # Encode some names and colors
@@ -248,18 +288,15 @@ class Confrontation(object):
             mass_weighting = self.keywords.get("mass_weighting",False)
             skip_rmse      = self.keywords.get("skip_rmse"     ,False)
             skip_iav       = self.keywords.get("skip_iav"      ,False)
-            try:
-                il.AnalysisMeanState(obs,mod,dataset   = fcm.mod_dset,
-                                     regions           = self.regions,
-                                     benchmark_dataset = fcm.obs_dset,
-                                     table_unit        = self.table_unit,
-                                     plot_unit         = self.plot_unit,
-                                     space_mean        = self.space_mean,
-                                     skip_rmse         = skip_rmse,
-                                     skip_iav          = skip_iav,
-                                     mass_weighting    = mass_weighting)
-            except:
-                raise il.AnalysisError()
+            il.AnalysisMeanState(obs,mod,dataset   = fcm.mod_dset,
+                                 regions           = self.regions,
+                                 benchmark_dataset = fcm.obs_dset,
+                                 table_unit        = self.table_unit,
+                                 plot_unit         = self.plot_unit,
+                                 space_mean        = self.space_mean,
+                                 skip_rmse         = skip_rmse,
+                                 skip_iav          = skip_iav,
+                                 mass_weighting    = mass_weighting)
 
         logger.info("[%s][%s] Success" % (self.longname,m.name))
                 
@@ -273,32 +310,48 @@ class Confrontation(object):
         called before calling any plotting routine.
 
         """
-        max_str = "max"
-        min_str = "min"
-        if self.keywords.get("limit_type","minmax") == "99per":
-            max_str = "up99"
-            min_str = "dn99"
+        max_str = "up99"
+        min_str = "dn99"
+        if self.keywords.get("limit_type","99per") == "minmax":
+            max_str = "max"
+            min_str = "min"
             
         # Determine the min/max of variables over all models
         limits = {}
-        for fname in glob.glob("%s/*.nc" % self.output_path):
+        prune  = False
+        for fname in glob.glob(os.path.join(self.output_path,"*.nc")):
             with Dataset(fname) as dataset:
                 if "MeanState" not in dataset.groups: continue
                 group     = dataset.groups["MeanState"]
                 variables = [v for v in group.variables.keys() if v not in group.dimensions.keys()]
                 for vname in variables:
-                    var   = group.variables[vname]
-                    pname = vname.split("_")[0]
+                    var    = group.variables[vname]
+                    pname  = vname.split("_")[0]
+                    region = vname.split("_")[-1]
                     if var[...].size <= 1: continue
-                    if not (space_opts.has_key(pname) or time_opts.has_key(pname)): continue
-                    if not limits.has_key(pname):
-                        limits[pname] = {}
-                        limits[pname]["min"]  = +1e20
-                        limits[pname]["max"]  = -1e20
-                        limits[pname]["unit"] = post.UnitStringToMatplotlib(var.getncattr("units"))
-                    limits[pname]["min"] = min(limits[pname]["min"],var.getncattr(min_str))
-                    limits[pname]["max"] = max(limits[pname]["max"],var.getncattr(max_str))
-
+                    if space_opts.has_key(pname):
+                        if not limits.has_key(pname):
+                            limits[pname] = {}
+                            limits[pname]["min"]  = +1e20
+                            limits[pname]["max"]  = -1e20
+                            limits[pname]["unit"] = post.UnitStringToMatplotlib(var.getncattr("units"))
+                        limits[pname]["min"] = min(limits[pname]["min"],var.getncattr(min_str))
+                        limits[pname]["max"] = max(limits[pname]["max"],var.getncattr(max_str))
+                    elif time_opts.has_key(pname):
+                        if not limits.has_key(pname): limits[pname] = {}
+                        if not limits[pname].has_key(region):
+                            limits[pname][region] = {}
+                            limits[pname][region]["min"]  = +1e20
+                            limits[pname][region]["max"]  = -1e20
+                            limits[pname][region]["unit"] = post.UnitStringToMatplotlib(var.getncattr("units"))
+                        limits[pname][region]["min"] = min(limits[pname][region]["min"],var.getncattr("min"))
+                        limits[pname][region]["max"] = max(limits[pname][region]["max"],var.getncattr("max"))
+                    if not prune and "Benchmark" in fname and pname == "timeint":
+                        prune = True
+                        self.pruneRegions(Variable(filename      = fname,
+                                                   variable_name = vname,
+                                                   groupname     = "MeanState"))
+        
         # Second pass to plot legends (FIX: only for master?)
         for pname in limits.keys():
 
@@ -327,11 +380,11 @@ class Confrontation(object):
                               ticks = opts["ticks"],
                               ticklabels = opts["ticklabels"],
                               label = label)
-                fig.savefig("%s/legend_%s.png" % (self.output_path,pname))
+                fig.savefig(os.path.join(self.output_path,"legend_%s.png" % (pname)))                
                 plt.close()
 
         # Determine min/max of relationship variables
-        for fname in glob.glob("%s/*.nc" % self.output_path):
+        for fname in glob.glob(os.path.join(self.output_path,"*.nc")):
             with Dataset(fname) as dataset:
                 for g in dataset.groups.keys():
                     if "relationship" not in g: continue
@@ -385,7 +438,7 @@ class Confrontation(object):
                 scores["Overall Score %s" % region] = overall_score
             return scores
 
-        fname = "%s/%s_%s.nc" % (self.output_path,self.name,m.name)
+        fname = os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name))
         if not os.path.isfile(fname): return
         with Dataset(fname,mode="r+") as dataset:
             datasets = [dataset.groups[grp] for grp in dataset.groups if "scalars" not in grp]
@@ -423,7 +476,7 @@ class Confrontation(object):
         cycle  = {}
         has_cycle = False
         has_std   = False
-        for fname in glob.glob("%s/*.nc" % self.output_path):
+        for fname in glob.glob(os.path.join(self.output_path,"*.nc")):
             dataset = Dataset(fname)
             if "MeanState" not in dataset.groups: continue
             dset    = dataset.groups["MeanState"]
@@ -439,7 +492,10 @@ class Confrontation(object):
 
                 if not std.  has_key(region): std  [region] = []
                 if not corr. has_key(region): corr [region] = []
-                key = [v for v in dset.groups["scalars"].variables.keys() if ("Spatial Distribution Score" in v and region in v)]
+
+                key = []
+                if "scalars" in dset.groups:
+                    key = [v for v in dset.groups["scalars"].variables.keys() if ("Spatial Distribution Score" in v and region in v)]
                 if len(key) > 0:
                     has_std = True
                     sds     = dset.groups["scalars"].variables[key[0]]
@@ -451,25 +507,31 @@ class Confrontation(object):
             page.addFigure("Spatially integrated regional mean",
                            "compcycle",
                            "RNAME_compcycle.png",
-                           side   = "CYCLES",
-                           legend = True)
+                           side   = "ANNUAL CYCLE",
+                           legend = False)
 
         for region in self.regions:
             if not cycle.has_key(region): continue
             fig,ax = plt.subplots(figsize=(6.8,2.8),tight_layout=True)
             for name,color,var in zip(models,colors,cycle[region]):
+                dy = 0.05*(self.limits["cycle"][region]["max"]-self.limits["cycle"][region]["min"])
                 var.plot(ax,lw=2,color=color,label=name,
                          ticks      = time_opts["cycle"]["ticks"],
                          ticklabels = time_opts["cycle"]["ticklabels"],
-                         vmin       = self.limits["cycle"]["min"],
-                         vmax       = self.limits["cycle"]["max"])
+                         vmin       = self.limits["cycle"][region]["min"]-dy,
+                         vmax       = self.limits["cycle"][region]["max"]+dy)
                 ylbl = time_opts["cycle"]["ylabel"]
                 if ylbl == "unit": ylbl = post.UnitStringToMatplotlib(var.unit)
                 ax.set_ylabel(ylbl)
-            fig.savefig("%s/%s_compcycle.png" % (self.output_path,region))
+            fig.savefig(os.path.join(self.output_path,"%s_compcycle.png" % (region)))
             plt.close()
 
         # plot legends with model colors (sorted with Benchmark data on top)
+        page.addFigure("Spatially integrated regional mean",
+                       "legend_compcycle",
+                       "legend_compcycle.png",
+                       side   = "MODEL COLORS",
+                       legend = False)
         def _alphabeticalBenchmarkFirst(key):
             key = key[0].upper()
             if key == "BENCHMARK": return 0
@@ -480,11 +542,13 @@ class Confrontation(object):
             ax.plot(0,0,'o',mew=0,ms=8,color=color,label=model)
         handles,labels = ax.get_legend_handles_labels()
         plt.close()
-        fig,ax = plt.subplots(figsize=(6.8,2.8),tight_layout=True)
-        ax.legend(handles,labels,loc="upper left",ncol=3,fontsize=10,numpoints=1)
+        ncol   = np.ceil(float(len(models))/11.).astype(int)
+        fig,ax = plt.subplots(figsize=(3.*ncol,2.8),tight_layout=True)
+        ax.legend(handles,labels,loc="upper right",ncol=ncol,fontsize=10,numpoints=1)
         ax.axis('off')
-        fig.savefig("%s/legend_compcycle.png" % self.output_path)
-        fig.savefig("%s/legend_spatial_variance.png" % self.output_path)
+        fig.savefig(os.path.join(self.output_path,"legend_compcycle.png"))
+        fig.savefig(os.path.join(self.output_path,"legend_spatial_variance.png"))
+        fig.savefig(os.path.join(self.output_path,"legend_temporal_variance.png"))
         plt.close()
         
         # spatial distribution Taylor plot
@@ -492,8 +556,13 @@ class Confrontation(object):
             page.addFigure("Temporally integrated period mean",
                            "spatial_variance",
                            "RNAME_spatial_variance.png",
-                           side   = "SPATIAL DISTRIBUTION",
-                           legend = True)       
+                           side   = "SPATIAL TAYLOR DIAGRAM",
+                           legend = False)
+            page.addFigure("Temporally integrated period mean",
+                           "legend_spatial_variance",
+                           "legend_spatial_variance.png",
+                           side   = "MODEL COLORS",
+                           legend = False) 
         if "Benchmark" in models: colors.pop(models.index("Benchmark"))
         for region in self.regions:
             if not (std.has_key(region) and corr.has_key(region)): continue
@@ -501,7 +570,7 @@ class Confrontation(object):
             if len(std[region]) == 0: continue
             fig = plt.figure(figsize=(6.0,6.0))
             post.TaylorDiagram(np.asarray(std[region]),np.asarray(corr[region]),1.0,fig,colors)
-            fig.savefig("%s/%s_spatial_variance.png" % (self.output_path,region))
+            fig.savefig(os.path.join(self.output_path,"%s_spatial_variance.png" % region))
             plt.close()
             
     def modelPlots(self,m):
@@ -514,11 +583,11 @@ class Confrontation(object):
 
         """
         self._relationship(m)
-        bname     = "%s/%s_Benchmark.nc" % (self.output_path,self.name)
-        fname     = "%s/%s_%s.nc" % (self.output_path,self.name,m.name)
+        bname     = os.path.join(self.output_path,"%s_Benchmark.nc" % (self.name       ))
+        fname     = os.path.join(self.output_path,"%s_%s.nc"        % (self.name,m.name))
         if not os.path.isfile(bname): return
         if not os.path.isfile(fname): return
-        
+
         # get the HTML page
         page = [page for page in self.layout.pages if "MeanState" in page.name][0]  
         
@@ -532,7 +601,7 @@ class Confrontation(object):
 	            pname = vname.split("_")[0]
 	            if group.variables[vname][...].size <= 1: continue
 	            var = Variable(filename=fname,groupname="MeanState",variable_name=vname)
-	            
+                    
 	            if (var.spatial or (var.ndata is not None)) and not var.temporal:
 	
 	                # grab plotting options
@@ -555,9 +624,9 @@ class Confrontation(object):
 	                             vmin   = self.limits[pname]["min"],
 	                             vmax   = self.limits[pname]["max"],
 	                             cmap   = self.limits[pname]["cmap"])
-	                    fig.savefig("%s/%s_%s_%s.png" % (self.output_path,m.name,region,pname))
+	                    fig.savefig(os.path.join(self.output_path,"%s_%s_%s.png" % (m.name,region,pname)))
 	                    plt.close()
-	
+                            
 	                # Jumping through hoops to get the benchmark plotted and in the html output
 	                if self.master and (pname == "timeint" or pname == "phase"):
 	
@@ -568,7 +637,7 @@ class Confrontation(object):
 	                                   "benchmark_%s" % pname,
 	                                   opts["pattern"].replace("MNAME","Benchmark"),
 	                                   side   = opts["sidelbl"].replace("MODEL","BENCHMARK"),
-	                                   legend = False)
+	                                   legend = True)
 	
 	                    # plot variable
 	                    obs = Variable(filename=bname,groupname="MeanState",variable_name=vname)
@@ -580,7 +649,7 @@ class Confrontation(object):
 	                                 vmin   = self.limits[pname]["min"],
 	                                 vmax   = self.limits[pname]["max"],
 	                                 cmap   = self.limits[pname]["cmap"])
-	                        fig.savefig("%s/Benchmark_%s_%s.png" % (self.output_path,region,pname))
+	                        fig.savefig(os.path.join(self.output_path,"Benchmark_%s_%s.png" % (region,pname)))
 	                        plt.close()
 	                    
 	            if not (var.spatial or (var.ndata is not None)) and var.temporal:
@@ -606,16 +675,49 @@ class Confrontation(object):
 	                    var.plot(ax,lw=2,color=color,label=m.name,
 	                             ticks     =opts["ticks"],
 	                             ticklabels=opts["ticklabels"])
-	                    ax.set_ylim(self.limits[pname]["min"],
-	                                self.limits[pname]["max"])
+
+                            dy = 0.05*(self.limits[pname][region]["max"]-self.limits[pname][region]["min"])
+	                    ax.set_ylim(self.limits[pname][region]["min"]-dy,
+	                                self.limits[pname][region]["max"]+dy)
 	                    ylbl = opts["ylabel"]
 	                    if ylbl == "unit": ylbl = post.UnitStringToMatplotlib(var.unit)
 	                    ax.set_ylabel(ylbl)
-	                    fig.savefig("%s/%s_%s_%s.png" % (self.output_path,m.name,region,pname))
+	                    fig.savefig(os.path.join(self.output_path,"%s_%s_%s.png" % (m.name,region,pname)))
 	                    plt.close()
 
         logger.info("[%s][%s] Success" % (self.longname,m.name))
+
+    def sitePlots(self,m):
+        """
+
+        """
+        if not self.hasSites: return
+
+        obs,mod = self.stageData(m)
+        for i in range(obs.ndata):
+	    fig,ax = plt.subplots(figsize=(6.8,2.8),tight_layout=True)
+            tmask  = np.where(mod.data.mask[:,i]==False)[0]
+            if tmask.size > 0:
+                tmin,tmax = tmask[[0,-1]]
+            else:                
+                tmin = 0; tmax = mod.time.size-1
                 
+            t = mod.time[tmin:(tmax+1)  ]
+            x = mod.data[tmin:(tmax+1),i]
+            y = obs.data[tmin:(tmax+1),i]
+            ax.plot(t,y,'-k',lw=2,alpha=0.5)
+            ax.plot(t,x,'-',color=m.color)
+
+            ind        = np.where(t % 365 < 30.)[0]
+            ticks      = t[ind] - (t[ind] % 365)
+            ticklabels = (ticks/365.+1850.).astype(int)
+            ax.set_xticks     (ticks     )
+            ax.set_xticklabels(ticklabels)
+            ax.set_ylabel(post.UnitStringToMatplotlib(mod.unit))
+	    fig.savefig(os.path.join(self.output_path,"%s_%s_%s.png" % (m.name,self.lbls[i],"time")))
+	    plt.close()
+            
+            
     def generateHtml(self):
         """Generate the HTML for the results of this confrontation.
 
@@ -632,13 +734,15 @@ class Confrontation(object):
         
             # build the metric dictionary
             metrics = {}
-            for fname in glob.glob("%s/*.nc" % self.output_path):
+            page.models = []
+            for fname in glob.glob(os.path.join(self.output_path,"*.nc")):
                 with Dataset(fname) as dataset:
+                    mname = dataset.getncattr("name")
+                    if mname != "Benchmark": page.models.append(mname)
                     if not dataset.groups.has_key(page.name): continue
                     group = dataset.groups[page.name]
 
                     # if the dataset opens, we need to add the model (table row)
-                    mname = dataset.getncattr("name")
                     metrics[mname] = {}
         
                     # each model will need to have all regions
@@ -667,10 +771,9 @@ class Confrontation(object):
                                                                        unit = var.units,
                                                                        data = var[...])
             page.setMetrics(metrics)
-
                         
         # write the HTML page
-        f = file("%s/%s.html" % (self.output_path,self.name),"w")
+        f = file(os.path.join(self.output_path,"%s.html" % (self.name)),"w")
         f.write(str(self.layout))
         f.close()
 
@@ -684,14 +787,15 @@ class Confrontation(object):
         def _retrieveData(filename):
             key = None
             with Dataset(filename,mode="r") as dset:
-                key  = [v for v in dset.groups["MeanState"].variables.keys() if "timeint" in v]
+                key  = [v for v in dset.groups["MeanState"].variables.keys() if "timeint_" in v]
             return Variable(filename      = filename,
                             groupname     = "MeanState",
                             variable_name = key[0])
             
         # if there are no relationships, get out of here
         if self.relationships is None: return            
-
+        r = Regions()
+        
         # get the HTML page
         page = [page for page in self.layout.pages if "Relationships" in page.name]
         if len(page) == 0: return
@@ -699,8 +803,8 @@ class Confrontation(object):
         
         # try to get the dependent data from the model and obs
         try:
-            obs_dep  = _retrieveData("%s/%s_%s.nc" % (self.output_path,self.name,"Benchmark"))
-            mod_dep  = _retrieveData("%s/%s_%s.nc" % (self.output_path,self.name,m.name))
+            obs_dep  = _retrieveData(os.path.join(self.output_path,"%s_%s.nc" % (self.name,"Benchmark")))
+            mod_dep  = _retrieveData(os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name     )))
             dep_name = self.longname.split("/")[0]
             dep_min  = self.limits["timeint"]["min"]
             dep_max  = self.limits["timeint"]["max"]
@@ -709,7 +813,7 @@ class Confrontation(object):
 
         # open a dataset for recording the results of this
         # confrontation (FIX: should be a with statement)
-        results = Dataset("%s/%s_%s.nc" % (self.output_path,self.name,m.name),mode="r+")
+        results = Dataset(os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name)),mode="r+")
 
         # grab/create a relationship and scalars group
         group = None
@@ -727,8 +831,8 @@ class Confrontation(object):
 
             # try to get the independent data from the model and obs
             try:
-                obs_ind  = _retrieveData("%s/%s_%s.nc" % (c.output_path,c.name,"Benchmark"))
-                mod_ind  = _retrieveData("%s/%s_%s.nc" % (c.output_path,c.name,m.name))
+                obs_ind  = _retrieveData(os.path.join(c.output_path,"%s_%s.nc" % (c.name,"Benchmark")))
+                mod_ind  = _retrieveData(os.path.join(c.output_path,"%s_%s.nc" % (c.name,m.name     )))
                 ind_name = c.longname.split("/")[0]          
                 ind_min  = c.limits["timeint"]["min"]-1e-12
                 ind_max  = c.limits["timeint"]["max"]+1e-12
@@ -753,9 +857,7 @@ class Confrontation(object):
                     # build the data masks: only count where we have
                     # both dep and ind variable data inside the region
                     mask      = dep_var.data.mask + ind_var.data.mask
-                    lats,lons = ILAMBregions[region]
-                    mask     += (np.outer((dep_var.lat>lats[0])*(dep_var.lat<lats[1]),
-                                          (dep_var.lon>lons[0])*(dep_var.lon<lons[1]))==0)
+                    mask     += r.getMask(region,dep_var)
                     x         = ind_var.data[mask==0].flatten()
                     y         = dep_var.data[mask==0].flatten()
 
@@ -793,23 +895,28 @@ class Confrontation(object):
                     ax.set_xlim(ind_min,ind_max)
                     ax.set_ylim(dep_min,dep_max)
                     short_name = "rel_%s" % ind_name
-                    fig.savefig("%s/%s_%s_%s.png" % (self.output_path,name,region,short_name))
+                    fig.savefig(os.path.join(self.output_path,"%s_%s_%s.png" % (name,region,short_name)))
                     plt.close()
 
                     # add the figure to the HTML layout
                     if name == "Benchmark" and region == "global":
                         short_name = short_name.replace("global_","")
                         page.addFigure(c.longname,
+                                       "benchmark_" + short_name,
+                                       "Benchmark_RNAME_%s.png" % (short_name),
+                                       legend = False,
+                                       benchmark = False)
+                        page.addFigure(c.longname,
                                        short_name,
                                        "MNAME_RNAME_%s.png" % (short_name),
                                        legend = False,
-                                       benchmark = True)
+                                       benchmark = False)
 
                     # determine the 1D relationship curves
                     bins  = np.linspace(ind_min,ind_max,nbin+1)
                     delta = 0.1*(bins[1]-bins[0])
                     inds  = np.digitize(x,bins)
-                    ids   = np.unique(inds)
+                    ids   = np.unique(inds).clip(1,bins.size-1)
                     xb = []
                     yb = []
                     eb = []
@@ -855,7 +962,7 @@ class Confrontation(object):
                 ax.set_xlim(ind_min,ind_max)
                 ax.set_ylim(dep_min,dep_max)
                 short_name = "rel_diff_%s" % ind_name
-                fig.savefig("%s/%s_%s_%s.png" % (self.output_path,name,region,short_name))
+                fig.savefig(os.path.join(self.output_path,"%s_%s_%s.png" % (name,region,short_name)))
                 plt.close()
                 page.addFigure(c.longname,
                                short_name,
@@ -866,12 +973,12 @@ class Confrontation(object):
                 # score the distributions = 1 - Hellinger distance
                 score = 1.-np.sqrt(((np.sqrt(obs_dist)-np.sqrt(mod_dist))**2).sum())/np.sqrt(2)
                 vname = '%s Score %s' % (c.longname.split('/')[0],region)
-                if vname in scalars.variables:
-                    scalars.variables[vname][0] = score
-                else:
-                    Variable(name = vname, 
-                             unit = "1",
-                             data = score).toNetCDF4(results,group="Relationships")
+                #if vname in scalars.variables:
+                #    scalars.variables[vname][0] = score
+                #else:
+                #    Variable(name = vname, 
+                #             unit = "1",
+                #             data = score).toNetCDF4(results,group="Relationships")
 
                 # plot the 1D curve
                 fig,ax = plt.subplots(figsize=(6,5.25),tight_layout=True)
@@ -882,7 +989,7 @@ class Confrontation(object):
                 ax.set_xlim(ind_min,ind_max)
                 ax.set_ylim(dep_min,dep_max)
                 short_name = "rel_func_%s" % ind_name
-                fig.savefig("%s/%s_%s_%s.png" % (self.output_path,name,region,short_name))
+                fig.savefig(os.path.join(self.output_path,"%s_%s_%s.png" % (name,region,short_name)))
                 plt.close()
                 page.addFigure(c.longname,
                                short_name,
