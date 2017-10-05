@@ -1,0 +1,134 @@
+#!/usr/bin/env python
+"""
+"""
+from ILAMB.ModelResult import ModelResult
+from ILAMB.Scoreboard import Scoreboard
+from ILAMB.Regions import Regions
+from ILAMB import ilamblib as il
+import os,time,sys,argparse
+import numpy as np
+import datetime,glob
+
+# Some color constants for printing to the terminal
+OK   = '\033[92m'
+FAIL = '\033[91m'
+ENDC = '\033[0m'
+
+def InitializeModels(model_root,models=[],verbose=False,filter="",model_year=[]):
+    """Initializes a list of models
+
+    Initializes a list of models where each model is the subdirectory
+    beneath the given model root directory. The global list of models
+    will exist on each processor.
+
+    Parameters
+    ----------
+    model_root : str
+        the directory whose subdirectories will become the model results
+    models : list of str, optional
+        only initialize a model whose name is in this list
+    verbose : bool, optional
+        enable to print information to the screen
+    model_year : 2-tuple, optional
+        shift model years from the first to the second part of the tuple
+
+    Returns
+    -------
+    M : list of ILAMB.ModelResults.ModelsResults
+       a list of the model results, sorted alphabetically by name
+
+    """
+    # initialize the models
+    M = []
+    if len(model_year) != 2: model_year = None
+    max_model_name_len = 0
+    if verbose: print "\nSearching for model results in %s\n" % model_root
+    for subdir, dirs, files in os.walk(model_root):
+        for mname in dirs:
+            if len(models) > 0 and mname not in models: continue
+            M.append(ModelResult(os.path.join(subdir,mname), modelname = mname, filter=filter, model_year = model_year))
+            max_model_name_len = max(max_model_name_len,len(mname))
+        break
+    M = sorted(M,key=lambda m: m.name.upper())
+
+    # assign unique colors
+    clrs = il.GenerateDistinctColors(len(M))
+    for m in M:
+        clr     = clrs.pop(0)
+        m.color = clr
+
+    # optionally output models which were found
+    if verbose:
+        for m in M:
+            print ("    {0:>45}").format(m.name)
+
+    if len(M) == 0:
+        if verbose: print "No model results found"
+        sys.exit(1)
+        
+    return M
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--model_root', dest="model_root", metavar='root', type=str, nargs=1, default=["./"],
+                    help='root at which to search for models')
+parser.add_argument('--config', dest="config", metavar='config', type=str, nargs=1,
+                    help='path to configuration file to use')
+parser.add_argument('--models', dest="models", metavar='m', type=str, nargs='+',default=[],
+                    help='specify which models to run, list model names with no quotes and only separated by a space.')
+parser.add_argument('--model_year', dest="model_year", metavar='y0 yf', type=int, nargs='+',default=[],
+                    help='set to shift model years, "--model_year y0 yf" will shift years from y0 to yf')
+parser.add_argument('--confrontations', dest="confront", metavar='c', type=str, nargs='+',default=[],
+                    help='specify which confrontations to run, list confrontation names with no quotes and only separated by a space.')
+parser.add_argument('-q','--quiet', dest="quiet", action="store_true",
+                    help='enable to silence screen output')
+parser.add_argument('--filter', dest="filter", metavar='filter', type=str, nargs=1, default=[""],
+                    help='a string which much be in the model filenames')
+parser.add_argument('--build_dir', dest="build_dir", metavar='build_dir', type=str, nargs=1,default=["./_build"],
+                    help='path of where to save the output')
+
+args = parser.parse_args()
+if args.config is None:
+    print "\nError: You must specify a configuration file using the option --config\n"
+    sys.exit(1)
+    
+M = InitializeModels(args.model_root[0],args.models,not args.quiet,filter=args.filter[0],model_year=args.model_year)
+S = Scoreboard(args.config[0],
+               verbose   = False,
+               build_dir = args.build_dir[0])
+
+max_name_len = 45
+max_m_len    = 0
+for m in M: max_m_len = max(max_m_len,len(m.name))
+
+print """
+We will now look in each model for the variables in the ILAMB
+configure file you specified (%s). The color green is used to reflect
+which variables were found in the model. The color red is used to
+reflect that a model is missing a required variable.\n""" % (args.config[0])
+for m in M:
+    for c in S.list():
+        ands,ors = c.requires()
+        ok       = False
+        if len(ands) == 0:
+            tf  = [m.variables.has_key(v) for v in ors]
+            ok  = any(tf)
+            out = [("\033[92m%s\033[0m" % v) if t else v for v,t in zip(ors,tf)]
+            if len(out) >  1: out[-1] = "or %s" % out[-1]
+            if len(out) <= 2:
+                out = " " .join(out)
+            else:
+                out = ", ".join(out)
+        else:
+            tf = [m.variables.has_key(v) for v in ands]
+            ok = all(tf)
+            out = [("\033[92m%s\033[0m" % v) if t else ("\033[91m%s\033[0m" % v) for v,t in zip(ands,tf)]
+            if len(out) >  1: out[-1] = "and %s" % out[-1]
+            if len(out) <= 2:
+                out = " " .join(out)
+            else:
+                out = ", ".join(out)
+
+        if ok:
+            print ("    {0:>%d}\033[92m {1:<%d}\033[0m %s" % (max_name_len,max_m_len,out)).format(c.longname,m.name)
+        else:
+            print ("    {0:>%d}\033[91m {1:<%d}\033[0m %s" % (max_name_len,max_m_len,out)).format(c.longname,m.name)

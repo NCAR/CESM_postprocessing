@@ -8,3 +8,8 @@ RDict.log
 *#
 *.DS_Store
 *build*
+*graveyard*
+*.egg-info
+dist
+*_generated*
+src/ILAMB/generated_version.py
