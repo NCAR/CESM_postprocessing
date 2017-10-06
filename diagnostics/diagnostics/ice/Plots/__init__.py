@@ -1,1 +1,1 @@
-from . import contourDiff, contour, iceSatDiff, iceSat, vectorDiff, vector, web_hem_avg, web_hem_avg_wLENS, web_hem_avgDiff, web_hem_clim, web_hem_climDiff, web_reg_avg, web_reg_avgDiff, web_reg_clim, web_reg_climDiff, ice_diags_plot_bc, ice_diags_plot_factory 
+from . import contourDiff, contour, iceSatDiff, iceSat, vectorDiff, vector, web_hem_avg, web_hem_avg_wLENS, web_hem_avgDiff, web_hem_avg_wLENSDiff, web_hem_clim, web_hem_climDiff, web_reg_avg, web_reg_avgDiff, web_reg_clim, web_reg_climDiff, ice_diags_plot_bc, ice_diags_plot_factory 
