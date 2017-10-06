@@ -91,7 +91,8 @@ def strip_prefix(indict, prefix):
     outdict (dictionary) with prefix stripped from the id element
     """
     outdict = dict()
-    i = len(prefix) + 1;
+#    i = len(prefix) + 1;
+    i = len(prefix);
 
     for k,v in indict.iteritems():
         if k.startswith(prefix):

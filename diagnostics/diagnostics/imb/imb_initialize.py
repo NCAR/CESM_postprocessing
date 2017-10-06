@@ -125,6 +125,8 @@ def initialize_main(envDict, caseroot, debugMsg, standalone, imb_name):
     """
     env_file_list =  ['./env_postprocess.xml', './env_diags_{0}.xml'.format(imb_name)]
 
+    debugMsg('in initialize_main before readXML', header=True, verbosity=1)
+
     envDict = cesmEnvLib.readXML(caseroot, env_file_list)
 
     # debug print out the envDict
@@ -140,14 +142,16 @@ def initialize_main(envDict, caseroot, debugMsg, standalone, imb_name):
     diag_path = "{0}_PATH".format(diag_name)
     envDict[diag_path] = os.pathsep + os.environ['PATH']
 
-    # strip the LNDDIAG_ prefix from the envDict entries before setting the 
+    # strip the ILAMBDIAG_ prefix from the envDict entries before setting the 
     # enviroment to allow for compatibility with all the diag routine calls
-    envDict = diagUtilsLib.strip_prefix(envDict, diag_name)
+    envDict = diagUtilsLib.strip_prefix(envDict, '{0}_'.format(diag_name))
 
+    debugMsg('envDict OUTPUTROOT = {0}'.format(envDict['OUTPUTROOT']), header=True, verbosity=1)
     # ILAMB requires output directory to already exist
     if not os.path.exists(envDict['OUTPUTROOT']):
         os.makedirs(envDict['OUTPUTROOT'])
 
+    debugMsg('in initialize_main before path.append', header=True, verbosity=1)
     # setup the working directories
     sys.path.append(envDict['PATH'])
 
