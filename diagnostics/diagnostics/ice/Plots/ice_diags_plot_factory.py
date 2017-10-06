@@ -44,11 +44,15 @@ def iceDiagnosticPlotFactory(plot_type,env):
     elif plot_type == "PLOT_LINE":
         plot_set['web_hem_avg'] = web_hem_avg.Web_Hem_Avg(env)
         plot_set['web_hem_clim'] = web_hem_clim.Web_Hem_Clim(env)
-        plot_set['web_hem_avg_wLENS'] = web_hem_avg_wLENS.Web_Hem_Avg_wLENS(env)
 
     elif plot_type == "PLOT_LINE_DIFF":
         plot_set['web_hem_avgDiff'] = web_hem_avgDiff.Web_Hem_AvgDiff(env)
         plot_set['web_hem_climDiff'] = web_hem_climDiff.Web_Hem_ClimDiff(env)
+
+    elif plot_type == "PLOT_LINE_LENS":
+        plot_set['web_hem_avg_wLENS'] = web_hem_avg_wLENS.Web_Hem_Avg_wLENS(env)
+
+    elif plot_type == "PLOT_LINE_DIFF_LENS":
         plot_set['web_hem_avg_wLENSDiff'] = web_hem_avg_wLENSDiff.Web_Hem_Avg_wLENSDiff(env)
 
     elif plot_type == "PLOT_REGIONS":

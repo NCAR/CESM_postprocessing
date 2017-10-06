@@ -34,7 +34,7 @@ ix2_off = stringtoint(getenv("X2_OFF"))
 case_to_cont = getenv("CASE_TO_CONT")
 f1 = addfile(pre_proc_cont+"/"+"ice_vol_"+case_to_cont+"_"+yr1+"-"+yr2+".nc","r")
 
-plot_line_diff = getenv("PLOT_LINE_DIFF")
+plot_line_diff = getenv("PLOT_LINE_DIFF_LENS")
 model_vs_model = getenv("MODEL_VS_MODEL")
 
 ;;if (plot_line_diff .eq. "True") then
