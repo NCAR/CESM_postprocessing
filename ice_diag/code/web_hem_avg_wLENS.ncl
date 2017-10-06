@@ -36,6 +36,7 @@ f1 = addfile(pre_proc_cont+"/"+"ice_vol_"+case_to_cont+"_"+yr1+"-"+yr2+".nc","r"
 
 plot_line_diff = getenv("PLOT_LINE_DIFF")
 model_vs_model = getenv("MODEL_VS_MODEL")
+
 ;;if (plot_line_diff .eq. "True") then
 if ((model_vs_model .eq. "True") .and. (plot_line_diff .eq. "True")) then
    case_to_diff = getenv("CASE_TO_DIFF")
@@ -306,6 +307,20 @@ title(1,2) = "AMJ Mean LENS and "+case
 title(1,3) = "JAS Mean LENS and "+case
 title(1,4) = "OND Mean LENS and "+case
 
+if (ncases .gt. 1) then
+
+   plotname(0,0) = "line_avg_LENS_ANN_NH_diff"
+   plotname(0,1) = "line_avg_LENS_JFM_NH_diff"
+   plotname(0,2) = "line_avg_LENS_AMJ_NH_diff"
+   plotname(0,3) = "line_avg_LENS_JAS_NH_diff"
+   plotname(0,4) = "line_avg_LENS_OND_NH_diff"
+
+   plotname(1,0) = "line_avg_LENS_ANN_SH_diff"
+   plotname(1,1) = "line_avg_LENS_JFM_SH_diff"
+   plotname(1,2) = "line_avg_LENS_AMJ_SH_diff"
+   plotname(1,3) = "line_avg_LENS_JAS_SH_diff"
+   plotname(1,4) = "line_avg_LENS_OND_SH_diff"
+else
    plotname(0,0) = "line_avg_LENS_ANN_NH"
    plotname(0,1) = "line_avg_LENS_JFM_NH"
    plotname(0,2) = "line_avg_LENS_AMJ_NH"
@@ -317,7 +332,7 @@ title(1,4) = "OND Mean LENS and "+case
    plotname(1,2) = "line_avg_LENS_AMJ_SH"
    plotname(1,3) = "line_avg_LENS_JAS_SH"
    plotname(1,4) = "line_avg_LENS_OND_SH"
-
+end if
 
 resP = True
 resP@gsnMaximize         = True

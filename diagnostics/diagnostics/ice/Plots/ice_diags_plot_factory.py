@@ -13,6 +13,7 @@ import vectorDiff
 import web_hem_avg
 import web_hem_avg_wLENS
 import web_hem_avgDiff
+import web_hem_avg_wLENSDiff
 import web_hem_clim
 import web_hem_climDiff
 import web_reg_avg
@@ -48,7 +49,7 @@ def iceDiagnosticPlotFactory(plot_type,env):
     elif plot_type == "PLOT_LINE_DIFF":
         plot_set['web_hem_avgDiff'] = web_hem_avgDiff.Web_Hem_AvgDiff(env)
         plot_set['web_hem_climDiff'] = web_hem_climDiff.Web_Hem_ClimDiff(env)
-        plot_set['web_hem_avg_wLENS'] = web_hem_avg_wLENS.Web_Hem_Avg_wLENS(env)
+        plot_set['web_hem_avg_wLENSDiff'] = web_hem_avg_wLENSDiff.Web_Hem_Avg_wLENSDiff(env)
 
     elif plot_type == "PLOT_REGIONS":
         for reg_num in range(0,16):
