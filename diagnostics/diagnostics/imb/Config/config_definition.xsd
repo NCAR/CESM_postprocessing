@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- definition of attributes -->
+  <xs:attribute name="id" type="xs:string"/>
+  <xs:attribute name="type" type="xs:string"/>
+  <xs:attribute name="valid_values" type="xs:string"/>
+  <xs:attribute name="value" type="xs:string"/>
+  <xs:attribute name="group" type="xs:string"/>
+  <xs:attribute name="desc" type="xs:string"/>
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:attribute name="version" type="xs:string"/>
+
+  <!-- definition of simple elements -->
+  <xs:element name="order" type="xs:string"/>
+  <xs:element name="comment" type="xs:string"/>
+
+  <!-- definition of complex elements -->
+  <xs:element name="entry">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="id" use="required"/>
+	  <xs:attribute name="type"  use="required"/>
+	  <xs:attribute name="valid_values"  use="required"/>
+	  <xs:attribute name="value"  use="required"/>
+	  <xs:attribute name="group"  use="required"/>
+	  <xs:attribute name="desc"  use="required"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="group">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="order" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="comment" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="entry" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute ref="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="groups">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="group" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="config_definition">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="groups" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute ref="version" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema> 

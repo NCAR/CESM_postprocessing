@@ -33,15 +33,21 @@ export PYTHONPATH
 {% endif %}
 
 today="$(date '+%Y%m%d-%H%M%S')"
+log_filename={{ caseRoot }}/logs/{{ processName }}.log.$today
 
 echo "******************************************"
 echo "Start {{ processName }} generation $(date)"
 echo "******************************************"
 
-{% if standalone %}
-{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --standalone >> {{ caseRoot }}/logs/{{ processName }}.log.$today 2>&1
+{% if imb_run %}
+{{ imb_env_vars }}
+
+{{ mpirun }} {{ imb_run }} {{ imb_options }} >> ${log_filename} 2>&1
+
+{% elif standalone %}
+{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --standalone {{ cmdl_opt }} >> ${log_filename} 2>&1
 {% else %}
-{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/logs/{{ processName }}.log.$today 2>&1
+{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> ${log_filename} 2>&1
 {% endif %}
 
 echo "******************************************"

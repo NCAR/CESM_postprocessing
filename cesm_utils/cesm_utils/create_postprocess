@@ -40,6 +40,7 @@ if sys.hexversion < 0x02070000:
 import argparse
 import collections
 import errno
+import itertools
 import os
 import platform
 from operator import itemgetter
@@ -338,6 +339,16 @@ def read_machine_xml(machineName, xmlFile):
                 machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
                 machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
 
+                init = comp.find('initialize_pes')
+                if init is not None:
+                    machine['{0}_initialize_pes'.format(compName)] = init.text
+                    machine['{0}_initialize_queue'.format(compName)] = init.get('queue').lower()
+                    machine['{0}_initialize_nodes'.format(compName)] = ''
+                    if 'nodes' in init.attrib:
+                        machine['{0}_initialize_nodes'.format(compName)] = init.get('nodes').lower()
+                    machine['{0}_initialize_ppn'.format(compName)] = init.get('pes_per_node').lower()
+                    machine['{0}_initialize_wallclock'.format(compName)] = init.get('wallclock').lower()
+
                 regrid = comp.find('regrid_pes')
                 if regrid is not None:
                     machine['{0}_regrid_pes'.format(compName)] = regrid.text
@@ -361,7 +372,8 @@ def read_machine_xml(machineName, xmlFile):
 # -------------------------------------------------------------------------------
 def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName,
                  project, pythonpath, caseRoot, reset_modules, modules, queue, ppn, nodes,
-                 wallclock, options, standalone):
+                 wallclock, options, standalone,
+                 imb_name=None, imb_run=None, imb_env_vars=None, imb_options=None):
     """create the batch submission files for post processing
 
     Arguments:
@@ -383,6 +395,10 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     wallclock (string) - wallclock time
     options (object) - commandline options
     standalone (boolean) - indicate if this is postprocessing for a standalone case
+    imb_name (string) - the name of the imb suite, e.g. ilamb or iomb
+    imb_run (string) - executable for IMB, International Modeling Benchmarks, diags
+    imb_env_vars (string) - jinja template string or data for imb environment variables
+    imb_options (string) - jinja template string or data for imb command line options
     """
     # first check if outFile already exists, if so delete and recreate
     rc, err_msg = cesmEnvLib.checkFile(outFile, 'read')
@@ -412,6 +428,11 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     if options.backtrace:
         backtrace = '--backtrace'
 
+    # other command line options that should be passed to the process
+    cmdl_opt = ''
+    if imb_name:
+        cmdl_opt = '{0} --imb-name {1}'.format(cmdl_opt, imb_name)
+        
     # all files look good so start parsing the template file starting with the batchTmpl
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(ppDir) )
     templateEnv = jinja2.Environment( loader=templateLoader )
@@ -442,7 +463,22 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
                      'virtualEnvDir' : virtualEnvDir,
                      'debug' : debug,
                      'backtrace' : backtrace,
-                     'standalone' : standalone }
+                     'standalone' : standalone,
+                     'cmdl_opt': cmdl_opt, }
+
+
+    if imb_run:
+        templateVars['imb_run'] = imb_run
+        if imb_env_vars:
+            templateVars['imb_env_vars'] = imb_env_vars
+        else:
+            print('WARNING: create_batch: imb_run specified, but imb_env_vars was undefined!')
+
+        if imb_options:
+            templateVars['imb_options'] = imb_options
+        else:
+            print('WARNING: create_batch: imb_run specified, but imb_options was undefined!')
+
 
     # render this template into the runScript string
     runScript = template.render( templateVars )
@@ -585,6 +621,7 @@ def main(options):
     compList = ['atm','ice','lnd','ocn']
     regridList = ['atm','lnd']
     regridList = ['lnd']
+    imbList = ['ilamb', ]
 
     # get the machine dependent variables, modules and mpi run command in a dictionary
     machine = dict()
@@ -609,8 +646,11 @@ def main(options):
     create_env_file(envDict, config_file, tmpl_file, env_file, '', '', standalone)
 
     # generate the env_diags_[component].xml files
-    for comp in compList:
-        config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{1}.xml'.format(envDict['POSTPROCESS_PATH'], comp)
+    for comp in itertools.chain(compList, imbList):
+        dir_name = comp
+        if dir_name in imbList:
+            dir_name = 'imb'
+        config_file = '{0}/diagnostics/diagnostics/{1}/Config/config_diags_{2}.xml'.format(envDict['POSTPROCESS_PATH'], dir_name, comp)
         tmpl_file = 'env_diags.tmpl'
         env_file = '{0}/env_diags_{1}.xml'.format(envDict['PP_CASE_PATH'], comp)
         create_env_file(envDict, config_file, tmpl_file, env_file, machine['{0}_obs_root'.format(comp)], 
@@ -693,6 +733,61 @@ def main(options):
                      machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
 
     # TODO - generate the ILAMB and IOMB batch submit scripts from template files
+    for imb in imbList:
+        # generate the serial script that sets up the imb config file.
+        postProcessCmd = 'imb_initialize.py'
+        processName = '{0}_initialize'.format(imb)
+        outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
+        create_batch(ppDir=envDict['POSTPROCESS_PATH'],
+                     pes=machine['{0}_initialize_pes'.format(imb)],
+                     batchTmpl=batch_tmpl, runTmpl=run_tmpl,
+                     postProcessCmd=postProcessCmd,
+                     mpiCmd='', outFile=outFile,
+                     processName=processName,
+                     project=envDict['PROJECT'],
+                     pythonpath=machine['pythonpath'],
+                     caseRoot=envDict['PP_CASE_PATH'],
+                     reset_modules=machine['reset_modules'],
+                     modules=machine['modules'],
+                     queue=machine['{0}_initialize_queue'.format(imb)],
+                     ppn=machine['{0}_initialize_ppn'.format(imb)],
+                     nodes=machine['{0}_initialize_nodes'.format(imb)],
+                     wallclock=machine['{0}_initialize_wallclock'.format(imb)],
+                     options=options, standalone=standalone, imb_name=imb)
+
+        # NOTE(bja, 2017-10) the imb_diagnostics file created here is
+        # a template that is only partially expanded by create_batch()
+        # There are additional fields based on user xml variables that
+        # do not get expanded until imb_initialize.py is run. By
+        # calling the file imb_diagnostics, but writing it to
+        # imb_diagnostics.tmpl, the processName values are expanded
+        # correctly (i.e. without .tmpl), but the user can change xml
+        # variables and run imb_initialize multiple times, each time
+        # write it out to imb_diagnostics.
+        postProcessCmd = 'imb_diags_generator.py'
+        processName = '{0}_diagnostics'.format(imb)
+        outFile = '{0}/{1}.tmpl'.format(envDict['PP_CASE_PATH'], processName)
+        create_batch(ppDir=envDict['POSTPROCESS_PATH'],
+                     pes=machine['{0}_diagnostics_pes'.format(imb)],
+                     batchTmpl=batch_tmpl, runTmpl=run_tmpl,
+                     postProcessCmd=postProcessCmd,
+                     mpiCmd=machine['mpi_command'], outFile=outFile,
+                     processName=processName,
+                     project=envDict['PROJECT'],
+                     pythonpath=machine['pythonpath'],
+                     caseRoot=envDict['PP_CASE_PATH'],
+                     reset_modules=machine['reset_modules'],
+                     modules=machine['modules'],
+                     queue=machine['{0}_diagnostics_queue'.format(imb)],
+                     ppn=machine['{0}_diagnostics_ppn'.format(imb)],
+                     nodes=machine['{0}_diagnostics_nodes'.format(imb)],
+                     wallclock=machine['{0}_diagnostics_wallclock'.format(imb)],
+                     options=options, standalone=standalone,
+                     imb_name=imb,
+                     imb_run='{{ imb_exe }}',
+                     imb_env_vars='{% for env in imb_env_vars %}\n{{ env }}\n{% endfor %}',
+                     imb_options='{{ imb_options }}')
+        
 
     # copy some tools to the PP_CASE_PATH
     files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd']

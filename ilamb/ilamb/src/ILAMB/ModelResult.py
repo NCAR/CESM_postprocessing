@@ -54,23 +54,66 @@ class ModelResult():
         self.lat_bnds       = None
         self.lon_bnds       = None
         self.variables      = None
+        self.extents        = np.asarray([[-90.,+90.],[-180.,+180.]])
         self._findVariables()
         self._getGridInformation()
         
     def _findVariables(self):
         """Loops through the netCDF4 files in a model's path and builds a dictionary of which variables are in which files.
         """
+        def _get(key,dset):
+            dim_name = key
+            try:
+                v = dset.variables[key]
+                dim_bnd_name = v.getncattr("bounds")
+            except:
+                dim_bnd_name = None
+            return dim_name,dim_bnd_name 
+
         variables = {}
         for subdir, dirs, files in os.walk(self.path):
             for fileName in files:
                 if ".nc"       not in fileName: continue
                 if self.filter not in fileName: continue
-                pathName  = "%s/%s" % (subdir,fileName)
+                pathName  = os.path.join(subdir,fileName)
                 dataset   = Dataset(pathName)
+                # populate dictionary for which variables are in which files
                 for key in dataset.variables.keys():
                     if not variables.has_key(key):
                         variables[key] = []
                     variables[key].append(pathName)
+                # check for model spatial extents
+                lat_name = lat_bnd_name = None
+                lon_name = lon_bnd_name = None
+                for key in dataset.dimensions:
+                    if "lat" in key.lower(): lat_name,lat_bnd_name = _get(key,dataset)
+                    if "lon" in key.lower(): lon_name,lon_bnd_name = _get(key,dataset)
+                if (lat_name or lon_name) is None: continue
+                try:
+                    if lat_bnd_name is None or lat_bnd_name not in dataset.variables:
+                        self.extents[0,0] = max(self.extents[0,0],dataset.variables[lat_name].min())
+                        self.extents[0,1] = min(self.extents[0,1],dataset.variables[lat_name].max())
+                    else:
+                        self.extents[0,0] = max(self.extents[0,0],dataset.variables[lat_bnd_name].min())
+                        self.extents[0,1] = min(self.extents[0,1],dataset.variables[lat_bnd_name].max())
+                    if lon_bnd_name is None or lon_bnd_name not in dataset.variables:
+                        lon = dataset.variables[lon_name][...]
+                        lon = (lon<=180)*lon + (lon>180)*(lon-360)
+                        self.extents[1,0] = max(self.extents[1,0],lon.min())
+                        self.extents[1,1] = min(self.extents[1,1],lon.max())
+                    else:
+                        lon = dataset.variables[lon_bnd_name][...]
+                        lon = (lon<=180)*lon + (lon>180)*(lon-360)
+                        self.extents[1,0] = max(self.extents[1,0],lon.min())
+                        self.extents[1,1] = min(self.extents[1,1],lon.max())
+                except:
+                    pass
+        # fix extents
+        eps = 5.
+        if self.extents[0,0] < (- 90.+eps): self.extents[0,0] = - 90.
+        if self.extents[0,1] > (+ 90.-eps): self.extents[0,1] = + 90.
+        if self.extents[1,0] < (-180.+eps): self.extents[1,0] = -180.
+        if self.extents[1,1] > (+180.-eps): self.extents[1,1] = +180.
         self.variables = variables
     
     def _getGridInformation(self):
@@ -133,10 +176,6 @@ class ModelResult():
         altvars = list(alt_vars)
         altvars.insert(0,variable)
         
-        # modify extraction times by possible shifts
-        initial_time -= self.shift
-        final_time   -= self.shift
-            
         # create a list of datafiles which have a non-null intersection
         # over the desired time range
         V = []
@@ -147,11 +186,13 @@ class ModelResult():
                                variable_name  = variable,
                                alternate_vars = altvars[1:],
                                area           = self.land_areas,
-                               t0             = initial_time,
-                               tf             = final_time)
-                if ((var.time_bnds.max() < initial_time) or
-                    (var.time_bnds.min() >   final_time)): continue
+                               t0             = initial_time - self.shift,
+                               tf             = final_time   - self.shift)
+                if ((var.time_bnds.max() < initial_time - self.shift) or
+                    (var.time_bnds.min() >   final_time - self.shift)): continue
                 if lats is not None: var = var.extractDatasites(lats,lons)
+                var.time      += self.shift 
+                var.time_bnds += self.shift
                 V.append(var)
             if len(V) > 0: break
 
@@ -171,9 +212,6 @@ class ModelResult():
         else:
             v = il.CombineVariables(V)
         
-        # finish modifying extraction times
-        v.time      += self.shift 
-        v.time_bnds += self.shift
             
         return v
 
@@ -223,7 +261,7 @@ class ModelResult():
                                           lats = lats,
                                           lons = lons,
                                           initial_time = initial_time,
-                                          final_time   = final_time)            
+                                          final_time   = final_time)          
             units[arg.name] = var.unit
             args [arg.name] = var.data.data
 
