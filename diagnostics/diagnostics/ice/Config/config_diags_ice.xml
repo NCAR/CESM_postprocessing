@@ -417,6 +417,14 @@ Applies to both model and control cases."
          desc="Make line plots cont case."
          ></entry>
 
+  <entry id="ICEDIAG_PLOT_LINE_LENS"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="plot_sets"
+         desc="Make line plots cont case vs. LENS spread (20thC only)."
+         ></entry>
+
   <entry id="ICEDIAG_PLOT_CONT_DIFF"
          type="logical"
          valid_values="True/False"
@@ -439,6 +447,14 @@ Applies to both model and control cases."
          value="True"
          group="plot_sets"
          desc="Make line plots cont-diff case."
+         ></entry>
+
+  <entry id="ICEDIAG_PLOT_LINE_DIFF_LENS"
+         type="logical"
+         valid_values="True/False"
+         value="True"
+         group="plot_sets"
+         desc="Make line plots cont-diff case vs. LENS spread (20thC only)."
          ></entry>
 
   <entry id="ICEDIAG_PLOT_REGIONS"
