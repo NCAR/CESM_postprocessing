@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+
+<!-- =========================================================================== -->
+<!-- ILAMB Wrapper XML                                                           -->
+<!-- =========================================================================== -->
+
+<config_definition version="1.0">
+
+  <!-- =========================================================================== -->
+  <!-- iomb_settings - general settings to be applied to all diagnostics routines   -->
+  <!-- NOTE: case specific environment variables from env_*.xml will be            -->
+  <!-- gathered at runtime by the iomb_diags_generator.py python script.            -->
+  <!-- They do not need to be specified in this XML file.                          -->
+  <!-- The full $PATH variable will be set in the iomb_diags_generator.py file      -->
+  <!-- using all the path settings defined here.                                   -->
+  <!-- =========================================================================== -->
+
+  <groups>
+    
+    <group name="global">
+      <order>0</order>
+      <comment>Run provenance</comment>
+
+      <entry id="IOMBDIAG_VERSION"
+             type="char"
+             valid_values=""
+             value="iomb_version"
+             group="diags_iomb"
+             desc="Package Version"
+             ></entry>
+
+    </group>
+    
+    <group name="iomb_env">
+      <order>1</order>
+      <comment>IOMB Environment Variables, must be exported prior to executing imb_run</comment>
+
+      <entry id="IOMBDIAG_MPLBACKEND"
+             type="char"
+             valid_values="Agg"
+             value="Agg"
+             group="iomb_env"
+             desc="matplotlib backend for generating graphics, should be exported to the environment!"
+             ></entry>
+
+      <entry id="IOMBDIAG_IOMB_ROOT"
+             type="char"
+             valid_values="/path/to/IOMB_ROOT"
+             value="$IOMBDIAG_DIAGOBSROOT"
+             group="iomb_env"
+             desc="Environment variable for the model data root path. These are data files downloaded using the ilamb-fetch command. NOTE: this is machine and / or user dependent."
+             ></entry>
+    </group>
+
+    <group name="iomb_config">
+      <order>2</order>
+      <comment>IOMB Configuration Options</comment>
+
+      <entry id="IOMBDIAG_CONFIG_TYPE"
+             type="char"
+             valid_values="standard"
+             value="standard"
+             group="iomb_config"
+             desc="whether to use a standard or templated configuration file. NOTE: Templated is not implemented at this time."
+             ></entry>
+
+      <entry id="IOMBDIAG_CONFIG_DIRECTORY"
+             type="char"
+             value="$POSTPROCESS_PATH/diagnostics/diagnostics/imb/Config/"
+             group="iomb_config"
+             desc="name of the directory containing the standard or template configuration file"
+             ></entry>
+
+      <entry id="IOMBDIAG_CONFIG_NAME"
+             type="char"
+             value="iomb-sample.cfg"
+             group="iomb_config"
+             desc="name of the standard or template filename to use"
+             ></entry>
+
+    </group>
+
+
+    <group name="iomb_cli">
+      <order>3</order>
+      <comment>IOMB Command-line Interface Options</comment>
+
+      <entry id="IOMBDIAG_EXENAME"
+             type="char"
+             valid_values="ilamb-run"
+             value="ilamb-run"
+             group="iomb_cli"
+             desc="imb diagnostics executable name. Must be an absolute path or available in the virtualenv or in the users path."
+             ></entry>
+
+      <entry id="IOMBDIAG_MODELROOT"
+             type="char"
+             valid_values="/path/to/model/root"
+             value="$IOMBDIAG_DIAGOBSROOT/MODELS"
+             group="iomb_config"
+             desc="root directory containing the model data"
+             ></entry>
+
+      <entry id="IOMBDIAG_OUTPUTROOT"
+             type="char"
+             valid_values="/path/to/model/output/root"
+             value="$DOUT_S_ROOT/ocn/proc/iomb"
+             group="iomb_config"
+             desc="output root directory containing the html and diagnostics plots"
+             ></entry>
+
+      <entry id="IOMBDIAG_MODELNAME"
+             type="char"
+             valid_values=""
+             value="CLM50r243GSWP3"
+             group="iomb_config"
+             desc="model directory name"
+             ></entry>
+
+      <entry id="IOMBDIAG_CLI_REQUIRED"
+             type="char"
+             value=" --config $CASEROOT/$IOMBDIAG_CONFIG_NAME --model_root $IOMBDIAG_MODELROOT/  --models $IOMBDIAG_MODELNAME --build_dir $IOMBDIAG_OUTPUTROOT"
+             group="iomb_cli"
+             desc="required command line options passed to IOMBDIAG_EXENAME"
+             ></entry>
+
+      <entry id="IOMBDIAG_CLI_OPTIONAL"
+             type="char"
+             valid_values=""
+             value="--regions global --filter _historical_ --disable_logging"
+             group="iomb_cli"
+             desc="optional command line options passed to IOMBDIAG_EXENAME"
+             ></entry>
+
+      <entry id="IOMBDIAG_CLI"
+             type="char"
+             value="$IOMBDIAG_CLI_REQUIRED $IOMBDIAG_CLI_OPTIONAL"
+             group="iomb_cli"
+             desc="Complete list of command line options to pass to IOMBDIAG_EXENAME"
+             ></entry>
+
+    </group>
+
+  </groups>
+</config_definition>
+
