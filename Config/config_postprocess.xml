@@ -238,7 +238,7 @@
 	     value="TRUE" 
 	     group="postprocess"
 	     desc="If TRUE, this calls the OMWG diagnostics package parallel python wrapper script to generate climatological plots associated with the run job output. See the OMWG diagnostics documentation for more details. Settings for creating the diagnostics are specified in the env_diags_ocn.xml file."
-	     ></entry>
+	     ></entry> 
 
       <entry id="STANDARDIZE_TIMESERIES" 
              type="logical"
@@ -248,6 +248,14 @@
              desc="If TRUE, standardize the data.  This option will conform the data to CMIP experiment specifications."
              ></entry>
  
+      <entry id="GENERATE_ILAMB"  
+	     type="logical"
+	     valid_values="TRUE,FALSE"  
+	     value="TRUE" 
+	     group="postprocess"
+	     desc="If TRUE, this calls the ilamb script which launches the ILAMB diagnostics package parallel python wrapper script ilamb-run. Settings for creating the diagnostics are specified in the env_ilamb.xml file."
+	     ></entry> 
+
     </group>
 
     <group name="web_options">

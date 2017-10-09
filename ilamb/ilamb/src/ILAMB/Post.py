@@ -1,6 +1,7 @@
 import pylab as plt
 import numpy as np
-from constants import region_names,regions as ILAMBregions,region_names,space_opts
+from constants import space_opts,time_opts
+from Regions import Regions
 import re
 
 def UseLatexPltOptions(fsize=18):
@@ -13,6 +14,9 @@ def UseLatexPltOptions(fsize=18):
     plt.rcParams.update(params)
 
 def UnitStringToMatplotlib(unit,add_carbon=False):
+    # replace 1e-6 with micro
+    match = re.findall("(1e-6\s)",unit)
+    for m in match: unit = unit.replace(m,"$\mu$")
     # raise exponents using Latex
     match = re.findall("(-\d)",unit)
     for m in match: unit = unit.replace(m,"$^{%s}$" % m)
@@ -148,13 +152,14 @@ def TaylorDiagram(stddev,corrcoef,refstd,fig,colors,normalize=True):
 
 class HtmlFigure():
 
-    def __init__(self,name,pattern,side=None,legend=False,benchmark=False):
+    def __init__(self,name,pattern,side=None,legend=False,benchmark=False,longname=None):
 
         self.name      = name
         self.pattern   = pattern
         self.side      = side
         self.legend    = legend
         self.benchmark = benchmark
+        self.longname  = longname
         
     def generateClickRow(self,allModels=False):
         name = self.pattern
@@ -179,33 +184,20 @@ class HtmlFigure():
 
     def __str__(self):
 
-        if self.benchmark:
-            code = """
-        <div class="benchmark" id="%s_div">""" % (self.name)
-        else:
-            code = """
-        <div class="outer" id="%s_div">""" % (self.name)
-
-        if self.benchmark:
+        code = """
+        <div class="container" id="%s_div">
+          <div class="child">""" % (self.name)
+        if self.side is not None:
             code += """
-              <div class="second">
-                 <img src="" id="benchmark_%s" alt="Data not available"></img>
-                 <img src="" id="%s" alt="Data not available"></img>
-              </div>""" % (self.name,self.name)
-        else:            
-            if self.side is not None:
-                code += """
-              <div class="inner rotate">%s</div>""" % (self.side.replace(" ","&nbsp;"))
-            code += """
-              <div class="second"><img src="" id="%s" alt="Data not available"></img></div>""" % (self.name)
-            if self.legend:
-                if self.side is not None:
-                    code += """
-              <div class="inner rotate"> </div>"""
-                code += """
-              <div class="second"><img src="legend_%s.png" id="leg"  alt="Data not available"></img></div>""" % (self.name)
+          <center>%s</center>""" % (self.side.replace(" ","&nbsp;"))
         code += """
-        </div><br>"""
+          <img src="" id="%s" alt="Data not available"></img>""" % (self.name)
+        if self.legend:
+            code += """
+          <center><img src="legend_%s.png" id="leg"  alt="Data not available"></img></center>""" % (self.name.replace("benchmark_",""))
+        code += """
+          </div>
+        </div>"""
         return code
 
 
@@ -228,8 +220,9 @@ class HtmlPage(object):
         self.text        = None
         
     def __str__(self):
-        
-        def _sortFigures(figure,priority=["benchmark_timeint","timeint","bias","benchmark_phase","phase","shift","spatial_variance","spaceint","cycle","compcycle"]):
+
+        r = Regions()
+        def _sortFigures(figure,priority=["benchmark_timeint","timeint","timeintremap","bias","rmse","benchmark_phase","phase","shift","biasscore","rmsescore","shiftscore","spatial_variance","legend_spatial_variance","spaceint","accumulate","cycle","dtcycle","compcycle","temporal_variance"]):
             val = 1.
             for i,pname in enumerate(priority):
                 if pname == figure.name: val += 2**i
@@ -259,7 +252,7 @@ class HtmlPage(object):
       <select id="%sRegion" onchange="%sTable()">""" % (self.name,self.name)
             for region in self.regions:
                 try:
-                    rname = region_names[region]
+                    rname = r.getRegionName(region)
                 except:
                     rname = region
                 opts  = ''
@@ -284,6 +277,7 @@ class HtmlPage(object):
             code += """
         <div data-role="collapsible" data-collapsed="false"><h1>%s</h1>""" % section
             for figure in self.figures[section]:
+                if figure.name == "spatial_variance": code += "<br>"
                 code += "%s" % (figure)
             code += """
         </div>"""
@@ -301,31 +295,33 @@ class HtmlPage(object):
         self.sections = sections
         for section in sections: self.figures[section] = []
 
-    def addFigure(self,section,name,pattern,side=None,legend=False,benchmark=False):
+    def addFigure(self,section,name,pattern,side=None,legend=False,benchmark=False,longname=None):
 
         assert section in self.sections
         for fig in self.figures[section]:
             if fig.name == name: return
-        self.figures[section].append(HtmlFigure(name,pattern,side=side,legend=legend,benchmark=benchmark))
+        self.figures[section].append(HtmlFigure(name,pattern,side=side,legend=legend,benchmark=benchmark,longname=longname))
     
     def setMetricPriority(self,priority):
         self.priority = priority
 
-    def metricTable(self):
+    def googleScript(self):
         if not self.metric_dict: return ""
-        models  = self.models
-        regions = self.regions
-        metrics = self.metrics
-        units   = self.units
-        head    = """
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-      google.load("visualization", "1", {packages:["table"]});
-      google.setOnLoadCallback(%sTable);
+        models   = self.models
+        regions  = self.regions
+        metrics  = self.metrics
+        units    = self.units
+        cname    = self.cname.split(" / ")
+        if len(cname) == 3:
+            cname = cname[1].strip()
+        else:
+            cname = cname[-1].strip()
+        callback = "%sTable()" % self.name
+        head     = """
       function %sTable() {
         var data = new google.visualization.DataTable();
         data.addColumn('string','Model');
-        data.addColumn('string','Data');""" % (self.name,self.name)
+        data.addColumn('string','Data');""" % (self.name)
         for region in regions:
             for metric in metrics:
                 head += """
@@ -334,7 +330,7 @@ class HtmlPage(object):
         data.addRows(["""
         for model in models:
             head += """
-          ['%s','<a href="%s_%s.nc" download>[-]</a>'""" % (model,self.cname,model)
+          ['%s','<a href="%s_%s.nc" download>[-]</a>'""" % (model,cname,model)
             for region in regions:
                 for metric in metrics:
                     add = ", null"
@@ -389,9 +385,8 @@ class HtmlPage(object):
         google.visualization.events.addListener(table, 'select', clickRow);
       table.setSelection([{'row': 0}]);
       clickRow();
-      }
-    </script>"""
-        return head
+      }"""
+        return head,callback,"table"
 
     def setRegions(self,regions):
         assert type(regions) == type([])
@@ -428,14 +423,18 @@ class HtmlPage(object):
         if self.regions is None: self.regions = regions
         self.metrics = metrics
         self.units   = units
-        
+
+    def head(self):
+        return ""
+    
 class HtmlAllModelsPage(HtmlPage):
 
     def __init__(self,name,title):
         
         super(HtmlAllModelsPage,self).__init__(name,title)
-        self.plots   = None
-        self.nobench = None
+        self.plots    = None
+        self.nobench  = None
+        self.nolegend = []
         
     def _populatePlots(self):
 
@@ -446,16 +445,19 @@ class HtmlAllModelsPage(HtmlPage):
                 for section in page.sections:
                     if len(page.figures[section]) == 0: continue
                     for figure in page.figures[section]:
-                        if (figure.name in ["spatial_variance","spaceint","cycle","compcycle"]): continue # ignores
+                        if (figure.name in ["spatial_variance","compcycle","profile",
+                                            "legend_spatial_variance","legend_compcycle"]): continue # ignores
                         if "benchmark" in figure.name:
                             if figure.name not in bench: bench.append(figure.name)
                             continue
                         if figure not in self.plots: self.plots.append(figure)
+                        if not figure.legend: self.nolegend.append(figure.name)
         self.nobench = [plot.name for plot in self.plots if "benchmark_%s" % (plot.name) not in bench]
         
     def __str__(self):
 
         if self.plots is None: self._populatePlots()
+        r = Regions()
         
         code = """
     <div data-role="page" id="%s">
@@ -481,7 +483,7 @@ class HtmlAllModelsPage(HtmlPage):
       <select id="%sRegion" onchange="AllSelect()">""" % (self.name)
             for region in self.regions:
                 try:
-                    rname = region_names[region]
+                    rname = r.getRegionName(region)
                 except:
                     rname = region
                 opts  = ''
@@ -495,9 +497,14 @@ class HtmlAllModelsPage(HtmlPage):
         if self.plots:
             code += """
       <select id="%sPlot" onchange="AllSelect()">""" % (self.name)
-            for plot in self.plots:
+            for plot in self.plots:                
                 name  = ''
-                if space_opts.has_key(plot.name): name = space_opts[plot.name]["name"]
+                if space_opts.has_key(plot.name):
+                    name = space_opts[plot.name]["name"]
+                elif time_opts.has_key(plot.name):
+                    name = time_opts[plot.name]["name"]
+                elif plot.longname is not None:
+                    name = plot.longname
                 if "rel_" in plot.name: name = plot.name.replace("rel_","Relationship with ")
                 opts  = ''
                 if plot.name == "timeint" or len(self.plots) == 1:
@@ -507,22 +514,15 @@ class HtmlAllModelsPage(HtmlPage):
             code += """
       </select>"""
             
-            fig = self.plots[0]
-            rem_legend = fig.legend; fig.legend = False
-            rem_side   = fig.side;   fig.side   = "MNAME"
-            img = "%s" % (fig)
-            img = img.replace("%s" % fig.name,"MNAME")
-            fig.legend = rem_legend
-            fig.side   = rem_side
+            fig      = self.plots[0]
+            rem_side = fig.side
+            fig.side = "MNAME"
+            img      = "%s" % (fig)
+            img      = img.replace('"leg"','"MNAME_legend"').replace("%s" % fig.name,"MNAME")
+            fig.side = rem_side
             for model in self.pages[0].models:
                 code += img.replace("MNAME",model)
-            
-            code += """
-        <div class="outer" id="legend_div">
-          <div class="inner rotate"> </div>
-          <div class="second"><img src="" id="legend" alt="Data not available"></img></div>
-        </div><br>"""
-            
+                        
         if self.text is not None:
             code += """
       %s""" % self.text
@@ -530,8 +530,11 @@ class HtmlAllModelsPage(HtmlPage):
         code += """
     </div>"""
         return code
+
+    def googleScript(self):
+        return "","",""
     
-    def metricTable(self):
+    def head(self):
         
         if self.plots is None: self._populatePlots()
         
@@ -542,7 +545,7 @@ class HtmlAllModelsPage(HtmlPage):
         except:
             pass
         head    = """
-    <script type="text/javascript">
+    <script>
       function AllSelect() {
         var header = "%s";
         var CNAME  = "%s";
@@ -553,18 +556,33 @@ class HtmlAllModelsPage(HtmlPage):
         var PNAME  = document.getElementById("%s").options[pid].value;
         header     = header.replace("RNAME",RNAME);
         $("#%sHead").text(header);""" % (self.header,self.cname,self.name+"Region",self.name+"Region",self.name+"Plot",self.name+"Plot",self.name)
-        
+        cond  = " || ".join(['PNAME == "%s"' % n for n in self.nobench])
+        if cond == "": cond = "0"
         head += """
         if(%s){
-          document.getElementById("Benchmark_div").style.display = 'none'
+          document.getElementById("Benchmark_div").style.display = 'none';
         }else{
-          document.getElementById("Benchmark_div").style.display = 'block'
-          document.getElementById('Benchmark').src = 'Benchmark_' + RNAME + '_' + PNAME + '.png'
-        }
-        document.getElementById('legend').src = 'legend_' + PNAME + '.png'""" % (" || ".join(['PNAME == "%s"' % n for n in self.nobench]))
+          document.getElementById("Benchmark_div").style.display = 'inline';
+        }""" % (cond)
+
+        cond  = " || ".join(['PNAME == "%s"' % n for n in self.nolegend])
+        if cond == "": cond = "0"
+        head += """
+        if(%s){""" % cond
         for model in models:
             head += """
-        document.getElementById('%s').src = '%s_' + RNAME + '_' + PNAME + '.png'""" % (model,model)
+          document.getElementById("%s_legend").style.display = 'none';""" % model
+        head += """
+        }else{"""
+        for model in models:
+            head += """
+          document.getElementById("%s_legend").style.display = 'inline';""" % model
+        head += """
+        }"""
+        for model in models:
+            head += """
+        document.getElementById('%s').src = '%s_' + RNAME + '_' + PNAME + '.png';
+        document.getElementById('%s_legend').src = 'legend_' + PNAME + '.png';""" % (model,model,model)
         head += """
       }
     </script>
@@ -575,16 +593,125 @@ class HtmlAllModelsPage(HtmlPage):
     </script>"""
         return head
 
+class HtmlSitePlotsPage(HtmlPage):
+
+    def __init__(self,name,title):
+        
+        super(HtmlSitePlotsPage,self).__init__(name,title)
+
+    def __str__(self):
+
+        # setup page navigation
+        code = """
+    <div data-role="page" id="%s">
+      <div data-role="header" data-position="fixed" data-tap-toggle="false">
+        <h1 id="%sHead">%s</h1>""" % (self.name,self.name,self.title)
+        if self.pages:
+	    code += """
+        <div data-role="navbar">
+	  <ul>""" 
+            for page in self.pages:
+                opts = ""
+                if page == self: opts = " class=ui-btn-active ui-state-persist"
+                code += """
+            <li><a href='#%s'%s>%s</a></li>""" % (page.name,opts,page.title)
+            code += """
+	  </ul>"""
+        code += """
+	</div>
+      </div>"""
+
+        code += """
+      <select id="%sModel" onchange="%sMap()">""" % (self.name,self.name)
+        for model in self.models:
+            code += """
+        <option value='%s'>%s</option>""" % (model,model)
+        code += """
+      </select>"""
+
+        code += """
+      <select id="%sSite" onchange="%sMap()">""" % (self.name,self.name)
+        for site in self.sites:
+            code += """
+        <option value='%s'>%s</option>""" % (site,site)
+        code += """
+      </select>"""
+        
+        code += """
+      <center>
+        <div id='map_canvas'></div>
+        <div><img src="" id="time" alt="Data not available"></img></div>
+      </center>"""
+
+        code += """
+    </div>"""
+        
+        return code
+    
+    def setMetrics(self,metric_dict):
+        self.models.sort()
+        
+    def googleScript(self):
+
+        callback = "%sMap()" % (self.name)
+        head = """
+      function %sMap() {
+        var sitedata = google.visualization.arrayToDataTable(
+          [['Latitude', 'Longitude', '%s [%s]'],\n""" % (self.name,self.vname,self.unit)
+
+        for lat,lon,val in zip(self.lat,self.lon,self.vals):
+            if val is np.ma.masked:
+                sval = "null"
+            else:
+                sval = "%.2f" % val
+            head += "           [%.3f,%.3f,%s],\n" % (lat,lon,sval)
+        head = head[:-2] + "]);\n"
+        head += ("        var names = %s;" % (self.sites)).replace("u'","'").replace(", '",",'")
+        head += """
+        var options = {
+          dataMode: 'markers',
+          magnifyingGlass: {enable: true, zoomFactor: 3.},
+        };
+        var container = document.getElementById('map_canvas');
+        var geomap    = new google.visualization.GeoChart(container);
+        function updateMap() {
+          var mid    = document.getElementById("%sModel").selectedIndex;
+          var MNAME  = document.getElementById("%sModel").options[mid].value;
+          var rid    = document.getElementById("%sSite" ).selectedIndex;
+          var RNAME  = document.getElementById("%sSite" ).options[rid].value;
+          document.getElementById('time').src = MNAME + '_' + RNAME + '_time.png';
+        }
+        function clickMap() {
+          var select = geomap.getSelection();
+          if (Object.keys(select).length == 1) {
+            var site = $("select#SitePlotsSite");
+            site[0].selectedIndex = select[0].row;
+            site.selectmenu('refresh');         
+          }
+          updateMap();
+        }
+        google.visualization.events.addListener(geomap,'select',clickMap);
+        geomap.draw(sitedata, options);
+        updateMap();
+      };""" % (self.name,self.name,self.name,self.name)
+        
+        return head,callback,"geomap"
+
+    def head(self):
+        return ""
+    
 class HtmlLayout():
 
-    def __init__(self,pages,cname):
+    def __init__(self,pages,cname,years=None):
 
         self.pages = pages
         self.cname = cname.replace("/"," / ")
+        if years is not None:
+            self.cname += " / %d-%d" % (years)
         for page in self.pages:
             page.pages = self.pages
             page.cname = self.cname
-        
+                
     def __str__(self):
         code = """<html>
   <head>"""
@@ -593,43 +720,51 @@ class HtmlLayout():
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>"""
-
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>"""
+    
         ### stick in javascript stuff here
-        for page in self.pages: code += page.metricTable()
-            
+        functions = []
+        callbacks = []
+        packages  = []
+        for page in self.pages:
+            out = page.googleScript()
+            if len(out) == 3:
+                f,c,p = out
+                if f != "": functions.append(f)
+                if c != "": callbacks.append(c)
+                if p != "": packages.append(p)
+                
+        code += """
+    <script type='text/javascript'>
+      google.load("visualization", "1", {packages: %s});
+      google.setOnLoadCallback(allLoad);
+      function allLoad() {""" % packages
+        for c in callbacks:
+            code += """
+        %s""" % c
+        code += """
+      };"""
+        for f in functions:
+            code += f
+        code += """
+    </script>"""
+
+        for page in self.pages: code += page.head()
+        
         ### stick in css stuff here
         code += """
     <style type="text/css">
-      .outer {
-             width: 40px;
-          position: relative;
-           display: inline-block;
-            margin: 0 15px;
+      .container{
+        display:inline;
       }
-      .benchmark {
-          position: relative;
-           display: inline-block;
-            margin: 0 15px;
-      }
-      .inner {
-         font-size: 20px;
-       font-weight: bold;
-          position: absolute;
-               top: 50%;
-              left: 50%;
-      }
-            .second {
-         font-size: 20px;
-       font-weight: bold;
-          position: relative;
-              left: 40px;
-      }
-      .rotate {
-           -moz-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
-        -webkit-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
-                transform: translateX(-50%) translateY(-50%) rotate(-90deg);
-      }
+      .child{
+        margin-bottom:10px;
+        display:inline-block;
+        padding:5px;
+        font-size: 20px;
+        font-weight: bold;
+      }   
     </style>"""
 
         code += """
@@ -704,7 +839,7 @@ def RegisterCustomColormaps():
     plt.register_cmap(name='RdGn', data=RdGn)
 
 
-def BenchmarkSummaryFigure(models,variables,data,figname,vcolor=None):
+def BenchmarkSummaryFigure(models,variables,data,figname,vcolor=None,rel_only=False):
     """Creates a summary figure for the benchmark results contained in the
     data array.
 
@@ -745,45 +880,52 @@ def BenchmarkSummaryFigure(models,variables,data,figname,vcolor=None):
     if "stoplight" not in plt.colormaps(): RegisterCustomColormaps()
     
     # plot the variable scores
-    fig,ax = plt.subplots(figsize=(w,h),ncols=2,tight_layout=True)
-    cmap   = plt.get_cmap('stoplight')
-    cmap.set_bad('k',bad)
-    qc     = ax[0].pcolormesh(np.ma.masked_invalid(data[::-1,:]),cmap=cmap,vmin=0,vmax=1,linewidth=0)
-    div    = make_axes_locatable(ax[0])
-    fig.colorbar(qc,
-                 ticks=(0,0.25,0.5,0.75,1.0),
-                 format="%g",
-                 cax=div.append_axes("bottom", size="5%", pad=0.05),
-                 orientation="horizontal",
-                 label="Variable Score")
-    plt.tick_params(which='both', length=0)
-    ax[0].xaxis.tick_top()
-    ax[0].set_xticks     (np.arange(nmodels   )+0.5)
-    ax[0].set_xticklabels(models,rotation=90)
-    ax[0].set_yticks     (np.arange(nvariables)+0.5)
-    ax[0].set_yticklabels(variables[::-1])
-    ax[0].set_ylim(0,nvariables)
-    ax[0].tick_params('both',length=0,width=0,which='major')
-    ax[0].tick_params(axis='y', pad=10)
-    if vcolor is not None:
-        for i,t in enumerate(ax[0].yaxis.get_ticklabels()):
-            t.set_backgroundcolor(vcolor[::-1][i])
-    
-    # compute and plot the variable z-scores
+    if rel_only:
+        fig,ax = plt.subplots(figsize=(w,h),ncols=1,tight_layout=True)
+        ax     = [ax]
+    else:
+        fig,ax = plt.subplots(figsize=(w,h),ncols=2,tight_layout=True)
+
+    # absolute score
+    if not rel_only:
+        cmap   = plt.get_cmap('stoplight')
+        cmap.set_bad('k',bad)
+        qc     = ax[0].pcolormesh(np.ma.masked_invalid(data[::-1,:]),cmap=cmap,vmin=0,vmax=1,linewidth=0)
+        div    = make_axes_locatable(ax[0])
+        fig.colorbar(qc,
+                     ticks=(0,0.25,0.5,0.75,1.0),
+                     format="%g",
+                     cax=div.append_axes("bottom", size="5%", pad=0.05),
+                     orientation="horizontal",
+                     label="Variable Score")
+        plt.tick_params(which='both', length=0)
+        ax[0].xaxis.tick_top()
+        ax[0].set_xticks     (np.arange(nmodels   )+0.5)
+        ax[0].set_xticklabels(models,rotation=90)
+        ax[0].set_yticks     (np.arange(nvariables)+0.5)
+        ax[0].set_yticklabels(variables[::-1])
+        ax[0].tick_params('both',length=0,width=0,which='major')
+        ax[0].tick_params(axis='y', pad=10)
+        if vcolor is not None:
+            for i,t in enumerate(ax[0].yaxis.get_ticklabels()):
+                t.set_backgroundcolor(vcolor[::-1][i])
+
+    # relative score
+    i = 0 if rel_only else 1
     np.seterr(invalid='ignore',under='ignore')
     data = np.ma.masked_invalid(data)
     data.data[data.mask] = 1.
     data = np.ma.masked_values(data,1.)
     mean = data.mean(axis=1)
-    std  = data.std (axis=1)
+    std  = data.std (axis=1).clip(0.02)
     np.seterr(invalid='ignore',under='ignore')
     Z    = (data-mean[:,np.newaxis])/std[:,np.newaxis]
     Z    = np.ma.masked_invalid(Z)
     np.seterr(invalid='warn',under='raise')
     cmap = plt.get_cmap('RdGn')
     cmap.set_bad('k',bad)
-    qc   = ax[1].pcolormesh(Z[::-1],cmap=cmap,vmin=-2,vmax=2,linewidth=0)
-    div  = make_axes_locatable(ax[1])
+    qc   = ax[i].pcolormesh(Z[::-1],cmap=cmap,vmin=-2,vmax=2,linewidth=0)
+    div  = make_axes_locatable(ax[i])
     fig.colorbar(qc,
                  ticks=(-2,-1,0,1,2),
                  format="%+d",
@@ -791,12 +933,18 @@ def BenchmarkSummaryFigure(models,variables,data,figname,vcolor=None):
                  orientation="horizontal",
                  label="Variable Z-score")
     plt.tick_params(which='both', length=0)
-    ax[1].xaxis.tick_top()
-    ax[1].set_xticks(np.arange(nmodels)+0.5)
-    ax[1].set_xticklabels(models,rotation=90)
-    ax[1].tick_params('both',length=0,width=0,which='major')
-    ax[1].set_yticks([])
-    ax[1].set_ylim(0,nvariables)
+    ax[i].xaxis.tick_top()
+    ax[i].set_xticks(np.arange(nmodels)+0.5)
+    ax[i].set_xticklabels(models,rotation=90)
+    ax[i].tick_params('both',length=0,width=0,which='major')
+    ax[i].set_yticks([])
+    ax[i].set_ylim(0,nvariables)
+    if rel_only:
+        ax[i].set_yticks     (np.arange(nvariables)+0.5)
+        ax[i].set_yticklabels(variables[::-1])
+        if vcolor is not None:
+            for i,t in enumerate(ax[i].yaxis.get_ticklabels()):
+                t.set_backgroundcolor(vcolor[::-1][i])
 
     # save figure
     fig.savefig(figname)

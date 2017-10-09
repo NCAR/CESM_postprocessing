@@ -35,6 +35,7 @@ f1 = addfile(pre_proc_cont+"/"+"ice_vol_"+case_to_cont+"_"+yr1+"-"+yr2+".nc","r"
 
 plot_line_diff = getenv("PLOT_LINE_DIFF")
 model_vs_model = getenv("MODEL_VS_MODEL")
+
 ;;if (plot_line_diff .eq. "True") then
 if ((model_vs_model .eq. "True") .and. (plot_line_diff .eq. "True")) then
    case_to_diff = getenv("CASE_TO_DIFF")

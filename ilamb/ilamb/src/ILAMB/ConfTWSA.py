@@ -73,7 +73,9 @@ class ConfTWSA(Confrontation):
         
         return obs,mod
 
-
+    def requires(self):
+        return ["tws"],[]
+        
     def confront(self,m):
         """Confront
 
@@ -153,7 +155,7 @@ class ConfTWSA(Confrontation):
         diff   .name = "bias_of_twsa"
         
         # Dump results to a netCDF4 file
-        results = Dataset("%s/%s_%s.nc" % (self.output_path,self.name,m.name),mode="w")
+        results = Dataset(os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name)),mode="w")
         results.setncatts({"name" :m.name, "color":m.color})
         mod_std     .toNetCDF4(results,group="MeanState")
         diff        .toNetCDF4(results,group="MeanState")
@@ -164,7 +166,7 @@ class ConfTWSA(Confrontation):
 
         # If you are the master, dump Benchmark quantities too
         if self.master:
-            results = Dataset("%s/%s_Benchmark.nc" % (self.output_path,self.name),mode="w")
+            results = Dataset(os.path.join(self.output_path,"%s_Benchmark.nc" % (self.name)),mode="w")
             results.setncatts({"name" :"Benchmark", "color":np.asarray([0.5,0.5,0.5])})
             obs_std     .toNetCDF4(results,group="MeanState")
             for region in self.regions: obs_spaceint[region].toNetCDF4(results,group="MeanState")

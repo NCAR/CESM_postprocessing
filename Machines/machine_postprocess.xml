@@ -56,6 +56,12 @@
 	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">16</diagnostics_pes>
 	<obs_root>/glade/p/cesm/</obs_root>
       </component>
+      <component name="ilamb">
+	<averages_pes queue="regular" pes_per_node="0" wallclock="00:01">0</averages_pes> <!-- unsued. not required by xsd but required by the code. -->
+	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">2</diagnostics_pes>
+	<initialize_pes queue="geyser" pes_per_node="1" wallclock="00:10">1</initialize_pes>
+	<obs_root>/glade/p/cesm/lmwg_dev/oleson/ILAMB/ILAMB_all</obs_root>
+      </component>
     </components>
   </machine>
 
