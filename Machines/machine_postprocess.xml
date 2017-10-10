@@ -128,6 +128,19 @@
 	<diagnostics_pes queue="regular" nodes="1" pes_per_node="36" wallclock="01:00:00">36</diagnostics_pes>
 	<obs_root>/glade/p/cesm/</obs_root>
       </component>
+      <component name="ilamb">
+	<averages_pes queue="regular" nodes="0" pes_per_node="0" wallclock="00:01">0</averages_pes> <!-- unsued. not required by xsd but required by the code. -->
+	<diagnostics_pes queue="regular" nodes="1" pes_per_node="36" wallclock="01:00">36</diagnostics_pes>
+	<initialize_pes queue="share" nodes="1" pes_per_node="36" wallclock="00:10">1</initialize_pes>
+	<obs_root>/glade/p/cesm/lmwg_dev/oleson/ILAMB/ILAMB_all</obs_root>
+      </component>
+      <component name="iomb">
+	<averages_pes queue="regular" nodes="0" pes_per_node="0" wallclock="00:01">0</averages_pes> <!-- unsued. not required by xsd but required by the code. -->
+	<diagnostics_pes queue="regular" nodes="1" pes_per_node="36" wallclock="01:00">36</diagnostics_pes>
+	<initialize_pes queue="share" nodes="1" pes_per_node="36" wallclock="00:10">1</initialize_pes>
+	<obs_root>/glade/p/cesm/omwg/obs_data/IOMB</obs_root>
+      </component>
+
     </components>
   </machine>
 
