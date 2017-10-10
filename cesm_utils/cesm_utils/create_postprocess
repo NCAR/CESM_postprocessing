@@ -621,7 +621,7 @@ def main(options):
     compList = ['atm','ice','lnd','ocn']
     regridList = ['atm','lnd']
     regridList = ['lnd']
-    imbList = ['ilamb', ]
+    imbList = ['ilamb', 'iomb']
 
     # get the machine dependent variables, modules and mpi run command in a dictionary
     machine = dict()
