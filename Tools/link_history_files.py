@@ -42,15 +42,25 @@ import os
 ##        filename = '{0}.{1}-{2}.nc'.format(casename,year,month)
 ##        os.symlink(os.path.join(srcdir, filename), os.path.join(linkdir, filename))
 
-for year in range(2010,2015):
+for year in ['0101','0102','0103','0104','0105','0106','0107','0108','0109','0110','0111','0112','0113','0114','0115','0116','0117','0118','0119','0120']:
+    for month in ['01','02','03','04','05','06','07','08','09','10','11','12']:
         
-    srcdir = '/glade2/scratch2/mmills/archive/f.e20.FCHIST.f09_f09_mg17.alpha07c_cam5_4_138.002/atm/hist'
-    linkdir = '/glade/scratch/aliceb/f.e20.FCHIST.f09_f09_mg17.alpha07c_cam5_4_138.002/atm/hist'
+        srcdir = '/glade/p/cesm0005/archive/b.e20.B1850.f09_g17.pi_control.all.197/ocn/hist'
+        linkdir = '/glade/scratch/aliceb/b.e20.B1850.f09_g17.pi_control.all.197/ocn/hist'
+        casename = 'b.e20.B1850.f09_g17.pi_control.all.197.pop.h'
+        filename = '{0}.{1}-{2}.nc'.format(casename,year,month)
+        os.symlink(os.path.join(srcdir, filename), os.path.join(linkdir, filename))
 
-    if not os.path.exists(linkdir):
-        os.makedirs(linkdir)
+for year in ['0101','0102','0103','0104','0105','0106','0107','0108','0109','0110','0111','0112','0113','0114','0115','0116','0117','0118','0119','0120']:
+    for month in ['01','02','03','04','05','06','07','08','09','10','11','12']:
+        
+        srcdir = '/glade/p/cesm0005/archive/b.e20.B1850.f09_g17.pi_control.all.201/ocn/hist'
+        linkdir = '/glade/scratch/aliceb/b.e20.B1850.f09_g17.pi_control.all.201/ocn/hist'
 
-    casename = 'f.e20.FCHIST.f09_f09_mg17.alpha07c_cam5_4_138.002.cam.h7'
-    filename = '{0}.{1}-01-01-00000.nc'.format(casename,year)
-    os.symlink(os.path.join(srcdir, filename), os.path.join(linkdir, filename))
+        if not os.path.exists(linkdir):
+            os.makedirs(linkdir)
+
+        casename = 'b.e20.B1850.f09_g17.pi_control.all.201.pop.h'
+        filename = '{0}.{1}-{2}.nc'.format(casename,year,month)
+        os.symlink(os.path.join(srcdir, filename), os.path.join(linkdir, filename))
 
