@@ -198,6 +198,7 @@ o	varlist: ['a','list','of','vars','to','avg']   DEFAULT = Full list
 o	clobber:  If a user specified average exists on disk, delete if set to true.  DEFAULT=False
 o	serial:  run in serial or parallel mode DEFAULT=FALSE (parallel mode)
 o	main_comm:  the simple_comm object.  If one isnt passed in, one will be initialized for you.
+o       vertical_levels:  Number of ocean vertical levels  DEFAULT = 60
 
 ======================================
 To generate the obs file needed for the Ocean hor.meandiff calculation:

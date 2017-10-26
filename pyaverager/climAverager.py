@@ -317,7 +317,7 @@ def weighted_avg_var_missing(var,years,hist_dict,ave_info,file_dict,ave_type,fil
     return var_Ave
 
 
-def weighted_hor_avg_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dict,ave_info,file_dict):
+def weighted_hor_avg_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dict,ave_info,file_dict,nlev):
 
     '''
     Computes the weighted hor mean rms diff for a year  
@@ -336,6 +336,8 @@ def weighted_hor_avg_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist
 
     @param hist_dict   A dictionary that holds file references for all years/months. 
 
+    @param nlev        Number of ocean vertical levels
+
     @param ave_info    A dictionary of the type of average that is to be done.
                        Includes:  type, months_to_average, fn, and weights
                        (weights are not used in this function/average)
@@ -344,6 +346,7 @@ def weighted_hor_avg_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist
                        are needed by this average calculation.
 
     @return var_Ave    The averaged results for this variable across the designated time frame.
+
     '''
 
     # Get correct data slice from the yearly average file
@@ -357,7 +360,7 @@ def weighted_hor_avg_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist
     region_mask = MA.expand_dims(slev_mask, axis=0)
     weights = MA.expand_dims(slev_weights, axis=0)
     if var_val.ndim > 2:
-        for lev in range(1,60):
+        for lev in range(1,nlev):
             new_region_mask = MA.expand_dims(slev_mask, axis=0)
             region_mask = np.vstack((region_mask,new_region_mask))
             new_weights = MA.expand_dims(slev_weights, axis=0)
@@ -404,7 +407,7 @@ def diff_var(var, avg_test_slice, obs_file):
 
     return var_Avg_diff
 
-def weighted_rms_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dict,ave_info,file_dict,avg_test_slice,obs_file):
+def weighted_rms_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dict,ave_info,file_dict,avg_test_slice,obs_file,nlev):
 
     '''
     Computes the weighted rms for a year  
@@ -434,6 +437,8 @@ def weighted_rms_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dic
  
     @param obs_file       Observation file that contains the values to be used in the caluculation.
 
+    @param nlev           Number of ocean vertical levels
+
     @return nrms          The normalized rms results for this variable.
     '''
 
@@ -448,7 +453,7 @@ def weighted_rms_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dic
     # Since weights and region mask are only one level, we need to expand them to all levels
     region_mask = MA.expand_dims(slev_mask, axis=0)
     weights = MA.expand_dims(slev_weights, axis=0)
-    for lev in range(1,60):
+    for lev in range(1,nlev):
         new_region_mask = MA.expand_dims(slev_mask, axis=0)
         region_mask = np.vstack((region_mask,new_region_mask))
         new_weights = MA.expand_dims(slev_weights, axis=0)
@@ -474,7 +479,7 @@ def weighted_rms_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dic
 
     return nrms
 
-def mean_diff_rms(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dict,ave_info,file_dict,obs_file,reg_obs_file,simplecomm,serial,MPI_TAG,AVE_TAG):
+def mean_diff_rms(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dict,ave_info,file_dict,obs_file,reg_obs_file,simplecomm,serial,MPI_TAG,AVE_TAG,nlev):
 
     '''
     Computes the weighted hor mean rms diff for a year  
@@ -510,6 +515,8 @@ def mean_diff_rms(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dict,ave_info,
 
     @MPI_TAG             Integer tag used to communicate message numbers.
 
+    @param nlev          Number of ocean vertical levels
+
     @return var_Ave      The averaged results for this variable.
 
     @return var_DIFF     The difference results for this variable.
@@ -523,7 +530,7 @@ def mean_diff_rms(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dict,ave_info,
     var_rms = var+'_RMS'
 
     ## Get the masked regional average
-    var_Avg = weighted_hor_avg_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year[0],hist_dict,ave_info,file_dict)
+    var_Avg = weighted_hor_avg_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year[0],hist_dict,ave_info,file_dict,nlev)
     ## Send var_Avg results to local root to write
     if (not serial):
         #md_message_v = {'name':var,'shape':var_Avg.shape,'dtype':var_Avg.dtype,'average':var_Avg}
@@ -541,7 +548,7 @@ def mean_diff_rms(var,reg_name,reg_num,mask_var,wgt_var,year,hist_dict,ave_info,
     ## Get the RMS from the obs diff
     var_slice = rover.fetch_slice(hist_dict,year[0],0,var,file_dict)
     temp_diff = diff_var(var, var_slice, obs_file)
-    var_RMS = weighted_rms_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year[0],hist_dict,ave_info,file_dict,temp_diff,obs_file)
+    var_RMS = weighted_rms_var_from_yr(var,reg_name,reg_num,mask_var,wgt_var,year[0],hist_dict,ave_info,file_dict,temp_diff,obs_file,nlev)
     ## Send var_RMS results to local root to write
     if (not serial):
         #md_message = {'name':var_rms,'shape':var_RMS.shape,'dtype':var_RMS.dtype,'average':var_RMS}

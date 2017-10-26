@@ -22,6 +22,7 @@ region_wgt_var = 'TAREA'
 obs_dir = '/glade/p/work/mickelso/PyAvg-OMWG-obs/obs/'
 obs_file = 'obs.nc'
 reg_obs_file_suffix = '_hor_mean_obs.nc'
+vertical_levels = 60
 
 suffix = 'nc'
 clobber = True
@@ -47,7 +48,8 @@ pyAveSpecifier = specification.create_specifier(in_directory=in_dir,
                                   region_wgt_var=region_wgt_var,
                                   obs_dir=obs_dir,
                                   obs_file=obs_file,
-                                  reg_obs_file_suffix=reg_obs_file_suffix)
+                                  reg_obs_file_suffix=reg_obs_file_suffix,
+                                  vertical_levels=vertical_levels)
 
 PyAverager.run_pyAverager(pyAveSpecifier)
 
