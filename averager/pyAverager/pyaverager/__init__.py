@@ -2,5 +2,5 @@
 
 import PyAverager, specification, PreProc
 
-__version__ = "0.9.10"
+__version__ = "0.9.12"
 
