@@ -90,17 +90,17 @@
 	<subdir>hist</subdir> 
 	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
-	<tseries_tper>undefined</tseries_tper>
+	<tseries_tper>day_1</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
-        <tseries_filecat_n>10</tseries_filecat_n>
+        <tseries_filecat_n>1</tseries_filecat_n>
       </file_extension>
       <file_extension suffix=".h7.[0-9]">      
 	<subdir>hist</subdir> 
 	<tseries_create>FALSE</tseries_create>
 	<tseries_output_format>netcdf4c</tseries_output_format>
-	<tseries_tper>undefined</tseries_tper>
+	<tseries_tper>day_5</tseries_tper>
         <tseries_filecat_tper>years</tseries_filecat_tper>
-        <tseries_filecat_n>10</tseries_filecat_n>
+        <tseries_filecat_n>1</tseries_filecat_n>
       </file_extension>
       <file_extension suffix=".h8.[0-9]">      
 	<subdir>hist</subdir> 
