@@ -1,4 +1,4 @@
-October 26, 2017
+November 30, 2017
 
 ======================================
 
@@ -9,7 +9,7 @@ PyAverager
 A package used for computing averages from climate model output.
 
 Authors:  Sheri Mickelson, Kevin Paul, and John Dennis
-Version:  0.9.12
+Version:  0.9.13
 Copyright:  Contained within LICENSE.txt
 Comments and feedback:  mickelso@ucar.edu
 
