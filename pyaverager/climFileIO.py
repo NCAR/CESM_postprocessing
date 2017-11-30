@@ -443,7 +443,8 @@ def define_ave_file(l_master,serial,var_list,lvar_list,meta_list,hist_dict,hist_
         # Add meta variables
         temp = {}
         for mv in meta_list:
-            temp[mv] = create_meta_var(my_file[first_fn],mv,new_file,collapse_dim)
+            if mv in my_file[first_fn].variables.keys():
+                temp[mv] = create_meta_var(my_file[first_fn],mv,new_file,collapse_dim)
         all_files_vars = temp
 
     # Have each rank open it's own variable file(s), retreive variable info, and send to root to create variable 
@@ -515,7 +516,8 @@ def define_ave_file(l_master,serial,var_list,lvar_list,meta_list,hist_dict,hist_
         all_files_vars.update(new_file.variables)
         # All vars are defined, Write all meta vars to the files
         for mv in meta_list:
-            write_meta(all_files_vars, mv, my_file[first_fn])
+            if mv in my_file[first_fn].variables.keys():
+                write_meta(all_files_vars, mv, my_file[first_fn])
     return all_files_vars,new_file
 
 #==============================================================================
