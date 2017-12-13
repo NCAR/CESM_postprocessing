@@ -386,7 +386,7 @@ class PyAverager(object):
 					# The mean diff rsm function will send the variables once they are created 
 					var_avg_results,var_DIFF_results,var_RMS_results = climAverager.mean_diff_rms(var,region_name,region_num,spec.region_nc_var,
 					    spec.region_wgt_var,years,hist_dict,ave_t.average_types[ave_descr[0]],file_dict,obs_file,
-					    reg_obs_file,inter_comm,spec.serial,VNAME_TAG,AVE_TAG)
+					    reg_obs_file,inter_comm,spec.serial,VNAME_TAG,AVE_TAG,spec.vertical_levels)
 				    else:
 					if ('__metaChar' in orig_var):
 					    # Handle special meta
