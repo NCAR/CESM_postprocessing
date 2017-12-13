@@ -4,11 +4,26 @@ load "$NCLPATH/get_environment.ncl"
 load "$NCLPATH/contour_plot.ncl"
 
 begin
-  field_name  = [/"HMXL", "HBLT", "SU", "SV", "BSF" /]
-
+;;  field_name  = [/"HMXL", "HBLT", "SU", "SV", "BSF" /]
+  field_name = NewList("lifo")
   missing = 1.0e30
 
   fileid = addfile(file_netcdf,"r")
+  if (isfilevar(fileid,"HMXL")) then
+    ListPush(field_name,"HMXL")
+  end if
+  if (isfilevar(fileid,"HBLT")) then
+    ListPush(field_name,"HBLT")
+  end if
+  if (isfilevar(fileid,"SU")) then
+    ListPush(field_name,"SU")
+  end if
+  if (isfilevar(fileid,"SV")) then
+    ListPush(field_name,"SV")
+  end if
+  if (isfilevar(fileid,"BSF")) then
+    ListPush(field_name,"BSF")
+  end if
   if (isfilevar(fileid,"DIA_DEPTH")) then
     ListPush(field_name,"DIA_DEPTH")
   end if

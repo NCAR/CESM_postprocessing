@@ -31,7 +31,7 @@ begin
 
   do n = 0, nt - 1
     do k = 0, nz - 1 
-      print("month = " + (n+1) + " level = " + (k+1))
+;;      print("month = " + (n+1) + " level = " + (k+1))
       opt = False
       PD(n,k,:,:) = (eos(TEMP(n,k,:,:),SALT(n,k,:,:),0,opt) - 1.0d) * 1000.0d
     end do
