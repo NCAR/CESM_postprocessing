@@ -8,9 +8,9 @@ file_netcdf_za   = "za_"+file_netcdf
 file_flux_obs_za = "za_"+file_flux_obs
 file_wind_obs_za = "za_"+file_wind_obs
 
-;;print("*** file_netcdf_za = "+file_netcdf_za)
-;;print("*** file_flux_obs_za = "+file_flux_obs_za)
-;;print("*** file_wind_obs_za = "+file_wind_obs_za)
+print("*** file_netcdf_za = "+file_netcdf_za)
+print("*** file_flux_obs_za = "+file_flux_obs_za)
+print("*** file_wind_obs_za = "+file_wind_obs_za)
 
 fileid = addfile(file_netcdf,"r")
 f_za   = addfile(file_netcdf_za,"r")
@@ -38,10 +38,17 @@ n_reg = dimsizes(region_index)
 varsinfile = getfilevarnames(f_za)
 
 if (any(varsinfile.eq."SHF") .and. any(varsinfile.eq."SFWF")) then
-   field_name = (/ "SHF", "SHF_QSW", "SFWF", "PREC_F",  \
-   	      	   "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
-		   "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
-                   "QFLUX", "SNOW_F" /)
+   if (any(varsinfile.eq."QFLUX")) then 
+      field_name = (/ "SHF", "SHF_QSW", "SFWF", "PREC_F",  \
+      	      	      "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
+		      "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
+                      "QFLUX", "SNOW_F" /)
+   else
+      field_name = (/ "SHF", "SFWF", "PREC_F",  \
+      	      	      "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
+		      "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
+                      "SNOW_F" /)
+   end if
 else
    field_name = (/ "SHF_TOTAL", "SHF_QSW", "SFWF_TOTAL", "PREC_F",  \
    	      	   "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
@@ -55,7 +62,11 @@ if ((resolution .eq. "gx1v6") .or. (resolution .eq. "gx1v7")) then
                  "sen", "lwup", "lwdn", "melth", \
                  "", "snow" /)
 else if (resolution .eq. "tx0.1v2") then
-  obsvar_name = (/ "swnet",   "melth",   "sen",    \
+  field_name = (/ "SHF", "SFWF", "PREC_F",  \
+        	  "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
+		  "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
+                  "SNOW_F" /)
+  obsvar_name = (/ "swnet",  "melth",   "sen",    \
                    "lwup",    "lwdn",    "evap",   "rain", \
                    "meltw",   "",        "snow"    /)
 else
@@ -103,6 +114,8 @@ lat_t = f_za->lat_t
 
 do n=0, n_fields-1 
 
+  field = _Missing
+
   if(.not.any(varsinfile.eq.field_name(n))) then
      print(field_name(n) + " is not in file.")
      continue
@@ -146,11 +159,13 @@ do n=0, n_fields-1
        field_name(n) .ne. "SHF"  .and. \
        field_name(n) .ne. "SFWF") then 
      field = f_za->$field_name(n)$
+     printVarSummary(field)
   else
      if ( field_name(n) .eq. "SHF_TOTAL" .or. \
-          field_name(n) .eq. "SHF") then 
+          field_name(n) .eq. "SHF" .and. \
+          isfilevar(f_za,"QFLUX")) then 
 ;;	print("**************")
-;;      print("*** computing SHF_TOTAL")
+        print("*** computing SHF_TOTAL")
         field_q = f_za->QFLUX
         ;;field   = f_za->SHF
 	field   = f_za->$field_name(n)$
@@ -159,9 +174,10 @@ do n=0, n_fields-1
 ;;	print("**************")
      end if
      if ( field_name(n) .eq. "SFWF_TOTAL" .or. \
-          field_name(n) .eq. "SFWF") then
+          field_name(n) .eq. "SFWF" .and. \
+          isfilevar(f_za,"QFLUX")) then 
 ;;	print("**************")
-;;      print("*** computing SFWF_TOTAL")
+        print("*** computing SFWF_TOTAL")
         field_q = f_za->QFLUX
         ;;field   = f_za->SFWF
 	field   = f_za->$field_name(n)$
@@ -230,11 +246,12 @@ do n=0, n_fields-1
    res@gsnPaperOrientation = "portrait"
 
    if (obsvar .eq. "") then
-       ; printVarSummary(field)
-       ;;print("*** plot with obsvar is null")
+       print("*** plot with obsvar is null")
+       printVarSummary(field)
        plot = gsn_csm_xy(wks,lat_t,field(0,global,:),res)
-   else
-       ;;print("*** plot with obsvar ="+obsvar)
+   else if (.not.all(ismissing(field))) then
+       print("*** plot with obsvar = "+obsvar)
+       printVarSummary(field)
        if (cpl .eq. 7) then
          data = new((/2,dimsizes(lat_t)/),double)
        else
@@ -252,6 +269,7 @@ do n=0, n_fields-1
        plot = gsn_csm_xy(wks,lat_t,data,res)
        delete(data)
        delete(field_obs)
+    end if
     end if
 
     delete(field)

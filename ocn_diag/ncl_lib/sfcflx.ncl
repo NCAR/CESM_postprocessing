@@ -5,11 +5,23 @@ load "$NCLPATH/contour_plot.ncl"
 load "$NCLPATH/curl_pop.ncl"
 
 begin
-field_name  = (/ "SHF",     "SHF_TOTAL",  "SHF_QSW", "MELTH_F", \
-                "SENH_F",  "LWUP_F",     "LWDN_F",  "EVAP_F",  \
-                "SFWF",    "SFWF_TOTAL", "PREC_F",  "MELT_F",  \
-                "ROFF_F",  "SALT_F", "TAUX", "TAUY", "CURL",  \
-                "QFLUX",   "SNOW_F" /)
+print ( "resolution = " + resolution )
+
+if (resolution .eq. "tx0.1v2") then
+  field_name  = (/ "SHF",    "MELTH_F", \
+                  "SENH_F",  "LWUP_F",     "LWDN_F",  "EVAP_F",  \
+                  "SFWF",    "PREC_F",  "MELT_F",  \
+                  "ROFF_F",  "SALT_F", "TAUX", "TAUY",  \
+                  "SNOW_F" /)
+else
+   field_name  = (/ "SHF",     "SHF_TOTAL",  "SHF_QSW", "MELTH_F", \
+                  "SENH_F",  "LWUP_F",     "LWDN_F",  "EVAP_F",  \
+                  "SFWF",    "SFWF_TOTAL", "PREC_F",  "MELT_F",  \
+                  "ROFF_F",  "SALT_F", "TAUX", "TAUY", "CURL",  \
+                  "QFLUX",   "SNOW_F" /)
+end if
+
+
 if ((resolution .eq. "gx1v6") .or. (resolution .eq. "gx1v7")) then
   obs_var_name = (/  "", "Foxx_nethflx",  "Foxx_swnet", "", \
 		"Foxx_sen", "Foxx_lwup", "Foxx_lwdn","Foxx_evap", \
@@ -29,7 +41,6 @@ n_fields = dimsizes(field_name)
 print( " the number of fields to be processed is " + n_fields)
 
 missing = default_fillvalue("float")
-
 
 ;;print("file_netcdf = "+file_netcdf)
 ;;print("file_flux_obs = "+file_flux_obs)
@@ -93,7 +104,6 @@ do n = 0, n_fields-1
           end if
 	end if
   end if
-
  
   if (field_name(n) .eq. "CURL") then	
     if (obsvar .ne. "") then
@@ -115,45 +125,55 @@ do n = 0, n_fields-1
         field_obs@units = "10e-8N/m3" 
     
 	delete([/taux,tauy/])
-  end if
-	taux = fileid->TAUX(0,:,:)
-        tauy = fileid->TAUY(0,:,:)
-        taux = tofloat(taux * cos(angle) + tauy * sin(-angle))
-	taux = where(abs(taux) .gt. 1.0e10,taux@_FillValue, taux)
-        tauy = tofloat(tauy * cos(angle) - taux * sin(-angle))
-	tauy = where(abs(tauy) .gt. 1.0e10,tauy@_FillValue, tauy)
-        k = 1
-        field = curl_pop(k, taux, tauy, dxu, dyu, tarea, kmt, missing)
-        field = field/1.0e-8
-        field@units = "10e-8N/m3" 
+    end if
+    taux = fileid->TAUX(0,:,:)
+    tauy = fileid->TAUY(0,:,:)
+    taux = tofloat(taux * cos(angle) + tauy * sin(-angle))
+    taux = where(abs(taux) .gt. 1.0e10,taux@_FillValue, taux)
+    tauy = tofloat(tauy * cos(angle) - taux * sin(-angle))
+    tauy = where(abs(tauy) .gt. 1.0e10,tauy@_FillValue, tauy)
+    k = 1
+    field = curl_pop(k, taux, tauy, dxu, dyu, tarea, kmt, missing)
+    field = field/1.0e-8
+    field@units = "10e-8N/m3" 
   else if (field_name(n) .eq. "SHF_TOTAL" ) then 
+    if (isfilevar(fileid,"QFLUX")) then
       field_temp = fileid->QFLUX
       field_temp2 = fileid->SHF
       field = field_temp + field_temp2
+    end if
   else if ( field_name(n) .eq. "SFWF_TOTAL" ) then 
+    if (isfilevar(fileid,"QFLUX")) then
       field_temp = fileid->QFLUX
       field_temp2 = fileid->SFWF
       field = -field_temp/l_f + field_temp2
+    end if
   else
+    if (isfilevar(fileid,field_name(n))) then
       field = fileid->$field_name(n)$
+    else
+      field = _Missing
+    end if
   end if
   end if
   end if
 
-  if (iscoord(field,"ULONG")) then
-     ugrid = True
-  else
-     ugrid = False
-  end if
-  ;print(ugrid)
+  if (.not.all(ismissing(field))) then
+    if (iscoord(field,"ULONG")) then
+       ugrid = True
+    else
+       ugrid = False
+    end if
+    ;print(ugrid)
 
-  if (isatt(field,"units")) then
-    units = field@units
-  else
-    units = ""
-  end if
-  area = tarea
-  if ( field_name(n) .eq. "TAUX" ) then 
+    if (isatt(field,"units")) then
+       units = field@units
+    else
+       units = ""
+    end if
+
+    area = tarea
+    if ( field_name(n) .eq. "TAUX" ) then 
       field_2 = fileid->TAUY
       ;printVarSummary(field_2)
       ;printVarSummary(angle)
@@ -164,16 +184,16 @@ do n = 0, n_fields-1
       area = uarea
 ;      obsvar2 = obs_prefix + "Foxx_tauy"
 ;      field_obs2 = obsfile->$obsvar2$
-    if (obsvar .ne. "") then
-      field_obs = where(abs(field_obs) .gt. 1.0e10, field_obs@_FillValue, field_obs)
-      field_obs = field_obs * 10.0
+      if (obsvar .ne. "") then
+        field_obs = where(abs(field_obs) .gt. 1.0e10, field_obs@_FillValue, field_obs)
+        field_obs = field_obs * 10.0
 ;      field_obs2 = where(abs(field_obs2) .gt. 1.0e10, field_obs2@_FillValue, field_obs2)
 ;      field_obs2 = field_obs2 * 10.0
 ;      field_obs(0,:,:) = field_obs(0,:,:) * cos(angle) + field_obs2(0,:,:) * sin(-angle)
 ;      delete(field_obs2)
-    end if
+      end if
 
-  else if (field_name(n) .eq. "TAUY" ) then
+    else if (field_name(n) .eq. "TAUY" ) then
       field_2 = fileid->TAUX
       field(0,:,:) = tofloat(field(0,:,:) * cos(angle) - field_2(0,:,:) * sin(-angle))
       field = where(abs(field) .gt. 1.0e29, field@_FillValue, field)
@@ -181,15 +201,15 @@ do n = 0, n_fields-1
       area = uarea
  ;     obsvar2 = obs_prefix + "Foxx_taux"
  ;     field_obs2 = obsfile->$obsvar2$
-    if (obsvar .ne. "") then
-      field_obs = where(abs(field_obs) .gt. 1.0e10, field_obs@_FillValue, field_obs)
-      field_obs = field_obs * 10.0
+      if (obsvar .ne. "") then
+        field_obs = where(abs(field_obs) .gt. 1.0e10, field_obs@_FillValue, field_obs)
+        field_obs = field_obs * 10.0
  ;     field_obs2 = where(abs(field_obs2) .gt. 1.0e10, field_obs2@_FillValue, field_obs2)
  ;     field_obs2 = field_obs2  * 10.0
  ;     field_obs(0,:,:) = field_obs(0,:,:) * cos(angle) - field_obs2(0,:,:) * sin(-angle)
  ;     delete(field_obs2)
+      end if
     end if
-  end if
   end if
 
   dmin = missing 
@@ -384,7 +404,7 @@ do n = 0, n_fields-1
   end if
 
 
-  if ( dmin      .eq. missing  .or.  dmax      .eq. missing ) then \ 
+  if ( dmin .eq. missing  .or.  dmax .eq. missing ) then \ 
     print( " user must set the contour limits .... " )
   end if
 
@@ -412,7 +432,7 @@ do n = 0, n_fields-1
         print(" user must set the contour limits .... ")
     end if
     if (isatt(field,"units")) then
-	    field_diff@units = field@units
+        field_diff@units = field@units
     end if
    end if
   
@@ -460,25 +480,27 @@ do n = 0, n_fields-1
   end if
   ;;print("drawing plot1")
   plot1 = contour_plot(wks, field, tlon, tlat, kmt, region_mask, area, case_info, \
-            	       missing, units, dlev, lev, coltab, opt)
+      	               missing, units, dlev, lev, coltab, opt)
 
   if (opt@do_panel) then
-     ;;print("drawing plot2")
-     if (field_name(n) .eq. "CURL") then
-	opt@contourline = 2
-     else
-	opt@contourline = 1
-     end if
-     plot2 = contour_plot(wks, field_diff, tlon, tlat, kmt, region_mask, area, case_info_diff, \
-                          missing, units, dlev_diff, lev_diff, coltab, opt)
+  ;;print("drawing plot2")
+  if (field_name(n) .eq. "CURL") then
+      opt@contourline = 2
+  else
+      opt@contourline = 1
+  end if
+  plot2 = contour_plot(wks, field_diff, tlon, tlat, kmt, region_mask, area, case_info_diff, \
+                      missing, units, dlev_diff, lev_diff, coltab, opt)
     
-     ;;print("panelling")
-     gsn_panel(wks,(/plot1,plot2/), (/2,1/),False)
- end if
+  ;;print("panelling")
+  gsn_panel(wks,(/plot1,plot2/), (/2,1/),False)
+  end if
 
  delete([/field,obsvar,lev,coltab/])
  if (isvar("field_obs")) then
    delete([/field_obs,field_diff,lev_diff/])
+ end if
+
  end if
 
 end do
