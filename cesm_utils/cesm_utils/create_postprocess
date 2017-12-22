@@ -5,19 +5,6 @@ them into bash scripts for batch submission of postprocessing tasks.
 Arguments:
 caseroot (mandatory) - full path to a CESM case
 
-Creates files: 
-$CASEROOT/env_postprocess.xml
-$CASEROOT/env_timeseries.xml
-$CASEROOT/env_diags_atm.xml
-$CASEROOT/env_diags_ice.xml
-$CASEROOT/env_diags_lnd.xml
-$CASEROOT/env_diags_ocn.xml
-$CASEROOT/timeseries
-$CASEROOT/$COMP_averages
-$CASEROOT/$COMP_diagnostics
-__________________________
-Created on April, 2015
-
 Author: CSEG <cseg@cgd.ucar.edu>
 """
 
@@ -69,7 +56,8 @@ try:
     os.environ["POSTPROCESS_PATH"]
 except KeyError:
     err_msg = ('create_postprocess ERROR: please set the POSTPROCESS_PATH environment variable.' \
-               ' For example on yellowstone: setenv POSTPROCESS_PATH /glade/p/cesm/postprocessing')
+               ' For example on cheyenne: setenv POSTPROCESS_PATH /glade/p/cesm/postprocessing_ch' \
+               ' In addition, for geyser support: setenv POSTPROCESS_PATH_GEYSER /glade/p/cesm/postprocessing_geyser')
     raise OSError(err_msg)
 
 cesm_pp_path = os.environ["POSTPROCESS_PATH"]
@@ -601,7 +589,6 @@ def main(options):
     except:
         raise OSError('create_postprocess ERROR: cannot create directory {0}. Exiting...'.format(web_dirs))
 
-
     # initialize the environment dictionary
     envDict = initialize_main(envDict, options, standalone)
     envDict['PP_CASE_PATH'] = pp_case_path
@@ -614,9 +601,6 @@ def main(options):
     if not envDict['MACH']:
         raise OSError('create_postprocess ERROR: hostname "{0}" is not currently supported. Exiting...'.format(hostname))
     
-    # TODO - need to check the compset to see what is active 
-    # and return the compList accordingly, for now create all options
-
     # set the list of components
     compList = ['atm','ice','lnd','ocn']
     regridList = ['atm','lnd']
@@ -641,7 +625,6 @@ def main(options):
     # generate the env_conform.xml file
     config_file = '{0}/Config/config_conform.xml'.format(envDict['POSTPROCESS_PATH'])
     env_file = '{0}/env_conform.xml'.format(envDict['PP_CASE_PATH'])
-#    shutil.copy2(config_file, env_file)
     tmpl_file = 'env_postprocess.tmpl'
     create_env_file(envDict, config_file, tmpl_file, env_file, '', '', standalone)
 
@@ -732,7 +715,7 @@ def main(options):
                      machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_nodes'.format(comp)],
                      machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
 
-    # TODO - generate the ILAMB and IOMB batch submit scripts from template files
+    # generate the ILAMB and IOMB batch submit scripts from template files
     for imb in imbList:
         # generate the serial script that sets up the imb config file.
         postProcessCmd = 'imb_initialize.py'
@@ -788,6 +771,156 @@ def main(options):
                      imb_env_vars='{% for env in imb_env_vars %}\n{{ env }}\n{% endfor %}',
                      imb_options='{{ imb_options }}')
         
+    # check if machine is cheyenne then create a set of geyser submission scripts
+    if envDict['MACH'] == 'cheyenne':
+        hostname = 'geyser'
+        envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
+
+        try:
+            os.environ["POSTPROCESS_PATH_GEYSER"]
+        except KeyError:
+            err_msg = ('create_postprocess ERROR: please set the POSTPROCESS_PATH_GEYSER environment variable.' \
+                       ' For example, for geyser support: setenv POSTPROCESS_PATH_GEYSER /glade/p/cesm/postprocessing_geyser')
+            raise OSError(err_msg)
+
+        pp_geyser = os.environ["POSTPROCESS_PATH_GEYSER"]
+
+        # get the machine dependent variables, modules and mpi run command in a dictionary
+        machine = dict()
+        machine = read_machine_xml(envDict['MACH'], '{0}/Machines/machine_postprocess.xml'.format(pp_geyser))
+
+        # define the template files for the batch scripts
+        batch_tmpl = 'batch_{0}.tmpl'.format(envDict['MACH'])
+        run_tmpl = 'postprocess.tmpl'
+
+        # generate the timeseries batch submit script from template files
+        postProcessCmd = 'cesm_tseries_generator.py'
+        processName = 'timeseries_geyser'
+        outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
+
+        create_batch(pp_geyser, machine['timeseries_pes'], batch_tmpl, run_tmpl, postProcessCmd, 
+                     machine['mpi_command'], outFile, processName, envDict['PROJECT'], machine['pythonpath'], 
+                     envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'], 
+                     machine['timeseries_queue'], machine['timeseries_ppn'], machine['timeseries_nodes'], 
+                     machine['timeseries_wallclock'], options, standalone)
+
+        # generate the xconform batch submit script from template files
+        postProcessCmd = 'cesm_conform_generator.py'
+        processName = 'xconform_geyser'
+        outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
+        xconform_tmpl = 'xconform.tmpl'
+        create_batch(pp_geyser, machine['xconform_pes'], batch_tmpl, xconform_tmpl, postProcessCmd,
+                     machine['mpi_command'], outFile, processName, envDict['PROJECT'], machine['pythonpath'],
+                     envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'],
+                     machine['conform_queue'], machine['conform_ppn'], machine['conform_nodes'],
+                     machine['conform_wallclock'], options, standalone)
+
+        # generate the iconform batch submit script from template files
+        postProcessCmd = 'cesm_conform_initialize.py'
+        processName = 'iconform_geyser'
+        outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
+        iconform_tmpl = 'iconform.tmpl'
+        create_batch(pp_geyser, machine['xconform_pes'], batch_tmpl, iconform_tmpl, postProcessCmd,
+                     machine['mpi_command'], outFile, processName, envDict['PROJECT'], machine['pythonpath'],
+                     envDict['PP_CASE_PATH'], machine['reset_modules'], machine['modules'],
+                     machine['conform_queue'], machine['conform_ppn'], machine['conform_nodes'],
+                     machine['conform_wallclock'], options, standalone)
+        
+        # generate the diagnostics batch submit scripts from template files
+        for comp in compList:
+            # generate the averages batch submit script
+            postProcessCmd = '{0}_avg_generator.py'.format(comp)
+            processName = '{0}_averages_geyser'.format(comp)
+            outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
+            create_batch(pp_geyser, machine['{0}_averages_pes'.format(comp)], batch_tmpl, 
+                         run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
+                         envDict['PROJECT'], machine['pythonpath'], envDict['PP_CASE_PATH'], 
+                         machine['reset_modules'], machine['modules'], machine['{0}_averages_queue'.format(comp)], 
+                         machine['{0}_averages_ppn'.format(comp)], machine['{0}_averages_nodes'.format(comp)], 
+                         machine['{0}_averages_wallclock'.format(comp)], options, standalone)
+
+            # generate the diagnostics batch submit script
+            postProcessCmd = '{0}_diags_generator.py'.format(comp)
+            processName = '{0}_diagnostics_geyser'.format(comp)
+            outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
+            create_batch(pp_geyser, machine['{0}_diagnostics_pes'.format(comp)], batch_tmpl, 
+                         run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
+                         envDict['PROJECT'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
+                         machine['reset_modules'], machine['modules'], 
+                         machine['{0}_diagnostics_queue'.format(comp)],
+                         machine['{0}_diagnostics_ppn'.format(comp)], 
+                         machine['{0}_diagnostics_nodes'.format(comp)], 
+                         machine['{0}_diagnostics_wallclock'.format(comp)], options, standalone)
+
+        # generate the regrid batch submit scripts from template files
+        for comp in regridList:
+            # generate the regrid batch submit script
+            postProcessCmd = '{0}_regrid_generator.py'.format(comp)
+            processName = '{0}_regrid_geyser'.format(comp)
+            outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
+            create_batch(pp_geyser, machine['{0}_regrid_pes'.format(comp)], batch_tmpl, 
+                         run_tmpl, postProcessCmd, machine['mpi_command'], outFile, processName, 
+                         envDict['PROJECT'], machine['pythonpath'], envDict['PP_CASE_PATH'],  
+                         machine['reset_modules'], machine['modules'], machine['{0}_regrid_queue'.format(comp)], 
+                         machine['{0}_regrid_ppn'.format(comp)], machine['{0}_regrid_nodes'.format(comp)],
+                         machine['{0}_regrid_wallclock'.format(comp)], options, standalone)
+
+        # generate the ILAMB and IOMB batch submit scripts from template files
+        for imb in imbList:
+            # generate the serial script that sets up the imb config file.
+            postProcessCmd = 'imb_initialize.py'
+            processName = '{0}_initialize_geyser'.format(imb)
+            outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
+            create_batch(ppDir=pp_geyser,
+                         pes=machine['{0}_initialize_pes'.format(imb)],
+                         batchTmpl=batch_tmpl, runTmpl=run_tmpl,
+                         postProcessCmd=postProcessCmd,
+                         mpiCmd='', outFile=outFile,
+                         processName=processName,
+                         project=envDict['PROJECT'],
+                         pythonpath=machine['pythonpath'],
+                         caseRoot=envDict['PP_CASE_PATH'],
+                         reset_modules=machine['reset_modules'],
+                         modules=machine['modules'],
+                         queue=machine['{0}_initialize_queue'.format(imb)],
+                         ppn=machine['{0}_initialize_ppn'.format(imb)],
+                         nodes=machine['{0}_initialize_nodes'.format(imb)],
+                         wallclock=machine['{0}_initialize_wallclock'.format(imb)],
+                         options=options, standalone=standalone, imb_name=imb)
+            
+            # NOTE(bja, 2017-10) the imb_diagnostics file created here is
+            # a template that is only partially expanded by create_batch()
+            # There are additional fields based on user xml variables that
+            # do not get expanded until imb_initialize.py is run. By
+            # calling the file imb_diagnostics, but writing it to
+            # imb_diagnostics.tmpl, the processName values are expanded
+            # correctly (i.e. without .tmpl), but the user can change xml
+            # variables and run imb_initialize multiple times, each time
+            # write it out to imb_diagnostics.
+            postProcessCmd = 'imb_diags_generator.py'
+            processName = '{0}_diagnostics_geyser'.format(imb)
+            outFile = '{0}/{1}.tmpl'.format(envDict['PP_CASE_PATH'], processName)
+            create_batch(ppDir=pp_geyser,
+                         pes=machine['{0}_diagnostics_pes'.format(imb)],
+                         batchTmpl=batch_tmpl, runTmpl=run_tmpl,
+                         postProcessCmd=postProcessCmd,
+                         mpiCmd=machine['mpi_command'], outFile=outFile,
+                         processName=processName,
+                         project=envDict['PROJECT'],
+                         pythonpath=machine['pythonpath'],
+                         caseRoot=envDict['PP_CASE_PATH'],
+                         reset_modules=machine['reset_modules'],
+                         modules=machine['modules'],
+                         queue=machine['{0}_diagnostics_queue'.format(imb)],
+                         ppn=machine['{0}_diagnostics_ppn'.format(imb)],
+                         nodes=machine['{0}_diagnostics_nodes'.format(imb)],
+                         wallclock=machine['{0}_diagnostics_wallclock'.format(imb)],
+                         options=options, standalone=standalone,
+                         imb_name=imb,
+                         imb_run='{{ imb_exe }}',
+                         imb_env_vars='{% for env in imb_env_vars %}\n{{ env }}\n{% endfor %}',
+                         imb_options='{{ imb_options }}')
+
 
     # copy some tools to the PP_CASE_PATH
     files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd']
