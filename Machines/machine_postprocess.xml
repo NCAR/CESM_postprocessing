@@ -1,4 +1,4 @@
-?xml version="1.0"?>
+<?xml version="1.0"?>
 
 <machine_postprocess>
 
@@ -81,8 +81,8 @@
     <za>
       <compiler>ifort</compiler>
       <flags>-c -g -O2</flags>
-      <include>-I/glade/apps/opt/netcdf/4.2/intel/12.1.5/include</include>
-      <libs>-L/glade/apps/opt/netcdf/4.2/intel/12.1.5/lib -lnetcdff -lnetcdf</libs>
+      <include>-I/glade/apps/opt/netcdf/4.3.0/intel/12.1.5/include</include>
+      <libs>-L/glade/apps/opt/netcdf/4.3.0/intel/12.1.5/lib -lnetcdff -lnetcdf</libs>
     </za>
     <reset_modules>
       <module>module purge</module>
