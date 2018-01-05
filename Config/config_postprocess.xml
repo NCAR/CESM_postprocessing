@@ -43,6 +43,14 @@
 	     desc="post processing directory location on local machine where cesm-env2 python virtualenv is located."
 	     ></entry> 
 
+      <entry id="POSTPROCESS_PATH_GEYSER"
+	     type="string"
+	     valid_values=""  
+	     value=""
+	     group="case_info"
+	     desc="post processing directory location on local machine where geyser specific cesm-env2 python virtualenv is located."
+	     ></entry> 
+
       <entry id="DOUT_S_ROOT"
 	     type="string"
 	     valid_values=""  

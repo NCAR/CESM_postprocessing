@@ -40,7 +40,7 @@
 
 #SBATCH -n {{ pes }}
 #SBATCH -N {{ nodes }}
-#SBATCH --ntasks-per-node=16
+#SBATCH --ntasks-per-node={{ ppn }}
 #SBATCH -t {{ wallclock }}
 #SBATCH -p dav
 #SBATCH -J {{ processName }}
