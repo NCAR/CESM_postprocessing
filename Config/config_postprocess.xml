@@ -45,8 +45,8 @@
 
       <entry id="POSTPROCESS_PATH_GEYSER"
 	     type="string"
-	     valid_values=""  
-	     value=""
+	     valid_values=""
+	     value="inherit"  
 	     group="case_info"
 	     desc="post processing directory location on local machine where geyser specific cesm-env2 python virtualenv is located."
 	     ></entry> 

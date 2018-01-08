@@ -588,7 +588,7 @@ def main(options):
     # check if machine is cheyenne and if env POSTPROCESS_PATH_GEYSER is set
     if envDict['MACH'] == 'cheyenne':
         try:
-            os.environ["POSTPROCESS_PATH_GEYSER"]
+            envDict["POSTPROCESS_PATH_GEYSER"] = os.environ["POSTPROCESS_PATH_GEYSER"]
         except KeyError:
             err_msg = ('create_postprocess ERROR: please set the POSTPROCESS_PATH_GEYSER environment variable.' \
                        ' For example, setenv POSTPROCESS_PATH_GEYSER /glade/p/cesm/postprocessing_geyser')
@@ -1049,7 +1049,7 @@ def main(options):
 
 
     # copy some tools to the PP_CASE_PATH
-    files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd']
+    files_to_copy = ['copy_html', 'pp_config', 'create_env_script', 'env_file.xsd', 'create_links']
     for file_to_copy in files_to_copy:
         shutil.copy2('{0}/Tools/{1}'.format(envDict['POSTPROCESS_PATH'], file_to_copy), 
                      '{0}/{1}'.format(envDict['PP_CASE_PATH'], file_to_copy))

@@ -1,0 +1,122 @@
+#!/usr/bin/env python
+"""create links for a CESM archive source directory to 
+   a user specified destination directory.
+"""
+
+
+from __future__ import print_function
+
+import sys
+
+# check the system python version and require 2.7.x or greater
+if sys.hexversion < 0x02070000:
+    print(70 * "*")
+    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("It appears that you are running python {0}".format(
+            ".".join(str(x) for x in sys.version_info[0:3])))
+    print(70 * "*")
+    sys.exit(1)
+
+#
+# built-in modules
+#
+import argparse
+import glob
+import os
+import shutil
+
+
+# -------------------------------------------------------------------------------
+# commandline_options - parse any command line options
+# -------------------------------------------------------------------------------
+
+def commandline_options():
+    """Process the command line arguments.
+
+    """
+    parser = argparse.ArgumentParser(
+        description='Create symbolic links between CESM source archive directory component monthly history files and a specified link directory for a range of specified years. Also copy the log files for ocean timeseries diagnostics.')
+
+    parser.add_argument('-sourcedir', '--sourcedir', required=True, nargs=1,
+                        help='source archive directory')
+
+    parser.add_argument('-linkdir', '--linkdir', required=True, nargs=1,
+                        help='link directory')
+
+    parser.add_argument('-startyear', '--startyear', required=True, nargs=1,
+                        help='start year')
+
+    parser.add_argument('-endyear', '--endyear', required=True, nargs=1,
+                        help='start year')
+
+    options = parser.parse_args()
+    return options
+
+# -------------------------------------------------------------------------------
+# main
+# -------------------------------------------------------------------------------
+def main(options):
+    """ main
+    """
+    comps = {'atm':'cam.h0','ice':'cice.h','lnd':'clm2.h0','ocn':'pop.h','rof':'mosart.h0'}
+    logs = ['cesm.log','cpl.log','ocn.log']
+    months = ['01','02','03','04','05','06','07','08','09','10','11','12']
+    years = []
+
+    # create the years list
+    syear = int(options.startyear[0])
+    eyear = int(options.endyear[0])
+    while syear <= eyear:
+        years.append(str(syear).zfill(4))
+        syear += 1
+        
+    # check if sourcedir exists
+    try:
+        os.path.isdir(options.sourcedir[0])
+    except:
+        raise OSError('{0} does not exist. Exiting...'.format(options.sourcedir[0]))
+
+    # check if linkdir exists
+    if not os.path.exists(options.linkdir[0]):
+        os.makedirs(options.linkdir[0])
+    else:
+        raise OSError('{0} already exists. Exiting...'.format(options.linkdir[0]))
+    
+    # loop through the components, years and months
+    for comp in comps:
+        srcdir = '{0}/{1}/hist'.format(options.sourcedir[0], comp)
+        lkdir = '{0}/{1}/hist'.format(options.linkdir[0], comp)
+        if not os.path.exists(lkdir):
+            os.makedirs(lkdir)
+        else:
+            raise OSError('{0} already exists. Exiting...'.format(lkdir))
+        for year in years:
+            for month in months:
+                filepath = srcdir.split('/')
+                filename = '{0}.{1}.{2}-{3}.nc'.format(filepath[-3],comps[comp],year,month)
+                try:
+                    os.symlink(os.path.join(srcdir, filename), os.path.join(lkdir, filename))
+                except:
+                    raise OSError('Unable to create symlink {0}/{1} -> {2}/{3}. Exiting...'.format(srcdir, filename, lkdir, filename))
+
+    # copy the cesm, cpl, and ocn logs files as those files may be compressed and write permissions may be prohibitive
+    if not os.path.exists('{0}/logs'.format(options.linkdir[0])):
+        os.makedirs('{0}/logs'.format(options.linkdir[0]))
+    else:
+        raise OSError('{0}/logs already exists. Exiting...'.format(options.linkdir[0]))
+
+    for log in logs:
+        for file in glob.glob(r'{0}/logs/{1}.*.gz'.format(options.sourcedir[0],log)):
+            shutil.copy(file,'{0}/logs'.format(options.linkdir[0]))
+
+#===================================
+
+if __name__ == "__main__":
+    options = commandline_options()
+    try:
+        status = main(options)
+        sys.exit(status)
+    except Exception as error:
+        print(str(error))
+        sys.exit(1)
+
