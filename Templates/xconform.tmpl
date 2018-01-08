@@ -1,7 +1,10 @@
 #! /usr/bin/env bash
-#
-# template to activate the virtualenv, call post process program, deactivate virtualenv
-#
+##########
+##
+## See https://github.com/NCAR/CESM_postprocessing/wiki for details
+## regarding settings for optimal performance for CESM postprocessing tools.
+##
+##########
 
 {{ batchdirectives }}
 
@@ -10,7 +13,7 @@ if [ ! -e {{ virtualEnvDir }} ]; then
     echo "CESM {{ processName }} exiting due to non-existant python virtual environment in"
     echo "    {{ virtualEnvDir }}"
     echo "You must first run:"
-    echo "$SRCROOT/postprocessing/create_python_env.sh -machine [machine] -cimeroot [$CIMEROOT]"
+    echo "$SRCROOT/postprocessing/create_python_env.sh -machine [machine]"
     echo "*************************************************************************************"
     exit
 fi
@@ -32,16 +35,6 @@ export PYTHONPATH
 
 today="$(date '+%Y%m%d-%H%M%S')"
 
-echo "******************************************"
-echo "Start {{ processName }} generation $(date)"
-echo "******************************************"
-
 {{ mpirun|replace("{{ pes }}",pes) }} {{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> {{ caseRoot }}/logs/{{ processName }}.log.$today 2>&1
 
-echo "******************************************"
-echo "End {{ processName }} generation $(date)"
-echo "******************************************"
-
-deactivate
-cd {{ caseRoot }}
 

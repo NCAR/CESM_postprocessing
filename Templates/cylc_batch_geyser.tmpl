@@ -1,9 +1,11 @@
 -n {{ pes }}
 -N {{ nodes }}
---ntasks-per-node=16
+--ntasks-per-node={{ ppn }}
 -t {{ wallclock }}
 -p dav
 -J {{ processName }}
 -A {{ project }}
 -C {{ queue }}
---mem 100G
+-e {{ processName }}.err.%J
+-o {{ processName }}.out.%J
+--mem 800G
