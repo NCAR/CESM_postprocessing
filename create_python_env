@@ -2,10 +2,6 @@
 #
 # script to setup the python virtual environment for postprocessing
 #
-#-----------------
-# Created on April 2, 2015
-# Updated on August 1, 2016 - no longer require cimeroot
-#
 # Author: CSEG <cseg@cgd.ucar.edu>
 #
 

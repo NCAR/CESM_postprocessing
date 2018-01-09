@@ -2,31 +2,32 @@
 
 <machine_postprocess>
 
-  <machine name="yellowstone" hostname="yslogin">
+  <machine name="geyser" hostname="geyser">
     <!-- restricting to geyser for CMIP6 and problem with scaling of the chunking -->
-    <timeseries_pes queue="geyser" pes_per_node="4" wallclock="02:00">32</timeseries_pes>
-    <xconform_pes queue="geyser" pes_per_node="4" wallclock="06:00">32</xconform_pes>
-    <mpi_command>mpirun.lsf</mpi_command>
+    <timeseries_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="04:00:00">16</timeseries_pes>
+    <xconform_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="06:00:00">16</xconform_pes>
+    <mpi_command>mpiexec -n {{ pes }}</mpi_command>
     <pythonpath>/glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/lib/python2.7/site-packages</pythonpath>
     <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
     <za>
       <compiler>ifort</compiler>
       <flags>-c -g -O2</flags>
-      <include>-I/glade/apps/opt/netcdf/4.2/intel/12.1.5/include</include>
-      <libs>-L/glade/apps/opt/netcdf/4.2/intel/12.1.5/lib -lnetcdff -lnetcdf</libs>
+      <include>-I/glade/apps/opt/netcdf/4.3.0/intel/12.1.5/include</include>
+      <libs>-L/glade/apps/opt/netcdf/4.3.0/intel/12.1.5/lib -lnetcdff -lnetcdf</libs>
     </za>
     <reset_modules>
-      <module>module restore system</module>
+      <module>module purge</module>
       <module>module load python/2.7.7</module>
     </reset_modules>
     <modules>
+      <module>module load gnu/6.1.0</module>
+      <module>module load openmpi-slurm/3.0.0</module>
       <module>module load numpy/1.11.0</module>
       <module>module load scipy/0.18.1</module>
-      <module>module load mpi4py/2.0.0</module>
+      <module>module load mpi4py/2.0.0-ompi</module>
       <module>module load pynio/1.4.1</module>
       <module>module load pyside/1.1.2</module>
       <module>module load matplotlib/1.5.1</module>
-      <module>module load intel/12.1.5</module>
       <module>module load netcdf/4.3.0</module>
       <module>module load nco/4.4.4</module>
       <module>module load netcdf4python/1.2.4</module>
@@ -35,37 +36,37 @@
     </modules>
     <components>
       <component name="atm">
-	<averages_pes queue="regular" pes_per_node="15" wallclock="00:30">120</averages_pes>
-	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">16</diagnostics_pes>
-	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
+	<averages_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00">16</averages_pes>
+	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00">16</diagnostics_pes>
+	<regrid_pes queue="geyser" nodes="1" pes_per_node="6" wallclock="02:00:00">6</regrid_pes>
 	<obs_root>/glade/p/cesm/amwg/amwg_data</obs_root>
       </component>
       <component name="ice">
-	<averages_pes queue="regular" pes_per_node="15" wallclock="02:00">120</averages_pes>
-	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">4</diagnostics_pes>
+	<averages_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00">16</averages_pes>
+	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="4" wallclock="01:00:00">4</diagnostics_pes>
 	<obs_root>/glade/p/cesm/pcwg/ice/data</obs_root>
       </component>
       <component name="lnd">
-	<averages_pes queue="regular" pes_per_node="15" wallclock="02:00">120</averages_pes>
- 	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">12</diagnostics_pes>
-	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
+	<averages_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00">16</averages_pes>
+ 	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="12" wallclock="02:00:00">12</diagnostics_pes>
+	<regrid_pes queue="geyser" nodes="1" pes_per_node="6" wallclock="02:00:00">6</regrid_pes>
 	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
       </component>
       <component name="ocn">
-	<averages_pes queue="regular" pes_per_node="15" wallclock="02:00">120</averages_pes>
-	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">16</diagnostics_pes>
+	<averages_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00">16</averages_pes>
+	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00">16</diagnostics_pes>
 	<obs_root>/glade/p/cesm/</obs_root>
       </component>
       <component name="ilamb">
-	<averages_pes queue="regular" pes_per_node="0" wallclock="00:01">0</averages_pes> <!-- unsued. not required by xsd but required by the code. -->
-	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">2</diagnostics_pes>
-	<initialize_pes queue="geyser" pes_per_node="1" wallclock="00:10">1</initialize_pes>
+	<averages_pes queue="regular" nodes="0" pes_per_node="0" wallclock="00:00:01">0</averages_pes> <!-- unsued. not required by xsd but required by the code. -->
+	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="2" wallclock="01:00:00">2</diagnostics_pes>
+	<initialize_pes queue="geyser" nodes="1" pes_per_node="1" wallclock="00:00:10">1</initialize_pes>
 	<obs_root>/glade/p/cesm/lmwg_dev/oleson/ILAMB/ILAMB_all</obs_root>
       </component>
       <component name="iomb">
-	<averages_pes queue="regular" pes_per_node="0" wallclock="00:01">0</averages_pes> <!-- unsued. not required by xsd but required by the code. -->
-	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">2</diagnostics_pes>
-	<initialize_pes queue="geyser" pes_per_node="1" wallclock="00:10">1</initialize_pes>
+	<averages_pes queue="regular" nodes="0" pes_per_node="0" wallclock="00:00:01">0</averages_pes> <!-- unsued. not required by xsd but required by the code. -->
+	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="2" wallclock="01:00:00">2</diagnostics_pes>
+	<initialize_pes queue="geyser" nodes="1" pes_per_node="1" wallclock="00:00:10">1</initialize_pes>
 	<obs_root>/glade/p/cesm/omwg/obs_data/IOMB</obs_root>
       </component>
     </components>
@@ -195,6 +196,76 @@
 	<averages_pes queue="regular" pes_per_node="8" wallclock="00:30">120</averages_pes>
 	<diagnostics_pes queue="regular" pes_per_node="4" wallclock="02:00">24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
+      </component>
+    </components>
+  </machine>
+
+  <machine name="yellowstone" hostname="yslogin">
+    <!-- IMPORTANT NOTE: yellowstone is no longer active but leaving this machine element for other PBS systems -->
+    <!-- restricting to geyser for CMIP6 and problem with scaling of the chunking -->
+    <timeseries_pes queue="geyser" pes_per_node="4" wallclock="02:00">32</timeseries_pes>
+    <xconform_pes queue="geyser" pes_per_node="4" wallclock="06:00">32</xconform_pes>
+    <mpi_command>mpirun.lsf</mpi_command>
+    <pythonpath>/glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/lib/python2.7/site-packages</pythonpath>
+    <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
+    <za>
+      <compiler>ifort</compiler>
+      <flags>-c -g -O2</flags>
+      <include>-I/glade/apps/opt/netcdf/4.2/intel/12.1.5/include</include>
+      <libs>-L/glade/apps/opt/netcdf/4.2/intel/12.1.5/lib -lnetcdff -lnetcdf</libs>
+    </za>
+    <reset_modules>
+      <module>module restore system</module>
+      <module>module load python/2.7.7</module>
+    </reset_modules>
+    <modules>
+      <module>module load numpy/1.11.0</module>
+      <module>module load scipy/0.18.1</module>
+      <module>module load mpi4py/2.0.0</module>
+      <module>module load pynio/1.4.1</module>
+      <module>module load pyside/1.1.2</module>
+      <module>module load matplotlib/1.5.1</module>
+      <module>module load intel/12.1.5</module>
+      <module>module load netcdf/4.3.0</module>
+      <module>module load nco/4.4.4</module>
+      <module>module load netcdf4python/1.2.4</module>
+      <module>module load ncl/6.4.0</module>
+      <module>module load pyngl/1.4.0</module>
+    </modules>
+    <components>
+      <component name="atm">
+	<averages_pes queue="regular" pes_per_node="15" wallclock="00:30">120</averages_pes>
+	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">16</diagnostics_pes>
+	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
+	<obs_root>/glade/p/cesm/amwg/amwg_data</obs_root>
+      </component>
+      <component name="ice">
+	<averages_pes queue="regular" pes_per_node="15" wallclock="02:00">120</averages_pes>
+	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">4</diagnostics_pes>
+	<obs_root>/glade/p/cesm/pcwg/ice/data</obs_root>
+      </component>
+      <component name="lnd">
+	<averages_pes queue="regular" pes_per_node="15" wallclock="02:00">120</averages_pes>
+ 	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">12</diagnostics_pes>
+	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
+	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
+      </component>
+      <component name="ocn">
+	<averages_pes queue="regular" pes_per_node="15" wallclock="02:00">120</averages_pes>
+	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">16</diagnostics_pes>
+	<obs_root>/glade/p/cesm/</obs_root>
+      </component>
+      <component name="ilamb">
+	<averages_pes queue="regular" pes_per_node="0" wallclock="00:01">0</averages_pes> <!-- unsued. not required by xsd but required by the code. -->
+	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">2</diagnostics_pes>
+	<initialize_pes queue="geyser" pes_per_node="1" wallclock="00:10">1</initialize_pes>
+	<obs_root>/glade/p/cesm/lmwg_dev/oleson/ILAMB/ILAMB_all</obs_root>
+      </component>
+      <component name="iomb">
+	<averages_pes queue="regular" pes_per_node="0" wallclock="00:01">0</averages_pes> <!-- unsued. not required by xsd but required by the code. -->
+	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">2</diagnostics_pes>
+	<initialize_pes queue="geyser" pes_per_node="1" wallclock="00:10">1</initialize_pes>
+	<obs_root>/glade/p/cesm/omwg/obs_data/IOMB</obs_root>
       </component>
     </components>
   </machine>

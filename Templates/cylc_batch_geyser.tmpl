@@ -1,0 +1,11 @@
+-n {{ pes }}
+-N {{ nodes }}
+--ntasks-per-node={{ ppn }}
+-t {{ wallclock }}
+-p dav
+-J {{ processName }}
+-A {{ project }}
+-C {{ queue }}
+-e {{ processName }}.err.%J
+-o {{ processName }}.out.%J
+--mem 800G

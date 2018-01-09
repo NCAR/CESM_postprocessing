@@ -93,7 +93,7 @@ import jinja2
 
 # global variables
 _scripts = ['timeseries','averages','regrid','diagnostics','xconform']
-_machines = ['yellowstone','cheyenne','edison']
+_machines = ['cheyenne','edison','geyser']
 _comps = ['atm','ice','lnd','ocn']
 
 # -------------------------------------------------------------------------------

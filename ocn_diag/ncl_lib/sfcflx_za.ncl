@@ -114,8 +114,6 @@ lat_t = f_za->lat_t
 
 do n=0, n_fields-1 
 
-  field = _Missing
-
   if(.not.any(varsinfile.eq.field_name(n))) then
      print(field_name(n) + " is not in file.")
      continue
@@ -167,7 +165,7 @@ do n=0, n_fields-1
 ;;	print("**************")
         print("*** computing SHF_TOTAL")
         field_q = f_za->QFLUX
-        ;;field   = f_za->SHF
+;;        field   = f_za->SHF
 	field   = f_za->$field_name(n)$
         field   = where(field .lt. 1e10 .and. field_q .lt. 1e10, field + field_q, field@_FillValue)
 ;;     	printVarSummary(field)
@@ -179,7 +177,7 @@ do n=0, n_fields-1
 ;;	print("**************")
         print("*** computing SFWF_TOTAL")
         field_q = f_za->QFLUX
-        ;;field   = f_za->SFWF
+;;        field   = f_za->SFWF
 	field   = f_za->$field_name(n)$
         field   = tofloat(where(field .lt. 1e10 .and. field_q .lt. 1e10, field - field_q/l_f, field@_FillValue))
 ;;     	printVarSummary(field)
