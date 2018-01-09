@@ -12,7 +12,7 @@ module load mpi4py/2.0.0
 module load pynio/1.4.1
 module load pyside/1.1.2
 module load matplotlib/1.5.1
-module load intel/12.1.5
+module load gnu/6.1.0
 module load netcdf/4.3.0
 module load nco/4.4.4
 module load ncl/6.4.0
