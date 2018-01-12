@@ -4,7 +4,7 @@ from codecs import open
 import subprocess
 import os
 
-VERSION    = '2.1'
+VERSION    = '2.2'
 
 def git_version():
     """
