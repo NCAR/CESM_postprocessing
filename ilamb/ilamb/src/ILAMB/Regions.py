@@ -174,8 +174,9 @@ if "global" not in Regions().regions:
     
     # Populate some regions
     r = Regions()    
-    r.addRegionLatLonBounds("global","Globe",(-89.75, 89.75),(-179.75, 179.75))
-
+    r.addRegionLatLonBounds("global","Globe",(-89.999, 89.999),(-179.999, 179.999))
+    Regions._regions["global"][3][...] = 0. # ensure global mask is null
+    
     # GFED regions
     r.addRegionLatLonBounds("bona","Boreal North America",             ( 49.75, 79.75),(-170.25,- 60.25))
     r.addRegionLatLonBounds("tena","Temperate North America",          ( 30.25, 49.75),(-125.25,- 66.25))

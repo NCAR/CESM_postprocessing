@@ -144,20 +144,25 @@ class ConfNBP(Confrontation):
         # get the HTML page
         page = [page for page in self.layout.pages if "MeanState" in page.name][0]
 
-        colors = []
-        corr   = []
-        std    = []
+        colors = {}
+        corr   = {}
+        std    = {}
+        accum  = {}
         for fname in glob.glob(os.path.join(self.output_path,"*.nc")):
-            if "Benchmark" in fname: continue
             dataset = Dataset(fname)
             if "MeanState" not in dataset.groups: continue
-            dset    = dataset.groups["MeanState"]
-            colors.append(dataset.getncattr("color"))
+            dset  = dataset.groups["MeanState"]
+            mname = dataset.getncattr("name")
+            colors[mname] = dataset.getncattr("color")
             key = [v for v in dset.groups["scalars"].variables.keys() if ("Temporal Distribution Score" in v)]
             if len(key) > 0:
-                sds     = dset.groups["scalars"].variables[key[0]]
-                corr.append(sds.getncattr("R"  ))
-                std .append(sds.getncattr("std"))
+                sds = dset.groups["scalars"].variables[key[0]]
+                corr[mname] = sds.R
+                std [mname] = sds.std
+            if "accumulate_of_nbp_over_global" in dset.variables.keys():
+                accum[mname] = Variable(filename      = fname,
+                                        variable_name = "accumulate_of_nbp_over_global",
+                                        groupname     = "MeanState")
         
         # temporal distribution Taylor plot
         if len(corr) > 0:
@@ -167,6 +172,27 @@ class ConfNBP(Confrontation):
                            side   = "TEMPORAL TAYLOR DIAGRAM",
                            legend = False)       
             fig = plt.figure(figsize=(6.0,6.0))
-            post.TaylorDiagram(np.asarray(std),np.asarray(corr),1.0,fig,colors)
+            keys = corr.keys()
+            post.TaylorDiagram(np.asarray([std [key] for key in keys]),
+                               np.asarray([corr[key] for key in keys]),
+                               1.0,fig,
+                               [colors[key] for key in keys])
             fig.savefig(os.path.join(self.output_path,"temporal_variance.png"))
+            plt.close()
+            
+
+        # composite annual cycle plot
+        if len(accum) > 1:
+            page.addFigure("Spatially integrated regional mean",
+                           "compaccumulation",
+                           "RNAME_compaccumulation.png",
+                           side   = "ACCUMULATION",
+                           legend = False)
+            fig,ax = plt.subplots(figsize=(6.8,2.8),tight_layout=True)
+            dy = 0.05*(self.limits["accumulate"]["global"]["max"]-self.limits["accumulate"]["global"]["min"])
+            for key in accum:
+                accum[key].plot(ax,lw=2,color=colors[key],label=key,
+                                vmin=self.limits["accumulate"]["global"]["min"]-dy,
+                                vmax=self.limits["accumulate"]["global"]["max"]+dy)
+            fig.savefig(os.path.join(self.output_path,"global_compaccumulation.png" ))
             plt.close()

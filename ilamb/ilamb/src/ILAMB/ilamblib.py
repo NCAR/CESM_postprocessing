@@ -173,7 +173,7 @@ def ConvertCalendar(t,tbnd=None):
     t = ta.mean(axis=1)
     return t,ta
 
-def CellAreas(lat,lon):
+def CellAreas(lat,lon,lat_bnds=None,lon_bnds=None):
     """Given arrays of latitude and longitude, return cell areas in square meters.
 
     Parameters
@@ -189,6 +189,11 @@ def CellAreas(lat,lon):
         a 2D array of cell areas in [m2]
     """
     from constants import earth_rad
+
+    if (lat_bnds is not None and lon_bnds is not None):
+        return earth_rad**2*np.outer((np.sin(lat_bnds[:,1]*np.pi/180.)-
+                                      np.sin(lat_bnds[:,0]*np.pi/180.)),
+                                     (lon_bnds[:,1]-lon_bnds[:,0])*np.pi/180.)
 
     x = np.zeros(lon.size+1)
     x[1:-1] = 0.5*(lon[1:]+lon[:-1])
@@ -338,13 +343,26 @@ def SympifyWithArgsUnits(expression,args,units):
     """
     from sympy import sympify,postorder_traversal
 
-    expression = sympify(expression)
+    # The traversal needs that we make units commensurate when
+    # possible
+    keys = args.keys()
+    for i in range(len(keys)):
+        ikey = keys[i]
+        for j in range(i+1,len(keys)):
+            jkey = keys[j]
+            if Units(units[jkey]).equivalent(Units(units[ikey])):
+                args [jkey] = Units.conform(args[jkey],
+                                            Units(units[jkey]),
+                                            Units(units[ikey]),
+                                            inplace=True)
+                units[jkey] = units[ikey]
     
     # We need to do what sympify does but also with unit
     # conversions. So we traverse the expression tree in post order
     # and take actions based on the kind of operation being performed.
+    expression = sympify(expression)
     for expr in postorder_traversal(expression):
-
+            
         if expr.is_Atom: continue        
         ekey = str(expr) # expression key
         
@@ -367,8 +385,6 @@ def SympifyWithArgsUnits(expression,args,units):
                                   inplace=True)
                     units[key] = units[key0]
 
-            # Now add the result of the addition the the disctionary
-            # of arguments.
             args [ekey] = sympify(str(expr),locals=args)
             units[ekey] = units[key0]
 
@@ -391,7 +407,6 @@ def SympifyWithArgsUnits(expression,args,units):
             units[ekey] = Units(unit).formatted()
 
     return args[ekey],units[ekey]
-
 
 def ComputeIndexingArrays(lat2d,lon2d,lat,lon):
     """Blah.
@@ -480,57 +495,124 @@ def FromNetCDF4(filename,variable_name,alternate_vars=[],t0=None,tf=None,group=N
     if found == False:
         alternate_vars.insert(0,variable_name)
         raise RuntimeError("Unable to find [%s] in the file: %s" % (",".join(alternate_vars),filename))
-    
-    # Initialize names/values of dimensions to None
-    time_name  = None; time_bnd_name  = None; t     = None; t_bnd     = None
-    lat_name   = None; lat_bnd_name   = None; lat   = None; lat_bnd   = None
-    lon_name   = None; lon_bnd_name   = None; lon   = None; lon_bnd   = None
-    depth_name = None; depth_bnd_name = None; depth = None; depth_bnd = None
-    data_name  = None;                        data  = None;
 
-    # Read in possible dimension information and their bounds
-    def _get(key,dset):
-        dim_name = key
-        try:
-            v = dset.variables[key]
-            dim_bnd_name = v.getncattr("bounds")
-        except:
-            dim_bnd_name = None
-        return dim_name,dim_bnd_name    
-    for key in var.dimensions:
-        if  "time"  in key.lower():  time_name ,time_bnd_name  = _get(key,grp)
-        if  "lat"   in key.lower():  lat_name  ,lat_bnd_name   = _get(key,grp)
-        if  "lon"   in key.lower():  lon_name  ,lon_bnd_name   = _get(key,grp)
-        if  "data"  in key.lower():  data_name ,junk           = _get(key,grp)
-        if ("layer" in key.lower() or
-            "lev"   in key.lower() or
-            "z_t"   in key.lower() or
-            "depth" in key.lower()): depth_name,depth_bnd_name = _get(key,grp)
+    # Check on dimensions
+    time_name = [name for name in var.dimensions if "time" in name.lower()]
+    lat_name  = [name for name in var.dimensions if "lat"  in name.lower()]
+    lon_name  = [name for name in var.dimensions if "lon"  in name.lower()]
+    data_name = [name for name in var.dimensions if "data" in name.lower()]
+    missed    = [name for name in var.dimensions if name not in (time_name +
+                                                                 lat_name  +
+                                                                 lon_name  +
+                                                                 data_name)]
 
-    # It is possible that lat and lon are just the sizes of the data
-    # array, and the real latitude and longitude arrays are 2D. Then
-    # we need to interpolate.
-    inter = False
-    if (lat_name is not None and lat_name not in grp.variables):
-        inter    = True
-        possible = [key for key in grp.variables if ((key   not in grp.dimensions) and
-                                                     ("lat"     in key.lower()   ) and
-                                                     ("_"   not in key           ))]
-        if len(possible)==1:
-            lat_name = possible[0]
-        else:
-            raise RuntimeError("Unable to find latitudes in the file: %s" % (filename))
-    if (lon_name is not None and lon_name not in grp.variables):
-        inter    = True
-        possible = [key for key in grp.variables if ((key   not in grp.dimensions) and
-                                                     ("lon"     in key.lower()   ) and
-                                                     ("_"   not in key           ))]
-        if len(possible)==1:
-            lon_name = possible[0]
-        else:
-            raise RuntimeError("Unable to find longitudes in the file: %s" % (filename))
+    # Lat/lon might be indexing arrays, find their shape
+    shp = None
+    if (len(lat_name) == 0 and len(lon_name) == 0 and len(missed) >= 2 and len(data_name) == 0):
+        # remove these dimensions from the missed variables
+        i,j = var.dimensions[-2],var.dimensions[-1]
+        if i in missed: missed.pop(missed.index(i))
+        if j in missed: missed.pop(missed.index(j))
+        i = grp.variables[i]
+        j = grp.variables[j]
+        if (np.issubdtype(i.dtype,np.integer) and
+            np.issubdtype(j.dtype,np.integer)): shp = [len(i),len(j)]
+
+    # Lat/lon might just be sizes
+    if (len(lat_name) == 1 and len(lon_name) == 1):
+        if not (lat_name[0] in grp.variables and lon_name[0] in grp.variables):
+            shp = [len(grp.dimensions[lat_name[0]]),len(grp.dimensions[lon_name[0]])]
+
+    # If these were sizes, then we need to find the correct 2D lat/lon arrays
+    if shp is not None:
+
+        # We want to remove any false positives we might find. I don't
+        # want to consider variables which are 'bounds' or dimensions
+        # of others, nor those that don't have the correct shape.
+        bnds = [grp.variables[v].bounds for v in grp.variables if "bounds" in grp.variables[v].ncattrs()]
+        dims = [v for v in grp.variables if (v in grp.dimensions)]
+        poss = [v for v in grp.variables if (v not in dims and
+                                             v not in bnds and
+                                             np.allclose(shp,grp.variables[v].shape) if len(shp) == len(grp.variables[v].shape) else False)]
+        lat_name = [name for name in poss if "lat" in name.lower()]
+        lon_name = [name for name in poss if "lon" in name.lower()]
+        
+        # If still ambiguous, look inside the variable attributes for
+        # the presence of the variable name to give further
+        # preference.
+        attrs = [str(var.getncattr(attr)) for attr in var.ncattrs()]
+        if len(lat_name) == 0: raise ValueError("Unable to find values for the latitude dimension in %s" % (filename))
+        if len(lat_name) > 1:
+            tmp_name = [name for name in lat_name if np.any([name in attr for attr in attrs])]
+            if len(tmp_name) > 0: lat_name = tmp_name
+        if len(lon_name) == 0: raise ValueError("Unable to find values for the longitude dimension in %s" % (filename))
+        if len(lon_name) > 1:
+            tmp_name = [name for name in lon_name if np.any([name in attr for attr in attrs])]
+            if len(tmp_name) > 0: lon_name = tmp_name
+
+    # Time dimension
+    if len(time_name) == 1:
+        time_name     = time_name[0]
+        time_bnd_name = grp.variables[time_name].bounds if (time_name in grp.variables and
+                                                            "bounds" in grp.variables[time_name].ncattrs()) else None
+        if time_bnd_name not in grp.variables: time_bnd_name = None
+    elif len(time_name) >= 1:
+        raise ValueError("Ambiguous choice of values for the time dimension [%s] in %s" % (",".join(time_name),filename))
+    else:
+        time_name     = None
+        time_bnd_name = None
+
+    # Lat dimension
+    if len(lat_name) == 1:
+        lat_name     = lat_name[0]
+        lat_bnd_name = grp.variables[lat_name].bounds if (lat_name in grp.variables and
+                                                          "bounds" in grp.variables[lat_name].ncattrs()) else None
+        if lat_bnd_name not in grp.variables: lat_bnd_name = None
+    elif len(lat_name) >= 1:
+        raise ValueError("Ambiguous choice of values for the latitude dimension [%s] in %s" % (",".join(lat_name),filename))
+    else:
+        lat_name     = None
+        lat_bnd_name = None
+
+    # Lon dimension
+    if len(lon_name) == 1:
+        lon_name     = lon_name[0]
+        lon_bnd_name = grp.variables[lon_name].bounds if (lon_name in grp.variables and
+                                                          "bounds" in grp.variables[lon_name].ncattrs()) else None
+        if lon_bnd_name not in grp.variables: lon_bnd_name = None
+    elif len(lon_name) >= 1:
+        raise ValueError("Ambiguous choice of values for the longitude dimension [%s] in %s" % (",".join(lon_name),filename))
+    else:
+        lon_name     = None
+        lon_bnd_name = None
+
+    # Data dimension
+    if len(data_name) == 1:
+        data_name     = data_name[0]
+    elif len(data_name) >= 1:
+        raise ValueError("Ambiguous choice of values for the data dimension [%s] in %s" % (",".join(data_name),filename))
+    else:
+        data_name     = None
+
+    # The layered dimension is whatever is leftover since its name
+    # could be many things
+    if len(missed) == 1:
+        depth_name = missed[0]
+        depth_bnd_name = grp.variables[depth_name].bounds if (depth_name in grp.variables and
+                                                              "bounds" in grp.variables[depth_name].ncattrs()) else None
+        if depth_bnd_name not in grp.variables: depth_bnd_name = None
+    elif len(missed) >= 1:
+        raise ValueError("Ambiguous choice of values for the layered dimension [%s] in %s" % (",".join(missed),filename))
+    else:
+        depth_name     = None
+        depth_bnd_name = None
     
     # Based on present values, get dimensions and bounds
+    t       = None; t_bnd     = None
+    lat     = None; lat_bnd   = None
+    lon     = None; lon_bnd   = None
+    depth   = None; depth_bnd = None
+    data    = None;
     cbounds = None
     if time_name is not None:
         if time_bnd_name is None:
@@ -546,8 +628,19 @@ def FromNetCDF4(filename,variable_name,alternate_vars=[],t0=None,tf=None,group=N
     if lat_bnd_name   is not None: lat_bnd   = grp.variables[lat_bnd_name]  [...]
     if lon_name       is not None: lon       = grp.variables[lon_name]      [...]
     if lon_bnd_name   is not None: lon_bnd   = grp.variables[lon_bnd_name]  [...]
-    if depth_name     is not None: depth     = grp.variables[depth_name]    [...]
-    if depth_bnd_name is not None: depth_bnd = grp.variables[depth_bnd_name][...]
+    if depth_name     is not None:
+        dunit = None
+        if "units" in grp.variables[depth_name].ncattrs(): dunit = grp.variables[depth_name].units
+        depth = grp.variables[depth_name][...]
+        if depth_bnd_name is not None:
+            depth_bnd = grp.variables[depth_bnd_name][...]
+        if dunit is not None:
+            if not Units(dunit).equivalent(Units("m")):
+                raise ValueError("Non-linear units [%s] of the layered dimension [%s] in %s" % (dunit,depth_name,filename))
+            depth = Units.conform(depth,Units(dunit),Units("m"),inplace=True)
+            if depth_bnd is not None:
+                depth_bnd = Units.conform(depth_bnd,Units(dunit),Units("m"),inplace=True)
+                
     if data_name      is not None:
         data = len(grp.dimensions[data_name])
         # if we have data sites, there may be lat/lon data to come
@@ -560,10 +653,8 @@ def FromNetCDF4(filename,variable_name,alternate_vars=[],t0=None,tf=None,group=N
         if lat.size != data: lat = None
         if lon.size != data: lon = None
 
-    
     # read in data array, roughly subset in time if bounds are
-    # provided for added effciency, what do we do if no time in this
-    # file falls within the time bounds?
+    # provided for added effciency
     if (t is not None) and (t0 is not None or tf is not None):
         begin = 0; end = t.size
         if t0 is not None: begin = max(t.searchsorted(t0)-1,begin)
@@ -576,19 +667,23 @@ def FromNetCDF4(filename,variable_name,alternate_vars=[],t0=None,tf=None,group=N
         v = var[...]
 
     # If lat and lon are 2D, then we will need to interpolate things
-    if inter:
+    if lat is not None and lon is not None:
         if lat.ndim == 2 and lon.ndim == 2:
             assert lat.shape == lon.shape
             
             # Create the grid
             res          = 1.0
-            lat_bnds     = np.arange(- 90, 90+res/2.,res)
+            lat_bnds     = np.arange(round(lat.min(),0),
+                                     round(lat.max(),0)+res/2.,res)
             lon_bnds     = np.arange(round(lon.min(),0),
                                      round(lon.max(),0)+res/2.,res)
             lats         = 0.5*(lat_bnds[:-1]+lat_bnds[1:])
             lons         = 0.5*(lon_bnds[:-1]+lon_bnds[1:])
             ilat,ilon    = ComputeIndexingArrays(lat,lon,lats,lons)
+            r            = np.sqrt( (lat[ilat,ilon]-lats[:,np.newaxis])**2 +
+                                    (lon[ilat,ilon]-lons[np.newaxis,:])**2 )
             v            = v[...,ilat,ilon]
+            v            = np.ma.masked_array(v,mask=v.mask+(r>2*res))
             lat          = lats
             lon          = lons
             lat_bnd      = np.zeros((lat.size,2))
@@ -598,7 +693,7 @@ def FromNetCDF4(filename,variable_name,alternate_vars=[],t0=None,tf=None,group=N
             lon_bnd      = np.zeros((lon.size,2))
             lon_bnd[:,0] = lon_bnds[:-1]
             lon_bnd[:,1] = lon_bnds[+1:]
-        
+            
     # handle incorrect or absent masking of arrays
     if type(v) != type(np.ma.empty(1)):
         mask = np.zeros(v.shape,dtype=int)
@@ -614,7 +709,6 @@ def FromNetCDF4(filename,variable_name,alternate_vars=[],t0=None,tf=None,group=N
     dset.close()
     
     return v,units,variable_name,t,t_bnd,lat,lat_bnd,lon,lon_bnd,depth,depth_bnd,cbounds,data
-
         
 def Score(var,normalizer,FC=0.999999):
     """Remaps a normalized variable to the interval [0,1].
@@ -701,9 +795,20 @@ def ScoreSeasonalCycle(phase_shift):
                     unit  = "1",
                     name  = phase_shift.name.replace("phase_shift","phase_shift_score"),
                     ndata = phase_shift.ndata,
-                    lat   = phase_shift.lat,
-                    lon   = phase_shift.lon,
+                    lat   = phase_shift.lat, lat_bnds = phase_shift.lat_bnds,
+                    lon   = phase_shift.lon, lon_bnds = phase_shift.lon_bnds,
                     area  = phase_shift.area)
+
+def _composeGrids(v1,v2):
+    lat_bnds = np.unique(np.hstack([v1.lat_bnds.flatten(),v2.lat_bnds.flatten()]))
+    lon_bnds = np.unique(np.hstack([v1.lon_bnds.flatten(),v2.lon_bnds.flatten()]))
+    lat_bnds = lat_bnds[(lat_bnds>=- 90)*(lat_bnds<=+ 90)]
+    lon_bnds = lon_bnds[(lon_bnds>=-180)*(lon_bnds<=+180)]
+    lat_bnds = np.vstack([lat_bnds[:-1],lat_bnds[+1:]]).T
+    lon_bnds = np.vstack([lon_bnds[:-1],lon_bnds[+1:]]).T
+    lat      = lat_bnds.mean(axis=1)
+    lon      = lon_bnds.mean(axis=1)
+    return lat,lon,lat_bnds,lon_bnds
 
 def AnalysisMeanState(ref,com,**keywords):
     """Perform a mean state analysis.
@@ -743,6 +848,7 @@ def AnalysisMeanState(ref,com,**keywords):
         the unit to use when displaying output on plots on the HTML page
 
     """
+    from Variable import Variable
     regions           = keywords.get("regions"          ,["global"])
     dataset           = keywords.get("dataset"          ,None)
     benchmark_dataset = keywords.get("benchmark_dataset",None)
@@ -753,7 +859,6 @@ def AnalysisMeanState(ref,com,**keywords):
     skip_rmse         = keywords.get("skip_rmse"        ,False)
     skip_iav          = keywords.get("skip_iav"         ,False)
     skip_cycle        = keywords.get("skip_cycle"       ,False)
-    res               = keywords.get("res"              ,0.5)
     ILAMBregions      = Regions()
     spatial           = ref.spatial
     normalizer        = None
@@ -761,25 +866,57 @@ def AnalysisMeanState(ref,com,**keywords):
     # Only study the annual cycle if it makes sense
     if    not ref.monthly: skip_cycle = True
     if ref.time.size < 12: skip_cycle = True
-    
-    # In order to deal with differences in grids and representation of
-    # land, we will interpolate both datasets to a fixed
-    # resolution. While not perfect we interpolate to a grid
-    # resolution higher than models are typically run. By convention,
-    # I will use capital letters for the interpolated quantities.
+
+    # We find 
     if spatial:
-        junk,junk,lat,lon = GlobalLatLonGrid(res)
-        REF = ref.interpolate(lat=lat,lon=lon,itype='bilinear')
-        COM = com.interpolate(lat=lat,lon=lon,itype='bilinear')
+        lat,lon,lat_bnds,lon_bnds = _composeGrids(ref,com)
+        REF = ref.interpolate(lat=lat,lon=lon,lat_bnds=lat_bnds,lon_bnds=lon_bnds)
+        COM = com.interpolate(lat=lat,lon=lon,lat_bnds=lat_bnds,lon_bnds=lon_bnds)
         
     # We find the mean values over the time period on the original
     # grid/datasites of each dataset
     ref_timeint = ref.integrateInTime(mean=True)
     com_timeint = com.integrateInTime(mean=True)
     if spatial:
+        
         REF_timeint = REF.integrateInTime(mean=True)
         COM_timeint = COM.integrateInTime(mean=True)
+
+        # Masks 
+        ref_mask    = REF_timeint.data.mask
+        com_mask    = COM_timeint.data.mask
+        ref_and_com = (ref_mask == False) * (com_mask == False)
+        ref_not_com = (ref_mask == False) * (com_mask == True )
+        com_not_ref = (ref_mask == True ) * (com_mask == False)        
+        ref_and_COM = Variable(name = "ref_and_COM", unit = ref.unit,
+                               data = np.ma.masked_array(COM_timeint.data,mask=(ref_and_com==False)),
+                               lat  = lat, lat_bnds = lat_bnds,
+                               lon  = lon, lon_bnds = lon_bnds,
+                               area = COM_timeint.area)
+        COM_not_ref = Variable(name = "COM_not_ref", unit = ref.unit,
+                               data = np.ma.masked_array(COM_timeint.data,mask=(com_not_ref==False)),
+                               lat  = lat, lat_bnds = lat_bnds,
+                               lon  = lon, lon_bnds = lon_bnds,
+                               area = COM_timeint.area)
+        REF_and_com = Variable(name = "REF_and_com", unit = REF.unit,
+                               data = np.ma.masked_array(REF_timeint.data,mask=(ref_and_com==False)),
+                               lat  = lat, lat_bnds = lat_bnds,
+                               lon  = lon, lon_bnds = lon_bnds,
+                               area = REF_timeint.area)
+        REF_not_com = Variable(name = "REF_not_com", unit = REF.unit,
+                               data = np.ma.masked_array(REF_timeint.data,mask=(ref_not_com==False)),
+                               lat  = lat, lat_bnds = lat_bnds,
+                               lon  = lon, lon_bnds = lon_bnds,
+                               area = REF_timeint.area)
+        
+        # Apply intersection mask
+        REF.data.mask += np.ones(REF.time.size,dtype=bool)[:,np.newaxis,np.newaxis] * (ref_and_com==False)
+        COM.data.mask += np.ones(COM.time.size,dtype=bool)[:,np.newaxis,np.newaxis] * (ref_and_com==False)
+        REF_timeint.data.mask = (ref_and_com==False)
+        COM_timeint.data.mask = (ref_and_com==False)
+        
     else:
+        
         REF         = ref
         COM         = com
         REF_timeint = ref_timeint
@@ -790,6 +927,8 @@ def AnalysisMeanState(ref,com,**keywords):
     # quantities
     bias = REF_timeint.bias(COM_timeint)
     bias_score_map = Score(bias,REF_timeint)
+    if spatial:
+        bias_score_map.data.mask = (ref_and_com==False) # for some reason I need to explicitly force the mask
     if not skip_rmse:
         rmse = REF.rmse(COM)
         rms  = REF.rms ()
@@ -808,15 +947,21 @@ def AnalysisMeanState(ref,com,**keywords):
     # Scalars
     ref_period_mean = {}; ref_spaceint = {}; ref_mean_cycle = {}; ref_dtcycle = {}
     com_period_mean = {}; com_spaceint = {}; com_mean_cycle = {}; com_dtcycle = {}
-    bias_val = {}; bias_score = {}; rmse_val = {}; rmse_score = {}
-    space_std = {}; space_cor = {}; sd_score = {}; shift = {}; shift_score = {}
+    bias_val  = {}; bias_score = {}; rmse_val = {}; rmse_score = {}
+    space_std = {}; space_cor  = {}; sd_score = {}; shift = {}; shift_score = {}
+    ref_union_mean = {}; ref_comp_mean = {}
+    com_union_mean = {}; com_comp_mean = {}
     for region in regions:
         if spatial:
-            ref_period_mean[region] = REF_timeint    .integrateInSpace(region=region,mean=space_mean)
+            ref_period_mean[region] = ref_timeint    .integrateInSpace(region=region,mean=space_mean)
+            ref_union_mean [region] = REF_and_com    .integrateInSpace(region=region,mean=space_mean)
+            com_union_mean [region] = ref_and_COM    .integrateInSpace(region=region,mean=space_mean)
+            ref_comp_mean  [region] = REF_not_com    .integrateInSpace(region=region,mean=space_mean)
+            com_comp_mean  [region] = COM_not_ref    .integrateInSpace(region=region,mean=space_mean)
             ref_spaceint   [region] = REF            .integrateInSpace(region=region,mean=True)
-            com_period_mean[region] = COM_timeint    .integrateInSpace(region=region,mean=space_mean)
+            com_period_mean[region] = com_timeint    .integrateInSpace(region=region,mean=space_mean)
             com_spaceint   [region] = COM            .integrateInSpace(region=region,mean=True)
-            bias_val       [region] = bias           .integrateInSpace(region=region,mean=space_mean)
+            bias_val       [region] = bias           .integrateInSpace(region=region,mean=True)
             bias_score     [region] = bias_score_map .integrateInSpace(region=region,mean=True,weight=normalizer)
             if not skip_cycle:
                 ref_mean_cycle[region] = ref_cycle   .integrateInSpace(region=region,mean=True)
@@ -826,9 +971,9 @@ def AnalysisMeanState(ref,com,**keywords):
                 com_dtcycle   [region] = deepcopy(com_mean_cycle[region])
                 com_dtcycle   [region].data -= com_mean_cycle[region].data.mean()        
                 shift         [region] = shift_map      .integrateInSpace(region=region,mean=True,intabs=True)
-                shift_score   [region] = shift_score_map.integrateInSpace(region=region,mean=True,weight=normalizer)            
+                shift_score   [region] = shift_score_map.integrateInSpace(region=region,mean=True,weight=normalizer)           
             if not skip_rmse:
-                rmse_val   [region] = rmse           .integrateInSpace(region=region,mean=space_mean)
+                rmse_val   [region] = rmse           .integrateInSpace(region=region,mean=True)
                 rmse_score [region] = rmse_score_map .integrateInSpace(region=region,mean=True,weight=normalizer)
             space_std[region],space_cor[region],sd_score[region] = REF_timeint.spatialDistribution(COM_timeint,region=region)
         else:
@@ -851,9 +996,9 @@ def AnalysisMeanState(ref,com,**keywords):
                 rmse_val   [region] = rmse           .siteStats(region=region)
                 rmse_score [region] = rmse_score_map .siteStats(region=region,weight=normalizer)
                 
-        ref_period_mean[region].name = "Period Mean %s"                % (region)
+        ref_period_mean[region].name = "Period Mean (original grids) %s" % (region)
         ref_spaceint   [region].name = "spaceint_of_%s_over_%s"        % (ref.name,region)
-        com_period_mean[region].name = "Period Mean %s"                % (region)
+        com_period_mean[region].name = "Period Mean (original grids) %s" % (region)
         com_spaceint   [region].name = "spaceint_of_%s_over_%s"        % (ref.name,region)
         bias_val       [region].name = "Bias %s"                       % (region)
         bias_score     [region].name = "Bias Score %s"                 % (region)
@@ -868,7 +1013,11 @@ def AnalysisMeanState(ref,com,**keywords):
             shift         [region].name = "Phase Shift %s"                % (region)
             shift_score   [region].name = "Seasonal Cycle Score %s"       % (region)
         if spatial:
-            sd_score   [region].name = "Spatial Distribution Score %s" % (region)
+            ref_union_mean[region].name = "Benchmark Period Mean (intersection) %s" % (region)
+            com_union_mean[region].name = "Model Period Mean (intersection) %s"     % (region)        
+            ref_comp_mean [region].name = "Benchmark Period Mean (complement) %s"   % (region)
+            com_comp_mean [region].name = "Model Period Mean (complement) %s"       % (region)        
+            sd_score      [region].name = "Spatial Distribution Score %s"           % (region)
         
     # Unit conversions
     def _convert(var,unit):
@@ -878,12 +1027,12 @@ def AnalysisMeanState(ref,com,**keywords):
             var.convert(unit)
 
     if table_unit is not None:
-        for var in [ref_period_mean,com_period_mean,bias_val,rmse_val]:
+        for var in [ref_period_mean,com_period_mean,ref_union_mean,com_union_mean,ref_comp_mean,com_comp_mean]:
             _convert(var,table_unit)
     if plot_unit is not None:
-        plot_vars = [com_timeint,COM_timeint,ref_timeint,REF_timeint,bias,com_spaceint,ref_spaceint]
-        if not skip_rmse: plot_vars.append(rmse)
-        if not skip_cycle: plot_vars +=[com_mean_cycle,ref_mean_cycle,com_dtcycle,ref_dtcycle]
+        plot_vars = [com_timeint,ref_timeint,bias,com_spaceint,ref_spaceint,bias_val]
+        if not skip_rmse:  plot_vars += [rmse,rmse_val]
+        if not skip_cycle: plot_vars += [com_mean_cycle,ref_mean_cycle,com_dtcycle,ref_dtcycle]
         for var in plot_vars: _convert(var,plot_unit)
             
     # Rename and optionally dump out information to netCDF4 files
@@ -892,6 +1041,10 @@ def AnalysisMeanState(ref,com,**keywords):
     bias_score_map .name = "biasscore_map_of_%s"  % ref.name
     
     out_vars = [com_period_mean,
+                ref_union_mean,
+                com_union_mean,
+                ref_comp_mean,
+                com_comp_mean,
                 com_timeint,
                 com_mean_cycle,
                 com_dtcycle,
@@ -902,9 +1055,6 @@ def AnalysisMeanState(ref,com,**keywords):
                 shift,
                 shift_score]
     if com_spaceint[com_spaceint.keys()[0]].data.size > 1: out_vars.append(com_spaceint)
-    if spatial:
-        COM_timeint.name = "timeintremap_of_%s"  % ref.name
-        out_vars.append(COM_timeint)
     if not skip_cycle:
         com_maxt_map   .name = "phase_map_of_%s"      % ref.name
         shift_map      .name = "shift_map_of_%s"      % ref.name
@@ -939,9 +1089,6 @@ def AnalysisMeanState(ref,com,**keywords):
     if not skip_cycle:
         ref_maxt_map.name = "phase_map_of_%s"      % ref.name
         out_vars += [ref_maxt_map,ref_mean_cycle,ref_dtcycle]
-    if spatial:
-        REF_timeint.name = "timeintremap_of_%s"  % ref.name
-        out_vars.append(REF_timeint)
     if benchmark_dataset is not None:
         for var in out_vars:
             if type(var) == type({}):
@@ -1294,15 +1441,6 @@ def MakeComparable(ref,com,**keywords):
                 logger.debug(msg)
                 raise VarsNotComparable()
 
-    # Apply the reference mask to the comparison dataset and
-    # optionally vice-versa
-    if not ref.layered:
-        mask = ref.interpolate(time=com.time,lat=com.lat,lon=com.lon)
-        com.data.mask += mask.data.mask
-        if mask_ref:
-            mask = com.interpolate(time=ref.time,lat=ref.lat,lon=ref.lon)
-            ref.data.mask += mask.data.mask
-
     # Convert the comparison to the units of the reference
     com = com.convert(ref.unit)
     
@@ -1363,16 +1501,25 @@ def CombineVariables(V):
         time_bnds[ind[i]:ind[i+1],...] = v.time_bnds
         data     [ind[i]:ind[i+1],...] = v.data
         mask     [ind[i]:ind[i+1],...] = v.data.mask
+
+    # If assembled from single slice files and no time bounds were
+    # provided, they will not be reflective of true bounds here. If
+    # any dt's are 0, make time_bounds none and recompute in the
+    # constructor.
+    if np.any((time_bnds[:,1]-time_bnds[:,0])<1e-12): time_bnds = None
+    
     v = V[0]
-    return Variable(data      = np.ma.masked_array(data,mask=mask),
-                    unit      = v.unit,
-                    name      = v.name,
-                    time      = time,
-                    time_bnds = time_bnds,
-                    lat       = v.lat,
-                    lon       = v.lon,
-                    area      = v.area,
-                    ndata     = v.ndata)
+    return Variable(data       = np.ma.masked_array(data,mask=mask),
+                    unit       = v.unit,
+                    name       = v.name,
+                    time       = time,
+                    time_bnds  = time_bnds,
+                    depth      = v.depth,
+                    depth_bnds = v.depth_bnds,
+                    lat        = v.lat,
+                    lon        = v.lon,
+                    area       = v.area,
+                    ndata      = v.ndata)
 
 def ConvertBoundsTypes(x):
     y = None
