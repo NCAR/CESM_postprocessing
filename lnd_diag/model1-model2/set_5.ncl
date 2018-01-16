@@ -209,13 +209,19 @@ print("Now printing plot #" + p)
               end if
            else
               print("Case 1 variable "+ vars(i)+ " is not a defined variable.")
-	      x1 = new((/nyrs1,nlat1,nlon1/),"float")
-	      x1!0 ="time"
-	      x1&time =time1
-	      x1!1 ="lat"
-	      x1&lat = lat1
-	      x1!2 ="lon"
-	      x1&lon = lon1
+              if (c13Flag(i) .eq. "C13_") then
+	        x1 = new((/nyrs1/),"float")
+	        x1!0 ="time"
+	        x1&time =time1
+              else
+	        x1 = new((/nyrs1,nlat1,nlon1/),"float")
+	        x1!0 ="time"
+	        x1&time =time1
+	        x1!1 ="lat"
+	        x1&lat = lat1
+	        x1!2 ="lon"
+	        x1&lon = lon1
+              end if
            end if
       end if
 
@@ -235,13 +241,19 @@ print("Now printing plot #" + p)
               end if
            else
               print("Case 2 variable "+ vars(i)+ " is not a defined variable.")
-	      x2 = new((/nyrs2,nlat2,nlon2/),"float")
-	      x2!0 ="time"
-	      x2&time =time2
-	      x2!1 ="lat"
-	      x2&lat = lat2
-	      x2!2 ="lon"
-	      x2&lon = lon2
+              if (c13Flag(i) .eq. "C13_") then
+	        x2 = new((/nyrs2/),"float")
+	        x2!0 ="time"
+	        x2&time =time2
+              else
+	        x2 = new((/nyrs2,nlat2,nlon2/),"float")
+	        x2!0 ="time"
+	        x2&time =time2
+	        x2!1 ="lat"
+	        x2&lat = lat2
+	        x2!2 ="lon"
+	        x2&lon = lon2
+              end if
            end if
        end if
 

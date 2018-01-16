@@ -20,7 +20,7 @@ begin
  plot_type  = getenv("PLOTTYPE")
  version    = getenv("DIAG_VERSION")
  wkdir      = getenv("WKDIR")
- ptmpdir    = getenv("PTMPDIR_1")
+ ptmpdir1   = getenv("PTMPDIR_1")
  obsdata    = getenv("OBS_DATA")      ; OBS directory
  resdir     = getenv("DIAG_RESOURCES")
  useCommon1 = getenv("UseCommonName_1")
@@ -37,7 +37,7 @@ begin
  print("rtm1 = "+rtm1)
  print("prefix1 = "+prefix1)
  print("case1 = "+case1)
- print("ptmpdir = "+ptmpdir)
+ print("ptmpdir1 = "+ptmpdir1)
 
  if ((rmodel1 .eq. "False") .and. (rtm1 .eq. "False"))  then
 ; river variables on clm history files

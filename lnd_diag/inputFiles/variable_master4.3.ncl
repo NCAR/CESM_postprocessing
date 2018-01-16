@@ -5861,6 +5861,35 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "FSH_RUNOFF_ICE_TO_LIQ") then
+    info@flux=True
+    info@longName="Sensible heat flux from conversion of ice runoff to liquid"
+    info@nativeUnits = "W/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "W/m^2"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-40.,-20.,0.,20.,40.,60.,80.,100.,120./)
+    info@cn_LevelsDiff             = (/-50.,-25.,-10.,-5.,-1.,0.,1.,5.,10.,25.,50./)
+    return(info)
+  end if
+
   if (varName .eq. "LATENT") then
     info@flux=True
     info@longName="Latent Heat Flux"
@@ -6377,6 +6406,35 @@ if (varName .eq. "LITTERC_HR") then
     info@cn_Min                    = -999
     info@cn_Max                    = -999
     info@cn_Levels                 = (/0.,0.15,0.3,0.45,0.6,0.75,0.9,1.05,1.2/) 
+    info@cn_LevelsDiff             = (/-2.,-1.,-.5,-.25,-.1,0.,.1,.25,.5,1.,2./)
+    return(info)
+  end if
+
+  if (varName .eq. "HTOP") then
+    info@flux=False
+    info@longName="canopy top height"
+    info@nativeUnits = "m"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "m"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin
+    info@model                     = "CLM"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,5.0,10.0,15.0,20.0,25.0,30.0,35.0,40.0/)
     info@cn_LevelsDiff             = (/-2.,-1.,-.5,-.25,-.1,0.,.1,.25,.5,1.,2./)
     return(info)
   end if
@@ -7394,7 +7452,7 @@ if (varName .eq. "LITTERC_HR") then
 
   if (varName .eq. "TOTRUNOFF") then
     info@flux=True
-    info@longName="Runoff:qover+qdrai+qrgwl"
+    info@longName="Total Liquid Runoff"
     info@nativeUnits = "mm/s"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -10287,7 +10345,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10316,7 +10374,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10345,7 +10403,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10374,7 +10432,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10403,7 +10461,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10432,7 +10490,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10460,7 +10518,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10489,7 +10547,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10518,7 +10576,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10547,7 +10605,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10576,7 +10634,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10605,7 +10663,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10634,7 +10692,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10662,7 +10720,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10691,7 +10749,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10720,7 +10778,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10749,7 +10807,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10778,7 +10836,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10807,7 +10865,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10836,7 +10894,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10865,7 +10923,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10893,7 +10951,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10921,7 +10979,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10949,7 +11007,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -10978,7 +11036,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11007,7 +11065,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11036,7 +11094,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11065,7 +11123,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11094,7 +11152,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11123,7 +11181,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11152,7 +11210,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11181,7 +11239,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11210,7 +11268,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11239,7 +11297,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11268,7 +11326,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11297,7 +11355,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999.
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11326,7 +11384,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11355,7 +11413,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = 1.0
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11384,7 +11442,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11413,7 +11471,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11442,7 +11500,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11471,7 +11529,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11500,7 +11558,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11529,7 +11587,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -11558,7 +11616,7 @@ if (varName .eq. "LITTERC_HR") then
     info@globalMean_Daily__SF      = -999. 
     ; -- Origin 
     info@model		           = "CN" 
-    info@derivedVariable           = True 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
