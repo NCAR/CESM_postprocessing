@@ -167,9 +167,8 @@ def main(options):
     # remove the existing makefile if it exists
     try:
         os.remove(outFile)
-    except OSError as e:
-        print('ERROR create_ocn_za',e.errno,e.strerror)
-        sys.exit(1)
+    except OSError:
+        pass
 
     # write the makefile to the outFile
     with open( outFile, 'w') as fh:

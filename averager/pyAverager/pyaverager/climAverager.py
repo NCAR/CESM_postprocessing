@@ -120,7 +120,10 @@ def avg_var_missing(var,years,hist_dict,ave_info,file_dict,ave_type,fillValue,ti
                 pull_year = yr
             var_val = rover.fetch_slice(hist_dict,pull_year,m,var,file_dict)
             timer.stop("Variable fetch time")
-            var_filled = var_val.filled(fill_value=0) # zero out the masked grid points
+            if (hasattr(var_val, 'filled')):
+                var_filled = var_val.filled(fill_value=0) # zero out the masked grid points
+            else:
+                var_filled = np.ones(var_val.shape)
             # Get and add mask values to the mask accumulator
             if (first_mask):
                 if (MA.any(MA.getmask(var_val))):
@@ -282,8 +285,12 @@ def weighted_avg_var_missing(var,years,hist_dict,ave_info,file_dict,ave_type,fil
             else:
                 pull_year = yr
             var_val = rover.fetch_slice(hist_dict,pull_year,m,var,file_dict)
-            timer.stop("Variable fetch time") 
-            var_filled = var_val.filled(fill_value=0) # zero out the masked grid points
+            timer.stop("Variable fetch time")
+            
+            if (hasattr(var_val, 'filled')):
+                var_filled = var_val.filled(fill_value=0) # zero out the masked grid points
+            else:
+                var_filled = np.ones(var_val.shape)
             # Get and add mask values to the mask accumulator
             if (first_mask):
                 if (MA.any(MA.getmask(var_val))):

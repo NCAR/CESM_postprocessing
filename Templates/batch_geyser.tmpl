@@ -1,0 +1,15 @@
+#SBATCH -n {{ pes }}
+#SBATCH -N {{ nodes }}
+#SBATCH --ntasks-per-node={{ ppn }}
+#SBATCH -t {{ wallclock }}
+#SBATCH -p dav
+#SBATCH -J {{ processName }}
+#SBATCH -A {{ project }}
+#SBATCH -C {{ queue }}
+#SBATCH --mem 800G
+#SBATCH -e {{ processName }}.err.%J
+#SBATCH -o {{ processName }}.out.%J
+
+source /glade/u/apps/opt/slurm_init/init.sh
+
+export LD_LIBRARY_PATH=/glade/apps/opt/netcdf/4.3.0/gnu/default/lib:$LD_LIBRARY_PATH

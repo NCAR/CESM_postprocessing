@@ -27,7 +27,7 @@ BEGIN {
    name = $5 
    name2 = $6 
    name3 = $7 
-   if (name == "Drake") { 
+   if (name == "ACC-Drake" || name == "Drake") { 
      if (! (deciyear in recordedthistime)) {
         ++timecnt
         recordedthistime[deciyear] = 1
