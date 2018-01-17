@@ -136,12 +136,7 @@ begin
   end if
 
   if(var_name .eq. "TOTRUNOFF")then
-    qover = ptr->QOVER
-    qdrai = ptr->QDRAI
-    qrgwl = ptr->QRGWL
-
-    var   = qover ; trick to retain meta data
-    var   = qover + qdrai + qrgwl
+    var = ptr->QRUNOFF
     return(var)
   end if
 

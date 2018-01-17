@@ -2,6 +2,7 @@ globalMeanDay0  NEE
 globalMeanDay0  NEP
 globalMeanDay0  NBP
 globalMeanDay0  GPP
+globalMeanNat0  HTOP
 globalMeanNat0  CUE
 globalMeanNat0  BTRAN2
 globalMeanDay0  PSNSUN_TO_CPOOL
