@@ -142,7 +142,7 @@ def initialize_main(envDict, caseroot, debugMsg, standalone, imb_name):
     diag_path = "{0}_PATH".format(diag_name)
     envDict[diag_path] = os.pathsep + os.environ['PATH']
 
-    # strip the ILAMBDIAG_ prefix from the envDict entries before setting the 
+    # strip the ILAMBDIAG_ or IOMBDIAG_ prefix from the envDict entries before setting the 
     # enviroment to allow for compatibility with all the diag routine calls
     envDict = diagUtilsLib.strip_prefix(envDict, '{0}_'.format(diag_name))
 
@@ -154,6 +154,10 @@ def initialize_main(envDict, caseroot, debugMsg, standalone, imb_name):
     debugMsg('in initialize_main before path.append', header=True, verbosity=1)
     # setup the working directories
     sys.path.append(envDict['PATH'])
+
+    debugMsg('in initialize_main get machine name', header=True, verbosity=1)
+    hostname = cesmEnvLib.get_hostname()
+    envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
 
     return envDict
 
@@ -198,6 +202,32 @@ def expand_batch_vars(envDict, imb_name):
         print('imb_initialize: {0} could not be made executable'.format(outFile))
         print('WARNING: manually add execute permission to {0}'.format(outFile))
         print('    {0} - {1}'.format(e.cmd, e.output))
+
+
+    # create a template and batch for geyser slurm
+    if envDict['MACH'] == 'cheyenne':
+        hostname = 'geyser'
+        template_filename = '{0}_diagnostics_{1}.tmpl'.format(imb_name, hostname)
+        templateLoader = jinja2.FileSystemLoader( searchpath='{0}'.format(envDict["CASEROOT"]) )
+        templateEnv = jinja2.Environment( loader=templateLoader )
+        template = templateEnv.get_template( template_filename )
+    
+        # render this template into the runScript string
+        runScript = template.render( templateVars )
+
+        # write the runScript to the outFile
+        batch_filename = '{0}_diagnostics_{1}'.format(imb_name, hostname)
+        outFile = os.path.join(envDict["CASEROOT"], batch_filename)
+        with open( outFile, 'w') as fh:
+            fh.write(runScript)
+
+        # make batch script permission executable?
+        try:
+            subprocess.check_call( ['chmod', '+x', outFile ] )
+        except subprocess.CalledProcessError as e:
+            print('imb_initialize: {0} could not be made executable'.format(outFile))
+            print('WARNING: manually add execute permission to {0}'.format(outFile))
+            print('    {0} - {1}'.format(e.cmd, e.output))
 
 
 #======

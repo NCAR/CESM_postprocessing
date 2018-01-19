@@ -84,8 +84,6 @@ def setup_config(envDict):
     
     Return: none
     """
-
-
     return requested_diags
 
 #============================================
@@ -118,10 +116,9 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     # add the os.environ['PATH'] to the envDict['PATH']
     envDict['ILAMBDIAG_PATH'] = os.pathsep + os.environ['PATH']
 
-    # strip the LNDDIAG_ prefix from the envDict entries before setting the 
+    # strip the ILAMBDIAG_ prefix from the envDict entries before setting the 
     # enviroment to allow for compatibility with all the diag routine calls
     envDict = diagUtilsLib.strip_prefix(envDict, 'ILAMBDIAG_')
-
 
     # setup the working directories
     sys.path.append(envDict['PATH'])
