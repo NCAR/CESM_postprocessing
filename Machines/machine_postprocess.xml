@@ -24,7 +24,7 @@
       <module>module load openmpi-slurm/3.0.0</module>
       <module>module load numpy/1.11.0</module>
       <module>module load scipy/0.18.1</module>
-      <module>module load mpi4py/2.0.0-ompi</module>
+      <module>module load mpi4py/2.0.0</module>
       <module>module load pynio/1.4.1</module>
       <module>module load pyside/1.1.2</module>
       <module>module load matplotlib/1.5.1</module>
