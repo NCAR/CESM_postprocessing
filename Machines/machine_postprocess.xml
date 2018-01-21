@@ -6,7 +6,7 @@
     <!-- restricting to geyser for CMIP6 and problem with scaling of the chunking -->
     <timeseries_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="04:00:00" memory="1000G">16</timeseries_pes>
     <xconform_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="06:00:00" memory="1000G">16</xconform_pes>
-    <mpi_command>mpiexec -n {{ pes }}</mpi_command>
+    <mpi_command>mpiexec</mpi_command>
     <pythonpath>/glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/lib/python2.7/site-packages</pythonpath>
     <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
     <za>

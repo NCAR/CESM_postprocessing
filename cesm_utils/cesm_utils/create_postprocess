@@ -441,11 +441,6 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     cmdl_opt = ''
     if imb_name:
         cmdl_opt = '{0} --imb-name {1}'.format(cmdl_opt, imb_name)
-        
-    # check if initialize_geyser is in the processName so that the 
-    # postProcessCmd includes the pes as an optional argument
-    if 'initialize_geyser' in processName:
-        postProcessCmd = '{0} --pes {1}'.format(postProcessCmd, pes)
 
     # all files look good so start parsing the template file starting with the batchTmpl
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(ppDir) )
@@ -1035,12 +1030,11 @@ def main(options):
         # generate the ILAMB and IOMB batch submit scripts from template files
         for imb in imbList:
             # generate the serial script that sets up the imb config file.
-            pes = machine['{0}_initialize_pes'.format(imb)]
             postProcessCmd = 'imb_initialize.py'
             processName = '{0}_initialize_geyser'.format(imb)
             outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
             create_batch(ppDir=pp_geyser,
-                         pes=pes,
+                         pes=machine['{0}_initialize_pes'.format(imb)],
                          batchTmpl=batch_tmpl, runTmpl=run_tmpl,
                          postProcessCmd=postProcessCmd,
                          mpiCmd='', outFile=outFile,
