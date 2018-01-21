@@ -71,6 +71,9 @@ def commandline_options():
     parser.add_argument('--imb-name', nargs=1, required=True,
                         help='name of the imb model being run, e.g. ilamb or iomb.')
 
+    parser.add_argument('--pes', nargs=1, required=False,
+                        help='number of pes used for SLURM mpiexec -n batch submission')
+
     options = parser.parse_args()
 
     # check to make sure CASEROOT is a valid, readable directory
@@ -210,6 +213,7 @@ def expand_batch_vars(envDict, imb_name):
         template_filename = '{0}_diagnostics_{1}.tmpl'.format(imb_name, hostname)
         templateLoader = jinja2.FileSystemLoader( searchpath='{0}'.format(envDict["CASEROOT"]) )
         templateEnv = jinja2.Environment( loader=templateLoader )
+        templateVars['pes'] = envDict['pes']
         template = templateEnv.get_template( template_filename )
     
         # render this template into the runScript string
@@ -253,6 +257,10 @@ def main(options, main_comm, debugMsg, timer):
 
     # initialize the environment dictionary
     envDict = dict()
+
+    envDict['pes'] = ''
+    if options.pes:
+         envDict['pes'] = options.pes[0]
 
     imb_name = options.imb_name[0]
     known_models = ['ilamb', 'iomb' ]
