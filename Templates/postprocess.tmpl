@@ -40,12 +40,10 @@ log_filename={{ caseRoot }}/logs/{{ processName }}.log.$today
 
 {% if imb_run %}
 {{ imb_env_vars }}
-
 {{ mpirun }} {{ imb_run }} {{ imb_options }} >> ${log_filename} 2>&1
-
 {% elif standalone %}
-{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --standalone {{ cmdl_opt }} >> ${log_filename} 2>&1
+{{ mpirun }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} --standalone {{ cmdl_opt }} >> ${log_filename} 2>&1
 {% else %}
-{{ mpirun|replace("{{ pes }}",pes) }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> ${log_filename} 2>&1
+{{ mpirun }} ./{{ postProcessCmd }} {{ debug }} {{ backtrace }} --caseroot {{ caseRoot }} >> ${log_filename} 2>&1
 {% endif %}
 
