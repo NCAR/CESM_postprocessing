@@ -7,6 +7,7 @@
   <xs:attribute name="queue" type="xs:string"/>
   <xs:attribute name="nodes" type="xs:string"/>
   <xs:attribute name="pes_per_node" type="xs:string"/>
+  <xs:attribute name="memory" type="xs:string"/>
   <xs:attribute name="wallclock" type="xs:string"/>
   <xs:attribute name="fcompiler" type="xs:string"/>
   <xs:attribute name="f77exec" type="xs:string"/>
@@ -31,6 +32,7 @@
 	  <xs:attribute name="nodes" use="optional"/>
 	  <xs:attribute name="pes_per_node" use="optional"/>
 	  <xs:attribute name="wallclock" use="required"/>
+	  <xs:attribute name="memory" use="optional"/>
 	</xs:extension>
       </xs:simpleContent>
     </xs:complexType>
@@ -44,6 +46,7 @@
 	  <xs:attribute name="nodes" use="optional"/>
 	  <xs:attribute name="pes_per_node" use="optional"/>
 	  <xs:attribute name="wallclock" use="required"/>
+	  <xs:attribute name="memory" use="optional"/>
 	</xs:extension>
       </xs:simpleContent>
     </xs:complexType>
@@ -57,6 +60,7 @@
 	  <xs:attribute name="nodes" use="optional"/>
 	  <xs:attribute name="pes_per_node" use="optional"/>
 	  <xs:attribute name="wallclock" use="required"/>
+	  <xs:attribute name="memory" use="optional"/>
 	</xs:extension>
       </xs:simpleContent>
     </xs:complexType>
@@ -70,6 +74,21 @@
 	  <xs:attribute name="nodes" use="optional"/>
 	  <xs:attribute name="pes_per_node" use="optional"/>
 	  <xs:attribute name="wallclock" use="required"/>
+	  <xs:attribute name="memory" use="optional"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="initialize_pes">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="queue" use="required"/>
+	  <xs:attribute name="nodes" use="optional"/>
+	  <xs:attribute name="pes_per_node" use="optional"/>
+	  <xs:attribute name="wallclock" use="required"/>
+	  <xs:attribute name="memory" use="optional"/>
 	</xs:extension>
       </xs:simpleContent>
     </xs:complexType>
@@ -117,10 +136,11 @@
   <xs:element name="component">
     <xs:complexType>
       <xs:sequence>
-	<xs:element ref="averages_pes" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="averages_pes" minOccurs="0" maxOccurs="0"/>
 	<xs:element ref="diagnostics_pes" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="regrid_pes" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="obs_root" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="initialize_pes" minOccurs="0" maxOccurs="0"/>
       </xs:sequence>
       <xs:attribute ref="name" use="required"/>
     </xs:complexType>

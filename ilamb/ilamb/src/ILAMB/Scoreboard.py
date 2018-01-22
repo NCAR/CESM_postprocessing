@@ -29,7 +29,7 @@ class Node(object):
         self.land                = False
         self.confrontation       = None
         self.output_path         = None
-        self.bgcolor             = None
+        self.bgcolor             = "#EDEDED"
         self.table_unit          = None
         self.plot_unit           = None
         self.space_mean          = True
@@ -272,7 +272,7 @@ class Scoreboard():
         has_rel  = np.asarray([len(rel.children) for rel in rel_tree.children]).sum() > 0
         nav      = ""
         if has_rel:
-            GenerateSummaryFigure(rel_tree,M,"%s/overview_rel.png" % self.build_dir)
+            GenerateRelSummaryFigure(self,M,"%s/overview_rel.png" % self.build_dir)
             nav = """
 	    <li><a href="#pageRel">Relationship</a></li>"""
             #global global_print_node_string
@@ -412,7 +412,8 @@ class Scoreboard():
 	  </thead>
           <tbody>"""
             
-        for tree in self.tree.children: html += GenerateTable(tree,M,self)
+        html += GenerateTable(self.tree,M,self)
+        
         html += """
           </tbody>
         </table>
@@ -433,7 +434,7 @@ class Scoreboard():
 	    </tr>
 	  </thead>
           <tbody>"""
-            for tree in  rel_tree.children: html += GenerateTable(tree,M,self,composite=False)
+            html += GenerateTable(rel_tree,M,self,composite=False)
             html += """
           </tbody>
         </table>
@@ -521,6 +522,7 @@ def DarkenRowColor(clr,fraction=0.9):
 def BuildHTMLTable(tree,M,build_dir):
     global global_model_list
     global_model_list = M
+    global global_table_color    
     def _genHTML(node):
         global global_html
         global global_table_color
@@ -560,17 +562,24 @@ def BuildHTMLTable(tree,M,build_dir):
         row += '<td><div class="arrow"></div></td></tr>'
         global_html += row
 
-    TraversePreorder(tree,_genHTML)
+    for cat in tree.children:
+        global_table_color = cat.bgcolor
+        for var in cat.children:
+            TraversePreorder(var,_genHTML)
+        cat.name += " Summary"
+        _genHTML(cat)
+        cat.name.replace(" Summary","")
+    global_table_color = tree.bgcolor
+    tree.name = "Overall Summary"
+    _genHTML(tree)
     
 def GenerateTable(tree,M,S,composite=True):
     global global_html
     global global_model_list
-    global global_table_color
     if composite: CompositeScores(tree,M)
     global_model_list = M
-    global_table_color = tree.bgcolor
     global_html = ""
-    for cat in tree.children: BuildHTMLTable(cat,M,S.build_dir)
+    BuildHTMLTable(tree,M,S.build_dir)
     return global_html
 
 def GenerateSummaryFigure(tree,M,filename):
@@ -595,7 +604,95 @@ def GenerateSummaryFigure(tree,M,filename):
 
     BenchmarkSummaryFigure(models,variables,data,filename,vcolor=vcolors)
 
+def GenerateRelSummaryFigure(S,M,figname):
 
+    def _parse(node):
+        global score,count,rows
+        if node.level != 5: return
+        row = "%s vs. %s" % (node.parent.parent.parent.name,node.parent.name)
+        col = node.name
+        if row not in rows: rows.append(row)
+        if not score     .has_key(row): score[row] = {}
+        if not count     .has_key(row): count[row] = {}
+        if not score[row].has_key(col): score[row][col] = 0.
+        if not count[row].has_key(col): count[row][col] = 0.
+        score[row][col] += node.score
+        count[row][col] += 1.
+
+    class rnode():
+        def __init__(self,name,level):
+            self.name     = name
+            self.level    = level
+            self.parent   = None
+            self.score    = None
+            self.children = []
+
+    
+    root = S.build_dir
+    tree = rnode("root",0)
+    previous_node = tree
+    current_level = 0
+    
+    for subdir, dirs, files in os.walk(root):
+        if subdir == root: continue
+        flat  = subdir.replace(root,"").lstrip("/").split("/")
+        level = len(flat)
+        name  = flat[-1]
+        child = rnode(name,level)
+        if level == current_level:
+            child.parent = previous_node.parent
+            previous_node.parent.children.append(child)
+            if level == 3:
+                for fname in [f for f in files if f.endswith(".nc") and "Benchmark" not in f]:
+                    with Dataset(os.path.join(subdir,fname)) as dset:
+                        if "Relationships" not in dset.groups: continue
+                        grp   = dset.groups["Relationships"]["scalars"]
+                        model = dset.name
+                        for var in [var for var in grp.variables.keys() if ("Overall" not in var and
+                                                                            "global"      in var)]:
+                            rname = var.split(" ")[0]
+                            hadrel = False
+                            for c in child.children:
+                                if c.name == rname:
+                                    rel    = c
+                                    hadrel = True
+                            if not hadrel: rel = rnode(rname,level+1)
+                            mod = rnode(model,level+2)
+                            mod.score    = grp.variables[var][...]
+                            mod.parent   = rel
+                            rel.children.append(mod)
+                            rel.parent   = child
+                            if not hadrel: child.children.append(rel)
+        elif level > current_level:
+            child.parent = previous_node
+            previous_node.children.append(child)
+            current_level = level
+        else:
+            addto = tree
+            for i in range(level-1): addto = addto.children[-1]
+            child.parent = addto
+            addto.children.append(child)
+            current_level = level
+        previous_node = child
+    
+    global score,count,rows
+    score = {}
+    count = {}
+    rows  = []
+    TraversePreorder(tree,_parse)
+    models = []
+    for row in rows:
+        for key in score[row].keys():
+            if key not in models: models.append(key)
+    data = np.zeros((len(rows),len(models)))
+    for i,row in enumerate(rows):
+        for j,col in enumerate(models):
+            try:
+                data[i,j] = score[row][col] / count[row][col]
+            except:
+                data[i,j] = np.nan
+    BenchmarkSummaryFigure(models,rows,data,figname,rel_only=False)
+    
 def GenerateRelationshipTree(S,M):
 
     # Create a tree which mimics the scoreboard for relationships, but

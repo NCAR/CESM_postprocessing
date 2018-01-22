@@ -365,6 +365,12 @@ class Confrontation(object):
                 vabs =  max(abs(limits[pname]["min"]),abs(limits[pname]["min"]))
                 limits[pname]["min"] = -vabs
                 limits[pname]["max"] =  vabs
+
+            # if a score, force to be [0,1]
+            if "score" in pname:
+                limits[pname]["min"] = 0
+                limits[pname]["max"] = 1
+
             limits[pname]["cmap"] = opts["cmap"]
             if limits[pname]["cmap"] == "choose": limits[pname]["cmap"] = self.cmap
 
@@ -542,14 +548,16 @@ class Confrontation(object):
             ax.plot(0,0,'o',mew=0,ms=8,color=color,label=model)
         handles,labels = ax.get_legend_handles_labels()
         plt.close()
-        ncol   = np.ceil(float(len(models))/11.).astype(int)
-        fig,ax = plt.subplots(figsize=(3.*ncol,2.8),tight_layout=True)
-        ax.legend(handles,labels,loc="upper right",ncol=ncol,fontsize=10,numpoints=1)
-        ax.axis('off')
-        fig.savefig(os.path.join(self.output_path,"legend_compcycle.png"))
-        fig.savefig(os.path.join(self.output_path,"legend_spatial_variance.png"))
-        fig.savefig(os.path.join(self.output_path,"legend_temporal_variance.png"))
-        plt.close()
+        
+        ncol = np.ceil(float(len(models))/11.).astype(int)
+        if ncol > 0:
+            fig,ax = plt.subplots(figsize=(3.*ncol,2.8),tight_layout=True)
+            ax.legend(handles,labels,loc="upper right",ncol=ncol,fontsize=10,numpoints=1)
+            ax.axis('off')
+            fig.savefig(os.path.join(self.output_path,"legend_compcycle.png"))
+            fig.savefig(os.path.join(self.output_path,"legend_spatial_variance.png"))
+            fig.savefig(os.path.join(self.output_path,"legend_temporal_variance.png"))
+            plt.close()
         
         # spatial distribution Taylor plot
         if has_std:
@@ -999,7 +1007,10 @@ class Confrontation(object):
 
                 # score the relationship
                 i0,i1 = np.where(np.abs(obs_x[:,np.newaxis]-mod_x)<1e-12)
-                score = np.exp(-np.linalg.norm(obs_y[i0]-mod_y[i1])/np.linalg.norm(obs_y[i0]))
+                obs_y = obs_y[i0]; mod_y = mod_y[i1]
+                isnan = np.isnan(obs_y)*np.isnan(mod_y)
+                obs_y[isnan] = 0.; mod_y[isnan] = 0.
+                score = np.exp(-np.linalg.norm(obs_y-mod_y)/np.linalg.norm(obs_y))
                 vname = '%s RMSE Score %s' % (c.longname.split('/')[0],region)
                 if vname in scalars.variables:
                     scalars.variables[vname][0] = score

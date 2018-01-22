@@ -272,21 +272,27 @@ def read_machine_xml(machineName, xmlFile):
             machine['timeseries_pes'] = tseries_pes.text
             machine['timeseries_queue'] = tseries_pes.get('queue').lower()
             machine['timeseries_ppn'] = tseries_pes.get('pes_per_node').lower()
+            machine['timeseries_wallclock'] = tseries_pes.get('wallclock').lower()
             machine['timeseries_nodes'] = ''
             if 'nodes' in tseries_pes.attrib:
                 machine['timeseries_nodes'] = tseries_pes.get('nodes').lower()
-            machine['timeseries_wallclock'] = tseries_pes.get('wallclock').lower()
+            machine['timeseries_memory'] = ''
+            if 'memory' in tseries_pes.attrib:
+                machine['timeseries_memory'] = tseries_pes.get('memory')
+
 
             # get the conform pes 
             xconform_pes = xmlmachine.find('xconform_pes')
             machine['xconform_pes'] = xconform_pes.text
             machine['conform_queue'] = xconform_pes.get('queue').lower()
             machine['conform_ppn'] = xconform_pes.get('pes_per_node').lower()
+            machine['conform_wallclock'] = xconform_pes.get('wallclock').lower()
             machine['conform_nodes'] = ''
             if 'nodes' in xconform_pes.attrib:
                 machine['conform_nodes'] = xconform_pes.get('nodes').lower()
-            machine['conform_wallclock'] = xconform_pes.get('wallclock').lower()
-
+            machine['conform_memory'] = ''
+            if 'memory' in xconform_pes.attrib:
+                machine['conform_memory'] = xconform_pes.get('memory')
 
             # get the mpi run command
             machine['mpi_command'] = xmlmachine.find('mpi_command').text
@@ -310,43 +316,58 @@ def read_machine_xml(machineName, xmlFile):
                 compName = comp.get("name").lower()
 
                 avg = comp.find('averages_pes')
-                machine['{0}_averages_pes'.format(compName)] = avg.text
-                machine['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
-                machine['{0}_averages_nodes'.format(compName)] = ''
-                if 'nodes' in avg.attrib:
-                    machine['{0}_averages_nodes'.format(compName)] = avg.get('nodes').lower()
-                machine['{0}_averages_ppn'.format(compName)] = avg.get('pes_per_node').lower()
-                machine['{0}_averages_wallclock'.format(compName)] = avg.get('wallclock').lower()
+                if avg is not None:
+                    machine['{0}_averages_pes'.format(compName)] = avg.text
+                    machine['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
+                    machine['{0}_averages_ppn'.format(compName)] = avg.get('pes_per_node').lower()
+                    machine['{0}_averages_wallclock'.format(compName)] = avg.get('wallclock').lower()
+                    machine['{0}_averages_nodes'.format(compName)] = ''
+                    if 'nodes' in avg.attrib:
+                        machine['{0}_averages_nodes'.format(compName)] = avg.get('nodes').lower()
+                    machine['{0}_averages_memory'.format(compName)] = ''
+                    if 'memory' in avg.attrib:
+                        machine['{0}_averages_memory'.format(compName)] = avg.get('memory')
+
 
                 diags = comp.find('diagnostics_pes')
-                machine['{0}_diagnostics_pes'.format(compName)] = diags.text
-                machine['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
-                machine['{0}_diagnostics_nodes'.format(compName)] = ''
-                if 'nodes' in diags.attrib:
-                    machine['{0}_diagnostics_nodes'.format(compName)] = diags.get('nodes').lower()
-                machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
-                machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
+                if diags is not None:
+                    machine['{0}_diagnostics_pes'.format(compName)] = diags.text
+                    machine['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
+                    machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
+                    machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
+                    machine['{0}_diagnostics_nodes'.format(compName)] = ''
+                    if 'nodes' in diags.attrib:
+                        machine['{0}_diagnostics_nodes'.format(compName)] = diags.get('nodes').lower()
+                    machine['{0}_diagnostics_memory'.format(compName)] = ''
+                    if 'memory' in diags.attrib:
+                        machine['{0}_diagnostics_memory'.format(compName)] = diags.get('memory')
 
                 init = comp.find('initialize_pes')
                 if init is not None:
                     machine['{0}_initialize_pes'.format(compName)] = init.text
                     machine['{0}_initialize_queue'.format(compName)] = init.get('queue').lower()
+                    machine['{0}_initialize_ppn'.format(compName)] = init.get('pes_per_node').lower()
+                    machine['{0}_initialize_wallclock'.format(compName)] = init.get('wallclock').lower()
                     machine['{0}_initialize_nodes'.format(compName)] = ''
                     if 'nodes' in init.attrib:
                         machine['{0}_initialize_nodes'.format(compName)] = init.get('nodes').lower()
-                    machine['{0}_initialize_ppn'.format(compName)] = init.get('pes_per_node').lower()
-                    machine['{0}_initialize_wallclock'.format(compName)] = init.get('wallclock').lower()
+                    machine['{0}_initialize_memory'.format(compName)] = ''
+                    if 'memory' in init.attrib:
+                        machine['{0}_initialize_memory'.format(compName)] = init.get('memory')
 
                 regrid = comp.find('regrid_pes')
                 if regrid is not None:
                     machine['{0}_regrid_pes'.format(compName)] = regrid.text
                     machine['{0}_regrid_queue'.format(compName)] = regrid.get('queue').lower()
+                    machine['{0}_regrid_ppn'.format(compName)] = regrid.get('pes_per_node').lower()
+                    machine['{0}_regrid_wallclock'.format(compName)] = regrid.get('wallclock').lower()
                     machine['{0}_regrid_nodes'.format(compName)] = ''
                     if 'nodes' in regrid.attrib:
                         machine['{0}_regrid_nodes'.format(compName)] = regrid.get('nodes').lower()
-                    machine['{0}_regrid_ppn'.format(compName)] = regrid.get('pes_per_node').lower()
-                    machine['{0}_regrid_wallclock'.format(compName)] = regrid.get('wallclock').lower()
-                        
+                    machine['{0}_regrid_memory'.format(compName)] = ''
+                    if 'memory' in regrid.attrib:
+                        machine['{0}_regrid_memory'.format(compName)] = regrid.get('memory')
+
                 machine['{0}_obs_root'.format(compName)] = comp.find('obs_root').text
 
     if not found:
@@ -360,7 +381,7 @@ def read_machine_xml(machineName, xmlFile):
 # -------------------------------------------------------------------------------
 def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile, processName,
                  project, pythonpath, caseRoot, reset_modules, modules, queue, ppn, nodes,
-                 wallclock, options, standalone,
+                 wallclock, memory, options, standalone,
                  imb_name=None, imb_run=None, imb_env_vars=None, imb_options=None):
     """create the batch submission files for post processing
 
@@ -420,7 +441,7 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
     cmdl_opt = ''
     if imb_name:
         cmdl_opt = '{0} --imb-name {1}'.format(cmdl_opt, imb_name)
-        
+
     # all files look good so start parsing the template file starting with the batchTmpl
     templateLoader = jinja2.FileSystemLoader( searchpath='{0}/Templates'.format(ppDir) )
     templateEnv = jinja2.Environment( loader=templateLoader )
@@ -431,7 +452,8 @@ def create_batch(ppDir, pes, batchTmpl, runTmpl, postProcessCmd, mpiCmd, outFile
                      'processName' : processName,
                      'project' : project,
                      'ppn' : ppn,
-                     'wallclock' : wallclock }
+                     'wallclock' : wallclock,
+                     'memory' : memory }
         
     # render this template into the batchdirectives string
     batchdirectives = template.render( templateVars )
@@ -675,6 +697,7 @@ def main(options):
                  ppn=machine['timeseries_ppn'],
                  nodes=machine['timeseries_nodes'],
                  wallclock=machine['timeseries_wallclock'],
+                 memory=machine['timeseries_memory'],
                  options=options, standalone=standalone)
 
     # generate the xconform batch submit script from template files
@@ -693,10 +716,11 @@ def main(options):
                  caseRoot=envDict['PP_CASE_PATH'], 
                  reset_modules=machine['reset_modules'], 
                  modules=machine['modules'], 
-                 queue=machine['conform_queue'.format(comp)], 
-                 ppn=machine['conform_ppn'.format(comp)], 
-                 nodes=machine['conform_nodes'.format(comp)], 
-                 wallclock=machine['conform_wallclock'.format(comp)], 
+                 queue=machine['conform_queue'], 
+                 ppn=machine['conform_ppn'], 
+                 nodes=machine['conform_nodes'], 
+                 wallclock=machine['conform_wallclock'], 
+                 memory=machine['conform_memory'],
                  options=options, standalone=standalone)
 
     # generate the iconform batch submit script from template files
@@ -719,6 +743,7 @@ def main(options):
                  ppn=machine['conform_ppn'],
                  nodes=machine['conform_nodes'],
                  wallclock=machine['conform_wallclock'],
+                 memory=machine['conform_memory'],
                  options=options, standalone=standalone)
 
     # generate the diagnostics batch submit scripts from template files
@@ -742,6 +767,7 @@ def main(options):
                      ppn=machine['{0}_averages_ppn'.format(comp)], 
                      nodes=machine['{0}_averages_nodes'.format(comp)], 
                      wallclock=machine['{0}_averages_wallclock'.format(comp)], 
+                     memory=machine['{0}_averages_memory'.format(comp)], 
                      options=options, standalone=standalone)
 
         # generate the diagnostics batch submit script
@@ -763,6 +789,7 @@ def main(options):
                      ppn=machine['{0}_diagnostics_ppn'.format(comp)], 
                      nodes=machine['{0}_diagnostics_nodes'.format(comp)], 
                      wallclock=machine['{0}_diagnostics_wallclock'.format(comp)], 
+                     memory=machine['{0}_diagnostics_memory'.format(comp)], 
                      options=options, standalone=standalone)
 
     # generate the regrid batch submit scripts from template files
@@ -785,7 +812,8 @@ def main(options):
                      queue=machine['{0}_regrid_queue'.format(comp)], 
                      ppn=machine['{0}_regrid_ppn'.format(comp)], 
                      nodes=machine['{0}_regrid_nodes'.format(comp)],
-                     wallclock=machine['{0}_regrid_wallclock'.format(comp)], 
+                     wallclock=machine['{0}_regrid_wallclock'.format(comp)],
+                     memory=machine['{0}_regrid_memory'.format(comp)],  
                      options=options, standalone=standalone)
 
     # generate the ILAMB and IOMB batch submit scripts from template files
@@ -809,6 +837,7 @@ def main(options):
                      ppn=machine['{0}_initialize_ppn'.format(imb)],
                      nodes=machine['{0}_initialize_nodes'.format(imb)],
                      wallclock=machine['{0}_initialize_wallclock'.format(imb)],
+                     memory=machine['{0}_initialize_memory'.format(imb)],
                      options=options, standalone=standalone, imb_name=imb)
 
         # NOTE(bja, 2017-10) the imb_diagnostics file created here is
@@ -838,6 +867,7 @@ def main(options):
                      ppn=machine['{0}_diagnostics_ppn'.format(imb)],
                      nodes=machine['{0}_diagnostics_nodes'.format(imb)],
                      wallclock=machine['{0}_diagnostics_wallclock'.format(imb)],
+                     memory=machine['{0}_diagnostics_memory'.format(imb)],
                      options=options, standalone=standalone,
                      imb_name=imb,
                      imb_run='{{ imb_exe }}',
@@ -878,6 +908,7 @@ def main(options):
                      ppn=machine['timeseries_ppn'],
                      nodes=machine['timeseries_nodes'],
                      wallclock=machine['timeseries_wallclock'],
+                     memory=machine['timeseries_memory'],
                      options=options, standalone=standalone)
 
         # generate the xconform batch submit script from template files
@@ -900,6 +931,7 @@ def main(options):
                      ppn=machine['conform_ppn'],
                      nodes=machine['conform_nodes'],
                      wallclock=machine['conform_wallclock'],
+                     memory=machine['conform_memory'],
                      options=options, standalone=standalone)
 
         # generate the iconform batch submit script from template files
@@ -922,6 +954,7 @@ def main(options):
                      ppn=machine['conform_ppn'],
                      nodes=machine['conform_nodes'],
                      wallclock=machine['conform_wallclock'],
+                     memory=machine['conform_memory'],
                      options=options, standalone=standalone)
 
         # generate the diagnostics batch submit scripts from template files
@@ -945,6 +978,7 @@ def main(options):
                          ppn=machine['{0}_averages_ppn'.format(comp)], 
                          nodes=machine['{0}_averages_nodes'.format(comp)], 
                          wallclock=machine['{0}_averages_wallclock'.format(comp)], 
+                         memory=machine['{0}_averages_memory'.format(comp)], 
                          options=options, standalone=standalone)
 
             # generate the diagnostics batch submit script
@@ -966,6 +1000,7 @@ def main(options):
                          ppn=machine['{0}_diagnostics_ppn'.format(comp)], 
                          nodes=machine['{0}_diagnostics_nodes'.format(comp)], 
                          wallclock=machine['{0}_diagnostics_wallclock'.format(comp)], 
+                         memory=machine['{0}_diagnostics_memory'.format(comp)], 
                          options=options, standalone=standalone)
 
         # generate the regrid batch submit scripts from template files
@@ -989,6 +1024,7 @@ def main(options):
                          ppn=machine['{0}_regrid_ppn'.format(comp)], 
                          nodes=machine['{0}_regrid_nodes'.format(comp)],
                          wallclock=machine['{0}_regrid_wallclock'.format(comp)], 
+                         memory=machine['{0}_regrid_memory'.format(comp)],  
                          options=options, standalone=standalone)
 
         # generate the ILAMB and IOMB batch submit scripts from template files
@@ -1012,6 +1048,7 @@ def main(options):
                          ppn=machine['{0}_initialize_ppn'.format(imb)],
                          nodes=machine['{0}_initialize_nodes'.format(imb)],
                          wallclock=machine['{0}_initialize_wallclock'.format(imb)],
+                         memory=machine['{0}_initialize_memory'.format(imb)],
                          options=options, standalone=standalone, imb_name=imb)
             
             # NOTE(bja, 2017-10) the imb_diagnostics file created here is
@@ -1041,6 +1078,7 @@ def main(options):
                          ppn=machine['{0}_diagnostics_ppn'.format(imb)],
                          nodes=machine['{0}_diagnostics_nodes'.format(imb)],
                          wallclock=machine['{0}_diagnostics_wallclock'.format(imb)],
+                         memory=machine['{0}_diagnostics_memory'.format(imb)],
                          options=options, standalone=standalone,
                          imb_name=imb,
                          imb_run='{{ imb_exe }}',

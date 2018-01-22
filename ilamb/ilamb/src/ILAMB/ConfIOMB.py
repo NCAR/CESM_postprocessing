@@ -183,6 +183,21 @@ class ConfIOMB(Confrontation):
         if layered:
             obsout += [o2,o3,o4]
             modout += [m2,m3,m4,sp]
+
+        # Unit conversions
+        def _convert(var,unit):
+            if type(var) == type({}):
+                for key in var.keys(): var[key].convert(unit)
+            else:
+                var.convert(unit)
+        table_unit = self.keywords.get("table_unit",None)
+        plot_unit  = self.keywords.get("plot_unit" ,None)
+        if table_unit is not None:
+            for var in [op,mp,mb,mr]:
+                _convert(var,table_unit)
+        if plot_unit is not None:
+            for var in [o1,m1,d1,r1,o2,m2,o3,m3,o4,m4]:
+                _convert(var,plot_unit)
                 
         # Dump to files
         def _write(out_vars,results):
