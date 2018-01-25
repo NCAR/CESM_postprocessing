@@ -18,19 +18,32 @@ if [ ! -e {{ virtualEnvDir }} ]; then
     exit
 fi
 
+## NOTE: the module load order and when the python virtualenv is activated is IMPORTANT!
+##       Purging the modules first clears all environment variables that might have been set
+##       by the virtualenv activation. Consequently, in order to ensure a correct environment
+##       we must activate the virtualenv *after* the purge. 
+
+## First: purge and load the default system modules that the virtualenv was built with
+
 {% for module in reset_modules %}
 {{ module }}
 {% endfor %}
+
+## Second: activate the virtualenv that contains all the non-bootstrapped dependencies
 
 cd {{ virtualEnvDir }}
 pwd
 . activate
 
+## Third: load the boot-strap modules 
+
 {% for module in modules %}
 {{ module }}
 {% endfor %}
 
+
 {% if pythonpath|length > 0 %}
+## The PYTHONPATH setting here is for libraries that are not available via modules.
 PYTHONPATH={{ pythonpath }}:$PYTHONPATH
 export PYTHONPATH
 {% endif %}
