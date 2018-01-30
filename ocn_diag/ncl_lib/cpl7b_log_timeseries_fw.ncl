@@ -23,7 +23,7 @@ begin
   wks = gsn_open_wks(img_format,fname)
   gsn_define_colormap(wks,"table42")
   
-  units = "W/m~S~2~N~"
+  units = "10~S~-6~N~ kg/s/m~S~2~N~"
   res = True
   res@tiMainFontHeightF = 0.022
   res@tiMainOffsetYF = -0.015
