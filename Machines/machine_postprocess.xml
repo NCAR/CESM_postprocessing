@@ -3,9 +3,8 @@
 <machine_postprocess>
 
   <machine name="geyser" hostname="geyser">
-    <!-- restricting to geyser for CMIP6 and problem with scaling of the chunking -->
-    <timeseries_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="04:00:00" memory="1000G">16</timeseries_pes>
-    <xconform_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="06:00:00" memory="1000G">16</xconform_pes>
+    <timeseries_pes queue="geyser" nodes="4" pes_per_node="16" wallclock="04:00:00" memory="100G">64</timeseries_pes>
+    <xconform_pes queue="geyser" nodes="4" pes_per_node="16" wallclock="06:00:00" memory="100G">64</xconform_pes>
     <mpi_command>mpiexec</mpi_command>
     <pythonpath>/glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/lib/python2.7/site-packages</pythonpath>
     <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
@@ -21,6 +20,10 @@
     </reset_modules>
     <modules>
       <module>module load gnu/6.1.0</module>
+      <module>module load ncarenv</module>
+      <module>module load ncarbinlibs</module>
+      <module>module load ncarcompilers</module>
+      <module>module load slurm/17</module>
       <module>module load openmpi-slurm/3.0.0</module>
       <module>module load numpy/1.11.0</module>
       <module>module load scipy/0.18.1</module>
@@ -36,25 +39,25 @@
     </modules>
     <components>
       <component name="atm">
-	<averages_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="1000G">16</averages_pes>
-	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="1000G">16</diagnostics_pes>
+	<averages_pes queue="geyser" nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
+	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="100G">16</diagnostics_pes>
 	<regrid_pes queue="geyser" nodes="1" pes_per_node="6" wallclock="02:00:00" memory="100G">6</regrid_pes>
 	<obs_root>/glade/p/cesm/amwg/amwg_data</obs_root>
       </component>
       <component name="ice">
-	<averages_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="1000G">16</averages_pes>
-	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="4" wallclock="01:00:00" memory="400G">4</diagnostics_pes>
+	<averages_pes queue="geyser" nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
+	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="4" wallclock="01:00:00" memory="100G">4</diagnostics_pes>
 	<obs_root>/glade/p/cesm/pcwg/ice/data</obs_root>
       </component>
       <component name="lnd">
-	<averages_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="1000G">16</averages_pes>
- 	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="12" wallclock="02:00:00" memory="800G">12</diagnostics_pes>
-	<regrid_pes queue="geyser" nodes="1" pes_per_node="6" wallclock="02:00:00" memory="600G">6</regrid_pes>
+	<averages_pes queue="geyser" nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
+ 	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="12" wallclock="02:00:00" memory="100G">12</diagnostics_pes>
+	<regrid_pes queue="geyser" nodes="1" pes_per_node="6" wallclock="02:00:00" memory="100G">6</regrid_pes>
 	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
       </component>
       <component name="ocn">
-	<averages_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="1000G">16</averages_pes>
-	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="1000G">16</diagnostics_pes>
+	<averages_pes queue="geyser" nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
+	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="100G">16</diagnostics_pes>
 	<obs_root>/glade/p/cesm/</obs_root>
       </component>
       <component name="ilamb">
@@ -128,13 +131,13 @@
 	<obs_root>/glade/p/cesm/</obs_root>
       </component>
       <component name="ilamb">
-	<diagnostics_pes queue="regular" nodes="1" pes_per_node="36" wallclock="01:00">36</diagnostics_pes>
-	<initialize_pes queue="share" nodes="1" pes_per_node="36" wallclock="00:10">1</initialize_pes>
+	<diagnostics_pes queue="regular" nodes="1" pes_per_node="36" wallclock="00:30:00">36</diagnostics_pes>
+	<initialize_pes queue="share" nodes="1" pes_per_node="1" wallclock="00:01:00">1</initialize_pes>
 	<obs_root>/glade/p/cesm/lmwg_dev/oleson/ILAMB/ILAMB_all</obs_root>
       </component>
       <component name="iomb">
-	<diagnostics_pes queue="regular" nodes="1" pes_per_node="36" wallclock="01:00">36</diagnostics_pes>
-	<initialize_pes queue="share" nodes="1" pes_per_node="36" wallclock="00:10">1</initialize_pes>
+	<diagnostics_pes queue="regular" nodes="1" pes_per_node="36" wallclock="00:30:00">36</diagnostics_pes>
+	<initialize_pes queue="share" nodes="1" pes_per_node="1" wallclock="00:01:00">1</initialize_pes>
 	<obs_root>/glade/p/cesm/omwg/obs_data/IOMB</obs_root>
       </component>
     </components>
