@@ -3,16 +3,17 @@
 echo "Python boot-strap modules for machine geyser"
 . /glade/apps/opt/lmod/lmod/init/bash
 
-module unload all-python-libs
-
 module load python/2.7.7
+module load gnu/6.1.0
+module load ncarenv
+module load ncarbinlibs
+module load ncarcompilers
 module load numpy/1.11.0
 module load scipy/0.18.1
 module load mpi4py/2.0.0
 module load pynio/1.4.1
 module load pyside/1.1.2
 module load matplotlib/1.5.1
-module load gnu/6.1.0
 module load netcdf/4.3.0
 module load nco/4.4.4
 module load ncl/6.4.0
