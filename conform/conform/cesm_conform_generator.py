@@ -37,6 +37,8 @@ import fnmatch
 import subprocess
 import netCDF4 as nc
 from collections import OrderedDict
+from imp import load_source
+from warnings import simplefilter
 
 from cesm_utils import cesmEnvLib
 
@@ -44,6 +46,7 @@ from json import load as json_load
 from pyconform.datasets import InputDatasetDesc, OutputDatasetDesc
 from pyconform.dataflow import DataFlow
 from pyconform.flownodes import ValidationWarning
+from pyconform.physarray import UnitsError
 
 #import modules.commonfunctions
 #import modules.pnglfunctions
@@ -51,6 +54,9 @@ from pyconform.flownodes import ValidationWarning
 
 # import the MPI related module
 from asaptools import partition, simplecomm, vprinter
+
+external_mods = ['commonfunctions.py', 'pnglfunctions.py']
+
 
 cesmModels = {"atmos":     "cam", 
               "land":      "clm2",
@@ -111,6 +117,9 @@ def commandline_options():
 
     parser.add_argument('--caseroot', nargs=1, required=True,
                         help='fully quailfied path to case root directory')
+
+#    parser.add_argument('--ind', nargs=1, required=False, default=False,
+#                        help='have the input json specification files been divided up with only one output variable per file, True or False')
 
     options = parser.parse_args()
 
@@ -184,7 +193,8 @@ def find_nc_files(root_dir):
            #if 'hist' in root:
            #    if fn.split('.')[:-2] not in streams:
            #streams.append(fn.split('.')[:-2])
-           nc_files.append(os.path.join(root, fn))
+           if 'tseries' in root:
+               nc_files.append(os.path.join(root, fn))
     return nc_files
 
 def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
@@ -382,7 +392,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, grid_files):
     return spec_streams
 
 
-def divide_comm(scomm, l_spec):
+def divide_comm(scomm, l_spec, ind):
 
     '''
     Divide the communicator into subcommunicators, leaving rank one to hand out reshaper jobs to run.
@@ -397,18 +407,21 @@ def divide_comm(scomm, l_spec):
     inter_comm(simplecomm) - this rank's subcommunicator it belongs to
     num_of_groups(int) - the total number of subcommunicators
     '''
-    min_procs_per_spec = 16
     size = scomm.get_size()
-    if size < min_procs_per_spec:
-        min_procs_per_spec = size
     rank = scomm.get_rank()
-
-    if l_spec == 1:
-        num_of_groups = 1
+    if 'True' in ind:
+        num_of_groups = size
     else:
-        num_of_groups = size/min_procs_per_spec
-    if l_spec < num_of_groups:
-        num_of_groups = l_spec
+        min_procs_per_spec = 16
+        if size < min_procs_per_spec:
+            min_procs_per_spec = size
+
+        if l_spec == 1:
+            num_of_groups = 1
+        else:
+            num_of_groups = size/min_procs_per_spec
+        if l_spec < num_of_groups:
+            num_of_groups = l_spec
 
 
     # the global master needs to be in its own subcommunicator
@@ -443,18 +456,31 @@ def run_PyConform(spec, file_glob, comm):
     # load spec json file
     dsdict = json_load(open(spec_fn,'r'), object_pairs_hook=OrderedDict)
 
-    # Parse the output dataset
-    outds = OutputDatasetDesc(dsdict=dsdict)
+    try:
+        # Parse the output dataset
+        outds = OutputDatasetDesc(dsdict=dsdict)
 
-    # Parse the input dataset
-    inpds = InputDatasetDesc(filenames=infiles)
+        # Parse the input dataset
+        inpds = InputDatasetDesc(filenames=infiles)
 
-    # Setup the PyConform data flow
-    dataflow = DataFlow(inpds, outds)
+        # Setup the PyConform data flow
+        dataflow = DataFlow(inpds, outds)
 
-    # Execute
-    dataflow.execute(serial=False, scomm=comm) 
+        # Execute
+        dataflow.execute(serial=True, scomm=comm) 
 
+    except UnitsError as e:
+        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+    except IndexError as e:
+        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+    except ValueError as e:
+        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+    except KeyError as e:
+        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+    except IOError as e:
+        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+    except NameError as e:
+        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
 #======
 # main
 #======
@@ -471,9 +497,22 @@ def main(options, scomm, rank, size):
     # set the debug level 
     debug = options.debug[0]
 
+    # is there only one mip definition in each file?
+    ind = "True" 
+
     # get the XML variables loaded into a hash
     env_file_list = ['env_postprocess.xml','env_conform.xml']
     cesmEnv = cesmEnvLib.readXML(caseroot, env_file_list);
+
+    # We want to have warnings and not errors (at least for the first sets of cmip simulations)
+    simplefilter("default", ValidationWarning)
+
+    # Get the extra modules pyconform needs
+    pp_path = cesmEnv["POSTPROCESS_PATH"]
+    conform_module_path = pp_path+'/conformer/conformer/source/pyconform/modules/'
+    for i, m in enumerate(external_mods):
+        load_source('user{}'.format(i), conform_module_path+"/"+m)
+
     # create the cesm stream to table mapping
 #    if rank == 0:
     dout_s_root = cesmEnv['DOUT_S_ROOT']
@@ -500,7 +539,7 @@ def main(options, scomm, rank, size):
     if len(mappings.keys()) > 0:
         # setup subcommunicators to do streams and chunks in parallel
         # everyone participates except for root
-        inter_comm, lsubcomms = divide_comm(scomm, len(mappings.keys()))
+        inter_comm, lsubcomms = divide_comm(scomm, len(mappings.keys()), ind)
         color = inter_comm.get_color()
         lsize = inter_comm.get_size()
         lrank = inter_comm.get_rank()

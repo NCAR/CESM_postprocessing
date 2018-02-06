@@ -93,7 +93,7 @@ def run_initialization(caseroot, debug):
     extra_field_json = envDict['CONFORM_EXTRA_FIELD_JSON']
 
     try:
-        pipe = subprocess.Popen(['iconform -g {0} -d {1} -tt xml -e {2} -p {3} -o {4}'.format(
+        pipe = subprocess.Popen(['iconform -g {0} -d {1} -tt xml -e {2} -p {3} -o {4} -to True'.format(
             global_attributes, definitions, exp_name, output_dir, json_dir)], env=envDict, shell=True, stdout=subprocess.PIPE)
         output = pipe.communicate()[0]
         print('iconform:  {0}'.format(output))

@@ -284,8 +284,7 @@ class PhysArray(numpy.ma.MaskedArray):
             new_dims = tuple(self.dimensions[i] for i in dims)
             axes = dims
         else:
-            raise DimensionsError(('Cannot transpose dimensions/axes {} to '
-                                   '{}').format(self.dimensions, dims))
+            raise DimensionsError(('Cannot transpose dimensions/axes {} to {}').format(self.dimensions, dims))
         if new_dims == self.dimensions:
             return self
         else:

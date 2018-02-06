@@ -48,7 +48,8 @@ class DataFlowTests(unittest.TestCase):
                                    ('time', {'units': 'days since 1979-01-01 0:0:0',
                                              'calendar': 'noleap',
                                              'standard_name': 'time'}),
-                                   ('time_bnds', {'units': 'days since 1979-01-01 0:0:0'}),
+                                   ('time_bnds', {'units': 'days since 1979-01-01 0:0:0',
+                                                  'calendar': 'noleap'}),
                                    ('cat', {'standard_name': 'categories'}),
                                    ('u1', {'units': 'km',
                                            'standard_name': 'u variable 1'}),
@@ -157,7 +158,10 @@ class DataFlowTests(unittest.TestCase):
         vdicts['T_bnds']['datatype'] = 'double'
         vdicts['T_bnds']['dimensions'] = ('t', 'd')
         vdicts['T_bnds']['definition'] = 'time_bnds'
-        vdicts['T_bnds']['attributes'] = OrderedDict()
+        vattribs = OrderedDict()
+        vattribs['units'] = 'days since 0001-01-01 00:00:00'
+        vattribs['calendar'] = 'noleap'
+        vdicts['T_bnds']['attributes'] = vattribs
 
         vdicts['V1'] = OrderedDict()
         vdicts['V1']['datatype'] = 'double'
@@ -320,7 +324,7 @@ class DataFlowTests(unittest.TestCase):
     def test_execute_all(self):
         testname = 'DataFlow().execute()'
         df = dataflow.DataFlow(self.inpds, self.outds)
-        df.execute()
+        df.execute(history=True)
         actual = all(exists(f) for f in self.outfiles.itervalues())
         expected = True
         print_test_message(testname, actual=actual, expected=expected)

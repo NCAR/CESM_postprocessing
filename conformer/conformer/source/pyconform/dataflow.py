@@ -81,16 +81,16 @@ class DataFlow(object):
         defnodes = self._create_map_nodes_(defnodes, definfos)
 
         # Create the validate nodes for each valid output variable
-        valnodes = self._create_validate_nodes_(datnodes, defnodes)
+        self._valnodes = self._create_validate_nodes_(datnodes, defnodes)
         
         # Get the set of all sum-like dimensions (dimensions that cannot be broken into chunks)
-        self._sumlike_dimensions = self._find_sumlike_dimensions_(valnodes)
+        self._sumlike_dimensions = self._find_sumlike_dimensions_()
 
         # Create the WriteNodes for each time-series output file
-        self._writenodes = self._create_write_nodes_(valnodes)
+        self._writenodes = self._create_write_nodes_()
 
         # Compute the bytesizes of each output variable
-        varsizes = self._compute_variable_sizes_(valnodes)
+        varsizes = self._compute_variable_sizes_()
 
         # Compute the file sizes for each output file
         self._filesizes = self._compute_file_sizes(varsizes)
@@ -226,8 +226,7 @@ class DataFlow(object):
             vnode = datnodes[vname] if vname in datnodes else defnodes[vname]
 
             try:
-                validnode = ValidateNode(vname, vnode, dimensions=vdesc.dimensions.keys(),
-                                         attributes=vdesc.attributes, dtype=vdesc.dtype)
+                validnode = ValidateNode(vdesc, vnode)
             except Exception, err:
                 vdef = vdesc.definition
                 err_msg = 'Failure in variable {!r} with definition {!r}: {}'.format(vname, vdef, str(err))
@@ -236,10 +235,10 @@ class DataFlow(object):
             valnodes[vname] = validnode
         return valnodes
     
-    def _find_sumlike_dimensions_(self, valnodes):
+    def _find_sumlike_dimensions_(self):
         unmapped_sumlike_dimensions = set()
-        for vname in valnodes:
-            vnode = valnodes[vname]
+        for vname in self._valnodes:
+            vnode = self._valnodes[vname]
             for nd in iter_dfs(vnode):
                 if isinstance(nd, EvalNode):
                     unmapped_sumlike_dimensions.update(nd.sumlike_dimensions)
@@ -247,23 +246,23 @@ class DataFlow(object):
         # Map the sum-like dimensions to output dimensions
         return set(self._i2omap[d] for d in unmapped_sumlike_dimensions if d in self._i2omap)
 
-    def _create_write_nodes_(self, valnodes):
+    def _create_write_nodes_(self):
         writenodes = {}
         for fname in self._ods.files:
             fdesc = self._ods.files[fname]
-            vmissing = tuple(vname for vname in fdesc.variables if vname not in valnodes)
+            vmissing = tuple(vname for vname in fdesc.variables if vname not in self._valnodes)
             if vmissing:
                 warn('Skipping output file {} due to missing required variables: '
                      '{}'.format(fname, ', '.join(sorted(vmissing))), DefinitionWarning)
             else:
-                vnodes = tuple(valnodes[vname] for vname in fdesc.variables)
+                vnodes = tuple(self._valnodes[vname] for vname in fdesc.variables)
                 wnode = WriteNode(fdesc, inputs=vnodes)
                 writenodes[wnode.label] = wnode
         return writenodes
 
-    def _compute_variable_sizes_(self, valnodes):
+    def _compute_variable_sizes_(self):
         bytesizes = {}
-        for vname in valnodes:
+        for vname in self._valnodes:
             vdesc = self._ods.variables[vname]
             vsize = sum(ddesc.size for ddesc in vdesc.dimensions.itervalues())
             vsize = 1 if vsize == 0 else vsize
