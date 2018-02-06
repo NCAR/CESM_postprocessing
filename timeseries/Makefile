@@ -1,4 +1,4 @@
-all : develop
+all : install
 
 test : FORCE
 	python -m unittest discover --start-directory test
