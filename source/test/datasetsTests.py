@@ -235,7 +235,7 @@ class VariableDescTests(unittest.TestCase):
     def test_datatype_default(self):
         vdesc = VariableDesc('x')
         actual = vdesc.datatype
-        expected = 'float'
+        expected = None
         print_test_message('VariableDesc.datatype == float', actual=actual, expected=expected)
         self.assertEqual(actual, expected, 'Default VariableDesc.datatype is not float')
 
@@ -348,7 +348,7 @@ class VariableDescTests(unittest.TestCase):
     def test_units_default(self):
         vdesc = VariableDesc('x')
         actual = vdesc.units()
-        expected = Unit('no unit')
+        expected = None
         print_test_message('VariableDesc.units() == nounit', actual=actual, expected=expected)
         self.assertEqual(actual, expected, 'Default VariableDesc.units() not None')
 
@@ -359,6 +359,21 @@ class VariableDescTests(unittest.TestCase):
         expected = indata
         print_test_message('VariableDesc.units()', indata=indata, actual=actual, expected=expected)
         self.assertEqual(actual, expected, 'Default VariableDesc.units() not {}'.format(indata))
+
+    def test_refdatetime_default(self):
+        vdesc = VariableDesc('x')
+        actual = vdesc.refdatetime()
+        expected = None
+        print_test_message('VariableDesc.refdatetime() == None', actual=actual, expected=expected)
+        self.assertEqual(actual, expected, 'Default VariableDesc.refdatetime() not None')
+
+    def test_refdatetime(self):
+        indata = '0001-01-01 00:00:00 -05:00'
+        vdesc = VariableDesc('x', attributes={'units': 'days since {}'.format(indata)})
+        actual = vdesc.refdatetime()
+        expected = indata
+        print_test_message('VariableDesc.refdatetime()', indata=indata, actual=actual, expected=expected)
+        self.assertEqual(actual, expected, 'Default VariableDesc.refdatetime() not {}'.format(indata))
 
     def test_calendar_default(self):
         vdesc = VariableDesc('x')
@@ -379,7 +394,7 @@ class VariableDescTests(unittest.TestCase):
     def test_cfunits_default(self):
         vdesc = VariableDesc('time')
         actual = vdesc.cfunits()
-        expected = Unit('no unit')
+        expected = Unit('?')
         print_test_message('VariableDesc.cfunits() == None', actual=actual, expected=expected)
         self.assertEqual(actual, expected, 'Default VariableDesc.cfunits() not None')
 
@@ -536,7 +551,7 @@ class FileDescTests(unittest.TestCase):
         self.assertRaises(expected, FileDesc, 'test.nc', attributes=indata)
 
     def test_variables_scalar(self):
-        indata = [VariableDesc('a'), VariableDesc('b')]
+        indata = (VariableDesc('a'), VariableDesc('b'))
         fdesc = FileDesc('test.nc', variables=indata)
         actual = fdesc.variables
         expected = OrderedDict((d.name, d) for d in indata)
@@ -548,8 +563,8 @@ class FileDescTests(unittest.TestCase):
         self.assertEqual(actual, expected, 'FileDesc.dimensions failed')
 
     def test_variables_same_dims(self):
-        indata = [VariableDesc('a', dimensions=[DimensionDesc('x', 4)]),
-                  VariableDesc('b', dimensions=[DimensionDesc('x', 4)])]
+        indata = (VariableDesc('a', dimensions=[DimensionDesc('x', 4)]),
+                  VariableDesc('b', dimensions=[DimensionDesc('x', 4)]))
         fdesc = FileDesc('test.nc', variables=indata)
         actual = fdesc.variables
         expected = OrderedDict((d.name, d) for d in indata)
@@ -640,6 +655,7 @@ class DatasetDescTests(unittest.TestCase):
         vdicts['X']['dimensions'] = ('x',)
         vdicts['X']['definition'] = 'lon'
         vattribs = OrderedDict()
+        vattribs['axis'] = 'X'
         vattribs['standard_name'] = 'longitude'
         vattribs['units'] = 'degrees_east'
         vdicts['X']['attributes'] = vattribs
@@ -649,6 +665,7 @@ class DatasetDescTests(unittest.TestCase):
         vdicts['Y']['dimensions'] = ('y',)
         vdicts['Y']['definition'] = 'lat'
         vattribs = OrderedDict()
+        vattribs['axis'] = 'Y'
         vattribs['standard_name'] = 'latitude'
         vattribs['units'] = 'degrees_north'
         vdicts['Y']['attributes'] = vattribs
@@ -659,7 +676,8 @@ class DatasetDescTests(unittest.TestCase):
         vdicts['T']['definition'] = 'time'
         vattribs = OrderedDict()
         vattribs['standard_name'] = 'time'
-        vattribs['units'] = 'days since 01-01-0001 00:00:00'
+        vattribs['axis'] = 'T'
+        vattribs['units'] = 'days since 0001-01-01 00:00:00'
         vattribs['calendar'] = 'noleap'
         vdicts['T']['attributes'] = vattribs
 

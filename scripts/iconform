@@ -58,6 +58,8 @@ def parseArgs(argv = None):
                         help='Output pathname for the output specification file(s).')
     parser.add_argument('-p', '--outdir', default=os.getcwd(), type=str,
                         help='Output pathname for the conformer output files(s). This will be appended to each output file.')
+    parser.add_argument('-to', '--testoutput', default=False, type=bool,
+                        help='Create test output for xconform.')
 
     return parser.parse_args(argv)
 
@@ -127,17 +129,18 @@ def fill_missing_glob_attributes(attr, table, v, grids):
                 attr["tracking_id"] = "hdl:21.14100/"+str(uuid.uuid4())
             elif "variable_id" in a and "variable_id" in v.keys():
                 attr["variable_id"] = v["variable_id"]
-    if "none" not in attr["branch_method"]:
-        #if "branch_time_in_child" in attr.keys():
-        #    attr["branch_time_in_child"] = "Get correct date format"
-        #if "branch_time_in_parent" in attr.keys():
-        #    attr["branch_time_in_parent"] = "Get correct date format"
-        if "parent_mip_era" in attr.keys():
-            attr["parent_mip_era"] = attr["mip_era"]
-        if "parent_source_id" in attr.keys():
-            attr["parent_source_id"] = attr["source_id"]
-        if "parent_time_units" in attr.keys():
-            attr["parent_time_units"] = "days since 0000-01-01 00:00:00"
+    if "branch_method" in attr.keys():
+        if "none" not in attr["branch_method"]:
+            #if "branch_time_in_child" in attr.keys():
+            #    attr["branch_time_in_child"] = "Get correct date format"
+            #if "branch_time_in_parent" in attr.keys():
+            #    attr["branch_time_in_parent"] = "Get correct date format"
+            if "parent_mip_era" in attr.keys():
+                attr["parent_mip_era"] = attr["mip_era"]
+            if "parent_source_id" in attr.keys():
+                attr["parent_source_id"] = attr["source_id"]
+            if "parent_time_units" in attr.keys():
+                attr["parent_time_units"] = "days since 0000-01-01 00:00:00"
     else:
         if "branch_time_in_child" in attr.keys():
             attr["branch_time_in_child"] = "none"
@@ -162,14 +165,32 @@ def fill_missing_glob_attributes(attr, table, v, grids):
 
     if "further_info_url" in attr.keys():
         if "__FILL__" in attr["further_info_url"]:       
+            if 'mip_era' in attr.keys():
                 mip_era = attr['mip_era']
+            else:
+                mip_era = ''
+            if 'institution_id' in attr.keys():
                 institution_id = attr['institution_id']
+            else:
+                institution_id = ''
+            if 'source_id' in attr.keys():
                 source_id = attr['source_id']
+            else:
+                source_id = ''
+            if 'experiment_id' in attr.keys():
                 experiment_id = attr['experiment_id']
+            else:
+                experiment_id = ''
+            if 'sub_experiment_id' in attr.keys():
                 sub_experiment_id = attr['sub_experiment_id']
+            else:
+                sub_experiment_id = ''
+            if 'variant_label' in attr.keys():
                 ripf = attr["variant_label"]
-                info_url = "{0}.{1}.{2}.{3}.{4}.{5}".format(mip_era, institution_id, source_id, experiment_id, sub_experiment_id, ripf)
-                attr['further_info_url'] = "http://furtherinfo.es-doc.org/" + info_url
+            else:
+                ripf = ''
+            info_url = "{0}.{1}.{2}.{3}.{4}.{5}".format(mip_era, institution_id, source_id, experiment_id, sub_experiment_id, ripf)
+            attr['further_info_url'] = "http://furtherinfo.es-doc.org/" + info_url
     if "grid" in attr.keys():
         if len(attr["realm"])>0:
             attr["grid"] = grids[attr["realm"].split()[0]]
@@ -211,12 +232,30 @@ def defineVar(v, varName, attr, table_info, definition, experiment, out_dir):
     else:
         ripf = ''
 
-    mip_era = attributes['mip_era']
-    activity_id = attributes['activity_id']
-    institution_id = attributes['institution_id']
-    source_id = attributes['source_id']
-    grid = attributes['grid_label']
-    sub_experiment_id = attributes['sub_experiment_id']
+    if 'mip_era' in attributes.keys():
+        mip_era = attributes['mip_era']
+    else:
+        mip_era = ''
+    if 'activity_id' in attributes.keys():
+        activity_id = attributes['activity_id']
+    else:
+        activity_id = ''
+    if 'institution_id' in attributes.keys():
+        institution_id = attributes['institution_id']
+    else:
+        institution_id = ''
+    if 'source_id' in attributes.keys():
+        source_id = attributes['source_id']
+    else:
+        source_id = ''
+    if 'grid_labels' in attributes.keys():
+        grid = attributes['grid_label']
+    else:
+        grid = ''
+    if 'sub_experiment_id' in attributes.keys():
+        sub_experiment_id = attributes['sub_experiment_id']
+    else:
+        sub_experiment_id = ''
 
     f_format = attributes["netcdf_type"]
     valid_formats = ['NETCDF4','NETCDF4_CLASSIC','NETCDF3_CLASSIC','NETCDF3_64BIT_OFFSET','NETCDF3_64BIT_DATA']
@@ -343,7 +382,7 @@ def getUserVars(fn):
 #===================================================================================================
 # create_output
 #===================================================================================================
-def create_output(exp_dict, definitions, attributes, output_path, args, experiment, out_dir):
+def create_output(exp_dict, definitions, attributes, output_path, args, experiment, out_dir, testoutput):
 
     # create the output json files
 
@@ -417,12 +456,22 @@ def create_output(exp_dict, definitions, attributes, output_path, args, experime
     # create json files per MIP+table
     if not os.path.exists(output_path):
         os.makedirs(output_path)
-    for n,t in TableSpec.iteritems():
-        spec = {}
-        f = output_path + experiment + '_' + n + '_spec.json'
-        spec["variables"] = t
-        with open(f, 'w') as outfile:
-            json.dump(t, outfile, sort_keys=True, indent=4)
+
+    if not testoutput:
+        for n,t in TableSpec.iteritems():
+            f = output_path + "/" + experiment + '_' + n + '_spec.json'
+            with open(f, 'w') as outfile:
+                json.dump(t, outfile, sort_keys=True, indent=4)
+    else:
+        for n,t in TableSpec.iteritems():
+            for vn,var in t.iteritems():
+                varD={}
+                varD[vn]=var
+                for d in var["dimensions"]:
+                    varD[d]=t[d]
+                f = output_path + "/" + experiment + '_' + n + '_' + vn + '_spec.json'
+                with open(f, 'w') as outfile:
+                    json.dump(varD, outfile, sort_keys=True, indent=4)
 
     #f1 = output_path + '/MISSING_DEFS.json'
     #with open(f1, 'w') as outfile:
@@ -554,7 +603,7 @@ def main(argv=None):
 
             if len(exp_dict.keys())>0:
                 # Write the spec files out to disk
-                create_output(exp_dict, definitions, attributes, args.outputpath, args, exp, args.outdir)
+                create_output(exp_dict, definitions, attributes, args.outputpath, args, exp, args.outdir, args.testoutput)
 
 
 #===================================================================================================
