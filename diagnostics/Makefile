@@ -1,4 +1,4 @@
-all : install
+all : develop
 
 test : FORCE
 	xmllint --schema 
