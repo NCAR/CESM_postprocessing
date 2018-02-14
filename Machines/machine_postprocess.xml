@@ -74,7 +74,7 @@
   </machine>
 
   <machine name="cheyenne" hostname="cheyenne">
-    <timeseries_pes queue="regular" nodes="4" pes_per_node="18" wapllclock="00:30:00">72</timeseries_pes>
+    <timeseries_pes queue="regular" nodes="4" pes_per_node="18" wallclock="00:30:00">72</timeseries_pes>
     <xconform_pes queue="regular" nodes="8" pes_per_node="4" wallclock="06:00:00">32</xconform_pes>
     <mpi_command>mpiexec_mpt dplace -s 1</mpi_command>
     <pythonpath></pythonpath>
