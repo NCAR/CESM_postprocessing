@@ -703,7 +703,7 @@ def time_concat(var,years,hist_dict,ave_info,file_dict,ave_type,simplecomm,all_f
                     timer.start("Recv Average Time")
                     r_rank,results = simplecomm.collect(tag=CONCAT_TAG)
                     r_rank,var_val = simplecomm.collect(tag=CONCAT_VAL_TAG)
-                    if results['dtype'] == 'S1':
+                    if results['dtype'] == 'S1' or results['dtype'] == 'c':
                         var_val = var_val[0]
                     ti = results['index']
                     var_n = results['name']
@@ -711,7 +711,7 @@ def time_concat(var,years,hist_dict,ave_info,file_dict,ave_type,simplecomm,all_f
                 else:
                     var_n = var
                     ti = time_index
-                    if var_val.dtype == 'S1':
+                    if var_val.dtype == 'S1' or var_val.dtype == 'c':
                         var_val = var_val[0]
                 timer.start("Write Netcdf Averages")
                 climFileIO.write_averages(all_files_vars, var_val, var_n, index=ti) 
