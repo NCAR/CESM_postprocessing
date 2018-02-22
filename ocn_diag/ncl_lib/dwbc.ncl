@@ -31,7 +31,8 @@ begin
   year1 = stringtointeger(year1str)
   psout = "DWBC"
 
-  if (gridres.eq."tx0.1v2_40lev".or.gridres.eq."tx0.1v2_62lev".or.gridres.eq."tx0.1v2") then 
+  if (gridres.eq."tx0.1v2_40lev".or.gridres.eq."tx0.1v2_62lev".or.gridres.eq."tx0.1v2" .or. \
+      gridres.eq."tx0.1v3_40lev".or.gridres.eq."tx0.1v3_62lev".or.gridres.eq."tx0.1v3" ) then
      ist = 605
      ien = 675
      jst = 1635
@@ -64,7 +65,8 @@ begin
 
   tlon = tlon-360.
 
-  if (gridres.eq."tx0.1v2".or.gridres.eq."tx0.1v2_62lev") then 
+  if (gridres.eq."tx0.1v2".or.gridres.eq."tx0.1v2_62lev" .or. \
+      gridres.eq."tx0.1v3".or.gridres.eq."tx0.1v3_62lev") then
      ulon = ulon
   end if
   if (gridres.eq."gx1v5".or.gridres.eq."gx1v6".or.gridres.eq."gx1v3".or.gridres.eq."gx1v7") then 
@@ -122,7 +124,7 @@ begin
   res@cnInfoLabelOn        = False              ; Turn off informational label
   res@cnLevelSelectionMode = "ExplicitLevels"
   res@cnLevels  = (/-18,-15,-12,-8,-6,-4,-2,-1,0,1,2,4,6,8,12,15,18/)
-  if (gridres.eq."tx0.1v2_62lev") then 
+  if (gridres.eq."tx0.1v2_62lev" .or. gridres.eq."tx0.1v3_62lev") then
     res@cnLevels  = (/-35,-25,-15,-12,-9,-6,-3,-1,0,1,3,6,9,12,15,25,35/)
   end if
   res@trYReverse           = True       ; reverses y-axis

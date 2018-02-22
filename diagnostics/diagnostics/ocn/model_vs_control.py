@@ -84,7 +84,7 @@ class modelVsControl(OceanDiagnostic):
         env['GRIDFILE'] = os.environ['gridfile']
 
         # check the resolution and decide if some plot modules should be turned off
-        if env['RESOLUTION'] == 'tx0.1v2' :
+        if (env['RESOLUTION'] == 'tx0.1v2' or env['RESOLUTION'] == 'tx0.1v3') :
             env['MVC_PM_VELISOPZ'] = os.environ['MVC_PM_VELISOPZ'] = 'FALSE'
             env['MVC_PM_KAPPAZ'] = os.environ['MVC_PM_KAPPAZ'] = 'FALSE'
 
@@ -112,7 +112,7 @@ class modelVsControl(OceanDiagnostic):
         env['GRIDFILECNTRL'] = os.environ['gridfilecntrl']
 
         # check the resolution and decide if some plot modules should be turned off
-        if env['CNTRLRESOLUTION'] == 'tx0.1v2' :
+        if (env['CNTRLRESOLUTION'] == 'tx0.1v2' or env['CNTRLRESOLUTION'] == 'tx0.1v3') :
             env['MVC_PM_VELISOPZ'] = os.environ['MVC_PM_VELISOPZ'] = 'FALSE'
             env['MVC_PM_KAPPAZ'] = os.environ['MVC_PM_KAPPAZ'] = 'FALSE'
 

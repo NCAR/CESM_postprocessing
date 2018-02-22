@@ -61,7 +61,7 @@ if ((resolution .eq. "gx1v6") .or. (resolution .eq. "gx1v7")) then
                  "evap", "meltw", "roff", "", \
                  "sen", "lwup", "lwdn", "melth", \
                  "", "snow" /)
-else if (resolution .eq. "tx0.1v2") then
+else if ( (resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3") ) then
   field_name = (/ "SHF", "SFWF", "PREC_F",  \
         	  "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
 		  "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
