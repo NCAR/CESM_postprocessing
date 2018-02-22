@@ -84,7 +84,7 @@ class modelVsObs(OceanDiagnostic):
         env['GRIDFILE'] = os.environ['gridfile']
 
         # check the resolution and decide if some plot modules should be turned off
-        if env['RESOLUTION'] == 'tx0.1v2' :
+        if (env['RESOLUTION'] == 'tx0.1v2' or env['RESOLUTION'] == 'tx0.1v3'):
             env['MVO_PM_VELISOPZ'] = os.environ['MVO_PM_VELISOPZ'] = 'FALSE'
             env['MVO_PM_KAPPAZ'] = os.environ['MVO_PM_KAPPAZ'] = 'FALSE'
 

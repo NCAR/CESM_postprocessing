@@ -7,7 +7,7 @@ load "$NCLPATH/curl_pop.ncl"
 begin
 print ( "resolution = " + resolution )
 
-if (resolution .eq. "tx0.1v2") then
+if ( (resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3") )then
   field_name  = (/ "SHF",    "MELTH_F", \
                   "SENH_F",  "LWUP_F",     "LWDN_F",  "EVAP_F",  \
                   "SFWF",    "PREC_F",  "MELT_F",  \
