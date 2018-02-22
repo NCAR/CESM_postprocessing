@@ -77,9 +77,9 @@ def commandline_options():
     return options
 
 
-#============================================================
-# buildOcnAvgList - build the list of averages to be computed
-#============================================================
+#====================================================================
+# buildOcnTseriesAvgList - build the list of averages to be computed
+#====================================================================
 def buildOcnTseriesAvgList(start_year, stop_year, avgFileBaseName, main_comm, debugMsg):
     """buildOcnTseriesAvgList - build the list of averages to be computed
     by the pyAverager for timeseries. Checks if the file exists or not already.
@@ -300,16 +300,29 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
     avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
     case_prefix = '{0}.pop.h'.format(case)
     averageList = []
+    avgList = []
 
     # create the list of averages to be computed by the pyAverager
     averageList = buildOcnAvgList(start_year, stop_year, tavgdir, main_comm, debugMsg)
 
     # if the averageList is empty, then all the climatology files exist with all variables
     if len(averageList) > 0:
-        # call the pyAverager with the inVarList
+
+        # call the pyAverager with the inVarList for tavg only - all variables
+        avgList.append('tavg:{0}:{1}'.format(start_year, stop_year))        
         if main_comm.is_manager():
-            debugMsg('Calling callPyAverager with averageList = {0}'.format(averageList), header=True, verbosity=1)
-        callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, diag_obs_root, 
+            debugMsg('Calling callPyAverager with averageList = {0}'.format(avgList), header=True, verbosity=1)
+        callPyAverager(in_dir, htype, tavgdir, case_prefix, avgList, inVarList, diag_obs_root, 
+                       netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
+        main_comm.sync()
+
+        # call the pyAverager with the just SALT and TEMP for mavg only
+        avgList = []
+        avgList.append('mavg:{0}:{1}'.format(start_year, stop_year))
+        inVarList = ['SALT', 'TEMP']
+        if main_comm.is_manager():
+            debugMsg('Calling callPyAverager with averageList = {0}'.format(avgList), header=True, verbosity=1)
+        callPyAverager(in_dir, htype, tavgdir, case_prefix, avgList, inVarList, diag_obs_root, 
                        netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
     main_comm.sync()
 
