@@ -78,7 +78,7 @@ class modelTimeseries(OceanDiagnostic):
         env['OBSROOT'] = env['OBSROOTPATH']
 
         # check the resolution and decide if some plot modules should be turned off
-        if env['RESOLUTION'] == 'tx0.1v2' :
+        if (env['RESOLUTION'] == 'tx0.1v2' or env['RESOLUTION'] == 'tx0.1v3') :
             env['MTS_PM_MOCANN'] = os.environ['PM_MOCANN'] = 'FALSE'
             env['MTS_PM_MOCMON'] = os.environ['PM_MOCMON'] = 'FALSE'
 
