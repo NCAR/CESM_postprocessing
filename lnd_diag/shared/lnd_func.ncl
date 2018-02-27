@@ -135,6 +135,27 @@ begin
     return(var)
   end if
 
+  if(var_name .eq. "CPL_ENERGY_BAL")then
+    latice = 3.337e5  ; latent heat of fusion (J/kg)
+    var  = ptr->FSR
+    var = var@_FillValue
+    if(isfilevar(ptr,"FSA") .and. isfilevar(ptr,"FLDS") \
+       .and. isfilevar(ptr,"FIRE") .and. isfilevar(ptr,"FSH_TO_COUPLER") \
+       .and. isfilevar(ptr,"EFLX_LH_TOT") .and. isfilevar(ptr,"SNOW_FROM_ATM") \
+       .and. isfilevar(ptr,"QRUNOFF_ICE_TO_COUPLER")) then
+      fsa  = ptr->FSA
+      flds = ptr->FLDS
+      fire = ptr->FIRE
+      fsh_to_coupler = ptr->FSH_TO_COUPLER
+      eflx_lh_tot = ptr->EFLX_LH_TOT
+      snow_from_atm = ptr->SNOW_FROM_ATM
+      qrunoff_ice_to_coupler = ptr->QRUNOFF_ICE_TO_COUPLER
+      var = fsa ; trick to retain meta data
+      var = fsa+flds-fire-fsh_to_coupler-eflx_lh_tot-snow_from_atm*latice+qrunoff_ice_to_coupler*latice
+      return(var)
+    end if
+  end if
+
   if(var_name .eq. "TOTRUNOFF")then
     var = ptr->QRUNOFF
     return(var)

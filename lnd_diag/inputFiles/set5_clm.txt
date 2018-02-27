@@ -15,6 +15,7 @@ globalMeanNat   FSH
 globalMeanNat   FSH_TO_COUPLER
 globalMeanNat   FSH_PRECIP_CONVERSION
 globalMeanNat   FSH_RUNOFF_ICE_TO_LIQ
+globalMeanNat   CPL_ENERGY_BAL
 globalMeanNat   FSDS
 globalMeanNat   FSA
 globalMeanNat   FLDS
