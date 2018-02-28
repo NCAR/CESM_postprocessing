@@ -152,8 +152,8 @@ begin
       qrunoff_ice_to_coupler = ptr->QRUNOFF_ICE_TO_COUPLER
       var = fsa ; trick to retain meta data
       var = fsa+flds-fire-fsh_to_coupler-eflx_lh_tot-snow_from_atm*latice+qrunoff_ice_to_coupler*latice
-      return(var)
     end if
+    return(var)
   end if
 
   if(var_name .eq. "TOTRUNOFF")then
