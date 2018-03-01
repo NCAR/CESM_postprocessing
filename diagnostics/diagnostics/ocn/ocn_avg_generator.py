@@ -312,6 +312,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         avgList.append('tavg:{0}:{1}'.format(start_year, stop_year))        
         if main_comm.is_manager():
             debugMsg('Calling callPyAverager with averageList = {0}'.format(avgList), header=True, verbosity=1)
+            debugMsg(' and inVarList = {0}'.format(inVarList), header=True, verbosity=1)
         callPyAverager(in_dir, htype, tavgdir, case_prefix, avgList, inVarList, diag_obs_root, 
                        netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
         main_comm.sync()
@@ -319,10 +320,11 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         # call the pyAverager with the just SALT and TEMP for mavg only
         avgList = []
         avgList.append('mavg:{0}:{1}'.format(start_year, stop_year))
-        inVarList = ['SALT', 'TEMP']
+        tmpInVarList = ['SALT', 'TEMP']
         if main_comm.is_manager():
             debugMsg('Calling callPyAverager with averageList = {0}'.format(avgList), header=True, verbosity=1)
-        callPyAverager(in_dir, htype, tavgdir, case_prefix, avgList, inVarList, diag_obs_root, 
+            debugMsg(' and inVarList = {0}'.format(tmpInVarList), header=True, verbosity=1)
+        callPyAverager(in_dir, htype, tavgdir, case_prefix, avgList, tmpInVarList, diag_obs_root, 
                        netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
     main_comm.sync()
 
@@ -336,22 +338,24 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         if len(averageListMoc) > 0:
             # call the pyAverager with the inVarList
             if 'MOC' in inVarList:
-                inVarList = ['SALT', 'TEMP', 'MOC']
+                tmpInVarList = ['SALT', 'TEMP', 'MOC']
             else:
-                inVarList = ['SALT', 'TEMP']
+                tmpInVarList = ['SALT', 'TEMP']
             if main_comm.is_manager():
                 debugMsg('Calling callPyAverager with averageListMoc = {0}'.format(averageListMoc), header=True, verbosity=1)
-            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageListMoc, inVarList, diag_obs_root, 
+                debugMsg(' and inVarList = {0}'.format(tmpInVarList), header=True, verbosity=1)
+            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageListMoc, tmpInVarList, diag_obs_root, 
                            netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
         main_comm.sync()
 
         # generate the horizontal mean files with just SALT and TEMP
         if len(averageList) > 0:
             # call the pyAverager with the inVarList
-            inVarList = ['SALT', 'TEMP']
+            tmpInVarList = ['SALT', 'TEMP']
             if main_comm.is_manager():
                 debugMsg('Calling callPyAverager with averageList = {0}'.format(averageList), header=True, verbosity=1)
-            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, inVarList, diag_obs_root, 
+                debugMsg(' and inVarList = {0}'.format(tmpInVarList), header=True, verbosity=1)
+            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, tmpInVarList, diag_obs_root, 
                            netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
         main_comm.sync()
 

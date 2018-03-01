@@ -40,6 +40,7 @@ pp_geyser_path=`./pp_config --get POSTPROCESS_PATH_GEYSER --value`
 ## 3. activate the virtualenv that contains all the non-bootstrapped dependencies
 
 cd {{ virtualEnvDir }}
+echo "Running from virtualenv directory:"
 pwd
 . activate
 

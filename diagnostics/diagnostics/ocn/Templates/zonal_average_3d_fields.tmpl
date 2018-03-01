@@ -8,7 +8,7 @@
         {% if i in label_list %}
            <td><b>{{ i }}</b></td>
         {% elif 'Error' in i %}
-           <td>{{ i }}</td>
+           <td>{{ i|replace('- Error', ' ') }}</td>
         {% else %}
            <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</a></td>
         {% endif %}

@@ -7,7 +7,7 @@
        {% if order == 0 %}
           <td><b>{{ plot }}</b></td>	
        {% elif 'Error' in plot %}
-          <td>{{ plot }}</td>	
+          <td>{{ plot|replace('- Error', ' ') }}</td>	
        {% else %}
        	  <td><a href="{{ plot }}">{{ label }}</a></td>
        {% endif %}

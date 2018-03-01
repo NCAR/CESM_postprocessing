@@ -28,7 +28,7 @@
       <entry id="OCNDIAG_TAVGDIR"
 	     type="char"
 	     valid_values=""
-	     value="$DOUT_S_ROOT/ocn/proc/tavg.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1"
+	     value="$DOUT_S_ROOT/ocn/proc/climo.$OCNDIAG_YEAR0.$OCNDIAG_YEAR1"
 	     group="global"
 	     desc="Local machine directory for climatology files created by the ocn_avg_generator.py. This directory must have write permissions for the user running the postprocessing."
 	     ></entry>
@@ -536,7 +536,7 @@ Applies to both model and control cases."
       <entry id="OCNDIAG_CNTRLRESOLUTION"
 	     type="char"
 	     valid_values=""
-	     value="gx1v6"
+	     value="$OCN_GRID"
 	     group="control_case_options"
 	     desc="Control model resolution used with OMWG model vs. control diagnostics"
 	     ></entry>
@@ -567,8 +567,8 @@ Applies to both model and control cases."
 
       <entry id="OCNDIAG_CNTRLTAVGDIR"
 	     type="char"
-	     valid_values="$OCNDIAG_CNTRLCASEDIR/ocn/proc/tavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1"
-	     value="$OCNDIAG_CNTRLCASEDIR/ocn/proc/tavg.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1"
+	     valid_values="$OCNDIAG_CNTRLCASEDIR/ocn/proc/climo.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1"
+	     value="$OCNDIAG_CNTRLCASEDIR/ocn/proc/climo.$OCNDIAG_CNTRLYEAR0.$OCNDIAG_CNTRLYEAR1"
 	     group="control_case_options"
 	     desc="Local directory path to control model climatology files for OMWG model vs. model diagnostics. This directory must have write permissions for the user running the postprocessing."
 	     ></entry>
