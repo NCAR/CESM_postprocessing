@@ -80,7 +80,7 @@ def commandline_options():
 #====================================================================
 # buildOcnTseriesAvgList - build the list of averages to be computed
 #====================================================================
-def buildOcnTseriesAvgList(start_year, stop_year, avgFileBaseName, main_comm, debugMsg):
+def buildOcnTseriesAvgList(start_year, stop_year, avgFileBaseName, moc, main_comm, debugMsg):
     """buildOcnTseriesAvgList - build the list of averages to be computed
     by the pyAverager for timeseries. Checks if the file exists or not already.
 
@@ -98,21 +98,22 @@ def buildOcnTseriesAvgList(start_year, stop_year, avgFileBaseName, main_comm, de
     # append the horizontal mean concatenation
     avgList.append('hor.meanConcat:{0}:{1}'.format(start_year, stop_year))
 
-    # the following averages are for necessary for model timeseries diagnostics
+    # the following averages are necessary for model timeseries diagnostics
     # append the MOC and monthly MOC files
-    avgFile = '{0}.{1}-{2}.moc.nc'.format(avgFileBaseName, start_year, stop_year)
-    if main_comm.is_manager():
-        debugMsg('mocFile = {0}'.format(avgFile), header=True, verbosity=2)
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgListMoc.append('moc:{0}:{1}'.format(start_year, stop_year))
+    if (moc):
+        avgFile = '{0}.{1}-{2}.moc.nc'.format(avgFileBaseName, start_year, stop_year)
+        if main_comm.is_manager():
+            debugMsg('mocFile = {0}'.format(avgFile), header=True, verbosity=2)
+        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+        if not rc:
+            avgListMoc.append('moc:{0}:{1}'.format(start_year, stop_year))
         
-    avgFile = '{0}.{1}-{2}.mocm.nc'.format(avgFileBaseName, start_year, stop_year)
-    if main_comm.is_manager():
-        debugMsg('mocmFile = {0}'.format(avgFile), header=True, verbosity=2)
-    rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
-    if not rc:
-        avgListMoc.append('mocm:{0}:{1}'.format(start_year, stop_year))
+        avgFile = '{0}.{1}-{2}.mocm.nc'.format(avgFileBaseName, start_year, stop_year)
+        if main_comm.is_manager():
+            debugMsg('mocmFile = {0}'.format(avgFile), header=True, verbosity=2)
+        rc, err_msg = cesmEnvLib.checkFile(avgFile, 'read')
+        if not rc:
+            avgListMoc.append('mocm:{0}:{1}'.format(start_year, stop_year))
 
     if main_comm.is_manager():
         debugMsg('exit buildOcnAvgTseriesList avgList = {0}'.format(avgList), header=True, verbosity=2)
@@ -313,8 +314,12 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         if main_comm.is_manager():
             debugMsg('Calling callPyAverager with averageList = {0}'.format(avgList), header=True, verbosity=1)
             debugMsg(' and inVarList = {0}'.format(inVarList), header=True, verbosity=1)
-        callPyAverager(in_dir, htype, tavgdir, case_prefix, avgList, inVarList, diag_obs_root, 
-                       netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
+        callPyAverager(in_dir=in_dir, htype=htype, tavgdir=tavgdir, 
+                       case_prefix=case_prefix, averageList=avgList, 
+                       varList=inVarList, diag_obs_root=diag_obs_root, 
+                       netcdf_format=netcdf_format, nlev=nlev, 
+                       timeseries_obspath=timeseries_obspath, 
+                       main_comm=main_comm, debugMsg=debugMsg)
         main_comm.sync()
 
         # call the pyAverager with the just SALT and TEMP for mavg only
@@ -324,14 +329,29 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         if main_comm.is_manager():
             debugMsg('Calling callPyAverager with averageList = {0}'.format(avgList), header=True, verbosity=1)
             debugMsg(' and inVarList = {0}'.format(tmpInVarList), header=True, verbosity=1)
-        callPyAverager(in_dir, htype, tavgdir, case_prefix, avgList, tmpInVarList, diag_obs_root, 
-                       netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
+        callPyAverager(in_dir=in_dir, htype=htype, tavgdir=tavgdir, 
+                       case_prefix=case_prefix, averageList=avgList, 
+                       varList=tmpInVarList, diag_obs_root=diag_obs_root, 
+                       netcdf_format=netcdf_format, nlev=nlev, 
+                       timeseries_obspath=timeseries_obspath, 
+                       main_comm=main_comm, debugMsg=debugMsg)
     main_comm.sync()
 
     # check if timeseries diagnostics is requested
     if tseries:
         # create the list of averages to be computed by the pyAverager
-        averageList, averageListMoc = buildOcnTseriesAvgList(tseries_start_year, tseries_stop_year, avgFileBaseName, main_comm, debugMsg)
+        if 'MOC' in inVarList:
+            averageList, averageListMoc = buildOcnTseriesAvgList(start_year=tseries_start_year, 
+                                                                 stop_year=tseries_stop_year, 
+                                                                 avgFileBaseName=avgFileBaseName, 
+                                                                 moc=True, 
+                                                                 main_comm=main_comm, debugMsg=debugMsg)
+        else:
+            averageList, averageListMoc = buildOcnTseriesAvgList(start_year=tseries_start_year, 
+                                                                 stop_year=tseries_stop_year, 
+                                                                 avgFileBaseName=avgFileBaseName, 
+                                                                 moc=False, 
+                                                                 main_comm=main_comm, debugMsg=debugMsg)
         main_comm.sync()
 
         # generate the annual timeseries files and MOC file with TEMP, SALT, MOC variables
@@ -344,8 +364,13 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
             if main_comm.is_manager():
                 debugMsg('Calling callPyAverager with averageListMoc = {0}'.format(averageListMoc), header=True, verbosity=1)
                 debugMsg(' and inVarList = {0}'.format(tmpInVarList), header=True, verbosity=1)
-            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageListMoc, tmpInVarList, diag_obs_root, 
-                           netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
+
+            callPyAverager(in_dir=in_dir, htype=htype, tavgdir=tavgdir, 
+                           case_prefix=case_prefix, averageList=averageListMoc, 
+                           varList=tmpInVarList, diag_obs_root=diag_obs_root, 
+                           netcdf_format=netcdf_format, nlev=nlev, 
+                           timeseries_obspath=timeseries_obspath, 
+                           main_comm=main_comm, debugMsg=debugMsg)
         main_comm.sync()
 
         # generate the horizontal mean files with just SALT and TEMP
@@ -355,8 +380,12 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
             if main_comm.is_manager():
                 debugMsg('Calling callPyAverager with averageList = {0}'.format(averageList), header=True, verbosity=1)
                 debugMsg(' and inVarList = {0}'.format(tmpInVarList), header=True, verbosity=1)
-            callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, tmpInVarList, diag_obs_root, 
-                           netcdf_format, nlev, timeseries_obspath, main_comm, debugMsg)
+            callPyAverager(in_dir=in_dir, htype=htype, tavgdir=tavgdir, 
+                           case_prefix=case_prefix, averageList=averageList,
+                           varList=tmpInVarList, diag_obs_root=diag_obs_root, 
+                           netcdf_format=netcdf_format, nlev=nlev, 
+                           timeseries_obspath=timeseries_obspath, 
+                           main_comm=main_comm, debugMsg=debugMsg)
         main_comm.sync()
 
 #============================================
