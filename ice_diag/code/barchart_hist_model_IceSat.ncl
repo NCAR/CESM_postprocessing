@@ -171,7 +171,7 @@ thick_spring_area_fraction=thick_spring_area/thick_spring_total_area
 fall=(/thick_fall_area_fraction,ice_fall_area_fraction/)
 spring=(/thick_spring_area_fraction,ice_spring_area_fraction/)
 
- labels = (/"ICESat",p_case/)
+ labels = (/"ICESat (2001-2005)",p_case+" ("+frst_avg_yr+"-"+last_avg_yr+")"/)
 
 ;************************************************
 ; create plots
@@ -251,6 +251,7 @@ spring=(/thick_spring_area_fraction,ice_spring_area_fraction/)
 
   textres = True
   textres@lgLabels = labels  ; legend labels (required)
+  textres@lgLabelFontHeights = (/0.010,0.010/)
 
   res@tiMainString = "Spring (FM)"
   plot1(0) = gsn_csm_xy (wks1,level(0:13),spring(1,:),res)
