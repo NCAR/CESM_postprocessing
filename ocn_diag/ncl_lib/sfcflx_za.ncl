@@ -37,20 +37,22 @@ n_reg = dimsizes(region_index)
 
 varsinfile = getfilevarnames(f_za)
 
+print("*** varsinfile = "+varsinfile)
+
 if (any(varsinfile.eq."SHF") .and. any(varsinfile.eq."SFWF")) then
    if (any(varsinfile.eq."QFLUX")) then 
-      field_name = (/ "SHF", "SHF_QSW", "SFWF", "PREC_F",  \
+      tmp_field_name = (/ "SHF", "SHF_QSW", "SFWF", "PREC_F",  \
       	      	      "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
 		      "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
                       "QFLUX", "SNOW_F" /)
    else
-      field_name = (/ "SHF", "SFWF", "PREC_F",  \
+      tmp_field_name = (/ "SHF", "SFWF", "PREC_F",  \
       	      	      "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
 		      "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
                       "SNOW_F" /)
    end if
 else
-   field_name = (/ "SHF_TOTAL", "SHF_QSW", "SFWF_TOTAL", "PREC_F",  \
+   tmp_field_name = (/ "SHF_TOTAL", "SHF_QSW", "SFWF_TOTAL", "PREC_F",  \
    	      	   "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
 		   "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
                    "QFLUX", "SNOW_F" /)
@@ -61,20 +63,27 @@ if ((resolution .eq. "gx1v6") .or. (resolution .eq. "gx1v7")) then
                  "evap", "meltw", "roff", "", \
                  "sen", "lwup", "lwdn", "melth", \
                  "", "snow" /)
-else if ( (resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3") ) then
-  field_name = (/ "SHF", "SFWF", "PREC_F",  \
-        	  "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
-		  "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
-                  "SNOW_F" /)
-  obsvar_name = (/ "swnet",  "melth",   "sen",    \
-                   "lwup",    "lwdn",    "evap",   "rain", \
-                   "meltw",   "",        "snow"    /)
+else if ((resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3")) then
+  hires_field_name = (/ "SHF", "SFWF", "PREC_F",  \
+        	        "EVAP_F",    "MELT_F",  "ROFF_F",     "SALT_F",  \
+		        "SENH_F",    "LWUP_F",  "LWDN_F",     "MELTH_F", \
+                        "SNOW_F" /)
+  obsvar_name = (/ "", "",   "prec",    \
+                   "evap",    "meltw",    "rofl",   "", \
+		   "sen",     "lwup",     "lwdn",   "melth", \
+                   "snow"    /)
 else
  obsvar_name = (/ "", "", "", "", \
                  "", "", "", "", \
                  "", "", "", "", \
                  "", "" /)
 end if
+end if
+
+if (isvar("hires_field_name")) then
+   field_name = hires_field_name
+else
+   field_name = tmp_field_name
 end if
 
 n_fields = dimsizes(field_name)
@@ -84,8 +93,9 @@ print( " the number of fields to be processed is " +  n_fields)
 if (cpl .eq. 6) then
   obs_prefix = "avXc2o_o_"
 else
-  obs_prefix = "x2oavg_"
+  obs_prefix = "x2oavg_Foxx_"
 end if
+print("obs_prefix = "+obs_prefix)
 
 ;;-- Read details from "fileid" file --;;
 
@@ -128,13 +138,18 @@ do n=0, n_fields-1
   if (obsvar_name(n) .eq. "") then
      obsvar = ""
      print("No observations of " + field_name(n))
-  else if (field_name(n) .eq. "ROFF_F") then
-     obsvar = obs_prefix + "Forr_" + obsvar_name(n)
-     print("ROFF_F obsvar = "+obsvar)
   else
-     obsvar = obs_prefix + "Foxx_" + obsvar_name(n)
-     print("obsvar = "+obsvar)
+     obsvar = obs_prefix + obsvar_name(n)	
   end if
+
+  if (field_name(n) .eq. "ROFF_F") then
+     if ((resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3")) then
+          obsvar = obs_prefix + obsvar_name(n)
+          print("obsvar = "+obsvar)
+     else	  
+          obsvar = str_sub_str(obsvar, "Foxx_", "Forr_")
+     end if
+     print("ROFF_F obsvar = "+obsvar)
   end if
 
   ;;-- Read observations from "obsfile" file --;;
@@ -142,13 +157,20 @@ do n=0, n_fields-1
   if (obsvar .ne. "" .and. yesobs ) then
      field_obs = obsfile->$obsvar$
   end if
-  if ( field_name(n) .eq. "PREC_F" .and. yesobs ) then
-     obsvar = obs_prefix + "Foxx_snow"
-     snow = obsfile->$obsvar$
-;; ASB - error in logic since field_obs is not defined if PREC_F is not in obsfile
+
+  print("obsvar " + obsvar)
+
+;; the logic here is off because the PREC_F and SNOW are different variables in 
+;; the POP output fields and don't match with these observation variables. 
+;;  if ( field_name(n) .eq. "PREC_F" .and. yesobs ) then
+;;     obsvar = str_sub_str(obsvar, "Foxx_", "Foxx_snow")
+;;    obsvar = str_sub_str(obsvar, "Forr_", "Forr_snow")
+;;     obsvar = obs_prefix + "Foxx_snow"
+;;     snow = obsfile->$obsvar$
+;; error in logic since field_obs is not defined if PREC_F is not in obsfile
      ;;field_obs = where(field_obs .lt. 1.e10 .and. snow .lt. 1.e10, field_obs + snow, field_obs@_FillValue)
-     field_obs = where(snow .lt. 1.e10, snow, snow@_FillValue)
-  end if
+;;     field_obs = where(snow .lt. 1.e10, snow, snow@_FillValue)
+;;  end if
 
   ;;-- Read model output from "f_za" file --;;
 
@@ -157,7 +179,7 @@ do n=0, n_fields-1
        field_name(n) .ne. "SHF"  .and. \
        field_name(n) .ne. "SFWF") then 
      field = f_za->$field_name(n)$
-     printVarSummary(field)
+;;     printVarSummary(field)
   else
      if ( field_name(n) .eq. "SHF_TOTAL" .or. \
           field_name(n) .eq. "SHF" .and. \
@@ -245,25 +267,28 @@ do n=0, n_fields-1
 
    if (obsvar .eq. "") then
        print("*** plot with obsvar is null")
-       printVarSummary(field)
+;;       printVarSummary(field)
        plot = gsn_csm_xy(wks,lat_t,field(0,global,:),res)
    else if (.not.all(ismissing(field))) then
        print("*** plot with obsvar = "+obsvar)
-       printVarSummary(field)
+;;       printVarSummary(field)
        if (cpl .eq. 7) then
          data = new((/2,dimsizes(lat_t)/),double)
        else
          data = new((/2,dimsizes(lat_t)/),float)
        end if
-       data(0,:) = field(0,global,:)
+;;       print("*** before")
+;;       printVarSummary(data)
+       data(0,:) = (/ field(0,global,:) /)
+       copy_VarAtts(field,data)
        if (dimsizes(dimsizes(field_obs)) .eq. 3) then
-         data(1,:) = field_obs(0,global,:)
+         data(1,:) = (/ field_obs(0,global,:) /)
        else
          data(1,:) = (/ field_obs(global,:) /)
        end if
-       ;;print("**** data var summary")
-       ;;printVarSummary(data)
-       ;;print("*** before gsn_csm_xy call")
+;;       print("**** after data var summary")
+;;       printVarSummary(data)
+;;       print("*** before gsn_csm_xy call")
        plot = gsn_csm_xy(wks,lat_t,data,res)
        delete(data)
        delete(field_obs)

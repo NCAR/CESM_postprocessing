@@ -5,7 +5,7 @@
     <tr>
     {% for i in t %}
         {% if 'Error' in i %}
-           <td>{{ i }}</td>
+           <td>{{ i|replace('- Error', ' ') }}</td>
         {% else %}
            <td><a href="{{ i }}.{{ imgFormat }}">{{ i }}</a></td>
         {% endif %}
