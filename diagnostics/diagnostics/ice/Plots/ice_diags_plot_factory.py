@@ -8,6 +8,7 @@ import contour
 import contourDiff
 import iceSat
 import iceSatDiff
+import iceSatbarchart
 import vector
 import vectorDiff
 import web_hem_avg
@@ -29,6 +30,7 @@ def iceDiagnosticPlotFactory(plot_type,env):
         for seas in ('jfm', 'amj', 'jas', 'ond', 'ann'):
             plot_set['contour_'+seas] = contour.Contour(seas,env)
         plot_set['iceSat_iceThickness'] = iceSat.IceSat_iceThickness(env)
+        plot_set['iceSat_barchart'] = iceSatbarchart.barchart_hist_model_IceSat(env)
 
     elif plot_type == "PLOT_CONT_DIFF":
         for seas in ('jfm', 'amj', 'jas', 'ond', 'ann'):
