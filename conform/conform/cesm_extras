@@ -87,7 +87,18 @@ def main(argv=None):
         o_dict_copy = o_dict.copy()
  
         # Go through the original to find things that we have to add and/or change
+        cvar = fn.split("_")[-2]
+        cr = fn.split("_")[-3]
         for var,d1 in o_dict_copy.iteritems():
+            if "definition" in d1.keys():
+                if 'vinth2p' in d1["definition"]:
+                    if 'alevel' in d1["definition"]:
+                        o_dict[var]["definition"] = o_dict[var]["definition"].replace('alevel','lev')
+            if cvar in var and ('ocean' in cr or 'ocn' in cr):
+                if "nlat" in e_dict.keys():
+                    o_dict["nlat"] = e_dict["nlat"]
+                if "nlon" in e_dict.keys():
+                    o_dict["nlon"] = e_dict["nlon"]
             if 'bounds' in d1["attributes"].keys():
                  if d1["attributes"]["bounds"] not in o_dict.keys():
                      o_dict[d1["attributes"]["bounds"]] = e_dict[d1["attributes"]["bounds"]]
@@ -125,10 +136,11 @@ def main(argv=None):
                 o_dict[var]["attributes"]["units"] = "hPa"
             if var == 'olevel' or var == 'oline':
                 o_dict[var]["attributes"]["units"] = "centimeters"
-
         # Rewrite the file
         with open(fn, 'w') as outfile:
             json.dump(o_dict, outfile, sort_keys=True, indent=4)
+
+    print("FINISHED 2nd WRITE OF JSON FILES")
 
 #===================================================================================================
 # Command-line Operation
