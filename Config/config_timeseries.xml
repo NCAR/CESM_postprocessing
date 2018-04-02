@@ -211,6 +211,16 @@
       <variable>time_bounds</variable>
       <variable>time_written</variable>
     </tseries_time_variant_variables>
+    <tseries_time_invariant_variables>
+      <variable>HKSAT</variable>
+      <variable>ZLAKE</variable>
+      <variable>DZLAKE</variable>
+      <variable>BSW</variable>
+      <variable>SUCSAT</variable>
+      <variable>ZSOI</variable>
+      <variable>DZSOI</variable>
+      <variable>WATSAT</variable>
+    </tseries_time_invariant_variables>
   </comp_archive_spec>
 
   <comp_archive_spec name="rtm">

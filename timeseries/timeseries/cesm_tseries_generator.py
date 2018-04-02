@@ -146,6 +146,12 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             for variable in comp_archive_spec.findall("tseries_time_variant_variables/variable"):
                                 variable_list.append(variable.text)
 
+                        # load the tseries_time_invariant_variables into a list
+                        exclude_list = list()
+                        if comp_archive_spec.find("tseries_time_invariant_variables") is not None:
+                            for variable in comp_archive_spec.findall("tseries_time_invariant_variables/variable"):
+                                exclude_list.append(variable.text)
+
                         # get a list of all the input files for this stream from the archive location
                         history_files = list()
                         in_file_path = '/'.join( [input_rootdir,rootdir,subdir] )                        
@@ -224,7 +230,8 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             spec.output_file_prefix = tseries_output_prefix
                             spec.output_file_suffix = tseries_output_suffix
                             spec.time_variant_metadata = variable_list
-                            # setting the default backend
+                            spec.exclude_list = exclude_list
+                            # setting the default backend; netCDF4 or pynio
                             spec.backend = 'netCDF4'
 
                             if rank == 0:
@@ -234,6 +241,7 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                                 debugMsg("    output_file_prefix = {0}".format(spec.output_file_prefix), header=True, verbosity=1)
                                 debugMsg("    output_file_suffix = {0}".format(spec.output_file_suffix), header=True, verbosity=1)
                                 debugMsg("    time_variant_metadata = {0}".format(spec.time_variant_metadata), header=True, verbosity=1)
+                                debugMsg("    exclude_list = {0}".format(spec.exclude_list), header=True, verbosity=1)
                             
                             # append this spec to the list of specifiers
                             specifiers.append(spec)
