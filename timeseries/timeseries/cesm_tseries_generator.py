@@ -146,10 +146,10 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             for variable in comp_archive_spec.findall("tseries_time_variant_variables/variable"):
                                 variable_list.append(variable.text)
 
-                        # load the tseries_time_invariant_variables into a list
+                        # load the tseries_exclude_variables into a list
                         exclude_list = list()
-                        if comp_archive_spec.find("tseries_time_invariant_variables") is not None:
-                            for variable in comp_archive_spec.findall("tseries_time_invariant_variables/variable"):
+                        if comp_archive_spec.find("tseries_exclude_variables") is not None:
+                            for variable in comp_archive_spec.findall("tseries_exclude_variables/variable"):
                                 exclude_list.append(variable.text)
 
                         # get a list of all the input files for this stream from the archive location

@@ -49,7 +49,7 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="tseries_time_invariant_variables">
+  <xs:element name="tseries_exclude_variables">
     <xs:complexType>
       <xs:sequence>
 	<xs:element name="variable" minOccurs="0" maxOccurs="unbounded"/>
@@ -65,7 +65,7 @@
 	<xs:element name="default_calendar" minOccurs="1" maxOccurs="1" />
 	<xs:element name="files"  minOccurs="0" maxOccurs="unbounded" />
 	<xs:element name="tseries_time_variant_variables"  minOccurs="0" maxOccurs="1" />
-	<xs:element name="tseries_time_invariant_variables"  minOccurs="0" maxOccurs="1" />
+	<xs:element name="tseries_exclude_variables"  minOccurs="0" maxOccurs="1" />
       </xs:sequence>
       <xs:attribute name="name" />
     </xs:complexType>
