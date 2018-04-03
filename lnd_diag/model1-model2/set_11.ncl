@@ -116,7 +116,7 @@ begin
      end if
 ; open observation files
 
-     ptr_racmo    = addfile(obsdata+"/RACMO2_ANT_"+seasons(n)+"_climo.nc","r")                 ; RACMO2.4
+     ptr_racmo    = addfile(obsdata+"/RACMO2_ANT_"+seasons(n)+"_climo.nc","r")                 ; RACMO2.3_p2
 
 ; extract years averaged for plotting
      if (isatt(in1,"yrs_averaged")) then
@@ -297,71 +297,71 @@ begin
               x3 = x3*100. ; fraction to %
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "QSOIL" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "U10" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "FGR" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "FLDS" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "FIRE" ) then
               x3 = ptr_racmo->$vars(i)$
-              x3 = x3 * -1. ; defined negative in RACMO2.4
+              x3 = x3 * -1. ; defined negative in RACMO2.3_p2
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "RAIN" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "PBOT" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "Q2M" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "QICE_FRZ" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "RH2M" ) then
@@ -369,14 +369,14 @@ begin
               x3 = x3 * 100. ; fraction to %
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "QICE_MELT" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "FSH" ) then
@@ -384,43 +384,43 @@ begin
               x3 = x3 * -1. ; defined neg. in CESM
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "QICE" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "SNOW" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "QSNOMELT" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "FSDS" ) then
               x3 = ptr_racmo->$vars(i)$
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "FSR" ) then
               x3 = ptr_racmo->$vars(i)$
-              x3 = x3 * -1. ; defined as negative in RACMO2.4
+              x3 = x3 * -1. ; defined as negative in RACMO2.3_p2
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            else
            if (vars(i) .eq. "TSA" ) then
@@ -428,7 +428,7 @@ begin
               x3 = x3 - 273.16 ; K to C
               lon3 = ptr_racmo->lon
               lat3 = ptr_racmo->lat
-              cases(2) = "RACMO2.4"
+              cases(2) = "RACMO2.3_p2"
               obsFlag = 1;
            end if
            end if
