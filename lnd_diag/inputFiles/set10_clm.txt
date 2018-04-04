@@ -13,12 +13,16 @@ globalMeanNat0  FIRA
 globalMeanNat0  FIRE
 globalMeanNat0  FGR
 globalMeanNat0  FSM
+globalMeanNat0  H2OSNO
 globalMeanNat0  H2OSNO_ICE
-globalMeanDay0  QSNOMELT_ICE
 globalMeanDay0  QSNOMELT
+globalMeanDay0  QSNOMELT_ICE
+globalMeanDay0  QSNOFRZ
+globalMeanDay0  QSNOFRZ_ICE
 globalMeanDay0  QSOIL
 globalMeanDay0  QSOIL_ICE
 globalMeanNat0  FSNO
+globalMeanNat0  SNOWDP
 globalMeanDay0  RAIN
 globalMeanDay0  SNOW
 globalMeanDay0  RAIN_REPARTITIONED
