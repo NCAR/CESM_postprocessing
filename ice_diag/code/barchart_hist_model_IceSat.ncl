@@ -224,9 +224,9 @@ spring=(/thick_spring_area_fraction,ice_spring_area_fraction/)
 ; need to add 0.25 as bars are drawn centered on level, the outline is drawn up to the level, 
 ; and we want them both to be plotted on the same x-axis
   plot(0) = gsn_csm_xy (wks1,level(0:13)+0.25,spring(0,:),res) 
-  delete(res@tiYAxisString)
   res@trYMaxF = 0.5
   plot(1) = gsn_csm_xy (wks2,level(0:13)+0.25,fall(0,:),res)
+  delete(res@tiYAxisString)
 
   res@gsnXYBarChartOutlineOnly = True
   delete(res@xyLineColors)
