@@ -17,13 +17,23 @@ begin
 wkdir = getenv("WKDIR")              ; Plots output here
 diag_home = getenv("DIAG_HOME")              
 diag_obs = getenv("DIAGOBSROOT")
-p_case = getenv("CASE_TO_CONT")
 dir   = getenv("PATH_PLOT")          ; Input data here
-frst_avg_yr = getenv("YR_AVG_FRST")
-last_avg_yr = getenv("YR_AVG_LAST")
-var_name = getenv("VAR_NAMES")
 hires = getenv("HIRES")
-gridfilename = getenv("GRIDFILECONT")
+new_frst_avg_yr = getenv("NEW_YR_AVG_FRST")
+new_last_avg_yr = getenv("NEW_YR_AVG_LAST")
+prev_frst_avg_yr = getenv("PREV_YR_AVG_FRST")
+prev_last_avg_yr = getenv("PREV_YR_AVG_LAST")
+case_prev = getenv("CASE_PREV")
+case_new  = getenv("CASE_NEW")
+path_prev = getenv("PATH_PREV")
+path_new  = getenv("PATH_NEW")
+grid_prev = getenv("GRID_DIFF")
+grid_new = getenv("GRID_CONT")
+gridfilenew = getenv("GRIDFILECONT")
+gridfileprev = getenv("GRIDFILEDIFF")
+var_name_new = getenv("VAR_NAME_NEW")
+var_name_prev = getenv("VAR_NAME_PREV")
+
 
 wks_type = getenv("PLOT_FORMAT")
 wks_type@wkWidth  = stringtointeger(getenv("PLOT_RES"))
@@ -60,49 +70,92 @@ wks_type@wkHeight = stringtointeger(getenv("PLOT_RES"))
 
 ; *********** Model ****************************************
 
-   b = addfile(gridfilename,"r")
-   llat = dble2flt(b->TLAT)
-   llon = dble2flt(b->TLONG)
-   area = dble2flt(b->TAREA)
+   b = addfile(gridfileprev,"r")
+   llat1 = dble2flt(b->TLAT)
+   llon1 = dble2flt(b->TLONG)
+   area1 = dble2flt(b->TAREA)
    delete(b)
 
-   ifrst_avg_yr = stringtointeger(frst_avg_yr)
-   ilast_avg_yr = stringtointeger(last_avg_yr)
-   cyear_frst = sprinti("%0.4i", ifrst_avg_yr)   ; Convert integer year to string
-   cyear_last = sprinti("%0.4i", ilast_avg_yr)   ; Convert integer year to string
+   b = addfile(gridfilenew,"r")
+   llat2 = dble2flt(b->TLAT)
+   llon2 = dble2flt(b->TLONG)
+   area2 = dble2flt(b->TAREA)
+   delete(b)
 
-   filename = "fm_avg_" + cyear_frst + "-" + cyear_last + ".nc"
-   in1 = addfile(dir + "/" + filename,"r")
-   hi_fm_tmp = in1->hi(0,:,:)
-   aice_fm = in1->aice(0,:,:)
+   inew_frst_yr = stringtointeger(new_frst_avg_yr)
+   inew_last_yr = stringtointeger(new_last_avg_yr)
+   iprev_frst_yr = stringtointeger(prev_frst_avg_yr)
+   iprev_last_yr = stringtointeger(prev_last_avg_yr)
 
-   filename = "on_avg_" + cyear_frst + "-" + cyear_last + ".nc"
-   in2 = addfile(dir + "/" + filename,"r")
-   hi_on_tmp   = in2->hi(0,:,:)
-   aice_on   = in2->aice(0,:,:)
+   cnew_frst_yr = sprinti("%0.4i",inew_frst_yr)
+   cnew_last_yr = sprinti("%0.4i",inew_last_yr)
+   cprev_frst_yr = sprinti("%0.4i",iprev_frst_yr)
+   cprev_last_yr = sprinti("%0.4i",iprev_last_yr)
 
-   aice_fm = where(aice_fm.gt.0.0,aice_fm,aice_fm@_FillValue)
-   aice_on = where(aice_fm.gt.0.0,aice_fm,aice_fm@_FillValue)
+   filename = "fm_avg_" + cnew_frst_yr + "-" + cnew_last_yr + ".nc"
+   in1 = addfile(path_new + "/" + filename,"r")
+   hi_fm_tmp_new = in1->hi(0,:,:)
+   aice_fm_new = in1->aice(0,:,:)
 
-   hi_fm = where(aice_fm.gt.0.0,hi_fm_tmp/aice_fm,0.)
-   hi_on = where(aice_on.gt.0.0,hi_on_tmp/aice_on,0.)
+   filename = "fm_avg_" + cprev_frst_yr + "-" + cprev_last_yr + ".nc"
+   in2 = addfile(path_prev + "/" + filename,"r")
+   hi_fm_tmp_prev = in2->hi(0,:,:)
+   aice_fm_prev = in2->aice(0,:,:)
 
-    nrank = dimsizes(dimsizes(llat))
-    dims = dimsizes(llat)
-    if (nrank .eq. 3) then
-       hi_fm@lat2d = llat(0,:,:)
-       hi_fm@lon2d = llon(0,:,:)
-       hi_on@lat2d = llat(0,:,:)
-       hi_on@lon2d = llon(0,:,:)
-       nj = dims(1)
-       ni = dims(2)
+   filename = "on_avg_" + cnew_frst_yr + "-" + cnew_last_yr + ".nc"
+   in3 = addfile(path_new + "/" + filename,"r")
+   hi_on_tmp_new   = in3->hi(0,:,:)
+   aice_on_new   = in3->aice(0,:,:)
+
+   filename = "on_avg_" + cprev_frst_yr + "-" + cprev_last_yr + ".nc"
+   in4 = addfile(path_prev + "/" + filename,"r")
+   hi_on_tmp_prev   = in4->hi(0,:,:)
+   aice_on_prev   = in4->aice(0,:,:)
+
+   aice_fm_new = where(aice_fm_new.gt.0.0,aice_fm_new,aice_fm_new@_FillValue)
+   aice_on_new = where(aice_fm_new.gt.0.0,aice_fm_new,aice_fm_new@_FillValue)
+   hi_fm_new = where(aice_fm_new.gt.0.0,hi_fm_tmp_new/aice_fm_new,0.)
+   hi_on_new = where(aice_on_new.gt.0.0,hi_on_tmp_new/aice_on_new,0.)
+
+   aice_fm_prev = where(aice_fm_prev.gt.0.0,aice_fm_prev,aice_fm_prev@_FillValue)
+   aice_on_prev = where(aice_fm_prev.gt.0.0,aice_fm_prev,aice_fm_prev@_FillValue)
+   hi_fm_prev = where(aice_fm_prev.gt.0.0,hi_fm_tmp_prev/aice_fm_prev,0.)
+   hi_on_prev = where(aice_on_prev.gt.0.0,hi_on_tmp_prev/aice_on_prev,0.)
+
+    nrank1 = dimsizes(dimsizes(llat1))
+    dims1 = dimsizes(llat1)
+    if (nrank1 .eq. 3) then
+       hi_fm_prev@lat2d = llat1(0,:,:)
+       hi_fm_prev@lon2d = llon1(0,:,:)
+       hi_on_prev@lat2d = llat1(0,:,:)
+       hi_on_prev@lon2d = llon1(0,:,:)
+       nj1 = dims1(1)
+       ni1 = dims1(2)
     else
-       hi_fm@lat2d = llat
-       hi_fm@lon2d = llon
-       hi_on@lat2d = llat
-       hi_on@lon2d = llon
-       nj = dims(0)
-       ni = dims(1)
+       hi_fm_prev@lat2d = llat1
+       hi_fm_prev@lon2d = llon1
+       hi_on_prev@lat2d = llat1
+       hi_on_prev@lon2d = llon1
+       nj1 = dims1(0)
+       ni1 = dims1(1)
+    end if
+
+    nrank2 = dimsizes(dimsizes(llat2))
+    dims2 = dimsizes(llat2)
+    if (nrank2 .eq. 3) then
+       hi_fm_new@lat2d = llat2(0,:,:)
+       hi_fm_new@lon2d = llon2(0,:,:)
+       hi_on_new@lat2d = llat2(0,:,:)
+       hi_on_new@lon2d = llon2(0,:,:)
+       nj2 = dims2(1)
+       ni2 = dims2(2)
+    else
+       hi_fm_new@lat2d = llat2
+       hi_fm_new@lon2d = llon2
+       hi_on_new@lat2d = llat2
+       hi_on_new@lon2d = llon2
+       nj2 = dims2(0)
+       ni2 = dims2(1)
     end if
 
  ; get mask to mask out CAA and Baffin Bay to match data
@@ -111,10 +164,13 @@ wks_type@wkHeight = stringtointeger(getenv("PLOT_RES"))
 
 ; mask out Baffin and CAA and Hudson to make it consistent with ICESat covered area
 
-hi_fm=hi_fm*mask_no_Barents_Kara_CAA_Nares
-hi_on=hi_on*mask_no_Barents_Kara_CAA_Nares
+hi_fm_new=hi_fm_new*mask_no_Barents_Kara_CAA_Nares
+hi_on_new=hi_on_new*mask_no_Barents_Kara_CAA_Nares
+hi_fm_prev=hi_fm_prev*mask_no_Barents_Kara_CAA_Nares
+hi_on_prev=hi_on_prev*mask_no_Barents_Kara_CAA_Nares
 
-area_m=area*mask_no_Barents_Kara_CAA_Nares;
+area_m_prev=area1*mask_no_Barents_Kara_CAA_Nares;
+area_m_new=area2*mask_no_Barents_Kara_CAA_Nares;
 
 ;************; Scale to get fractional area each bin occupies************
 level=(/0,0.5,1.,1.5,2.,2.5,3.,3.5,4.0,4.5,5.0,5.5,6.0,6.5,100/)
@@ -125,10 +181,14 @@ level=(/0,0.5,1.,1.5,2.,2.5,3.,3.5,4.0,4.5,5.0,5.5,6.0,6.5,100/)
 ; 1.5-2
 ; etc
 
-ice_m_fall=new((/14,nj,ni/),"float")
-ice_m_fall_area=new((/14,nj,ni/),"float")
-ice_m_spring=new((/14,nj,ni/),"float")
-ice_m_spring_area=new((/14,nj,ni/),"float")
+ice_m_fall_new=new((/14,nj2,ni2/),"float")
+ice_m_fall_area_new=new((/14,nj2,ni2/),"float")
+ice_m_fall_prev=new((/14,nj1,ni1/),"float")
+ice_m_fall_area_prev=new((/14,nj1,ni1/),"float")
+ice_m_spring_new=new((/14,nj2,ni2/),"float")
+ice_m_spring_area_new=new((/14,nj2,ni2/),"float")
+ice_m_spring_prev=new((/14,nj1,ni1/),"float")
+ice_m_spring_area_prev=new((/14,nj1,ni1/),"float")
 
 thick_fall=new((/14,11118/),"float")
 thick_s_fall_area=new((/14,11118/),"float")
@@ -138,49 +198,60 @@ thick_s_spring_area=new((/14,11118/),"float")
 
 
 do i=0,13
-  ice_m_fall(i,:,:)=where(hi_on.gt.level(i) .and. hi_on.le.level(i+1),1,0)
-  ice_m_spring(i,:,:)=where(hi_fm.gt.level(i) .and. hi_fm.le.level(i+1),1,0)
-  ice_m_fall_area(i,:,:)=ice_m_fall(i,:,:)*area_m;
-  ice_m_spring_area(i,:,:)=ice_m_spring(i,:,:)*area_m;
+  ice_m_fall_new(i,:,:)=where(hi_on_new.gt.level(i) .and. hi_on_new.le.level(i+1),1,0)
+  ice_m_spring_new(i,:,:)=where(hi_fm_new.gt.level(i) .and. hi_fm_new.le.level(i+1),1,0)
+  ice_m_fall_area_new(i,:,:)=ice_m_fall_new(i,:,:)*area_m_new;
+  ice_m_spring_area_new(i,:,:)=ice_m_spring_new(i,:,:)*area_m_new;
+  ice_m_fall_prev(i,:,:)=where(hi_on_prev.gt.level(i) .and. hi_on_prev.le.level(i+1),1,0)
+  ice_m_spring_prev(i,:,:)=where(hi_fm_prev.gt.level(i) .and. hi_fm_prev.le.level(i+1),1,0)
+  ice_m_fall_area_prev(i,:,:)=ice_m_fall_prev(i,:,:)*area_m_prev;
+  ice_m_spring_area_prev(i,:,:)=ice_m_spring_prev(i,:,:)*area_m_prev;
   thick_fall(i,:)=where(thick_on.gt.level(i) .and. thick_on.le.level(i+1),1,0)
   thick_spring(i,:)=where(thick_fm.gt.level(i) .and. thick_fm.le.level(i+1),1,0)
   thick_s_fall_area(i,:)=thick_fall(i,:)*tarea;
   thick_s_spring_area(i,:)=thick_spring(i,:)*tarea;
 end do
 
-ice_fall_area=dim_sum_n_Wrap(dim_sum_n_Wrap(ice_m_fall_area,2),1)
-ice_spring_area=dim_sum_n_Wrap(dim_sum_n_Wrap(ice_m_spring_area,2),1)
+ice_fall_area_new=dim_sum_n_Wrap(dim_sum_n_Wrap(ice_m_fall_area_new,2),1)
+ice_spring_area_new=dim_sum_n_Wrap(dim_sum_n_Wrap(ice_m_spring_area_new,2),1)
+ice_fall_area_prev=dim_sum_n_Wrap(dim_sum_n_Wrap(ice_m_fall_area_prev,2),1)
+ice_spring_area_prev=dim_sum_n_Wrap(dim_sum_n_Wrap(ice_m_spring_area_prev,2),1)
 
 thick_fall_area=dim_sum_n_Wrap(thick_s_fall_area,1)
 thick_spring_area=dim_sum_n_Wrap(thick_s_spring_area,1)
 
 ; total area
+ice_fall_total_area_new=dim_sum_n_Wrap(ice_fall_area_new,0)
+ice_spring_total_area_new=dim_sum_n_Wrap(ice_spring_area_new,0)
+ice_fall_total_area_prev=dim_sum_n_Wrap(ice_fall_area_prev,0)
+ice_spring_total_area_prev=dim_sum_n_Wrap(ice_spring_area_prev,0)
+
 thick_fall_total_area=dim_sum_n_Wrap(thick_fall_area,0)
 thick_spring_total_area=dim_sum_n_Wrap(thick_spring_area,0)
-ice_fall_total_area=dim_sum_n_Wrap(ice_fall_area,0)
-ice_spring_total_area=dim_sum_n_Wrap(ice_spring_area,0)
 
 
 ; fraction of total ice area
-ice_fall_area_fraction=ice_fall_area/ice_fall_total_area
-ice_spring_area_fraction=ice_spring_area/ice_spring_total_area
+ice_fall_area_fraction_new=ice_fall_area_new/ice_fall_total_area_new
+ice_spring_area_fraction_new=ice_spring_area_new/ice_spring_total_area_new
+ice_fall_area_fraction_prev=ice_fall_area_prev/ice_fall_total_area_prev
+ice_spring_area_fraction_prev=ice_spring_area_prev/ice_spring_total_area_prev
 
 thick_fall_area_fraction=thick_fall_area/thick_fall_total_area
 thick_spring_area_fraction=thick_spring_area/thick_spring_total_area
 
-fall=(/thick_fall_area_fraction,ice_fall_area_fraction/)
-spring=(/thick_spring_area_fraction,ice_spring_area_fraction/)
+fall=(/thick_fall_area_fraction,ice_fall_area_fraction_new,ice_fall_area_fraction_prev/)
+spring=(/thick_spring_area_fraction,ice_spring_area_fraction_new,ice_spring_area_fraction_prev/)
 
- labels = (/"ICESat (2001-2005)",p_case+" ("+frst_avg_yr+"-"+last_avg_yr+")"/)
+ labels = (/"ICESat (2001-2005)",case_new+" ("+new_frst_avg_yr+"-"+new_last_avg_yr+")",case_prev+" ("+prev_frst_avg_yr+"-"+prev_last_avg_yr+")"/)
 
 ;************************************************
 ; create plots
 ;************************************************
 
-  wks1 = gsn_open_wks(wks_type,wkdir+"fm_icesat_barchart")            ; open first ps file  
+  wks1 = gsn_open_wks(wks_type,wkdir+"fm_icesat_barchart_diff")            ; open first ps file  
   gsn_define_colormap(wks1,"wh-bl-gr-ye-re") 
   i = NhlNewColor(wks1,0.7,0.7,0.7)              ; add gray to colormap
-  wks2 = gsn_open_wks(wks_type,wkdir+"on_icesat_barchart")            ; open first ps file  
+  wks2 = gsn_open_wks(wks_type,wkdir+"on_icesat_barchart_diff")            ; open first ps file  
   gsn_define_colormap(wks2,"wh-bl-gr-ye-re") 
   i = NhlNewColor(wks2,0.7,0.7,0.7)              ; add gray to colormap
  
@@ -232,9 +303,9 @@ spring=(/thick_spring_area_fraction,ice_spring_area_fraction/)
   delete(res@xyLineColors)
   delete(res@gsnXYBarChartColors)
   res@xyMonoLineColor    = False             ; want colored lines
-  res@xyLineColors       = (/"black"/) ; colors chosen
-  res@xyLineThicknesses	 = (/5./)      ; line thicknesses
-  res@xyDashPatterns	 = (/0/)      ; make all lines solid
+  res@xyLineColors       = (/"black","red"/) ; colors chosen
+  res@xyLineThicknesses	 = (/5.,5./)      ; line thicknesses
+  res@xyDashPatterns	 = (/0,0/)      ; make all lines solid
   res@trYMaxF = 0.5
 ;
 ; Add a legend.
@@ -245,19 +316,19 @@ spring=(/thick_spring_area_fraction,ice_spring_area_fraction/)
   gres@XPosPercent = 30.    ; expressed as %, 0->100, sets position of left border of legend(Default = 5.)
 
   lineres = True
-  lineres@lgLineColors = (/"gray55","black"/) ; line colors
-  lineres@lgLineThicknesses = (/30,3/)                    ; line thicknesses
+  lineres@lgLineColors = (/"gray55","black","red"/) ; line colors
+  lineres@lgLineThicknesses = (/30,3,3/)                    ; line thicknesses
   lineres@LineLengthPercent = 9.                         ; expressed as %, 0->100, length of line
 
   textres = True
   textres@lgLabels = labels  ; legend labels (required)
-  textres@lgLabelFontHeights = (/0.010,0.010/)
+  textres@lgLabelFontHeights = (/0.010,0.010,0.010/)
 
   res@tiMainString = "Spring (FM)"
-  plot1(0) = gsn_csm_xy (wks1,level(0:13),spring(1,:),res)
+  plot1(0) = gsn_csm_xy (wks1,level(0:13),spring(1:2,:),res)
   res@trYMaxF = 0.5
   res@tiMainString = "Fall (ON)"
-  plot1(1) = gsn_csm_xy (wks2,level(0:13),fall(1,:),res)
+  plot1(1) = gsn_csm_xy (wks2,level(0:13),fall(1:2,:),res)
 
   plot1(0) = simple_legend(wks1,plot1(0),gres,lineres,textres)
   plot1(1) = simple_legend(wks2,plot1(1),gres,lineres,textres)
