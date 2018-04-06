@@ -42,7 +42,7 @@ from warnings import simplefilter
 
 from cesm_utils import cesmEnvLib
 
-from json import load as json_load
+import json
 from pyconform.datasets import InputDatasetDesc, OutputDatasetDesc
 from pyconform.dataflow import DataFlow
 from pyconform.flownodes import ValidationWarning
@@ -55,7 +55,8 @@ from pyconform.physarray import UnitsError
 # import the MPI related module
 from asaptools import partition, simplecomm, vprinter
 
-external_mods = ['commonfunctions.py', 'pnglfunctions.py']
+external_mods = ['commonfunctions.py', 'pnglfunctions.py', 'CLM_landunit_to_CMIP6_Lut.py',
+                 'CLM_pft_to_CMIP6_vegtype.py']
 
 
 cesmModels = {"atmos":     "cam", 
@@ -91,14 +92,28 @@ r2c = {
         "ocnBgChem":"ocn",
         "seaIce":"ice"
 }
+
 grids = {
-       "atm":{"lat":"lat","lon":"lon","lev":"lev"},
-       "lnd":{"lat":"lat","lon":"lon","lev":"levgrnd"},
-       "rof":{"lat":"lat","lon":"lon","lev":None},
-       "glc":{"lat":"x0","lon":"y0","lev":"staglevel"},
-       "ocn":{"lat":"nlat","lon":"nlon","lev":"z_t"},
-       "ice":{"lat":"nj","lon":"ni","lev":"nc"}
+       "atm":{"lat":["lat"],"lon":["lon"],"lev":["lev","ilev"],"time":["time"]},
+       "lnd":{"lat":["lat"],"lon":["lon"],"lev":["levdcmp","levgrnd","levsoi","levurb","levlak","numrad","levsno","nlevcan","nvegwcs","natpft"],"time":["time"]},
+       "rof":{"lat":["lat"],"lon":["lon"],"lev":[None],"time":["time"]},
+       "glc":{"lat":["x0","x1"],"lon":["y0","y1"],"lev":["level","staglevel","stagwbndlevel"],"time":["time"]},
+       "ocn":{"lat":["nlat"],"lon":["nlon"],"lev":["z_t","z_t_150m","z_w","z_w_top","z_w_bot"],"time":["time"]},
+       "ice":{"lat":["nj"],"lon":["ni"],"lev":["nc","nkice","nksnow","nkbio"],"time":["time"]}
 }
+
+doub_dim = {
+        "atm":"nbnd",
+        "lnd":"hist_interval",
+        "rof":"hist_interval",
+        "lnd,rof":"hist_interval",
+        "glc":"hist_interval",
+        "ocn":"d2",
+        "ice":"d2"
+}
+
+failures = 0
+
 
 #=====================================================
 # commandline_options - parse any command line options
@@ -200,12 +215,12 @@ def find_nc_files(root_dir):
 def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
 
     variablelist = {}
-    gridfiles = {}
+    gridfile = None
     nc_files_l = comm.partition(nc_files,func=partition.EqualLength(),involved=True)
     for fn in nc_files_l:
         f = nc.Dataset(fn, "r")
         mt = fn.replace(root_dir,"").split("/")[-5]         
-        str = fn
+        stri = fn
         model_type = mt
         if "lnd" in model_type or "rof" in model_type:
             model_type = 'lnd,rof'
@@ -217,13 +232,39 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
             lt = "none"
             ln = "none"
             lv = "none"
-            if grids[mt]['lat'] != None:
-                lt = len(f.dimensions[grids[mt]['lat']])
-            if grids[mt]['lon'] != None:
-                ln = len(f.dimensions[grids[mt]['lon']])
-            if grids[mt]['lev'] != None:
-                lv = len(f.dimensions[grids[mt]['lev']])
-            gridfiles[mt] = '{0}/{1}x{2}x{3}.nc'.format(extra_dir,lt,ln,lv)
+            lat_name = None
+            lon_name = None
+            lev_name = None
+            time_name = None
+            # Find which dim variables to use
+            v_dims = f.variables[fn.split('.')[-3]].dimensions 
+            for i in grids[mt]['lat']:
+              if i in v_dims:
+                  if 'nlat' in i:
+                      lat_name = str(f.variables[fn.split('.')[-3]].coordinates.split()[1])
+                  else:
+                      lat_name = i
+                  lt = len(f.dimensions[i])
+            for i in grids[mt]['lon']:
+              if i in v_dims:
+                  if 'nlon' in i:
+                      lon_name = str(f.variables[fn.split('.')[-3]].coordinates.split()[0])
+                      if 'ULONG' in lon_name:
+                          ln = str(len(f.dimensions[i]))+"_UGRID"
+                      else:
+                          ln = str(len(f.dimensions[i]))+"_TGRID"
+                  else: 
+                      lon_name = i
+                      ln = len(f.dimensions[i])
+            for i in grids[mt]['lev']:
+              if i in v_dims: 
+                  lev_name = i
+                  lv = len(f.dimensions[i])
+            for i in grids[mt]['time']:
+              if i in v_dims:
+                  time_name = i
+                  lv = len(f.dimensions[i]) 
+            gridfile = '{0}/{1}x{2}x{3}.nc'.format(extra_dir,mt,lt,ln)
 
             for vn,ob in f.variables.iteritems():
                 if model_type not in variablelist.keys():
@@ -233,25 +274,31 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
                 if hasattr(f,"time_period_freq"):
                     if f.time_period_freq not in variablelist[model_type][vn].keys():
                         variablelist[model_type][vn][f.time_period_freq] = {}
-                    date = str.split('.')[-2]      
+                    date = stri.split('.')[-2]      
                     if date not in variablelist[model_type][vn][f.time_period_freq].keys():
-                        variablelist[model_type][vn][f.time_period_freq][date] = []
-                    if str not in variablelist[model_type][vn][f.time_period_freq][date]:
-                        variablelist[model_type][vn][f.time_period_freq][date].append(str);
+                        variablelist[model_type][vn][f.time_period_freq][date] = {}
+                    if 'files' not in variablelist[model_type][vn][f.time_period_freq][date].keys():
+                        variablelist[model_type][vn][f.time_period_freq][date]['files']=[stri,gridfile]
+                        variablelist[model_type][vn][f.time_period_freq][date]['lat']=lat_name
+                        variablelist[model_type][vn][f.time_period_freq][date]['lon']=lon_name
+                        variablelist[model_type][vn][f.time_period_freq][date]['lev']=lev_name
+                        variablelist[model_type][vn][f.time_period_freq][date]['time']=time_name
                 else:
                     if "unknown" not in variablelist[model_type][vn].keys():
                         variablelist[model_type][vn]["unknown"] = {}
-                    if str not in variablelist[model_type][vn]["unknown"]:
-                        variablelist[model_type][vn]["unknown"]["unknown"] = str;
+                    if stri not in variablelist[model_type][vn]["unknown"]:
+                        variablelist[model_type][vn]["unknown"]["unknown"] = {}
+                        variablelist[model_type][vn][f.time_period_freq][date]['files']=[stri,gridfile]
+                        variablelist[model_type][vn][f.time_period_freq][date]['lat']=lat_name
+                        variablelist[model_type][vn][f.time_period_freq][date]['lon']=lon_name
+                        variablelist[model_type][vn][f.time_period_freq][date]['lev']=lev_name
+                        variablelist[model_type][vn][f.time_period_freq][date]['time']=time_name
         f.close()
     VL_TAG = 30
-    GF_TAG = 31
     variable_list = {}
-    grid_files = {}
     if size > 1:
         if rank==0:
             variable_list = variablelist
-            grid_files = gridfiles
             for i in range(0,size-1): 
                 r,lvarList = comm.collect(data=None, tag=VL_TAG)
                 for model_type,d1 in lvarList.iteritems():
@@ -265,25 +312,22 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
                                 variable_list[model_type][vn][tp] = {}
                             for date,l in d3.iteritems():
                                 if date not in variable_list[model_type][vn][tp].keys():
-                                    variable_list[model_type][vn][tp][date] = []
-                                variable_list[model_type][vn][tp][date] = variable_list[model_type][vn][tp][date]+lvarList[model_type][vn][tp][date]          
+                                    variable_list[model_type][vn][tp][date] = {}
+                                if 'files' in variable_list[model_type][vn][tp][date].keys():
+                                    if len(lvarList[model_type][vn][tp][date]['files'])>0:
+                                        variable_list[model_type][vn][tp][date]['files'].append(lvarList[model_type][vn][tp][date]['files'][0])
+                                else:
+                                    variable_list[model_type][vn][tp][date] = lvarList[model_type][vn][tp][date]          
 
-                r,lgridfiles = comm.collect(data=None, tag=GF_TAG)
-                for k,d in lgridfiles.iteritems():
-                    if k not in grid_files.keys():
-                        grid_files[k] = d                    
 #                variable_list.update(lvarList)
             comm.partition(variable_list, func=partition.Duplicate(), involved=True)
-            comm.partition(grid_files, func=partition.Duplicate(), involved=True)
         else:
             comm.collect(data=variablelist, tag=VL_TAG)
-            comm.collect(data=gridfiles, tag=GF_TAG)
             variable_list = comm.partition(func=partition.Duplicate(), involved=True)
-            grid_files = comm.partition(func=partition.Duplicate(), involved=True)
         comm.sync()
-    return variable_list,grid_files
+    return variable_list
 
-def match_tableSpec_to_stream(ts_dir, variable_list, grid_files):
+def match_tableSpec_to_stream(ts_dir, variable_list):
 
     spec_streams = {}
     var_defs = {}
@@ -360,19 +404,48 @@ def match_tableSpec_to_stream(ts_dir, variable_list, grid_files):
                                 if v in variable_list['lnd,rof'].keys(): 
                                     found_r = 'lnd,rof'                       
                     if found_r != None:     
-                            for freq in variable_list[found_r][v].keys():
-                                if f in freq:
-                                    var_defs[j][split[0]]["var_check"][v] = variable_list[found_r][v][freq]
-                                    rl = r
-                                    freql = freq
-                                    for date in variable_list[found_r][v][freq].keys():
-                                        fl1 = variable_list[found_r][v][freq][date][0]
-                                        if (j+">>"+date) not in spec_streams.keys():
-                                            spec_streams[j+">>"+date] = []
-                                        if fl1 not in spec_streams[j+">>"+date]:
-                                            spec_streams[j+">>"+date].append(fl1)
-                                        if grid_files[r2c[r]] not in spec_streams[j+">>"+date]:
-                                            spec_streams[j+">>"+date].append(grid_files[r2c[r]])
+                        for freq in variable_list[found_r][v].keys():
+                            if f in freq:
+                                var_defs[j][split[0]]["var_check"][v] = variable_list[found_r][v][freq]
+                                rl = r
+                                freql = freq
+                                for date in variable_list[found_r][v][freq].keys():
+                                    fl1 = variable_list[found_r][v][freq][date]['files']
+                                    if (j+">>"+date) not in spec_streams.keys():
+                                        spec_streams[j+">>"+date] = []
+                                    # Add input file name
+                                    if fl1[0] not in spec_streams[j+">>"+date]:
+                                        spec_streams[j+">>"+date].append(fl1[0])
+                                    # Add the grid file name
+                                    if fl1[1] not in spec_streams[j+">>"+date]:
+                                        spec_streams[j+">>"+date].append(fl1[1])
+                                    # Read in the json file and add the correct dimension definitions
+                                    js_fo = json.load(open(j,'r'))
+                                    js_f = js_fo.copy()
+                                    for k,var in js_fo.iteritems():
+                                        if 'ocean' in j or 'ocn' in j:
+                                            if k in j.split("_")[-2]:
+                                                if 'latitude' in js_f[k]['dimensions']:
+                                                    js_f[k]['dimensions'][js_f[k]['dimensions'].index('latitude')] = 'nlat'
+                                                if 'longitude' in js_f[k]['dimensions']:
+                                                    js_f[k]['dimensions'][js_f[k]['dimensions'].index('longitude')] = 'nlon'
+                                        if 'definition' in var.keys():
+                                            if 'xxlatxx' in var['definition'] and variable_list[found_r][v][freq][date]['lat'] != None:
+                                                 js_f[k]['definition'] = variable_list[found_r][v][freq][date]['lat']
+                                                 if 'TLAT' in variable_list[found_r][v][freq][date]['lat'] or 'ULAT' in variable_list[found_r][v][freq][date]['lat']:
+                                                     js_f[k]['dimensions']=['nlat','nlon']
+                                            if 'xxlonxx' in var['definition'] and variable_list[found_r][v][freq][date]['lon'] != None:
+                                                 js_f[k]['definition'] = variable_list[found_r][v][freq][date]['lon']
+                                                 if 'TLONG' in variable_list[found_r][v][freq][date]['lon'] or 'ULONG' in variable_list[found_r][v][freq][date]['lon']:
+                                                     js_f[k]['dimensions']=['nlat','nlon']
+                                            if 'xxlevxx' in var['definition'] and variable_list[found_r][v][freq][date]['lev'] != None:
+                                                js_f[k]['definition'] = variable_list[found_r][v][freq][date]['lev']
+                                            if 'xxlevbndxx' in var['definition'] and variable_list[found_r][v][freq][date]['lev'] != None:
+                                                js_f[k]['definition'] = "bounds("+variable_list[found_r][v][freq][date]['lev']+ ", bdim=\""+doub_dim[found_r]+"\")"
+                                            if 'xxtimexx' in var['definition'] and variable_list[found_r][v][freq][date]['time'] != None:
+                                                js_f[k]['definition'] = variable_list[found_r][v][freq][date]['time']
+                                    with open(j,'w') as fp:
+                                        json.dump(js_f, fp, sort_keys=True, indent=4) 
 
                     if len(var_defs[j][split[0]]["var_check"][v]) < 1:
                         if v not in missing.keys():
@@ -443,6 +516,7 @@ def divide_comm(scomm, l_spec, ind):
 
 def run_PyConform(spec, file_glob, comm):
 
+    failures = 0
     ## Used the main function in pyconform to prepare the call
 
     spec_fn = spec.split(">>")[0]
@@ -454,7 +528,7 @@ def run_PyConform(spec, file_glob, comm):
         infiles.append(v)
     
     # load spec json file
-    dsdict = json_load(open(spec_fn,'r'), object_pairs_hook=OrderedDict)
+    dsdict = json.load(open(spec_fn,'r'), object_pairs_hook=OrderedDict)
 
     try:
         # Parse the output dataset
@@ -471,16 +545,29 @@ def run_PyConform(spec, file_glob, comm):
 
     except UnitsError as e:
         print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        failures = failures+1
     except IndexError as e:
         print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        failures = failures+1
     except ValueError as e:
         print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        failures = failures+1
     except KeyError as e:
         print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        failures = failures+1
     except IOError as e:
         print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        failures = failures+1
     except NameError as e:
         print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        failures = failures+1
+    except RuntimeError as e:
+        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        failures = failures+1
+    except TypeError as e:
+        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        failures = failures+1
+    return failures
 #======
 # main
 #======
@@ -511,6 +598,7 @@ def main(options, scomm, rank, size):
     pp_path = cesmEnv["POSTPROCESS_PATH"]
     conform_module_path = pp_path+'/conformer/conformer/source/pyconform/modules/'
     for i, m in enumerate(external_mods):
+        print("Loading: "+conform_module_path+"/"+m)
         load_source('user{}'.format(i), conform_module_path+"/"+m)
 
     # create the cesm stream to table mapping
@@ -520,12 +608,11 @@ def main(options, scomm, rank, size):
     pc_inpur_dir = cesmEnv['CONFORM_JSON_DIRECTORY']+'/PyConform_input/'
     #readArchiveXML(caseroot, dout_s_root, case, debug)
     nc_files = find_nc_files(dout_s_root)
-    variable_list,grid_files = fill_list(nc_files, pc_inpur_dir, cesmEnv["CONFORM_EXTRA_FIELD_NETCDF_DIR"], scomm, rank, size)
-    print "Using grid files: ",grid_files
+    variable_list = fill_list(nc_files, pc_inpur_dir, cesmEnv["CONFORM_EXTRA_FIELD_NETCDF_DIR"], scomm, rank, size)
 
     mappings = {}
     if rank == 0:
-        mappings = match_tableSpec_to_stream(pc_inpur_dir, variable_list, grid_files)
+        mappings = match_tableSpec_to_stream(pc_inpur_dir, variable_list)
         for k,v in sorted(mappings.iteritems()):
             print k
             for f in sorted(v):
@@ -535,6 +622,8 @@ def main(options, scomm, rank, size):
 
     # Pass the stream and mapping information to the other procs
     mappings = scomm.partition(mappings, func=partition.Duplicate(), involved=True)
+    print("I CAN RUN ",len(mappings.keys())," json files")
+    failures = 0
 
     if len(mappings.keys()) > 0:
         # setup subcommunicators to do streams and chunks in parallel
@@ -552,7 +641,7 @@ def main(options, scomm, rank, size):
             #for i in range(0,len(mappings.keys())): # hand out all mappings
             for i in mappings.keys():
                 scomm.ration(data=i, tag=GWORK_TAG)
-            for i in range(0,lsubcomms): # complete, signal this to all subcomms
+            for i in range(1,lsubcomms): # complete, signal this to all subcomms
                 scomm.ration(data=-99, tag=GWORK_TAG)
 
         # subcomm root - performs the same tasks as other subcomm ranks, but also gets the specifier to work on and sends
@@ -565,8 +654,9 @@ def main(options, scomm, rank, size):
                     inter_comm.ration(i, LWORK_TAG) # send to local ranks  
                 if i != -99:
                     print "(",rank,"/",lrank,")","  start running ",i
-                    run_PyConform(i, mappings[i], inter_comm)
+                    failures += run_PyConform(i, mappings[i], inter_comm)
                     print "(",rank,"/",lrank,")","  finished running ",i
+                    print "(",rank,"/",lrank,")","FAILURES: ",failures
                 inter_comm.sync()
 
         # all subcomm ranks - recv the specifier to work on and call the reshaper
@@ -576,10 +666,11 @@ def main(options, scomm, rank, size):
                 i = inter_comm.ration(tag=LWORK_TAG) # recv from local root    
                 if i != -99:
                     print "(",rank,"/",lrank,")","  start running ",i
-                    run_PyConform(i, mappings[i], inter_comm)
+                    failures += run_PyConform(i, mappings[i], inter_comm)
                     print "(",rank,"/",lrank,")","  finished running ",i
+                    print "(",rank,"/",lrank,")","FAILURES: ",failures
                 inter_comm.sync()
-    #print "(",rank,"/",lrank,")","  FINISHED"
+    print "(",rank,"/",lrank,")","  FINISHED"
     scomm.sync()
 
 #===================================

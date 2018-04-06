@@ -7,7 +7,7 @@
       <tr>	     
       {% for label, t in plot_table %}
 	  {% if 'Error' in t %}
-              <td>{{ label }} - Error</td>
+              <td>{{ label }}</td>
           {% elif t == '' %}
 	      <td></td>
           {% else %}

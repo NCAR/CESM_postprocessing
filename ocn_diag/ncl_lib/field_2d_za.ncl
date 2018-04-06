@@ -18,9 +18,21 @@ begin
   region_index = (/ global, atlantic, pacific, indian, southern /)
   n_reg = dimsizes(region_index)
 
-  field_name = [/ "SSH", "HBLT", "HMXL" /] 
+;;  field_name = [/ "SSH", "HBLT", "HMXL" /] 
+  field_name = NewList("fifo")
 
   f_za = addfile(file_netcdf_za,"r")
+
+  if (isfilevar(f_za,"SSH")) then
+    ListPush(field_name,"SSH")
+  end if
+  if (isfilevar(f_za,"HBLT")) then
+    ListPush(field_name,"HBLT")
+  end if
+  if (isfilevar(f_za,"HMXL")) then
+    ListPush(field_name,"HMXL")
+  end if
+
   if (isfilevar(f_za,"DIA_DEPTH")) then
     ListPush(field_name,"DIA_DEPTH")
   end if
