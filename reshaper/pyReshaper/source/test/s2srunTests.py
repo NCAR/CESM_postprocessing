@@ -12,28 +12,29 @@ import inspect
 from glob import glob
 from cStringIO import StringIO
 from os import linesep as eol
-from os import remove
+from os import remove, getcwd
 from os.path import exists
 from mpi4py import MPI
 
 from pyreshaper.specification import Specifier
 
-from pyreshaper.test import makeTestData
+from test import makeTestData
 
-s2srun = imp.load_source('s2srun', '../../../scripts/s2srun')
+top_dir = getcwd().split('/source')[0]
+s2srun = imp.load_source('s2srun', top_dir + '/scripts/s2srun')
 
 MPI_COMM_WORLD = MPI.COMM_WORLD  # @UndefinedVariable
 
 
-#=======================================================================================================================
+#=========================================================================
 # CLITests
-#=======================================================================================================================
+#=========================================================================
 class CLITests(unittest.TestCase):
-
 
     def setUp(self):
         self.run_args = {'serial': False,
-                         'chunks': None,
+                         'rchunks': {'y': 5},
+                         'wchunks': {'x': 4, 'y': 10},
                          'limit': 0,
                          'verbosity': 1,
                          'write_mode': 'w',
@@ -49,37 +50,50 @@ class CLITests(unittest.TestCase):
             argv.append('--once')
         if self.run_args['serial']:
             argv.append('--serial')
-        if self.run_args['chunks'] is not None and len(self.run_args['chunks']) > 0:
-            chunks = []
-            for c in self.run_args['chunks']:
-                chunks.extend(['--chunk', c])
-            argv.extend(chunks)
+        if self.run_args['rchunks']:
+            rchunks = []
+            for d in self.run_args['rchunks']:
+                c = '{},{}'.format(d, self.run_args['rchunks'][d])
+                rchunks.extend(['--read_chunk', c])
+            argv.extend(rchunks)
+        if self.run_args['wchunks']:
+            wchunks = []
+            for d in self.run_args['wchunks']:
+                c = '{},{}'.format(d, self.run_args['wchunks'][d])
+                wchunks.extend(['--write_chunk', c])
+            argv.extend(wchunks)
         argv.append(self.run_args['specfile'])
         return argv
-    
+
     def shortargs(self):
         long_to_short = {'--verbosity': '-v', '--write_mode': '-m', '--limit': '-l',
-                         '--once': '-l', '--serial': '-s', '--chunk': '-c'}
+                         '--once': '-l', '--serial': '-s', '--read_chunk': '-c', '--write_chunk': '-w'}
         return [long_to_short[a] if a in long_to_short else a for a in self.longargs()]
 
     def cliassert(self, args):
         opts, specfile = s2srun.cli(args)
-        self.assertEqual(opts.once, self.run_args['once'], 'Once-file incorrect')
-        self.assertEqual(opts.chunks, self.run_args['chunks'], 'Chunks incorrect')
-        self.assertEqual(opts.limit, self.run_args['limit'], 'Output limit incorrect')
-        self.assertEqual(opts.write_mode, self.run_args['write_mode'], 'Write mode incorrect')
-        self.assertEqual(opts.serial, self.run_args['serial'], 'Serial mode incorrect')
-        self.assertEqual(opts.verbosity, self.run_args['verbosity'], 'Verbosity incorrect')
-        self.assertEqual(specfile, self.run_args['specfile'], 'Specfile name incorrect')
+        self.assertEqual(
+            opts.once, self.run_args['once'], 'Once-file incorrect')
+        self.assertEqual(
+            opts.rchunks, self.run_args['rchunks'], 'Read chunks incorrect')
+        self.assertEqual(
+            opts.wchunks, self.run_args['wchunks'], 'Write chunks incorrect')
+        self.assertEqual(
+            opts.limit, self.run_args['limit'], 'Output limit incorrect')
+        self.assertEqual(
+            opts.write_mode, self.run_args['write_mode'], 'Write mode incorrect')
+        self.assertEqual(
+            opts.serial, self.run_args['serial'], 'Serial mode incorrect')
+        self.assertEqual(
+            opts.verbosity, self.run_args['verbosity'], 'Verbosity incorrect')
+        self.assertEqual(
+            specfile, self.run_args['specfile'], 'Specfile name incorrect')
 
     def test_empty(self):
         self.assertRaises(ValueError, s2srun.cli, [])
 
     def test_help(self):
         self.assertRaises(SystemExit, s2srun.cli, ['-h'])
-
-    def test_defaults(self):
-        self.cliassert([self.run_args['specfile']])
 
     def test_short(self):
         self.cliassert(self.shortargs())
@@ -88,9 +102,9 @@ class CLITests(unittest.TestCase):
         self.cliassert(self.longargs())
 
 
-#=======================================================================================================================
+#=========================================================================
 # NetCDF4Tests
-#=======================================================================================================================
+#=========================================================================
 class NetCDF4Tests(unittest.TestCase):
 
     def setUp(self):
@@ -98,7 +112,7 @@ class NetCDF4Tests(unittest.TestCase):
         # Parallel Management - Just for Tests
         self.rank = MPI_COMM_WORLD.Get_rank()
         self.size = MPI_COMM_WORLD.Get_size()
-        
+
         # Default arguments for testing
         self.spec_args = {'infiles': makeTestData.slices,
                           'ncfmt': 'netcdf4',
@@ -116,7 +130,7 @@ class NetCDF4Tests(unittest.TestCase):
                          'write_mode': 'w',
                          'once': False,
                          'specfile': 'input.s2s'}
-        
+
         # Test Data Generation
         self.clean()
         if self.rank == 0:
@@ -137,11 +151,13 @@ class NetCDF4Tests(unittest.TestCase):
             mf = len(makeTestData.slices)
             mt = len(makeTestData.tsvars)
             nf = len(self.spec_args['infiles'])
-            nt = mt if self.spec_args['timeseries'] is None else len(self.spec_args['timeseries'])
+            nt = mt if self.spec_args['timeseries'] is None else len(
+                self.spec_args['timeseries'])
 
             hline = '-' * 100
             hdrstr = [hline, '{}.{}:'.format(self.__class__.__name__, testname), '',
-                      '   specifier({}/{} infile(s), {}/{} TSV(s), ncfmt={ncfmt}, compression={compression}, meta1d={meta1d}, backend={backend})'.format(nf, mf, nt, mt, **self.spec_args),
+                      '   specifier({}/{} infile(s), {}/{} TSV(s), ncfmt={ncfmt}, compression={compression}, meta1d={meta1d}, backend={backend})'.format(
+                          nf, mf, nt, mt, **self.spec_args),
                       '   s2srun {}'.format(' '.join(str(a) for a in self.runargs())), hline]
             print eol.join(hdrstr)
 
@@ -150,11 +166,13 @@ class NetCDF4Tests(unittest.TestCase):
         args.update(self.spec_args)
         args.update(self.run_args)
         assertions_dict = makeTestData.check_outfile(tsvar=tsvar, **args)
-        failed_assertions = [key for key, value in assertions_dict.iteritems() if value is False]
+        failed_assertions = [
+            key for key, value in assertions_dict.iteritems() if value is False]
         assert_msgs = ['Output file check for variable {0!r}:'.format(tsvar)]
-        assert_msgs.extend(['   {0}'.format(assrt) for assrt in failed_assertions])
+        assert_msgs.extend(['   {0}'.format(assrt)
+                            for assrt in failed_assertions])
         self.assertEqual(len(failed_assertions), 0, eol.join(assert_msgs))
-    
+
     def runargs(self):
         argv = ['-v', str(self.run_args['verbosity']),
                 '-m', self.run_args['write_mode'],
@@ -232,8 +250,10 @@ class NetCDF4Tests(unittest.TestCase):
                 if tsvar in makeTestData.tsvars:
                     self.check(tsvar)
                 else:
-                    fname = self.spec_args['prefix'] + tsvar + self.spec_args['suffix']
-                    self.assertFalse(exists(fname), 'File {0!r} should not exist'.format(fname))
+                    fname = self.spec_args['prefix'] + \
+                        tsvar + self.spec_args['suffix']
+                    self.assertFalse(
+                        exists(fname), 'File {0!r} should not exist'.format(fname))
         MPI_COMM_WORLD.Barrier()
 
     def test_NC3(self):
@@ -256,6 +276,15 @@ class NetCDF4Tests(unittest.TestCase):
 
     def test_CL1(self):
         self.spec_args['compression'] = 1
+        self.header(inspect.currentframe().f_code.co_name)
+        self.convert()
+        if self.rank == 0:
+            for tsvar in makeTestData.tsvars:
+                self.check(tsvar)
+        MPI_COMM_WORLD.Barrier()
+
+    def test_CL1_LSF3(self):
+        self.spec_args['least_significant_digit'] = 3
         self.header(inspect.currentframe().f_code.co_name)
         self.convert()
         if self.rank == 0:
@@ -328,7 +357,8 @@ class NetCDF4Tests(unittest.TestCase):
         self.spec_args['infiles'] = makeTestData.slices[0:2]
         self.convert()
         if self.rank == 0:
-            remove(self.spec_args['prefix'] + missing + self.spec_args['suffix'])
+            remove(self.spec_args['prefix'] +
+                   missing + self.spec_args['suffix'])
         MPI_COMM_WORLD.Barrier()
         self.run_args['write_mode'] = 'a'
         self.spec_args['infiles'] = makeTestData.slices[2:]
@@ -341,21 +371,24 @@ class NetCDF4Tests(unittest.TestCase):
                     self.spec_args['infiles'] = makeTestData.slices
                 self.check(tsvar)
         MPI_COMM_WORLD.Barrier()
-        
 
-#=======================================================================================================================
+
+#=========================================================================
 # NioTests
-#=======================================================================================================================
+#=========================================================================
 class NioTests(NetCDF4Tests):
-    
+
     def setUp(self):
         NetCDF4Tests.setUp(self)
         self.spec_args['backend'] = 'Nio'
 
+    def tearDown(self):
+        self.clean()
 
-#=======================================================================================================================
+
+#=========================================================================
 # CLI
-#=======================================================================================================================
+#=========================================================================
 if __name__ == "__main__":
     hline = '=' * 100
     if MPI_COMM_WORLD.Get_rank() == 0:
@@ -376,8 +409,9 @@ if __name__ == "__main__":
 
     mainstream = StringIO()
     nc4tests = unittest.TestLoader().loadTestsFromTestCase(NetCDF4Tests)
-    tests = [unittest.TestLoader().loadTestsFromTestCase(NetCDF4Tests),
-             unittest.TestLoader().loadTestsFromTestCase(NioTests)]
+    # tests = [unittest.TestLoader().loadTestsFromTestCase(NetCDF4Tests),
+    #         unittest.TestLoader().loadTestsFromTestCase(NioTests)]
+    tests = [unittest.TestLoader().loadTestsFromTestCase(NetCDF4Tests)]
     suite = unittest.TestSuite(tests)
     unittest.TextTestRunner(stream=mainstream).run(suite)
     MPI_COMM_WORLD.Barrier()

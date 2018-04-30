@@ -375,6 +375,7 @@ format.
     specifier.output_file_prefix = "/path/to/outfile_prefix."
     specifier.output_file_suffix = ".000101-001012.nc"
     specifier.time_variant_metadata = ["time", "time_bounds"]
+    specifier.exclude_list = ['HKSAT','ZLAKE']
 
     # Create the PyReshaper object
     rshpr = reshaper.create_reshaper(specifier,
@@ -459,6 +460,11 @@ can include the full, absolute path information for the output
 -  ``backend``: This specifies which I/O backend to use for reading
    and writing NetCDF files.  The default backend is ``'netCDF4'``, but
    the user can alternatively specify ``'Nio'`` to use PyNIO.
+
+-  ``exclude_list``: If set to a list of string time invariant variable names, 
+   these variables will not be included in each of the timeseries files.
+   **NOTE: Setting this attribute can leave data untransformed from time-slice
+   to time-series format!  DO NOT DELETE YOUR OLD TIME-SLICE FILES!** 
 
 Specifier Object Methods
 ~~~~~~~~~~~~~~~~~~~~~~~~
