@@ -148,6 +148,7 @@ def main(options):
     else:
         f2pyCall = ['{0}'.format(f2pyDict['f2py']), '-c', '--fcompiler={0}'.format(f2pyDict['fcompiler']), 
                     '--f77exec={0}'.format(f2pyDict['f77exec']),'-m', 'remap', 'remap.f']
+    print('DEBUG f2pyCall = {0}'.format(f2pyCall))
 
     # remove the remap.so if it already exists
     try:
