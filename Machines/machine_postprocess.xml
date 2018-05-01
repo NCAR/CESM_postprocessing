@@ -7,8 +7,7 @@
     <xconform_pes queue="geyser" nodes="4" pes_per_node="16" wallclock="06:00:00" memory="100G">64</xconform_pes>
     <mpi_command>srun</mpi_command>
     <pythonpath>/glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/lib/python2.7/site-packages</pythonpath>
-    <!--f2py fcompiler="gfortran" f77exec="/glade/apps/opt/modulefiles/ys/cmpwrappers/gfortran">f2py</f2py-->
-    <f2py fcompiler="ifort" f77exec="/glade/apps/opt/modulefiles/ys/cmpwrappers/ifort">f2py</f2py>
+    <f2py fcompiler="intelem" f77exec="/glade/apps/opt/modulefiles/ys/cmpwrappers/ifort">f2py</f2py>
     <za>
       <compiler>ifort</compiler>
       <flags>-c -g -O2</flags>
@@ -79,8 +78,7 @@
     <xconform_pes queue="regular" nodes="8" pes_per_node="4" wallclock="06:00:00">32</xconform_pes>
     <mpi_command>mpiexec_mpt dplace -s 1</mpi_command>
     <pythonpath></pythonpath>
-    <f2py fcompiler="gfortran" f77exec="/glade/u/apps/ch/opt/gnu/6.2.0/bin/gfortran" 
-	  f90exec="/glade/u/apps/ch/opt/gnu/6.2.0/bin/gfortran">f2py</f2py>
+    <f2py fcompiler="intelem" f77exec="/glade/u/apps/ch/opt/ncarcompilers/0.4.1/mpi/ifort">f2py</f2py>
     <za>
       <compiler>ifort</compiler>
       <flags>-c -g -O2</flags>
