@@ -128,8 +128,8 @@ extrap = False     ; no extrapolation past psfc.
   offset = (/0.,0.,0.,0.,0.,     250.,  0., \
          0.,  0., 0.,  0., 0., 0., 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0./)
   cfactor = (/10.,40.,10.,0.02,0.1,  4,   0.03,\
-            0.1,0.2,0.02,0.05,0.005, 0.02,0.1,0.1,0.1,1.,0.5,5.,0.05,0.02,0.1,1.,5.,5.,5.,0.02,0.04,0.10,0.02,0.5,0.01,0.2/)
-  dfactor = (/30.,30.,30.,30.,30,  30,   50,30,30.,30.,30.,30.,  30,50,30,30,30.,30,30,0.1,30,30.,1.,30.,30.,30.,30.,30.,50.,30.,30.,30.,30./)
+            0.1,0.2,0.02,0.05,0.005, 0.02,0.1,0.1,0.1,1.,0.5,5.,0.10,0.02,0.1,1.,5.,5.,5.,0.02,0.04,0.10,0.02,0.5,0.01,0.2/)
+  dfactor = (/30.,30.,30.,30.,30,  30,   50,30,30.,30.,30.,30.,  30,50,30,30,30.,30,30,0.2,30,30.,1.,30.,30.,30.,30.,30.,50.,30.,30.,30.,30./)
   factor = (/1.e+09,1.e+06,1.e+09,1.e+12,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+09,1.e+08,1.,1.e+09,1.e+09,1.e+06,1.e+08,1.e+08,1.e+08,1.e+09,1.e+09,1.e+09,1.e+09,1.e+08,1.e+08,1.e+08/)
   end if
    nvars = dimsizes(vars)
@@ -235,7 +235,6 @@ plvlM@units = "mb"
 ;***********************************************************
 
 do i = 0,nvars-1
-;print(vars(i))
  pan@txString = vars(i)+" "+season
 con(i,:)=cfactor(i)*(/1,2,3,4,5,6,7,8,9,10,11,12,13,14,16/)+offset(i)   
 dcon(i,:)=dfactor(i)*(/-1.8,-1.5,-1.2,-.9,-.6,-.3,-.1,0,.1,.3,.6,.9,1.2,1.5,1.8/)
@@ -373,6 +372,26 @@ else if vars(i).eq."SOA" then
      delete (vars12)
      delete(varsoa)
      end if
+     if (isfilevar(inptr1,"soaff1_a1") .and. isfilevar(inptr1,"soaff1_a2")) then
+     varsoa =  (/"soaff1_a1","soaff1_a2","soaff2_a1","soaff2_a2","soaff3_a1","soaff3_a2","soaff4_a1","soaff4_a2","soaff5_a1","soaff5_a2",\
+               "soabb1_a1","soabb1_a2","soabb2_a1","soabb2_a2","soabb3_a1","soabb3_a2","soabb4_a1","soabb4_a2","soabb5_a1","soabb5_a2",\
+               "soabg1_a1","soabg1_a2","soabg2_a1","soabg2_a2","soabg3_a1","soabg3_a2","soabg4_a1","soabg4_a2","soabg5_a1","soabg5_a2" /)
+     nvarsoa = dimsizes(varsoa)
+     vars1 = 0.
+     do si = 0, nvarsoa-1
+      vars1=vars1 + inptr1->$varsoa(si)$
+     end do
+     delete(varsoa)
+     end if
+     if (isfilevar(inptr1,"soa1_a1") .and. isfilevar(inptr1,"soa1_a2")) then
+     varsoa =  (/"soa1_a1","soa1_a2","soa2_a1","soa2_a2","soa3_a1","soa3_a2","soa4_a1","soa4_a2","soa5_a1","soa5_a2"/)
+     nvarsoa = dimsizes(varsoa)
+     vars1 = 0.
+     do si = 0, nvarsoa-1
+      vars1=vars1 + inptr1->$varsoa(si)$
+     end do
+     delete(varsoa)
+    end if
    end if
 ; mam
 else if vars(i).eq."DUST" then
@@ -620,15 +639,36 @@ end if
      delete(varsoa)
   ; carbon fraction:
     else
-     if (isfilevar(inptr1,"soa_a1") .and. isfilevar(inptr1,"soa_a2")) then
+     if (isfilevar(inptr2,"soa_a1") .and. isfilevar(inptr2,"soa_a2")) then
      varsoa =  (/"soa_a1","soa_a2"/)
-     vars21=inptr1->$varsoa(0)$
-     vars22=inptr1->$varsoa(1)$
+     vars21=inptr2->$varsoa(0)$
+     vars22=inptr2->$varsoa(1)$
      vars2 = vars21 + vars22
      delete (vars21)
      delete (vars22)
      delete(varsoa)
      end if
+      if (isfilevar(inptr2,"soaff1_a1") .and. isfilevar(inptr2,"soaff1_a2")) then
+     varsoa =  (/"soaff1_a1","soaff1_a2","soaff2_a1","soaff2_a2","soaff3_a1","soaff3_a2","soaff4_a1","soaff4_a2","soaff5_a1","soaff5_a2",\
+               "soabb1_a1","soabb1_a2","soabb2_a1","soabb2_a2","soabb3_a1","soabb3_a2","soabb4_a1","soabb4_a2","soabb5_a1","soabb5_a2",\
+               "soabg1_a1","soabg1_a2","soabg2_a1","soabg2_a2","soabg3_a1","soabg3_a2","soabg4_a1","soabg4_a2","soabg5_a1","soabg5_a2" /)
+     nvarsoa = dimsizes(varsoa)
+     vars2 = 0.
+     do si = 0, nvarsoa-1
+      vars2=vars2 + inptr2->$varsoa(si)$
+     end do
+     delete(varsoa)
+     end if
+    if (isfilevar(inptr2,"soa1_a1") .and. isfilevar(inptr2,"soa1_a2")) then
+     varsoa =  (/"soa1_a1","soa1_a2","soa2_a1","soa2_a2","soa3_a1","soa3_a2","soa4_a1","soa4_a2","soa5_a1","soa5_a2"/)
+     nvarsoa = dimsizes(varsoa)
+     vars2 = 0.
+     do si = 0, nvarsoa-1
+      vars2=vars2 + inptr2->$varsoa(si)$
+     end do
+     delete(varsoa)
+    end if
+
   end if
    else if vars(i).eq."DUST" then
   ; bam

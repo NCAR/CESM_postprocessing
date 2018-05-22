@@ -351,6 +351,7 @@ aer(:) = "bam"
          end if
   end if
 
+
  if varsoa(0).ne.-1 then
    nvarsoa = dimsizes(varsoa)
    do si = 0, nvarsoa-1
@@ -545,6 +546,26 @@ aer(:) = "bam"
    if aer(ca).eq."mam3" then 
       delete(vara)
    end if
+  else
+   if ca.eq.0 then
+    vint1 = 0.
+    chmp1 = 0.
+    chml1 = 0.
+    vgas1 = 0.
+    vemis1 = 0.
+    ddf1 = 0.
+    dwf1 = 0.
+    dnuc1 = 0.
+   else
+    vint2 = 0.
+    chmp2 = 0.
+    chml2 = 0.
+    vgas2 = 0.
+    vemis2 = 0.
+    ddf2 = 0.
+    dwf2 = 0.
+    dnuc2 = 0.
+   end if
   end if
         delete(vint11)                                          
         delete(vemis11)                                         
@@ -635,7 +656,6 @@ aer(:) = "bam"
   tdwf1 = sum(dwf1)*86400.*365.*1e-9*factor1(i)
   lifet1 = tbvar1
 
- 
  if vars(i).eq."POM" .or. vars(i).eq."BC" .or. vars(i).eq."DUST" .or. vars(i).eq."SALT"  then
   if (all(ismissing(tddf1)) .or. all(ismissing(tddf1))) then
       lifet1=0. 
