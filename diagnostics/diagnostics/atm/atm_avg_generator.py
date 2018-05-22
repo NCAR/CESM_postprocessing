@@ -197,9 +197,20 @@ def get_variable_list(envDict,in_dir,case_prefix, key_infile, htype, stream):
                         'so4_a7_sfnnuc1','so4_a1DDF','so4_a2DDF','so4_a3DDF','so4_a4DDF','so4_a5DDF','so4_a6DDF','so4_a7DDF','so4_a1SFWET',
                         'so4_a2SFWET','so4_a3SFWET','so4_a4SFWET','so4_a5SFWET','so4_a6SFWET','so4_a7SFWET','so4_c1DDF','so4_c2DDF',
                         'so4_c3DDF','so4_c4DDF','so4_c5DDF','so4_c6DDF','so4_c7DDF','so4_c1SFWET','so4_c2SFWET','so4_c3SFWET','so4_c4SFWET',
-                        'so4_c5SFWET','so4_c6SFWET','so4_c7SFWET']
+                        'so4_c5SFWET','so4_c6SFWET','so4_c7SFWET','SOAG0_CHMP', 'SOAG1_CHMP','SOAG2_CHMP','SOAG3_CHMP','SOAG4_CHMP','SOAG0_CHML',
+                        'SOAG1_CHML','SOAG2_CHML','SOAG3_CHML','SOAG4_CHML','soa1_a1','soa2_a1','soa3_a1','soa4_a1','soa5_a1','soa1_a2',
+                        'soa2_a2','soa3_a2','soa4_a2','soa5_a2','soa1_c1','soa2_c1','soa3_c1','soa4_c1','soa5_c1','soa1_c2','soa2_c2',
+                        'soa3_c2','soa4_c2','soa5_c2','soa1_a1SFWET','soa1_a2SFWET','soa2_a1SFWET','soa2_a2SFWET','soa3_a1SFWET','soa3_a2SFWET',
+                        'soa4_a1SFWET','soa4_a2SFWET','soa5_a1SFWET','soa5_a2SFWET','soa1_c1SFWET','soa1_c2SFWET','soa2_c1SFWET','soa2_c2SFWET',
+                        'soa3_c1SFWET','soa3_c2SFWET','soa4_c1SFWET','soa4_c2SFWET','soa5_c1SFWET','soa5_c2SFWET','soa1_a2DDF','soa2_a1DDF',
+                        'soa2_a2DDF','soa3_a1DDF','soa3_a2DDF','soa4_a1DDF','soa4_a2DDF','soa5_a1DDF','soa5_a2DDF','soa1_c1DDF','soa1_c2DDF',
+                        'soa2_c1DDF','soa2_c2DDF','soa3_c1DDF','soa3_c2DDF','soa4_c1DDF','soa4_c2DDF','soa5_c1DDF','soa5_c2DDF','r_jsoa1_a1',
+                        'r_jsoa2_a1','r_jsoa3_a1','r_jsoa4_a1','r_jsoa5_a1','r_jsoa1_a2','r_jsoa2_a2','r_jsoa3_a2','r_jsoa4_a2','r_jsoa5_a2',
+                        'soa1_a1_sfgaex1','soa1_a2_sfgaex1','soa2_a1_sfgaex1','soa2_a2_sfgaex1','soa3_a1_sfgaex1','soa3_a2_sfgaex1',
+                        'soa4_a1_sfgaex1','soa4_a2_sfgaex1','soa5_a1_sfgaex1','soa5_a2_sfgaex1','so4_a2_sfnnuc1','so4_c1AQH2SO4',
+                        'so4_c2AQH2SO4','so4_c3AQH2SO4','so4_c1AQSO4','so4_c2AQSO4','so4_c3AQSO4']
     waccm_vars =       ['BRO','CH3CL','CLO','CO2','HCL','HO2','HOCL','QRL_TOT','QRS_TOT']
-    #waccm_vars =       ['QRS_TOT', 'QRL_TOT']
+    #waccm_vars =       ['QRS_TOT','QRL_TOT']
 
     var_list = []
     fileVars = []
