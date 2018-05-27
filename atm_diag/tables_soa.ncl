@@ -363,12 +363,17 @@ aer(:) = "bam"
       if aer(ca).eq."bam" then 
        vddep="DF_"+vinta          ; dry depostion flux  kg/m2/s 
        vwdep=vinta+"SFWET"         ; surface wet deposition kg/m2/s 
+       vcaqa="AQSO4_H2O2"
+       vcaqb= "AQSO4_O3"
       else
        vcba = vara(si)
        vcddep =vcba+"DDF"      ; elevated emission
        vcwdep =vcba+"SFWET"      ; elevated emission
        vddep =vinta+"DDF"      ; elevated emission
        vwdep =vinta+"SFWET"      ; elevated emission
+       vcaqa=vcba+"AQSO4"
+       vcaqb=vcba+"AQH2SO4"
+       vnuc=vinta+"_sfnnuc1"
       end if
       if vars(i).eq."SOA" .and. (isfilevar(inptr,"SOAI") .and. isfilevar(inptr,"SOAT") .and. isfilevar(inptr,"SOAB") .and. isfilevar(inptr,"SOAX") .and. isfilevar(inptr,"SOAM")) then
         vprod =vinta+"_PROD"      ; production of SOA molec/molec/s 
@@ -376,11 +381,8 @@ aer(:) = "bam"
          vprod =vinta+"_CHMP"     
       end if
   ; variables in CAM5
-      vcaqa="AQSO4_H2O2"
-      vcaqb="AQSO4_O3"
-      vnuc=vinta+"_sfnnuc1"
   ; varibles in CAM4
-      vdso4 = "DSO4CHM"
+       vdso4 = "DSO4CHM"
       
       if aer(ca).eq."bam" then 
         mw = mw_bam
@@ -494,10 +496,7 @@ aer(:) = "bam"
         vdso411(:,:,:,:) = 0.
       end if
      if ca.eq.0 then 
-      vcaqb1 = vcaqb11
-      vcaqa1 = vcaqa11
       vdso41 = vdso411
-      vaqu1 = vcaqa1 + vcaqb1
       if si.eq.0 then 
         vint1 = (/vint11/)
         chmp1 = (/chmp11/)
@@ -507,6 +506,8 @@ aer(:) = "bam"
         ddf1 = vddep11+vcddep11
         dwf1 = vwdep11+vcwdep11
         vnuc1 = vnuc11
+        vaqu1 = vcaqa11
+        vaqu1 = vaqu1 + vcaqb11 
       else
         vint1 = vint1 + vint11
         chmp1 = chmp1 + chmp11
@@ -516,12 +517,10 @@ aer(:) = "bam"
         ddf1 = ddf1 + vddep11 + vcddep11
         dwf1 = dwf1 + vwdep11 + vcwdep11
         vnuc1 = vnuc1 + vnuc11
+        vaqu1 = vaqu1 + vcaqa11 + vcaqb11 
       end if 
      else
-      vcaqb2 = vcaqb11
-      vcaqa2 = vcaqa11
       vdso42 = vdso411
-      vaqu2 = vcaqa2 + vcaqb2
       if si.eq.0 then 
         vint2 = (/vint11/)
         chmp2 = chmp11
@@ -531,6 +530,8 @@ aer(:) = "bam"
         ddf2 = vddep11+vcddep11
         dwf2 = vwdep11+vcwdep11
         vnuc2 = vnuc11
+        vaqu2 = vcaqa11
+        vaqu2 = vaqu2 + vcaqb11 
       else
         vint2 = vint2 + vint11
         chmp2 = chmp2 + chmp11
@@ -540,6 +541,7 @@ aer(:) = "bam"
         ddf2 = ddf2 + vddep11 + vcddep11
         dwf2 = dwf2 + vwdep11 + vcwdep11
         vnuc2 = vnuc2 + vnuc11
+        vaqu2 = vaqu2 + vcaqa11 + vcaqb11 
       end if 
      end if 
      end do
@@ -607,11 +609,11 @@ aer(:) = "bam"
   do k=0,ddd1(1)-1
      delp1(:,k,:,:)=p1(:,k+1,:,:)-p1(:,k,:,:)
   end do
-; delp11=delp1
-; delp11d = ndtooned(delp1)
-; p11d = ndtooned(p11)
-; help11d = where(p11d.lt.20000.,0.,delp11d) 
-; delp1 = onedtond(delp11d, dimsizes(delp11))
+  delp11=delp1
+  delp11d = ndtooned(delp1)
+  p11d = ndtooned(p11)
+  delp11d = where(p11d.lt.20000.,0.,delp11d) 
+  delp1 = onedtond(delp11d, dimsizes(delp11))
   
   vint1=vint1*delp1/grav 
   bvar1=dim_sum_n_Wrap(vint1,1)
@@ -689,7 +691,7 @@ aer(:) = "bam"
  if (compare .ne. "OBS") then
 ; CASE 2 MODEL
  
-  vaqu2 = vcaqa2 + vcaqb2
+  ;vaqu2 = vcaqa2 + vcaqb2
   delp2=(/vint2/)
   ddd2=dimsizes(delp2)
   do k=0,ddd2(1)-1
@@ -716,6 +718,7 @@ aer(:) = "bam"
    bchml2(:,ii,:)=bchml2(:,ii,:)*coo2(ii)
 ;  bvdso42(:,ii,:)=bvdso42(:,ii,:)*coo2(ii)
    vemis2(:,ii,:)=vemis2(:,ii,:)*coo2(ii)
+   vgas2(:,ii,:)=vgas2(:,ii,:)*coo1(ii)
    ddf2(:,ii,:)=ddf2(:,ii,:)*coo2(ii)
    dwf2(:,ii,:)=dwf2(:,ii,:)*coo2(ii)
    vaqu2(:,ii,:)=vaqu2(:,ii,:)*coo2(ii)

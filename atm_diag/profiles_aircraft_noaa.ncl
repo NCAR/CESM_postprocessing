@@ -46,6 +46,7 @@ begin
  na = dimsizes(aircraft)
  variable = (/"O3_ppbv","CO_ppbv","SO2_ppbv","NOX_ppbv","NOy_ppbv","PAN_ppbv","C2H2","C2H6","C3H8","OH_ppbv","SAD_TROP","CLOUD"/)     
  variablen = (/"O3","CO","SO2","NOX","NOy","PAN","C2H2","C2H6","C3H8","OH","SAD_TROP","CLOUD"/)              
+ specs = (/"o3","co","so2","nox","noy","pan","c2h2","c2h6","ceh8","oh","SAD_TROP","CLOUD"/)              
  vars = (/"O3","CO","SO2","NOX","NOY","PAN","C2H2","C2H6","C3H8","OH","SAD_TROP","CLOUD"/)
  nvar = dimsizes(variable)
 
@@ -215,17 +216,32 @@ do re = 0, nregions-1
    ;  aircraft(re1(re))
    ; open obs data file
   if (vars(v).ne. "OH" .and. vars(v).ne."SAD_TROP" .and. vars(v).ne."CLOUD") then
-;;    dir_in = "/glade/p/acd/tilmes/amwg/amwg_diag_20131004_work/obs_data/aircraft/"
+ ;  dir_in = "/glade/p/acd/tilmes/amwg/amwg_diag_20131004_work/obs_data/aircraft/"
     dir_in = "$OBS_DATA/cam-chem/"
-    rin1 = addfile(dir_in+variablen(v)+aircraft(re1(re))+".nc","r")
-    air1_med = rin1->prof_med
-    air1_p25 = rin1->prof_p25
-    air1_p75 = rin1->prof_p75
-
-    rin2 = addfile(dir_in+variablen(v)+aircraft(re2(re))+".nc","r")
-    air2_med = rin2->prof_med
-    air2_p25 = rin2->prof_p25
-    air2_p75 = rin2->prof_p75
+    print(variable(v))
+    ;print(dir_in+variablen(v)+aircraft(re1(re))+".nc")
+    r1file = dir_in+aircraft(re1(re))+"_"+specs(v)+"_"+region_names(re)+".nc"
+    exists = isfilepresent(r1file)
+    if(exists) then
+     rin1 = addfile(dir_in+aircraft(re1(re))+"_"+specs(v)+"_"+region_names(re)+".nc","r")
+     air1_med = rin1->dmed
+     air1_p25 = rin1->d25pt
+     air1_p75 = rin1->d75pt
+    else
+     air1_med = new(nalt10,"float") 
+     air1_p25 = new(nalt10,"float") 
+     air1_p75 = new(nalt10,"float") 
+    end if
+    if(exists) then
+     rin2 = addfile(dir_in+aircraft(re2(re))+"_"+specs(v)+"_"+region_names(re)+".nc","r")
+     air2_med = rin2->dmed
+     air2_p25 = rin2->d25pt
+     air2_p75 = rin2->d75pt
+    else
+     air2_med = new(nalt10,"float") 
+     air2_p25 = new(nalt10,"float") 
+     air2_p75 = new(nalt10,"float") 
+    end if
   else
    air1_med = new(nalt10,"float") 
    air2_med = new(nalt10,"float") 
@@ -277,6 +293,17 @@ do re = 0, nregions-1
       delete(alt_local)
 
 ;     get model variable data 
+      tr1_1 = new(nlev1,"float") 
+      tr1_1!0 =  "lev" 
+      tr2_1 = new(nlev1,"float") 
+      tr2_1!0 =  "lev" 
+
+      zr1_1 = new(nlev1,"float") 
+      zr1_1!0 =  "lev" 
+      zr2_1 = new(nlev1,"float") 
+      zr2_1!0 =  "lev" 
+      zr1_1(:) = 0.
+      zr2_1(:) = 0.
       if isfilevar(in1_r1_m1, vars(v)) then 
          var_mo1_re1_m1 = in1_r1_m1->$vars(v)$    ; altitude (time,alt,lat,lon) 
          var_mo1_re1_m2 = in1_r1_m2->$vars(v)$                                  
@@ -287,6 +314,13 @@ do re = 0, nregions-1
         if (typeof(var_mo1_re1).eq."double") then
           var_mo1_re1 = dble2flt(var_mo1_re1)
           var_mo1_re2 = dble2flt(var_mo1_re2)
+        end if
+       if vars(v).eq."SO2" then
+        ; convert mmr to  kg/kg
+         if var_mo1_re1@units.ne."kg/kg" then
+          var_mo1_re1= var_mo1_re1* 64./28.97
+          var_mo1_re2= var_mo1_re2* 64./28.97
+         end if
         end if
         t1r1 = var_mo1_re1(:,{latmin:latmax},{lonmin:lonmax})
         t1r2 = var_mo1_re2(:,{latmin:latmax},{lonmin:lonmax})
@@ -301,15 +335,53 @@ do re = 0, nregions-1
         delete(t1r2)
         delete(z1r1)
         delete(z1r2)
-       else
-        tr1_1 = new(nlev1,"float") 
-        tr1_1!0 =  "lev" 
-        tr2_1 = new(nlev1,"float") 
-        tr2_1!0 =  "lev" 
-        zr1_1 = new(nlev1,"float") 
-        zr1_1!0 =  "lev" 
-        zr2_1 = new(nlev1,"float") 
-        zr2_1!0 =  "lev" 
+      else 
+        if vars(v) .eq. "NOX" .and. isfilevar(in1_r1_m1, "NO") .and. isfilevar(in1_r1_m1, "NO2") then 
+           var_mo1_re1_m11 = in1_r1_m1->NO    ; altitude (time,alt,lat,lon)
+           var_mo1_re1_m12 = in1_r1_m1->NO2    ; altitude (time,alt,lat,lon)
+           var_mo1_re1_m21 = in1_r1_m2->NO
+           var_mo1_re1_m22 = in1_r1_m2->NO2
+           var_mo1_re1_m1=var_mo1_re1_m11
+           var_mo1_re1_m2=var_mo1_re1_m12
+           var_mo1_re1_m1=var_mo1_re1_m11+var_mo1_re1_m12
+           var_mo1_re1_m2=var_mo1_re1_m21+var_mo1_re1_m22
+           
+           delete(var_mo1_re1_m11)
+           delete(var_mo1_re1_m12)
+           delete(var_mo1_re1_m21)
+           delete(var_mo1_re1_m22)
+           var_mo1_re1 = dim_avg_n_Wrap( array_append_record(var_mo1_re1_m1,var_mo1_re1_m2,0), 0 )
+           var_mo1_re2_m11 = in1_r2_m1->NO    ; altitude (time,alt,lat,lon)
+           var_mo1_re2_m12 = in1_r2_m1->NO2    ; altitude (time,alt,lat,lon)
+           var_mo1_re2_m21 = in1_r2_m2->NO
+           var_mo1_re2_m22 = in1_r2_m2->NO2
+           var_mo1_re2_m1=var_mo1_re2_m11
+           var_mo1_re2_m2=var_mo1_re2_m12
+           var_mo1_re2_m1=var_mo1_re2_m11+var_mo1_re2_m12
+           var_mo1_re2_m2=var_mo1_re2_m21+var_mo1_re2_m22
+           delete(var_mo1_re2_m11)
+           delete(var_mo1_re2_m12)
+           delete(var_mo1_re2_m21)
+           delete(var_mo1_re2_m22)
+           var_mo1_re2 = dim_avg_n_Wrap( array_append_record(var_mo1_re2_m1,var_mo1_re2_m2,0), 0 )
+           if (typeof(var_mo1_re1).eq."double") then
+              var_mo1_re1 = dble2flt(var_mo1_re1)
+              var_mo1_re2 = dble2flt(var_mo1_re2)
+            end if
+            t1r1 = var_mo1_re1(:,{latmin:latmax},{lonmin:lonmax})
+            t1r2 = var_mo1_re2(:,{latmin:latmax},{lonmin:lonmax})
+            z1r1 = alt_mo1_re1(:,{latmin:latmax},{lonmin:lonmax})
+            z1r2 = alt_mo1_re2(:,{latmin:latmax},{lonmin:lonmax})
+        ;   average over lon/lat
+            tr1_1 = dim_avg_n_Wrap(t1r1,(/1,2/))
+            tr2_1 = dim_avg_n_Wrap(t1r2,(/1,2/))
+            zr1_1 = dim_avg_n_Wrap(z1r1,(/1,2/))
+            zr2_1 = dim_avg_n_Wrap(z1r2,(/1,2/))
+            delete(t1r1)
+            delete(t1r2)
+            delete(z1r1)
+            delete(z1r2)
+        end if
        end if
 
 ;     get model 2 pressure data 
@@ -336,6 +408,16 @@ do re = 0, nregions-1
       delete(alt_local)
 
 ;     get model variable data
+       tr1_2 = new(nlev2,"float") 
+       tr1_2!0 =  "lev" 
+       tr2_2 = new(nlev2,"float") 
+       tr2_2!0 =  "lev" 
+       zr1_2 = new(nlev2,"float")
+       zr1_2!0 =  "lev"
+       zr2_2 = new(nlev2,"float")
+       zr2_2!0 =  "lev"
+       zr1_2(:) = 0.
+       zr2_2(:) = 0.
       if isfilevar(in2_r1_m1, vars(v)) then
          var_mo2_re1_m1 = in2_r1_m1->$vars(v)$    ; altitude (time,alt,lat,lon)
          var_mo2_re1_m2 = in2_r1_m2->$vars(v)$
@@ -347,11 +429,20 @@ do re = 0, nregions-1
           var_mo2_re1 = dble2flt(var_mo2_re1)
           var_mo2_re2 = dble2flt(var_mo2_re2)
         end if
+       if vars(v).eq."SO2" then
+        ; convert mmr to  kg/kg
+         if var_mo2_re1@units.ne."kg/kg" then
+          var_mo2_re1= var_mo2_re1* 64./28.97
+          var_mo2_re2= var_mo2_re2* 64./28.97
+         end if
+        end if
         t2r1 = var_mo2_re1(:,{latmin:latmax},{lonmin:lonmax})
         t2r2 = var_mo2_re2(:,{latmin:latmax},{lonmin:lonmax})
         z2r1 = alt_mo2_re1(:,{latmin:latmax},{lonmin:lonmax})
         z2r2 = alt_mo2_re2(:,{latmin:latmax},{lonmin:lonmax})
   ;   average over lon/lat
+      printVarSummary(t2r1)
+      printVarSummary(tr1_2)
         tr1_2 = dim_avg_n_Wrap(t2r1,(/1,2/))
         tr2_2 = dim_avg_n_Wrap(t2r2,(/1,2/))
         zr1_2 = dim_avg_n_Wrap(z2r1,(/1,2/))
@@ -361,10 +452,47 @@ do re = 0, nregions-1
         delete(z2r1)
         delete(z2r2)
      else 
-        tr1_2 = new(nlev1,"float") 
-        tr1_2!0 =  "lev" 
-        tr2_2 = new(nlev1,"float") 
-        tr2_2!0 =  "lev" 
+      if vars(v) .eq. "NOX" .and. isfilevar(in2_r1_m1, "NO") .and. isfilevar(in2_r1_m1, "NO2") then
+           var_mo2_re1_m11 = in2_r1_m1->NO    ; altitude (time,alt,lat,lon)
+           var_mo2_re1_m12 = in2_r1_m1->NO2    ; altitude (time,alt,lat,lon)
+           var_mo2_re1_m21 = in2_r1_m2->NO
+           var_mo2_re1_m22 = in2_r1_m2->NO2
+           var_mo2_re1_m1=var_mo2_re1_m11
+           var_mo2_re1_m2=var_mo2_re1_m12
+           var_mo2_re1_m1=var_mo2_re1_m11+var_mo2_re1_m12
+           var_mo2_re1_m2=var_mo2_re1_m21+var_mo2_re1_m22
+           delete(var_mo2_re1_m11)
+           delete(var_mo2_re1_m12)
+           delete(var_mo2_re1_m21)
+           delete(var_mo2_re1_m22)
+           var_mo2_re2_m11 = in2_r2_m1->NO    ; altitude (time,alt,lat,lon)
+           var_mo2_re2_m12 = in2_r2_m1->NO2    ; altitude (time,alt,lat,lon)
+           var_mo2_re2_m21 = in2_r2_m2->NO
+           var_mo2_re2_m22 = in2_r2_m2->NO2
+           var_mo2_re2_m1=var_mo2_re2_m11
+           var_mo2_re2_m2=var_mo2_re2_m12
+           var_mo2_re2_m1=var_mo2_re2_m11+var_mo2_re2_m12
+           var_mo2_re2_m2=var_mo2_re2_m21+var_mo2_re2_m22
+           delete(var_mo2_re2_m11)
+           delete(var_mo2_re2_m12)
+           delete(var_mo2_re2_m21)
+           delete(var_mo2_re2_m22)
+           var_mo2_re2 = dim_avg_n_Wrap( array_append_record(var_mo2_re2_m1,var_mo2_re2_m2,0), 0 )
+
+           if (typeof(var_mo2_re1).eq."double") then
+             var_mo2_re1 = dble2flt(var_mo2_re1)
+             var_mo2_re2 = dble2flt(var_mo2_re2)
+           end if
+           t2r1 = var_mo2_re1(:,{latmin:latmax},{lonmin:lonmax})
+           t2r2 = var_mo2_re2(:,{latmin:latmax},{lonmin:lonmax})
+           z2r1 = alt_mo2_re1(:,{latmin:latmax},{lonmin:lonmax})
+           z2r2 = alt_mo2_re2(:,{latmin:latmax},{lonmin:lonmax})
+     ;   average over lon/lat
+           tr1_2 = dim_avg_n_Wrap(t2r1,(/1,2/))
+           tr2_2 = dim_avg_n_Wrap(t2r2,(/1,2/))
+           zr1_2 = dim_avg_n_Wrap(z2r1,(/1,2/))
+           zr2_2 = dim_avg_n_Wrap(z2r2,(/1,2/))
+      end if
      end if
    end if
 
