@@ -199,12 +199,13 @@ vai_data2(1,4,:) = dim_avg(vai_mo_sh2(years|:,months|9:11))
 
 end if
 
-
 ; load and process the LENS data (only concentration and volume, not snow)
 f3 = addfile(diag_obs+"/LE_hitot_nh_1920-2100.nc","r")
 f4 = addfile(diag_obs+"/LE_hitot_sh_1920-2100.nc","r")
-f5 = addfile(diag_obs+"/LE_aicetot_nh_1920-2100.nc","r")
-f6 = addfile(diag_obs+"/LE_aicetot_sh_1920-2100.nc","r")
+f5 = addfile(diag_obs+"/LE_hstot_nh_1920-2100.nc","r")
+f6 = addfile(diag_obs+"/LE_hstot_sh_1920-2100.nc","r")
+f7 = addfile(diag_obs+"/LE_aicetot_nh_1920-2100.nc","r")
+f8 = addfile(diag_obs+"/LE_aicetot_sh_1920-2100.nc","r")
 
 ;ice volume
 vhi_mo_nh3_all = f3->hi_monthly
@@ -226,17 +227,37 @@ vhi_ann_nh3_all@units = "1.E+13 m3"
 vhi_ann_sh3_all  = vhi_ann_sh3_all/(1.E13)
 vhi_ann_sh3_all@units = "1.E+13 m3"
 
-; ice extent
-vai_mo_nh3_all = f5->aice_monthly
-vai_ann_nh3_all = f5->aice_ann
-vai_mo_sh3_all = f6->aice_monthly
-vai_ann_sh3_all = f6->aice_ann
+;snow volume
+vhs_mo_nh3_all = f5->hs_monthly
+vhs_ann_nh3_all = f5->hs_ann
+vhs_mo_sh3_all = f6->hs_monthly
+vhs_ann_sh3_all = f6->hs_ann
 yr_5 = f5->year
-dims = dimsizes(vai_mo_nh3_all)
-vai_nLENS = dims(0)  ; get # LENS members
+dims = dimsizes(vhs_mo_nh3_all)
+vhs_nLENS = dims(0)  ; get # LENS members
 delete([/f5,f6,dims/])
 
 ; convert volume units
+vhs_mo_nh3_all  = vhs_mo_nh3_all/(1.E13)
+vhs_mo_nh3_all@units = "1.E+13 m3"
+vhs_mo_sh3_all  = vhs_mo_sh3_all/(1.E13)
+vhs_mo_sh3_all@units = "1.E+13 m3"
+vhs_ann_nh3_all  = vhs_ann_nh3_all/(1.E13)
+vhs_ann_nh3_all@units = "1.E+13 m3"
+vhs_ann_sh3_all  = vhs_ann_sh3_all/(1.E13)
+vhs_ann_sh3_all@units = "1.E+13 m3"
+
+; ice extent
+vai_mo_nh3_all = f7->aice_monthly
+vai_ann_nh3_all = f7->aice_ann
+vai_mo_sh3_all = f8->aice_monthly
+vai_ann_sh3_all = f8->aice_ann
+yr_7 = f7->year
+dims = dimsizes(vai_mo_nh3_all)
+vai_nLENS = dims(0)  ; get # LENS members
+delete([/f7,f8,dims/])
+
+; convert area units
 vai_mo_nh3_all  = vai_mo_nh3_all/(1.E12)
 vai_mo_nh3_all@units = "1.E+12 m3"
 vai_mo_sh3_all  = vai_mo_sh3_all/(1.E12)
@@ -254,6 +275,11 @@ vhi_mo_nh3 = vhi_mo_nh3_all(:,0:vhi_nyrs_LENS-1,:)
 vhi_ann_nh3 = vhi_ann_nh3_all(:,0:vhi_nyrs_LENS-1)
 vhi_mo_sh3 = vhi_mo_sh3_all(:,0:vhi_nyrs_LENS-1,:)
 vhi_ann_sh3 = vhi_ann_sh3_all(:,0:vhi_nyrs_LENS-1)
+
+vhs_mo_nh3 = vhs_mo_nh3_all(:,0:vhi_nyrs_LENS-1,:)
+vhs_ann_nh3 = vhs_ann_nh3_all(:,0:vhi_nyrs_LENS-1)
+vhs_mo_sh3 = vhs_mo_sh3_all(:,0:vhi_nyrs_LENS-1,:)
+vhs_ann_sh3 = vhs_ann_sh3_all(:,0:vhi_nyrs_LENS-1)
 
 vai_mo_nh3 = vai_mo_nh3_all(:,0:vhi_nyrs_LENS-1,:)
 vai_ann_nh3 = vai_ann_nh3_all(:,0:vhi_nyrs_LENS-1)
@@ -274,6 +300,21 @@ vhi_data3(1,:,1,:) = dim_avg_n(vhi_mo_sh3(n_members|:,nyr|:,nmonth|0:2),2)
 vhi_data3(1,:,2,:) = dim_avg_n(vhi_mo_sh3(n_members|:,nyr|:,nmonth|3:5),2)
 vhi_data3(1,:,3,:) = dim_avg_n(vhi_mo_sh3(n_members|:,nyr|:,nmonth|6:8),2)
 vhi_data3(1,:,4,:) = dim_avg_n(vhi_mo_sh3(n_members|:,nyr|:,nmonth|9:11),2)
+
+; LENS snow volumes
+vhs_data3 = new((/2,vhs_nLENS,5,vhi_nyrs_LENS/),float)
+
+vhs_data3(0,:,0,:) = vhs_ann_nh3
+vhs_data3(0,:,1,:) = dim_avg_n(vhs_mo_nh3(n_members|:,nyr|:,nmonth|0:2),2)
+vhs_data3(0,:,2,:) = dim_avg_n(vhs_mo_nh3(n_members|:,nyr|:,nmonth|3:5),2)
+vhs_data3(0,:,3,:) = dim_avg_n(vhs_mo_nh3(n_members|:,nyr|:,nmonth|6:8),2)
+vhs_data3(0,:,4,:) = dim_avg_n(vhs_mo_nh3(n_members|:,nyr|:,nmonth|9:11),2)
+
+vhs_data3(1,:,0,:) = vhs_ann_sh3
+vhs_data3(1,:,1,:) = dim_avg_n(vhs_mo_sh3(n_members|:,nyr|:,nmonth|0:2),2)
+vhs_data3(1,:,2,:) = dim_avg_n(vhs_mo_sh3(n_members|:,nyr|:,nmonth|3:5),2)
+vhs_data3(1,:,3,:) = dim_avg_n(vhs_mo_sh3(n_members|:,nyr|:,nmonth|6:8),2)
+vhs_data3(1,:,4,:) = dim_avg_n(vhs_mo_sh3(n_members|:,nyr|:,nmonth|9:11),2)
 
 ; LENS ice areas
 vai_data3 = new((/2,vai_nLENS,5,vhi_nyrs_LENS/),float)
@@ -379,7 +420,7 @@ resP@txString = title(ihem,iseas)
       res@xyDashPatterns    = (/0/)
       res@xyLineColors      = (/"blue"/)
 
-      ; volume resources
+      ; ice volume resources
       resv = res
       delete([/resv@xyLineThicknesses, resv@xyDashPatterns, resv@xyLineColors/])
  
@@ -400,7 +441,28 @@ resP@txString = title(ihem,iseas)
       resv@xyLineColors = cs
       delete(cs)
 
-      ; area resources
+      ; snow volume resources
+      resvs = res
+      delete([/resvs@xyLineThicknesses, resvs@xyDashPatterns, resvs@xyLineColors/])
+ 
+      ; dummy variables for the big array of LENS data
+      dumi = new((/vhi_nLENS+1/),integer)
+      dums = new((/vhi_nLENS+1/),string)
+      ts = dumi
+      ts = 5
+      resvs@xyLineThicknesses = ts
+      delete(ts)
+      ps = dumi
+      ps = 0
+      resvs@xyDashPatterns    = ps
+      delete(ps)
+      cs = dums
+      cs = "grey"
+      cs(vhi_nLENS) = "blue"
+      resvs@xyLineColors = cs
+      delete(cs)
+
+      ; ice area resources
       resa = res
       delete([/resa@xyLineThicknesses, resa@xyDashPatterns, resa@xyLineColors/])
  
@@ -441,7 +503,7 @@ resP@txString = title(ihem,iseas)
 
       ; fill in arrays
       y1   = new((/vhi_nLENS+1,ntimes_tot/12/),float)
-      y2   = new((/ntimes_tot/12/),float)
+      y2   = new((/vhi_nLENS+1,ntimes_tot/12/),float)
       y3   = new((/vhi_nLENS+1,ntimes_tot/12/),float)
       y1b  = new((/ntimes_tot/12/),float)
       y2b  = new((/ntimes_tot/12/),float)
@@ -453,9 +515,10 @@ resP@txString = title(ihem,iseas)
       y2b  = -999.
       y3b  = -999.
 
-      y1(0:vhi_nLENS-1,inds1(0):ntimes/12-1+ix1_off) = (/vhi_data3(ihem,:,iseas,0:inds2(max(inds2)))/)
+      y1(0:vhi_nLENS-1,inds1(0):ntimes/12-1+ix1_off) = (/vhi_data3(ihem,0:vhi_nLENS-1,iseas,0:inds2(max(inds2)))/)
       y1(vhi_nLENS,ix1_off:ntimes/12-1+ix1_off)  = (/vhi_data1(ihem,iseas,:)/)
-      y2(ix1_off:ntimes/12-1+ix1_off)  = vhs_data1(ihem,iseas,:)
+      y2(0:vhs_nLENS-1,inds1(0):ntimes/12-1+ix1_off) = (/vhs_data3(ihem,0:vhi_nLENS-1,iseas,0:inds2(max(inds2)))/)
+      y2(vhi_nLENS,ix1_off:ntimes/12-1+ix1_off)  = (/vhs_data1(ihem,iseas,:)/)
       y3(0:vhi_nLENS-1,inds1(0):ntimes/12-1+ix1_off) = (/vai_data3(ihem,0:vhi_nLENS-1,iseas,0:inds2(max(inds2)))/)
       y3(vhi_nLENS,ix1_off:ntimes/12-1+ix1_off)  = (/vai_data1(ihem,iseas,:)/)
 
@@ -475,7 +538,7 @@ resP@txString = title(ihem,iseas)
       res@trXMinF = min((/x1/))
       res@trXMaxF = max((/x1/))
 
-      ; volume resources
+      ; ice volume resources
       resv = res
       delete([/resv@xyLineThicknesses, resv@xyDashPatterns, resv@xyLineColors/])
  
@@ -494,6 +557,27 @@ resP@txString = title(ihem,iseas)
       cs = "grey"
       cs(vhi_nLENS) = "blue"
       resv@xyLineColors = cs
+      delete(cs)
+
+      ; snow volume resources
+      resvs = res
+      delete([/resvs@xyLineThicknesses, resvs@xyDashPatterns, resvs@xyLineColors/])
+ 
+      ; dummy variables for the big array of LENS data
+      dumi = new((/vhi_nLENS+1/),integer)
+      dums = new((/vhi_nLENS+1/),string)
+      ts = dumi
+      ts = 5
+      resvs@xyLineThicknesses = ts
+      delete(ts)
+      ps = dumi
+      ps = 0
+      resvs@xyDashPatterns    = ps
+      delete(ps)
+      cs = dums
+      cs = "grey"
+      cs(vhi_nLENS) = "blue"
+      resvs@xyLineColors = cs
       delete(cs)
 
       ; area resources
@@ -530,15 +614,16 @@ resP@txString = title(ihem,iseas)
       inds2 = ind(.not.ismissing(dum2))
 
       y1   = new((/vhi_nLENS+1,ntimes_tot/12/),float)
-      y2   = new((/ntimes_tot/12/),float)
+      y2   = new((/vhi_nLENS+1,ntimes_tot/12/),float)
       y3   = new((/vhi_nLENS+1,ntimes_tot/12/),float)
       y1   = -999.
       y2   = -999.
       y3   = -999.
 
-      y1(0:vhi_nLENS-1,inds1(0):ntimes/12-1+ix1_off) = (/vhi_data3(ihem,:,iseas,0:inds2(max(inds2)))/)
+      y1(0:vhi_nLENS-1,inds1(0):ntimes/12-1+ix1_off) = (/vhi_data3(ihem,0:vhi_nLENS-1,iseas,0:inds2(max(inds2)))/)
       y1(vhi_nLENS,ix1_off:ntimes/12-1+ix1_off)  = (/vhi_data1(ihem,iseas,:)/)
-      y2(ix1_off:ntimes/12-1+ix1_off)  = vhs_data1(ihem,iseas,:)
+      y2(0:vhs_nLENS-1,inds1(0):ntimes/12-1+ix1_off) = (/vhs_data3(ihem,0:vhi_nLENS-1,iseas,0:inds2(max(inds2)))/)
+      y2(vhi_nLENS,ix1_off:ntimes/12-1+ix1_off)  = (/vhs_data1(ihem,iseas,:)/)
       y3(0:vhi_nLENS-1,inds1(0):ntimes/12-1+ix1_off) = (/vai_data3(ihem,0:vhi_nLENS-1,iseas,0:inds2(max(inds2)))/)
       y3(vhi_nLENS,ix1_off:ntimes/12-1+ix1_off)  = (/vai_data1(ihem,iseas,:)/)
 
@@ -576,6 +661,13 @@ resv@tmXMajorGridLineDashPattern = 2
 resv@tmXMajorGridThicknessF = 1
 ;resv@tmYMajorGridThicknessF = 1
 
+resvs@tmXMajorGrid = True
+;resvs@tmYMajorGrid = True
+resvs@tmXMajorGridLineDashPattern = 2
+;resvs@tmYMajorGridLineDashPattern = 2
+resvs@tmXMajorGridThicknessF = 1
+;resvs@tmYMajorGridThicknessF = 1
+
 resa@tmXMajorGrid = True
 ;resa@tmYMajorGrid = True
 resa@tmXMajorGridLineDashPattern = 2
@@ -594,6 +686,11 @@ if (ncases .gt. 1) then
    resv@gsnLeftString = case_to_diff
    resv@gsnLeftStringFontColor = "red"
 
+   ;resvs@gsnRightString = case_to_cont
+   ;resvs@gsnRightStringFontColor = "blue"
+   ;resvs@gsnLeftString = case_to_diff
+   ;resvs@gsnLeftStringFontColor = "red"
+
    ;resa@gsnRightString = case_to_cont
    ;resa@gsnRightStringFontColor = "blue"
    ;resa@gsnLeftString = case_to_diff
@@ -607,12 +704,15 @@ if (ncases .gt. 1) then
 
    res@tmXBLabelFontColor = "blue"
    resv@tmXBLabelFontColor = "blue"
+   resvs@tmXBLabelFontColor = "blue"
    resa@tmXBLabelFontColor = "blue"
 
    res@trYMinF = min((/min(y1),min(y1b)/))
    res@trYMaxF = max((/max(y1),max(y1b)/))
    resv@trYMinF = min((/min(y1),min(y1b)/))
    resv@trYMaxF = max((/max(y1),max(y1b)/))
+   resvs@trYMinF = min((/min(y1),min(y1b)/))
+   resvs@trYMaxF = max((/max(y2),max(y2b)/))
    resb@trYMinF = min((/min(y1),min(y1b)/))
    resb@trYMaxF = max((/max(y1),max(y1b)/))
 
@@ -627,6 +727,8 @@ if (ncases .gt. 1) then
    res@trXMaxF = max((/max(x1),max(x1)/))
    resv@trXMinF = min((/min(x1),min(x1)/))
    resv@trXMaxF = max((/max(x1),max(x1)/))
+   resvs@trXMinF = min((/min(x1),min(x1)/))
+   resvs@trXMaxF = max((/max(x1),max(x1)/))
    resa@trXMinF = min((/min(x1),min(x1)/))
    resa@trXMaxF = max((/max(x1),max(x1)/))
    resb@trXMinF = min((/min(x2),min(x2)/))
@@ -634,14 +736,16 @@ if (ncases .gt. 1) then
 
    plot1 = gsn_csm_x2y2(wks1,x1,x2,y1,y1b,resv,resb)
 
-   res@gsnRightString = " "
-   res@gsnLeftString = " "
-   res@trYMinF = min((/min(y2),min(y2b)/))
-   res@trYMaxF = max((/max(y2),max(y2b)/))
+   resvs@gsnRightString = " "
+   resvs@gsnLeftString = " "
+   resvs@trYMinF = min((/min(y2),min(y2b)/))
+   resvs@trYMaxF = max((/max(y2),max(y2b)/))
    resb@trYMinF = min((/min(y2),min(y2b)/))
    resb@trYMaxF = max((/max(y2),max(y2b)/))
-   plot2 = gsn_csm_x2y2(wks1,x1,x2,y2,y2b,res,resb)
+   plot2 = gsn_csm_x2y2(wks1,x1,x2,y2,y2b,resvs,resb)
 
+   resa@gsnRightString = " "
+   resa@gsnLeftString = " "
    resa@trYMinF = min((/min(y3),min(y3b)/))
    resa@trYMaxF = max((/max(y3),max(y3b)/))
    resb@trYMinF = min((/min(y3),min(y3b)/))
@@ -649,7 +753,7 @@ if (ncases .gt. 1) then
    plot3 = gsn_csm_x2y2(wks1,x1,x2,y3,y3b,resa,resb)
 else
    plot1 = gsn_csm_xy(wks1,x1,y1,resv)
-   plot2 = gsn_csm_xy(wks1,x1,y2,res)
+   plot2 = gsn_csm_xy(wks1,x1,y2,resvs)
    plot3 = gsn_csm_xy(wks1,x1,y3,resa)
 end if
 
