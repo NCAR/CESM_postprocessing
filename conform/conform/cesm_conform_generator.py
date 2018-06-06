@@ -82,6 +82,25 @@ cmip6_realms = {
         "seaIce":"ice"
 }
 
+cesm_realms = {
+        "cam":"atm",
+        "clm2":"lnd",
+        "rtm":"rof",
+        "cism":"glc",
+        "pop":"ocn",
+        "cice":"ice"
+}
+
+cesm_cmip6_realms = {
+        "cam":"atmos",
+        "clm2":"land",
+        "rtm":"land",
+        "cism":"landIce",
+        "pop":"ocean",
+        "cice":"seaIce"
+}
+
+
 r2c = {
         "aerosol":"atm",
         "atmos":"atm",
@@ -94,10 +113,10 @@ r2c = {
 }
 
 grids = {
-       "atm":{"lat":["lat"],"lon":["lon"],"lev":["lev","ilev"],"time":["time"]},
+       "atm":{"lat":["lat"],"lon":["lon"],"lev":["lev"],"time":["time"]},
        "lnd":{"lat":["lat"],"lon":["lon"],"lev":["levdcmp","levgrnd","levsoi","levurb","levlak","numrad","levsno","nlevcan","nvegwcs","natpft"],"time":["time"]},
        "rof":{"lat":["lat"],"lon":["lon"],"lev":[None],"time":["time"]},
-       "glc":{"lat":["x0","x1"],"lon":["y0","y1"],"lev":["level","staglevel","stagwbndlevel"],"time":["time"]},
+       "glc":{"lat":["y0","y1"],"lon":["x0","x1"],"lev":["level","staglevel","stagwbndlevel"],"time":["time"]},
        "ocn":{"lat":["nlat"],"lon":["nlon"],"lev":["z_t","z_t_150m","z_w","z_w_top","z_w_bot"],"time":["time"]},
        "ice":{"lat":["nj"],"lon":["ni"],"lev":["nc","nkice","nksnow","nkbio"],"time":["time"]}
 }
@@ -214,6 +233,15 @@ def find_nc_files(root_dir):
 
 def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
 
+    grds = {
+        'atm':'192x288',
+        'lnd':'192x288',
+        'glc':'192x288',
+        'rof':'192x288',
+        'ice':'384x320',
+        'ocn':'384x320'
+    }
+
     variablelist = {}
     gridfile = None
     nc_files_l = comm.partition(nc_files,func=partition.EqualLength(),involved=True)
@@ -240,16 +268,16 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
             v_dims = f.variables[fn.split('.')[-3]].dimensions 
             for i in grids[mt]['lat']:
               if i in v_dims:
-                  if 'nlat' in i:
+                  if 'nlat' in i or 'nj' in i:
                       lat_name = str(f.variables[fn.split('.')[-3]].coordinates.split()[1])
                   else:
                       lat_name = i
                   lt = len(f.dimensions[i])
             for i in grids[mt]['lon']:
               if i in v_dims:
-                  if 'nlon' in i:
+                  if 'nlon' in i or 'ni' in i:
                       lon_name = str(f.variables[fn.split('.')[-3]].coordinates.split()[0])
-                      if 'ULONG' in lon_name:
+                      if 'ULON' in lon_name:
                           ln = str(len(f.dimensions[i]))+"_UGRID"
                       else:
                           ln = str(len(f.dimensions[i]))+"_TGRID"
@@ -260,11 +288,20 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
               if i in v_dims: 
                   lev_name = i
                   lv = len(f.dimensions[i])
-            for i in grids[mt]['time']:
-              if i in v_dims:
-                  time_name = i
-                  lv = len(f.dimensions[i]) 
-            gridfile = '{0}/{1}x{2}x{3}.nc'.format(extra_dir,mt,lt,ln)
+#            for i in grids[mt]['time']:
+#              if i in v_dims:
+#                  time_name = i
+#                  lv = len(f.dimensions[i])
+            if 'none' == lt or 'none' == ln:
+                gridfile = '{0}/{1}x{2}.nc'.format(extra_dir,mt,grds[mt])
+            else:
+                if 'atm' in mt:
+                    gridfile = '{0}/{1}x{2}x{3}x{4}.nc'.format(extra_dir,mt,lt,ln,lv)
+                else: 
+                    gridfile = '{0}/{1}x{2}x{3}.nc'.format(extra_dir,mt,lt,ln)
+            if gridfile is not None:
+                if not os.path.isfile(gridfile):
+                    gridfile = None
 
             for vn,ob in f.variables.iteritems():
                 if model_type not in variablelist.keys():
@@ -315,7 +352,8 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
                                     variable_list[model_type][vn][tp][date] = {}
                                 if 'files' in variable_list[model_type][vn][tp][date].keys():
                                     if len(lvarList[model_type][vn][tp][date]['files'])>0:
-                                        variable_list[model_type][vn][tp][date]['files'].append(lvarList[model_type][vn][tp][date]['files'][0])
+                                        if lvarList[model_type][vn][tp][date]['files'][0] is not None:
+                                            variable_list[model_type][vn][tp][date]['files'].append(lvarList[model_type][vn][tp][date]['files'][0])
                                 else:
                                     variable_list[model_type][vn][tp][date] = lvarList[model_type][vn][tp][date]          
 
@@ -327,7 +365,7 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
         comm.sync()
     return variable_list
 
-def match_tableSpec_to_stream(ts_dir, variable_list):
+def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
 
     spec_streams = {}
     var_defs = {}
@@ -354,6 +392,11 @@ def match_tableSpec_to_stream(ts_dir, variable_list):
 
     js = glob.glob(ts_dir+"/*.json")
     for j in js:
+
+        # Read in the json file and add the correct dimension definitions
+        js_fo = json.load(open(j,'r'))
+        js_f = js_fo.copy()
+
         var_defs[j] = {}
         missing = {}
         dims = []
@@ -364,12 +407,13 @@ def match_tableSpec_to_stream(ts_dir, variable_list):
 
         # get the cesm var names from the defs in json file
         cmd = "vardeps -f -n "+j
-        #print '---------------------------------------'
-        #print cmd
+        print '---------------------------------------'
+        print cmd
         p = subprocess.Popen([cmd], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
         end = False
+        found_all = True
+        missing_vars = []
         output = p.stdout.read().split('\n')
-        print p.stderr.read()
         for l in output:
             if '[' in l and ']' in l and ':' in l:
                 split = l.split();
@@ -388,11 +432,82 @@ def match_tableSpec_to_stream(ts_dir, variable_list):
                 var_defs[j][split[0]]["realm"] = split[1].replace("[","").replace("]","").replace(":","").split(",")[1]
                 var_defs[j][split[0]]["vars"] = l.split(":")[1].split()
                 var_defs[j][split[0]]["var_check"] = {}
-                #Look up
+                # check to see if we have all before we start
                 for v in var_defs[j][split[0]]["vars"]:
                     var_defs[j][split[0]]["var_check"][v] = []
-                    r = var_defs[j][split[0]]["realm"]
-                    f = var_defs[j][split[0]]["freq"]
+                    var_name = j.split("_")[-2]
+                    if "input_glob" in js_fo[var_name].keys():
+                        stream = js_fo[var_name]["input_glob"].split(".")
+                        r = cesm_cmip6_realms[stream[0]]
+                        if 'landIce' in r:
+                            f = 'year_1'
+                        else:
+                            f = var_defs[j][split[0]]["freq"]
+                    elif 'Odec' in j:
+                        f = 'month_1'
+                        r = 'ocean'
+                        stream = None
+                    else:
+                        stream = None
+                        r = var_defs[j][split[0]]["realm"]
+                        f = var_defs[j][split[0]]["freq"]
+                    if cmip6_realms[r] not in variable_list.keys():
+                        found_all = False
+                        missing_vars.append(v) 
+                    else:
+                        if v in variable_list[cmip6_realms[r]].keys():
+                            l_found_all = False
+                            for freq in variable_list[cmip6_realms[r]][v].keys():
+                                if f in freq:
+                                    l_found_all = True
+                            if not l_found_all:
+                                found_all = False
+                                missing_vars.append(v)
+                        elif ',' in cmip6_realms[r]:
+                            l_found_all = False
+                            if 'glc' in cmip6_realms[r]:
+                                if v in variable_list['lnd,rof'].keys():
+                                    l_found_all = False
+                                    for freq in variable_list['lnd,rof'][v].keys():
+                                        if f in freq:
+                                            l_found_all = True
+                                    if not l_found_all:
+                                        found_all = False
+                                        missing_vars.append(v)
+                                elif v in variable_list['glc,lnd'].keys():
+                                    l_found_all = False
+                                    for freq in variable_list['glc,lnd'][v].keys():
+                                        if f in freq:
+                                            l_found_all = True
+                                    if not l_found_all:
+                                        found_all = False
+                                        missing_vars.append(v)
+                            else:
+                                found_all = False
+                                missing_vars.append(v)
+                        elif 'plev' in v:
+                            l_found_all = True
+                        else:
+                            found_all = False
+                            missing_vars.append(v)
+                #Look up
+                for v in var_defs[j][split[0]]["vars"]:
+                    print "TRYING TO FIND: ",v
+                    var_defs[j][split[0]]["var_check"][v] = []
+                    var_name = j.split("_")[-2]
+                    if "input_glob" in js_fo[var_name].keys():
+                        stream = js_fo[var_name]["input_glob"].split(".")
+                        r = cesm_cmip6_realms[stream[0]]
+                        if 'landIce' in r:
+                            f = 'year_1'
+                        else:
+                            f = var_defs[j][split[0]]["freq"]
+                    elif 'Odec' in j:
+                        f = 'month_1' 
+                    else:
+                        stream = None
+                        r = var_defs[j][split[0]]["realm"]
+                        f = var_defs[j][split[0]]["freq"]
                     found_r = None
                     if cmip6_realms[r] not in variable_list.keys(): 
                         print "Could not find ",cmip6_realms[r]," in ",variable_list.keys()
@@ -402,26 +517,44 @@ def match_tableSpec_to_stream(ts_dir, variable_list):
                         elif ',' in cmip6_realms[r]:
                             if 'glc' in cmip6_realms[r]:
                                 if v in variable_list['lnd,rof'].keys(): 
-                                    found_r = 'lnd,rof'                       
-                    if found_r != None:     
+                                    found_r = 'lnd,rof'
+                                elif v in variable_list['glc,lnd'].keys():
+                                    found_r = 'glc,lnd' 
+                        elif 'plev' in v:
+                            l_found_all = True 
+                        #else:
+                            #found_all = False      
+                            #missing_vars.append(v)  
+                    if found_r != None and found_all:     
                         for freq in variable_list[found_r][v].keys():
                             if f in freq:
+                                var_name = j.split("_")[-2]
+
                                 var_defs[j][split[0]]["var_check"][v] = variable_list[found_r][v][freq]
                                 rl = r
                                 freql = freq
                                 for date in variable_list[found_r][v][freq].keys():
-                                    fl1 = variable_list[found_r][v][freq][date]['files']
-                                    if (j+">>"+date) not in spec_streams.keys():
-                                        spec_streams[j+">>"+date] = []
-                                    # Add input file name
-                                    if fl1[0] not in spec_streams[j+">>"+date]:
-                                        spec_streams[j+">>"+date].append(fl1[0])
-                                    # Add the grid file name
-                                    if fl1[1] not in spec_streams[j+">>"+date]:
-                                        spec_streams[j+">>"+date].append(fl1[1])
-                                    # Read in the json file and add the correct dimension definitions
-                                    js_fo = json.load(open(j,'r'))
-                                    js_f = js_fo.copy()
+                                    if stream is None:
+                                        fl1 = variable_list[found_r][v][freq][date]['files']
+                                    else:
+                                        filename = dout_s_root+"/"+cesm_realms[stream[0]]+"/proc/tseries/"+freq+"/"+case+"."+stream[0]+"."+stream[1]+"."+v+"."+date+".nc"
+                                        if "lnd" in cesm_realms[stream[0]] or "rof" in cesm_realms[stream[0]]:
+                                            gridname = variable_list['lnd,rof'][v][freq][date]['files'][1]
+                                        elif "glc" in cesm_realms[stream[0]]:
+                                            gridname = variable_list['glc,lnd'][v][freq][date]['files'][1]
+                                        else:
+                                            gridname = variable_list[cesm_realms[stream[0]]][v][freq][date]['files'][1]
+                                        fl1 = [filename,gridname]
+                                    if os.path.exists(fl1[0]):
+                                        if (j+">>"+date) not in spec_streams.keys():
+                                            spec_streams[j+">>"+date] = []
+                                        # Add input file name
+                                        if fl1[0] not in spec_streams[j+">>"+date]:
+                                            spec_streams[j+">>"+date].append(fl1[0])
+                                        # Add the grid file name
+                                        if fl1[1] not in spec_streams[j+">>"+date] and fl1[1] is not None:
+                                            spec_streams[j+">>"+date].append(fl1[1])
+                                    # Add the correct dimension definitions
                                     for k,var in js_fo.iteritems():
                                         if 'ocean' in j or 'ocn' in j:
                                             if k in j.split("_")[-2]:
@@ -429,27 +562,69 @@ def match_tableSpec_to_stream(ts_dir, variable_list):
                                                     js_f[k]['dimensions'][js_f[k]['dimensions'].index('latitude')] = 'nlat'
                                                 if 'longitude' in js_f[k]['dimensions']:
                                                     js_f[k]['dimensions'][js_f[k]['dimensions'].index('longitude')] = 'nlon'
+                                        if 'seaIce' in j:
+                                            if k in j.split("_")[-2]:
+                                                if 'latitude' in js_f[k]['dimensions']:
+                                                    js_f[k]['dimensions'][js_f[k]['dimensions'].index('latitude')] = 'nj'
+                                                if 'longitude' in js_f[k]['dimensions']:
+                                                    js_f[k]['dimensions'][js_f[k]['dimensions'].index('longitude')] = 'ni'
+
                                         if 'definition' in var.keys():
-                                            if 'xxlatxx' in var['definition'] and variable_list[found_r][v][freq][date]['lat'] != None:
-                                                 js_f[k]['definition'] = variable_list[found_r][v][freq][date]['lat']
+                                            if 'xxlatxx' in var['definition']:
+                                              if variable_list[found_r][v][freq][date]['lat'] != None:
+                                                 js_f[k]['definition'] = var['definition'].replace('xxlatxx',variable_list[found_r][v][freq][date]['lat'])
                                                  if 'TLAT' in variable_list[found_r][v][freq][date]['lat'] or 'ULAT' in variable_list[found_r][v][freq][date]['lat']:
-                                                     js_f[k]['dimensions']=['nlat','nlon']
-                                            if 'xxlonxx' in var['definition'] and variable_list[found_r][v][freq][date]['lon'] != None:
-                                                 js_f[k]['definition'] = variable_list[found_r][v][freq][date]['lon']
+                                                     if 'seaIce' in j: 
+                                                         js_f[k]['dimensions']=['nj','ni']
+                                                     elif 'landIce' in j:
+                                                         js_f[k]['dimensions']=['xgre','ygre']
+                                                     else:   
+                                                         js_f[k]['dimensions']=['nlat','nlon']
+                                              else:
+                                                js_f[k]['definition'] = 'lat'
+
+                                            if 'xxlonxx' in var['definition']:
+                                              if variable_list[found_r][v][freq][date]['lon'] != None:
+                                                 js_f[k]['definition'] = var['definition'].replace('xxlonxx',variable_list[found_r][v][freq][date]['lon'])
                                                  if 'TLONG' in variable_list[found_r][v][freq][date]['lon'] or 'ULONG' in variable_list[found_r][v][freq][date]['lon']:
                                                      js_f[k]['dimensions']=['nlat','nlon']
+                                                 elif 'TLON' in variable_list[found_r][v][freq][date]['lon'] or 'ULON' in variable_list[found_r][v][freq][date]['lon']:
+                                                     js_f[k]['dimensions']=['nj','ni']
+                                              else:
+                                                js_f[k]['definition'] = 'lon'
+                                            if 'xxxgrexx' in var['definition']:
+                                                if variable_list[found_r][v][freq][date]['lon'] != None:
+                                                    js_f[k]['definition'] = var['definition'].replace('xxxgrexx',variable_list[found_r][v][freq][date]['lon'])
+                                            if 'xxygrexx' in var['definition']: 
+                                                if variable_list[found_r][v][freq][date]['lat'] != None:
+                                                    js_f[k]['definition'] = var['definition'].replace('xxygrexx',variable_list[found_r][v][freq][date]['lat'])
+
                                             if 'xxlevxx' in var['definition'] and variable_list[found_r][v][freq][date]['lev'] != None:
                                                 js_f[k]['definition'] = variable_list[found_r][v][freq][date]['lev']
+
                                             if 'xxlevbndxx' in var['definition'] and variable_list[found_r][v][freq][date]['lev'] != None:
                                                 js_f[k]['definition'] = "bounds("+variable_list[found_r][v][freq][date]['lev']+ ", bdim=\""+doub_dim[found_r]+"\")"
+
                                             if 'xxtimexx' in var['definition'] and variable_list[found_r][v][freq][date]['time'] != None:
                                                 js_f[k]['definition'] = variable_list[found_r][v][freq][date]['time']
+
+                                            if 'xxtimebndsxx' in var['definition']:
+                                                print 'TEST INFO: ',fl1[0]
+                                                if 'Imon' in j and 'cism' in fl1[0]:
+                                                    js_f[k]['definition'] = "bounds(yeartomonth_time(chunits(time * 365, units=\"days since 0001-01-01\", calendar=\"noleap\")), bdim=\"hist_interval\")"
+                                                elif 'cism' in fl1[0]:
+                                                    js_f[k]['definition'] = "bounds(time, bdim=\"hist_interval\")"
+                                                else:
+                                                    js_f[k]['definition'] = "bounds(time, bdim=\"hist_interval\")"
+                                                
+
                                     with open(j,'w') as fp:
                                         json.dump(js_f, fp, sort_keys=True, indent=4) 
 
                     if len(var_defs[j][split[0]]["var_check"][v]) < 1:
                         if v not in missing.keys():
                             missing[v] = "(",f,",",r,")"
+
             elif len(l.split(':')) > 1:
                 if 'No dependencies' in l:
                     no_def.append(l.split(':')[0].strip())
@@ -459,8 +634,10 @@ def match_tableSpec_to_stream(ts_dir, variable_list):
             #if end:
             #    print l
             if 'Complete Specification Requires the Following Input Variables:' in l:
-                print 'Requires these variables:'
                 end = True
+
+        if not found_all:
+            print ('Missing these variables: ',missing_vars)
 
     return spec_streams
 
@@ -541,7 +718,14 @@ def run_PyConform(spec, file_glob, comm):
         dataflow = DataFlow(inpds, outds)
 
         # Execute
-        dataflow.execute(serial=True, scomm=comm) 
+        time = None
+        for k in dsdict.keys():
+            if 'time'==k or 'time1'==k or 'time2'==k or 'time3'==k:
+                time = k 
+        if time is not None:
+            dataflow.execute(chunks={time:100},serial=True, debug=True, scomm=comm) 
+        else:
+            dataflow.execute(serial=True, debug=True, scomm=comm)
 
     except UnitsError as e:
         print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
@@ -612,7 +796,7 @@ def main(options, scomm, rank, size):
 
     mappings = {}
     if rank == 0:
-        mappings = match_tableSpec_to_stream(pc_inpur_dir, variable_list)
+        mappings = match_tableSpec_to_stream(pc_inpur_dir, variable_list, dout_s_root, case)
         for k,v in sorted(mappings.iteritems()):
             print k
             for f in sorted(v):
