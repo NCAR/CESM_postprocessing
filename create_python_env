@@ -58,6 +58,7 @@ progname=`basename $0`
 # need absolute path (rather than relative path) because we use this
 # path to get to the machines directory
 pp_dir=$(absolute_path `dirname $0`)  
+export pp_dir
 
 #----------------------------------------------------------------------
 # Set default return values
@@ -136,7 +137,7 @@ fi
 #----------------------------------------------------------------------
 env="${pp_dir}/cesm-env2"
 echo $env
-if [ -f $env ]; then
+if [ -f $env ] && [ ${machine} != geyser ]; then
     status="ERROR"
     info="$progname - ${pp_dir}/cesm-env2 virtual environment already exists.
 It is only necessary to create the virtual environment once for a given machine.
@@ -162,10 +163,12 @@ cd $pp_dir
 # already setup, so only done once per case.
 #----------------------------------------------------------------------
 echo "$progname - making virtual environment in ${pp_dir}/cesm-env2."
-make env
-if [ $? -ne 0 ]; then
-    echo "ERROR: Unable to create virtual environment in ${pp_dir}/cesm-env2. Exiting..."
-    exit 1
+if [ ${machine} != geyser ]; then
+    make env
+    if [ $? -ne 0 ]; then
+	echo "ERROR: Unable to create virtual environment in ${pp_dir}/cesm-env2. Exiting..."
+	exit 1
+    fi
 fi
 
 #----------------------------------------------------------------------
