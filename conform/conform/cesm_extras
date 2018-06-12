@@ -2,6 +2,7 @@
 
 import json, os
 import argparse
+import glob
 
 time = {
            'atmos': 'chunits(mean(time_bnds, \"nbnd\"), units=time)',
@@ -11,7 +12,7 @@ time = {
            'ocnBgChem': 'mean(chunits(time_bound, units=time), \"d2\")',
            'seaIce': 'mean(chunits(time_bounds, units=time), \"d2\")',
            'land': 'mean(chunits(time_bounds, units=time), \"hist_interval\")',
-           'landIce': 'mean(chunits(time_bounds, units=time), \"hist_interval\")',
+           'landIce': 'yeartomonth_time(chunits(time * 365, units=\"days since 0001-01-01\", calendar=\"noleap\"))',
        }
 bounds = {
            'atmos': 'time_bnds',
@@ -21,7 +22,7 @@ bounds = {
            'ocnBgChem': 'time_bound',
            'seaIce': 'time_bounds',
            'land': 'time_bounds',
-           'landIce': 'time_bounds',
+           'landIce': 'bounds(xxtimebndsxx, bdim=\"hist_interval\")',
        }
 
 comps = {'atmos': 'atm',
@@ -33,6 +34,15 @@ comps = {'atmos': 'atm',
            'land': 'lnd',
            'landIce': 'glc',
        }
+
+cesm_realms = {
+        "cam":"atmos",
+        "clm2":"land",
+        "rtm":"rof",
+        "cism":"landIce",
+        "pop":"ocean",
+        "cice":"seaIce"
+}
 
 
 #===================================================================================================
@@ -66,26 +76,34 @@ def main(argv=None):
     # Get the 'extra' json filename and load it
     efile_base = args.extra
 
+    #ifiles = glob.glob(ifiles_dir+"/*.json")
+
     # Go through each of the jsons created by iconform that the user wants to modify
     for fn in ifiles:
         fsplit = os.path.basename(fn).split('_')
-        freq = fsplit[2] 
+        freq = fsplit[2]
         realm = fsplit[3]
+
+        # Open and load
+        with open(fn) as f:       
+            o_dict = json.load(f)
+        o_dict_copy = o_dict.copy()
+
+        for var,d1 in o_dict_copy.iteritems():
+            if 'input_glob' in d1.keys():
+                realm = cesm_realms[d1['input_glob'].split(".")[0]]
+
         # open extra file
         e_path = os.path.dirname(efile_base)
         e_fn = os.path.basename(efile_base)
         if len(realm)>0:
             extra_file = e_path+"/"+comps[realm]+"_"+e_fn
         else:
-            extra_file = e_path+"/"+e_fn  
+            extra_file = e_path+"/"+e_fn
+        print fn,extra_file
         with open(extra_file) as e:
             e_dict = json.load(e)
-        print "\nOpening ",fn
-        # Open and load
-        with open(fn) as f:       
-            o_dict = json.load(f)
-        o_dict_copy = o_dict.copy()
- 
+
         # Go through the original to find things that we have to add and/or change
         cvar = fn.split("_")[-2]
         cr = fn.split("_")[-3]
@@ -94,17 +112,50 @@ def main(argv=None):
                 if 'vinth2p' in d1["definition"]:
                     if 'alevel' in d1["definition"]:
                         o_dict[var]["definition"] = o_dict[var]["definition"].replace('alevel','lev')
+            if 'landIce' in fn.split("_")[-3] or 'landIce' in fn.split("_")[-4] or 'atmos' in fn.split("_")[-3] or 'aerosol' in fn.split("_")[-3]:
+                if 'input_glob' in d1.keys() and "ygre" in o_dict.keys() and "xgre" in o_dict.keys():
+                    if 'clm2' in d1['input_glob'].split(".")[0]:
+                        o_dict.pop("ygre", None)
+                        o_dict.pop("xgre", None)
+                        o_dict['latitude'] = e_dict['latitude']
+                        o_dict['longitude'] = e_dict['longitude'] 
+                        o_dict['latitude_bnds'] = e_dict['latitude_bnds']
+                        o_dict['longitude_bnds'] = e_dict['longitude_bnds']
+                        for var,d1 in o_dict_copy.iteritems():
+                            if cvar in var:
+                                o_dict[var]["dimensions"] = [dim.replace("ygre", "latitude") for dim in o_dict[var]["dimensions"]]
+                                o_dict[var]["dimensions"] = [dim.replace("xgre", "longitude") for dim in o_dict[var]["dimensions"]]
+                    elif 'cism' in d1['input_glob'].split(".")[0]:
+                        o_dict['xgre'] = e_dict['xgre']
+                        o_dict['ygre'] = e_dict['ygre']
+                        o_dict['xgre_bnds'] = e_dict['xgre_bnds']
+                        o_dict['ygre_bnds'] = e_dict['ygre_bnds']
+
             if cvar in var and ('ocean' in cr or 'ocn' in cr):
                 if "nlat" in e_dict.keys():
                     o_dict["nlat"] = e_dict["nlat"]
                 if "nlon" in e_dict.keys():
                     o_dict["nlon"] = e_dict["nlon"]
+            if cvar in var and ('seaIce' in cr):
+                if "nj" in e_dict.keys():
+                    o_dict["nj"] = e_dict["nj"]
+                if "ni" in e_dict.keys():
+                    o_dict["ni"] = e_dict["ni"]
             if 'bounds' in d1["attributes"].keys():
                  if d1["attributes"]["bounds"] not in o_dict.keys():
-                     o_dict[d1["attributes"]["bounds"]] = e_dict[d1["attributes"]["bounds"]]
-                     print "Added ", d1["attributes"]["bounds"]
+                     if d1["attributes"]["bounds"] in e_dict.keys():
+                         o_dict[d1["attributes"]["bounds"]] = e_dict[d1["attributes"]["bounds"]]
+                         print "Added ", d1["attributes"]["bounds"]
                  if var == 'time' and len(realm)>0:
-                     o_dict[d1["attributes"]["bounds"]]["definition"] = bounds[realm]
+                     if 'input_glob' in d1.keys():
+                         if 'clm2' in d1['input_glob'].split(".")[0]:
+                             o_dict[d1["attributes"]["bounds"]]["definition"] = bounds['land']
+                         elif 'cism' in d1['input_glob'].split(".")[0]:
+                             o_dict[d1["attributes"]["bounds"]]["definition"] = bounds['landIce']
+                         else:
+                              o_dict[d1["attributes"]["bounds"]]["definition"] = bounds[realm]
+                     else:
+                         o_dict[d1["attributes"]["bounds"]]["definition"] = bounds[realm]
             if "alevhalf" in d1["dimensions"] and "alevhalf" != var:
                 o_dict[var]["metavars"] = ["ps", "p0", "a", "b"]
                 print "Added metavars ps, p0, a, and b to variable, ",var
@@ -129,9 +180,19 @@ def main(argv=None):
                 if "p0" not in o_dict.keys():
                     o_dict["p0"] = e_dict["p0"]
                     print "Added p0"
-            if var == 'time':
+            if var == 'time' or var == 'time1' or var == 'time2' or var == 'time3':
                  if 'mon' in freq:
-                     o_dict[var]["definition"] = time[realm] 
+                     if 'input_glob' in d1.keys():
+                         if 'clm2' in d1['input_glob'].split(".")[0]:
+                             o_dict[var]["definition"] = time['land']
+                         elif 'cism' in d1['input_glob'].split(".")[0]:
+                             o_dict[var]["definition"] = time['landIce']
+                         else:
+                             o_dict[var]["definition"] = time[realm]
+                     else:
+                         o_dict[var]["definition"] = time[realm] 
+                 else:
+                     o_dict[var]["definition"] = "time"
             if var == 'alevel' or var == 'alevhalf':
                 o_dict[var]["attributes"]["units"] = "hPa"
             if var == 'olevel' or var == 'oline':
