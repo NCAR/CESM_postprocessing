@@ -711,6 +711,90 @@ begin
     info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1/)
     return(info)
   end if
+  if (varName .eq. "GRAINC") then
+    info@flux=True
+    info@longName="grain C (does not equal yield)"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "PgC"
+    info@globalTotal__SF           = grams2Pgrams
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "kgC/m^2"
+    info@globalMean__SF            = grams2Kgrams
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0, 1.25, 1.5/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+  if (varName .eq. "GRAINC_TO_FOOD") then
+    info@flux=True
+    info@longName="grain C to food"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m^2/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m^2/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m^2/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0, 1.25, 1.5/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+  if (varName .eq. "GRAINC_TO_SEED") then
+    info@flux=True
+    info@longName="grain C to seed"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "PgC/y"
+    info@globalTotal_Annual__SF    = secondsInYear * grams2Pgrams 
+    ; -- global Mean
+    info@globalMean__units         = "gC/m^2/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "gC/m^2/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "gC/m^2/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0, 1.25, 1.5/)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
   if (varName .eq. "AR") then
     info@flux=True
     info@longName="autotrophic respiration (MR + GR)"
