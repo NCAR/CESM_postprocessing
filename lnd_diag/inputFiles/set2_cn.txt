@@ -12,6 +12,9 @@ globalMeanDay0  AGNPP
 globalMeanDay0  BGNPP
 globalMeanDay0  MR
 globalMeanDay0  GR
+globalMeanNat0  GRAINC
+globalMeanDay0  GRAINC_TO_FOOD
+globalMeanDay0  GRAINC_TO_SEED
 globalMeanDay0  AR
 globalMeanDay0  LITHR
 globalMeanDay0  SOMHR

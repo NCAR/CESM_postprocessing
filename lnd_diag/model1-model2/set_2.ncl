@@ -197,6 +197,7 @@ begin
 ;       fname = wkdir+prefix(0)
 ;       fname = wkdir+"basename"
         fname = wkdir+getenv(name1)
+;       fname = "/glade/scratch/oleson/basename"
         paleo_outline(oro,lat1,lon1,flandmask, fname )
         res = True
         res@mpDataBaseVersion = "Ncarg4_1"
