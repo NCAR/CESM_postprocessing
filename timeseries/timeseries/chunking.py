@@ -80,11 +80,13 @@ def get_input_dates(glob_str, comm, rank, size):
 
         # get the time_period_freq global attribute from the first file
         if first:
-            try:
+            if 'time_period_freq' in nc_atts:
                 time_period_freq = f.getncattr('time_period_freq')
-                print 'time_period_freq = ',time_period_freq
-            except:
-                print 'Global attribute time_period_freq not found - set to XML tseries_tper element'
+                if rank == 0:
+                    print 'time_period_freq = ',time_period_freq
+            else:
+                if rank == 0:
+                    print 'Global attribute time_period_freq not found - set to XML tseries_tper element'
             first = False
         f.close()
 
