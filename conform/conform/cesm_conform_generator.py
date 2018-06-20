@@ -69,7 +69,7 @@ cesmModels = {"atmos":     "cam",
               "ocnBgchem": "pop"
 }
 
-cesm_tper = ["annual","yearly","month_1","weekly","daily","hour_6","hour_3","hour_1","min_30","month_1"]
+cesm_tper = ["annual","year_1","month_1","weekly","daily","hour_6","hour_3","hour_1","min_30","month_1"]
 
 cmip6_realms = {
         "aerosol":"atm",
@@ -309,27 +309,31 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
                 if vn not in variablelist[model_type].keys():
                      variablelist[model_type][vn] = {}
                 if hasattr(f,"time_period_freq"):
-                    if f.time_period_freq not in variablelist[model_type][vn].keys():
-                        variablelist[model_type][vn][f.time_period_freq] = {}
+                    if 'day_365' in f.time_period_freq:
+                        time_period_freq = 'year_1'
+                    else:
+                        time_period_freq = f.time_period_freq
+                    if time_period_freq not in variablelist[model_type][vn].keys():
+                        variablelist[model_type][vn][time_period_freq] = {}
                     date = stri.split('.')[-2]      
-                    if date not in variablelist[model_type][vn][f.time_period_freq].keys():
-                        variablelist[model_type][vn][f.time_period_freq][date] = {}
-                    if 'files' not in variablelist[model_type][vn][f.time_period_freq][date].keys():
-                        variablelist[model_type][vn][f.time_period_freq][date]['files']=[stri,gridfile]
-                        variablelist[model_type][vn][f.time_period_freq][date]['lat']=lat_name
-                        variablelist[model_type][vn][f.time_period_freq][date]['lon']=lon_name
-                        variablelist[model_type][vn][f.time_period_freq][date]['lev']=lev_name
-                        variablelist[model_type][vn][f.time_period_freq][date]['time']=time_name
+                    if date not in variablelist[model_type][vn][time_period_freq].keys():
+                        variablelist[model_type][vn][time_period_freq][date] = {}
+                    if 'files' not in variablelist[model_type][vn][time_period_freq][date].keys():
+                        variablelist[model_type][vn][time_period_freq][date]['files']=[stri,gridfile]
+                        variablelist[model_type][vn][time_period_freq][date]['lat']=lat_name
+                        variablelist[model_type][vn][time_period_freq][date]['lon']=lon_name
+                        variablelist[model_type][vn][time_period_freq][date]['lev']=lev_name
+                        variablelist[model_type][vn][time_period_freq][date]['time']=time_name
                 else:
                     if "unknown" not in variablelist[model_type][vn].keys():
                         variablelist[model_type][vn]["unknown"] = {}
                     if stri not in variablelist[model_type][vn]["unknown"]:
                         variablelist[model_type][vn]["unknown"]["unknown"] = {}
-                        variablelist[model_type][vn][f.time_period_freq][date]['files']=[stri,gridfile]
-                        variablelist[model_type][vn][f.time_period_freq][date]['lat']=lat_name
-                        variablelist[model_type][vn][f.time_period_freq][date]['lon']=lon_name
-                        variablelist[model_type][vn][f.time_period_freq][date]['lev']=lev_name
-                        variablelist[model_type][vn][f.time_period_freq][date]['time']=time_name
+                        variablelist[model_type][vn][time_period_freq][date]['files']=[stri,gridfile]
+                        variablelist[model_type][vn][time_period_freq][date]['lat']=lat_name
+                        variablelist[model_type][vn][time_period_freq][date]['lon']=lon_name
+                        variablelist[model_type][vn][time_period_freq][date]['lev']=lev_name
+                        variablelist[model_type][vn][time_period_freq][date]['time']=time_name
         f.close()
     VL_TAG = 30
     variable_list = {}
@@ -429,9 +433,16 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                     var_defs[j][split[0]]["freq"] = 'hour_1'
                 elif 'subhr' in var_defs[j][split[0]]["freq"]:
                     var_defs[j][split[0]]["freq"] = 'min_30'
+                elif 'yr' in var_defs[j][split[0]]["freq"]:
+                    if 'Eyr' in j and 'land' in j:
+                        var_defs[j][split[0]]["freq"] = 'year_1'
+                    else:
+                        var_defs[j][split[0]]["freq"] = 'year_1'
                 var_defs[j][split[0]]["realm"] = split[1].replace("[","").replace("]","").replace(":","").split(",")[1]
                 var_defs[j][split[0]]["vars"] = l.split(":")[1].split()
                 var_defs[j][split[0]]["var_check"] = {}
+                if 'landUse' in var_defs[j][split[0]]["vars"]:
+                    var_defs[j][split[0]]["vars"].remove('landUse')
                 # check to see if we have all before we start
                 for v in var_defs[j][split[0]]["vars"]:
                     var_defs[j][split[0]]["var_check"][v] = []
@@ -537,7 +548,11 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                                     if stream is None:
                                         fl1 = variable_list[found_r][v][freq][date]['files']
                                     else:
-                                        filename = dout_s_root+"/"+cesm_realms[stream[0]]+"/proc/tseries/"+freq+"/"+case+"."+stream[0]+"."+stream[1]+"."+v+"."+date+".nc"
+                                        if 'year' in freq and 'lnd' in cesm_realms[stream[0]]:
+                                            freq_n = 'day_365'
+                                        else:
+                                            freq_n = freq
+                                        filename = dout_s_root+"/"+cesm_realms[stream[0]]+"/proc/tseries/"+freq_n+"/"+case+"."+stream[0]+"."+stream[1]+"."+v+"."+date+".nc"
                                         if "lnd" in cesm_realms[stream[0]] or "rof" in cesm_realms[stream[0]]:
                                             gridname = variable_list['lnd,rof'][v][freq][date]['files'][1]
                                         elif "glc" in cesm_realms[stream[0]]:
