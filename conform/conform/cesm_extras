@@ -9,7 +9,7 @@ time = {
            'aerosol': 'chunits(mean(time_bnds, \"nbnd\"), units=time)',
            'atmosChem': 'chunits(mean(time_bnds, \"nbnd\"), units=time)',
            'ocean': 'mean(chunits(time_bound, units=time), \"d2\")',
-           'ocnBgChem': 'mean(chunits(time_bound, units=time), \"d2\")',
+           'ocnBgchem': 'mean(chunits(time_bound, units=time), \"d2\")',
            'seaIce': 'mean(chunits(time_bounds, units=time), \"d2\")',
            'land': 'mean(chunits(time_bounds, units=time), \"hist_interval\")',
            'landIce': 'yeartomonth_time(chunits(time * 365, units=\"days since 0001-01-01\", calendar=\"noleap\"))',
@@ -19,7 +19,7 @@ bounds = {
            'aerosol': 'time_bnds',
            'atmosChem': 'time_bnds',
            'ocean': 'time_bound',
-           'ocnBgChem': 'time_bound',
+           'ocnBgchem': 'time_bound',
            'seaIce': 'time_bounds',
            'land': 'time_bounds',
            'landIce': 'bounds(xxtimebndsxx, bdim=\"hist_interval\")',
@@ -29,7 +29,7 @@ comps = {'atmos': 'atm',
            'aerosol': 'atm',
            'atmosChem': 'atm',
            'ocean': 'ocn',
-           'ocnBgChem': 'ocn',
+           'ocnBgchem': 'ocn',
            'seaIce': 'ice',
            'land': 'lnd',
            'landIce': 'glc',
@@ -100,7 +100,6 @@ def main(argv=None):
             extra_file = e_path+"/"+comps[realm]+"_"+e_fn
         else:
             extra_file = e_path+"/"+e_fn
-        print fn,extra_file
         with open(extra_file) as e:
             e_dict = json.load(e)
 
@@ -112,6 +111,9 @@ def main(argv=None):
                 if 'vinth2p' in d1["definition"]:
                     if 'alevel' in d1["definition"]:
                         o_dict[var]["definition"] = o_dict[var]["definition"].replace('alevel','lev')
+                elif 'landUse' in var:
+                    o_dict[var]["definition"] = [0,1,2,3]
+                    o_dict[var]["attributes"]["requested"] = "primary_and_secondary_land=0, pastures=1, crops=2, urban=3"   
             if 'landIce' in fn.split("_")[-3] or 'landIce' in fn.split("_")[-4] or 'atmos' in fn.split("_")[-3] or 'aerosol' in fn.split("_")[-3]:
                 if 'input_glob' in d1.keys() and "ygre" in o_dict.keys() and "xgre" in o_dict.keys():
                     if 'clm2' in d1['input_glob'].split(".")[0]:
@@ -130,6 +132,9 @@ def main(argv=None):
                         o_dict['ygre'] = e_dict['ygre']
                         o_dict['xgre_bnds'] = e_dict['xgre_bnds']
                         o_dict['ygre_bnds'] = e_dict['ygre_bnds']
+            if 'iceband' in var:
+                o_dict['iceband_bnds'] = e_dict['iceband_bnds']
+                o_dict['iceband']["dimensions"] = ["nc"]
 
             if cvar in var and ('ocean' in cr or 'ocn' in cr):
                 if "nlat" in e_dict.keys():
@@ -145,7 +150,6 @@ def main(argv=None):
                  if d1["attributes"]["bounds"] not in o_dict.keys():
                      if d1["attributes"]["bounds"] in e_dict.keys():
                          o_dict[d1["attributes"]["bounds"]] = e_dict[d1["attributes"]["bounds"]]
-                         print "Added ", d1["attributes"]["bounds"]
                  if var == 'time' and len(realm)>0:
                      if 'input_glob' in d1.keys():
                          if 'clm2' in d1['input_glob'].split(".")[0]:
@@ -158,28 +162,20 @@ def main(argv=None):
                          o_dict[d1["attributes"]["bounds"]]["definition"] = bounds[realm]
             if "alevhalf" in d1["dimensions"] and "alevhalf" != var:
                 o_dict[var]["metavars"] = ["ps", "p0", "a", "b"]
-                print "Added metavars ps, p0, a, and b to variable, ",var
                 if "p0" not in o_dict.keys():
                     o_dict["p0"] = e_dict["p0"]
-                    print "Added p0"
                 if "a" not in o_dict.keys():
                     o_dict["a"] = e_dict["a"]
-                    print "Added a"
                 if "a_bnds" not in o_dict.keys():
                     o_dict["a_bnds"] = e_dict["a_bnds"]
-                    print "Added a_bnds"
                 if "b" not in o_dict.keys():
                     o_dict["b"] = e_dict["b"]
-                    print "Added b"
                 if "b_bnds" not in o_dict.keys():
                     o_dict["b_bnds"] = e_dict["b_bnds"]
-                    print "Added b_bnds"
             if "alevel" in d1["dimensions"] and "alevel" != var:
                 o_dict[var]["metavars"] = ["ps", "p0"]
-                print "Added metavars ps and p0 to variable, ",var
                 if "p0" not in o_dict.keys():
                     o_dict["p0"] = e_dict["p0"]
-                    print "Added p0"
             if var == 'time' or var == 'time1' or var == 'time2' or var == 'time3':
                  if 'mon' in freq:
                      if 'input_glob' in d1.keys():
