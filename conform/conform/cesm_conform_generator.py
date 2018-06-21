@@ -78,7 +78,7 @@ cmip6_realms = {
         "land":"lnd,rof",
         "landIce":"glc,lnd",
         "ocean":"ocn",
-        "ocnBgChem":"ocn",
+        "ocnBgchem":"ocn",
         "seaIce":"ice"
 }
 
@@ -108,7 +108,7 @@ r2c = {
         "land":"lnd",
         "landIce":"glc",
         "ocean":"ocn",
-        "ocnBgChem":"ocn",
+        "ocnBgchem":"ocn",
         "seaIce":"ice"
 }
 
