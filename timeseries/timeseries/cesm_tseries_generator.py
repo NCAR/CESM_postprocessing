@@ -224,7 +224,6 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             spec.output_file_prefix = tseries_output_prefix
                             spec.output_file_suffix = tseries_output_suffix
                             spec.time_variant_metadata = variable_list
-                            spec.exclude_list = ['HKSAT','ZLAKE','DZLAKE','BSW','SUCSAT','ZSOI','DZSOI','WATSAT']
                             # setting the default backend
                             spec.backend = 'netCDF4'
 
