@@ -28,9 +28,9 @@ from pyconform.dataflow import DataFlow
 from pyconform.flownodes import ValidationWarning
 
 
-#===================================================================================================
+#=========================================================================
 # chunk - Chunksize for a named dimension
-#===================================================================================================
+#=========================================================================
 def chunk(arg):
     try:
         name, size_str = arg.split(',')
@@ -40,9 +40,9 @@ def chunk(arg):
         raise ArgumentTypeError("Chunks must be formatted as 'name,size'")
 
 
-#===================================================================================================
+#=========================================================================
 # Command-line Interface
-#===================================================================================================
+#=========================================================================
 def cli(argv=None):
     desc = """This is the PyConform command-line tool.  This scripts takes
               input from the command-line and a predefined output
@@ -57,6 +57,8 @@ def cli(argv=None):
     parser.add_argument('-d', '--deflate', default=None, metavar='DEFLATELEVEL', type=int,
                         help=('Override deflate levels of all output files with given value.  '
                               '(can be any integer from 0 to 9, with 0 meaning no compression)'))
+    parser.add_argument('--debug', default=False, action='store_true',
+                        help=('Whether to enable rudimentary debug features'))
     parser.add_argument('-e', '--error', default=False, action='store_true',
                         help=('Whether to error when validation checks do not pass (True) or '
                               'simply print a warning message (False) [Default: False]'))
@@ -82,57 +84,58 @@ def cli(argv=None):
     return parser.parse_args(argv)
 
 
-#===================================================================================================
+#=========================================================================
 # Main Script Function
-#===================================================================================================
+#=========================================================================
 def main(argv=None):
     args = cli(argv)
-    
+
     # Create the necessary SimpleComm
     scomm = create_comm(serial=args.serial)
-    
+
     # Do setup only on manager node
     if scomm.is_manager():
-        
+
         # Check that the specfile exists
         if not exists(args.stdfile):
             raise OSError(('Output specification file {!r} not '
                            'found').format(args.stdfile))
-        
+
         # Read the specfile into a dictionary
         print 'Reading standardization file: {}'.format(args.stdfile)
-        dsdict = json_load(open(args.stdfile, 'r'), object_pairs_hook=OrderedDict)
-    
+        dsdict = json_load(open(args.stdfile, 'r'),
+                           object_pairs_hook=OrderedDict)
+
         # Parse the output Dataset
         print 'Creating output dataset descriptor from standardization file...'
         outds = OutputDatasetDesc(dsdict=dsdict)
-    
+
     else:
         outds = None
-        
+
     # Send the output descriptor to all nodes
     outds = scomm.partition(outds, func=Duplicate(), involved=True)
-    
+
     # Sync
     scomm.sync()
-    
+
     # Continue setup only on manager node
     if scomm.is_manager():
-    
+
         # Gather the list of input files
         infiles = []
         for infile in args.infiles:
             infiles.extend(glob(infile))
-    
+
         # If no input files, stop here
         if len(infiles) == 0:
             print 'Standardization file validated.'
             return
-    
+
         # Parse the input Dataset
         print 'Creating input dataset descriptor from {} input files...'.format(len(infiles))
         inpds = InputDatasetDesc(filenames=infiles)
-    
+
     else:
         inpds = None
 
@@ -150,7 +153,7 @@ def main(argv=None):
     if args.module is not None:
         for i, modpath in enumerate(args.module):
             load_source('user{}'.format(i), modpath)
-        
+
     # Setup the PyConform data flow on all nodes
     if scomm.is_manager():
         print 'Creating the data flow...'.format(len(infiles))
@@ -158,11 +161,12 @@ def main(argv=None):
 
     # Execute the data flow (write to files)
     history = not args.no_history
-    dataflow.execute(chunks=dict(args.chunks), scomm=scomm, history=history, deflate=args.deflate)
+    dataflow.execute(chunks=dict(args.chunks), scomm=scomm, history=history,
+                     deflate=args.deflate, debug=args.debug)
 
 
-#===================================================================================================
+#=========================================================================
 # Command-line Operation
-#===================================================================================================
+#=========================================================================
 if __name__ == '__main__':
     main()
