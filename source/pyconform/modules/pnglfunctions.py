@@ -69,6 +69,9 @@ class VertInterpFunction(Function):
         intyp = self.keywords['intyp']
         ixtrp = self.keywords['ixtrp']
 
-        return PhysArray(vinth2p(datai.data, hbcofa.data, hbcofb.data, plevo.data,
-                                 psfc.data, intyp, p0.data, 1, bool(ixtrp)), name=self._new_name,
-                         dimensions=self._new_dims, units=datai.units, positive=datai.positive)
+        v = vinth2p(datai.data, hbcofa.data, hbcofb.data, plevo.data,
+                                 psfc.data, intyp, p0.data, 1, bool(ixtrp))
+
+        v[v==1e+30] = 1e+20
+
+        return PhysArray(v, name=self._new_name, dimensions=self._new_dims, units=datai.units, positive=datai.positive)

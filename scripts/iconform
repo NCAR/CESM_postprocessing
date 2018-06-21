@@ -16,6 +16,9 @@ import datetime
 from dreqPy import dreq
 import uuid
 
+
+version = 'v'+str(datetime.datetime.now().year)+str(datetime.datetime.now().month).zfill(2)+str(datetime.datetime.now().day).zfill(2)
+
 # Map netcdf types to python types
 #data_types = {'char': 'char', 'byte': 'int8', 'short': 'int16', 'int': 'int32',
 #              'float': 'float32', 'real': 'float32', 'double': 'float64', 
@@ -25,10 +28,29 @@ data_types = {'char': 'char', 'byte': 'byte', 'short': 'short', 'int': 'int',
               'character':'char', 'integer':'int'}
 
 # The way the date should be formatted in the filenames
-date_strings = {'yr': '{%Y-%Y}', 'mon': '{%Y%m-%Y%m}', 'monClim': '{%Y%m-%Y%m-clim}', 
-                'day': '{%Y%m%d-%Y%m%d}', '6hr': '{%Y%m%d%H%M-%Y%m%d%H%M}', 
-                '3hr': '{%Y%m%d%H%M-%Y%m%d%H%M}', '1hr': '{%Y%m%d%H%M-%Y%m%d%H%M}',
-                'subhr': '{%Y%m%d%H%M-%Y%m%d%H%M}', '1hrClimMon': '{%Y%m%d%H%M-%Y%m%d%H%M-clim}'}
+#date_strings = {'yr': '{%Y-%Y}', 'mon': '{%Y%m-%Y%m}', 'monClim': '{%Y%m-%Y%m-clim}', 
+#                'day': '{%Y%m%d-%Y%m%d}', '6hr': '{%Y%m%d%H%M-%Y%m%d%H%M}', 
+#                '3hr': '{%Y%m%d%H%M-%Y%m%d%H%M}', '1hr': '{%Y%m%d%H%M-%Y%m%d%H%M}',
+#                'subhr': '{%Y%m%d%H%M-%Y%m%d%H%M}', '1hrClimMon': '{%Y%m%d%H%M-%Y%m%d%H%M-clim}'}
+date_strings = {"1hr":'_{%Y%m%d%H%M-%Y%m%d%H%M}',
+                "1hrCM":'_{%Y%m%d%H%M-%Y%m%d%H%M}-clim',
+                "1hrPt":'_{%Y%m%d%H%M-%Y%m%d%H%M}',
+                "3hr":'_{%Y%m%d%H%M-%Y%m%d%H%M}',
+                "3hrPt":'_{%Y%m%d%H%M-%Y%m%d%H%M}',
+                "6hr":'_{%Y%m%d%H%M-%Y%m%d%H%M}', 
+                "6hrPt":'_{%Y%m%d%H%M-%Y%m%d%H%M}', 
+                "day":'_{%Y%m%d-%Y%m%d}',
+                "dec":'_{%Y-%Y}',
+                "fx":'',
+                "mon":'_{%Y%m-%Y%m}',
+                "monC":'_{%Y%m-%Y%m}-clim',
+                "monPt":'_{%Y%m-%Y%m}',
+                "subhrPt":'_{%Y%m%d%H%M-%Y%m%d%H%M}',
+                "yr":'_{%Y-%Y}',
+                "yrPt":'_{%Y-%Y}'
+}
+
+
 
 #===================================================================================================
 # parseArgs
@@ -70,18 +92,25 @@ def parseArgs(argv = None):
 def load(defs,key=None):
 
     def_dict = {}
+    ig_dict = {}
     if key == 'ga':
         def_dict[key] = {}
+        ig_dict[key] = {}
     for line in defs:
+        input_glob = None
         line = line.strip()
         # hanle comments
         if '#' in line:
             if 'TABLE' in line:
                 key = line.split(':')[1].strip()
                 def_dict[key] = {}
+                ig_dict[key] = {}
             if 'Coords' in line:
                 key = 'Coords_'+line.split(':')[1].strip()
                 def_dict[key] = {}
+                ig_dict[key] = {}
+            if len(line.split('#')) == 2:
+                input_glob = line.split('#')[1]
             line = line.split('#')[0].strip()
         # slit definition into the two parts
         split = line.split('=')
@@ -89,7 +118,9 @@ def load(defs,key=None):
         if (len(split) >= 2):
             if key == 'ga' and split[1] == '':
                 def_dict[key][split[0].strip()] = "__FILL__"
+                ig_dict[key][split[0].strip()] = input_glob
             else:
+                ig_dict[key][split[0].strip()] = input_glob
                 if len(split) == 2:
                    def_dict[key][split[0].strip()] = split[1].strip()
                 else:
@@ -98,12 +129,16 @@ def load(defs,key=None):
             if len(line)>0 :
                 print 'Could not parse this line: ',line
 
-    return def_dict
+    if key == 'ga':
+        return def_dict
+    else:
+        return def_dict,ig_dict
 
 
 def fill_missing_glob_attributes(attr, table, v, grids):
 
     for a,d in attr.iteritems():
+      if d is not None:
         if "__FILL__" in d:
             if "activity_id" in a:
                 attr["activity_id"] = table["activity_id"] 
@@ -140,7 +175,7 @@ def fill_missing_glob_attributes(attr, table, v, grids):
             if "parent_source_id" in attr.keys():
                 attr["parent_source_id"] = attr["source_id"]
             if "parent_time_units" in attr.keys():
-                attr["parent_time_units"] = "days since 0000-01-01 00:00:00"
+                attr["parent_time_units"] = "days since 0001-01-01 00:00:00"
     else:
         if "branch_time_in_child" in attr.keys():
             attr["branch_time_in_child"] = "none"
@@ -155,13 +190,13 @@ def fill_missing_glob_attributes(attr, table, v, grids):
 
     if "variant_label" in attr.keys():
         pre = attr["variant_label"].split('r')[1]
-        attr["realization_index"] = int(pre.split('i')[0])
+        attr["realization_index"] = (pre.split('i')[0])
         pre = pre.split('i')[1]
-        attr["initialization_index"] = int(pre.split('p')[0])
+        attr["initialization_index"] = (pre.split('p')[0])
         pre = pre.split('p')[1]
-        attr["physics_index"] = int(pre.split('f')[0])
+        attr["physics_index"] = (pre.split('f')[0])
         pre = int(pre.split('f')[1])
-        attr["forcing_index"] = pre
+        attr["forcing_index"] = str(pre)
 
     if "further_info_url" in attr.keys():
         if "__FILL__" in attr["further_info_url"]:       
@@ -202,7 +237,7 @@ def fill_missing_glob_attributes(attr, table, v, grids):
 #===================================================================================================
 # defineVar
 #===================================================================================================
-def defineVar(v, varName, attr, table_info, definition, experiment, out_dir):
+def defineVar(v, varName, attr, table_info, definition, ig, experiment, out_dir):
 
     v2 = dict(v)
     for key,value in v.iteritems(): # remove all attributes that do not have values
@@ -248,7 +283,7 @@ def defineVar(v, varName, attr, table_info, definition, experiment, out_dir):
         source_id = attributes['source_id']
     else:
         source_id = ''
-    if 'grid_labels' in attributes.keys():
+    if 'grid_label' in attributes.keys():
         grid = attributes['grid_label']
     else:
         grid = ''
@@ -286,16 +321,17 @@ def defineVar(v, varName, attr, table_info, definition, experiment, out_dir):
         dst = date_strings[v["frequency"]]
     else:
         dst = ''
-    f_name = ("{0}/{1}/{2}/{3}/{4}/{5}/{6}/{7}/{8}/{9}/{10}_{11}_{12}_{13}_{14}_{15}_{16}.nc".format(
+    f_name = ("{0}/{1}/{2}/{3}/{4}/{5}/{6}/{7}/{8}/{9}/{10}/{11}_{12}_{13}_{14}_{15}_{16}{17}.nc".format(
                out_dir, mip_era, activity_id, institution_id, source_id, experiment, ripf, mipTable,
-               varName, grid, 
+               varName, grid, version, 
                varName, mipTable, source_id, experiment, ripf, grid, dst))
-
     var = {}
 
     # put together the dictionary entry for this variable    
     var["attributes"] = v2
     var["definition"] = definition
+    if ig:
+        var["input_glob"] = ig
     var["file"] = {}
     var["file"]["attributes"] = attributes
     var["file"]["attributes"]["variant_label"] = ripf
@@ -310,6 +346,17 @@ def defineVar(v, varName, attr, table_info, definition, experiment, out_dir):
         var["datatype"]  = data_types[v['type']]
     else:
         var["datatype"] = 'real' #  This is done because some of the variables in the request have no type listed yet
+
+    #### Needed to get working with netcdf4_classic and netcdf3_classic
+#    if 'type' in v.keys() and v['type'] != 'None' and v['type'] != '' and v['type'] != None:
+#        if 'real' in data_types[v['type']]:
+#            var["datatype"]  = "float"
+#        else:
+#            var["datatype"]  = data_types[v['type']]
+#    else:
+#        var["datatype"] = 'float' #  This is done because some of the variables in the request have no type listed yet
+
+
     if 'requested' in v.keys():
         if v['requested'] != '':
             var['definition'] =  v['requested']
@@ -339,7 +386,7 @@ def defineAxes(v, name):
             v2.pop(key,None)
     # Hardcode this value in for time.  Not ideal, but the request has it listed as "days since ?" and this will fail.
     if 'time' in name:
-        v2["units"] = "days since 0000-01-01 00:00:00"
+        v2["units"] = "days since 0001-01-01 00:00:00"
 
     # put everything into a variable dictionary
     var["attributes"] = v2
@@ -382,7 +429,7 @@ def getUserVars(fn):
 #===================================================================================================
 # create_output
 #===================================================================================================
-def create_output(exp_dict, definitions, attributes, output_path, args, experiment, out_dir, testoutput):
+def create_output(exp_dict, definitions, input_glob, attributes, output_path, args, experiment, out_dir, testoutput):
 
     # create the output json files
 
@@ -425,9 +472,10 @@ def create_output(exp_dict, definitions, attributes, output_path, args, experime
                         v_def = ""
                     else:
                         v_def = definitions[mip][v]
+                        ig = input_glob[mip][v]
                 else:
                     v_def = ""
-                var_list[v] = defineVar(d, v, attributes, table_info, v_def, experiment, out_dir)
+                var_list[v] = defineVar(d, v, attributes, table_info, v_def, ig, experiment, out_dir)
                 realm = d["realm"].replace(' ','_')
                 ts_key = var_list[v]["file"]["attributes"]["activity_id"]+'_'+var_list[v]["attributes"]["mipTable"]+'_'+realm
                 if ts_key not in TableSpec.keys():
@@ -443,7 +491,10 @@ def create_output(exp_dict, definitions, attributes, output_path, args, experime
                          TableSpec[ts_key][dim] = defineAxes(axes[dim], dim)
                          if 'Coords_'+t_realm in definitions.keys():
                              if dim in definitions['Coords_'+t_realm].keys():
-                                 TableSpec[ts_key][dim]['definition'] = definitions['Coords_'+t_realm][dim]
+                                 if 'landUse' in dim:
+                                     TableSpec[ts_key][dim]['definition'] = [0,1,2,3]
+                                 else:
+                                     TableSpec[ts_key][dim]['definition'] = definitions['Coords_'+t_realm][dim]
                              else:
                                  if 'definition' not in  TableSpec[ts_key][dim].keys():
                                      print "MISSING "+dim+" in "+'Coords_'+t_realm+" (for variable "+v+")"
@@ -547,7 +598,7 @@ def main(argv=None):
     # Open/Read the definition file
     if os.path.isfile(args.defFile):
         with open(args.defFile) as y_definitions:
-            definitions = load(y_definitions)
+            definitions,input_glob = load(y_definitions)
             #print 'DEFINITIONS: ',definitions
     else:
         print 'Definition file does not exist: ',args.defFile
@@ -603,7 +654,7 @@ def main(argv=None):
 
             if len(exp_dict.keys())>0:
                 # Write the spec files out to disk
-                create_output(exp_dict, definitions, attributes, args.outputpath, args, exp, args.outdir, args.testoutput)
+                create_output(exp_dict, definitions, input_glob, attributes, args.outputpath, args, exp, args.outdir, args.testoutput)
 
 
 #===================================================================================================
