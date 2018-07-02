@@ -1,3 +1,5 @@
+#! /usr/bin/env/bash
+
 #PBS -N {{ processName }}
 #PBS -q {{ queue }}
 #PBS -l select={{ nodes }}:ncpus={{ ppn }}:mpiprocs={{ ppn }}
