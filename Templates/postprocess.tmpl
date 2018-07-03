@@ -1,4 +1,5 @@
-#! /usr/bin/env bash
+{{ batchdirectives }}
+
 ##########
 ##
 ## See https://github.com/NCAR/CESM_postprocessing/wiki for details
@@ -6,14 +7,12 @@
 ##
 ##########
 
-{{ batchdirectives }}
-
 if [ ! -e {{ virtualEnvDir }} ]; then
     echo "*************************************************************************************"
     echo "CESM {{ processName }} exiting due to non-existant python virtual environment in"
     echo "    {{ virtualEnvDir }}"
     echo "You must first run:"
-    echo "$SRCROOT/postprocessing/create_python_env.sh -machine [machine]"
+    echo "$POSTPROCESS_PATH/create_python_env.sh -machine [machine]"
     echo "*************************************************************************************"
     exit
 fi

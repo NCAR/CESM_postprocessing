@@ -16,26 +16,15 @@
     </za>
     <reset_modules>
       <module>module purge</module>
-      <module>module load python/2.7.7</module>
     </reset_modules>
     <modules>
-      <module>module load intel/16.0.3</module>
+      <module>module load intel/17.0.1</module>
       <module>module load ncarenv</module>
-      <module>module load ncarbinlibs</module>
       <module>module load ncarcompilers</module>
-      <module>module load slurm/17</module>
-      <module>module load impi/5.1.1.109</module>
-      <module>module load numpy/1.11.0</module>
-      <module>module load scipy/0.18.1</module>
-      <module>module load mpi4py/2.0.0-impi</module>
-      <module>module load pynio/1.4.1</module>
-      <module>module load pyside/1.1.2</module>
-      <module>module load matplotlib/1.5.1</module>
-      <module>module load netcdf/4.3.0</module>
-      <module>module load nco/4.4.4</module>
-      <module>module load netcdf4python/1.2.4</module>
+      <module>module load impi</module>
+      <module>module load netcdf/4.6.1</module>
+      <module>module load nco/4.7.4</module>
       <module>module load ncl/6.4.0</module>
-      <module>module load pyngl/1.4.0</module>
     </modules>
     <components>
       <component name="atm">

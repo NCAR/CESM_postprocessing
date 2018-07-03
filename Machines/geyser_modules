@@ -1,5 +1,4 @@
 #!/bin/bash -l
-. /etc/bash.bashrc
 
 echo "Python boot-strap modules for machine geyser"
 
@@ -11,8 +10,6 @@ module load impi
 module load netcdf/4.6.1
 module load nco/4.7.4
 module load ncl/6.4.0
-# still need pynio and pyngl installed in the geyser virtualenv
-# Brian V. will work to install 
 
 # clone the geyser virtualenv first with helper script ncar_pylib
 # use "ncar_pylib --help" to see all options
