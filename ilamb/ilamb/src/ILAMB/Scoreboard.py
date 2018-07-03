@@ -5,7 +5,6 @@ from ConfRunoff import ConfRunoff
 from ConfEvapFraction import ConfEvapFraction
 from ConfIOMB import ConfIOMB
 from ConfDiurnal import ConfDiurnal
-from ConfPermafrost import ConfPermafrost
 import os,re
 from netCDF4 import Dataset
 import numpy as np
@@ -180,19 +179,17 @@ ConfrontationTypes = { None              : Confrontation,
                        "ConfRunoff"      : ConfRunoff,
                        "ConfEvapFraction": ConfEvapFraction,
                        "ConfIOMB"        : ConfIOMB,
-                       "ConfDiurnal"     : ConfDiurnal,
-                       "ConfPermafrost"  : ConfPermafrost}
+                       "ConfDiurnal"     : ConfDiurnal}
 
 class Scoreboard():
     """
     A class for managing confrontations
     """
-    def __init__(self,filename,regions=["global"],verbose=False,master=True,build_dir="./_build",extents=None,rel_only=False):
+    def __init__(self,filename,regions=["global"],verbose=False,master=True,build_dir="./_build",extents=None):
         
         if not os.environ.has_key('ILAMB_ROOT'):
             raise ValueError("You must set the environment variable 'ILAMB_ROOT'")
         self.build_dir = build_dir
-        self.rel_only  = rel_only
         
         if (master and not os.path.isdir(self.build_dir)): os.mkdir(self.build_dir)        
 
@@ -275,7 +272,7 @@ class Scoreboard():
         has_rel  = np.asarray([len(rel.children) for rel in rel_tree.children]).sum() > 0
         nav      = ""
         if has_rel:
-            GenerateRelSummaryFigure(rel_tree,M,"%s/overview_rel.png" % self.build_dir,rel_only=self.rel_only)
+            GenerateSummaryFigure(rel_tree,M,"%s/overview_rel.png" % self.build_dir)
             nav = """
 	    <li><a href="#pageRel">Relationship</a></li>"""
             #global global_print_node_string
@@ -415,8 +412,7 @@ class Scoreboard():
 	  </thead>
           <tbody>"""
             
-        html += GenerateTable(self.tree,M,self)
-        
+        for tree in self.tree.children: html += GenerateTable(tree,M,self)
         html += """
           </tbody>
         </table>
@@ -437,7 +433,7 @@ class Scoreboard():
 	    </tr>
 	  </thead>
           <tbody>"""
-            html += GenerateTable(rel_tree,M,self,composite=False)
+            for tree in  rel_tree.children: html += GenerateTable(tree,M,self,composite=False)
             html += """
           </tbody>
         </table>
@@ -456,7 +452,7 @@ class Scoreboard():
         html = GenerateBarCharts(self.tree,M)
 
     def createSummaryFigure(self,M):
-        GenerateSummaryFigure(self.tree,M,"%s/overview.png" % self.build_dir,rel_only=self.rel_only)
+        GenerateSummaryFigure(self.tree,M,"%s/overview.png" % self.build_dir)
 
     def dumpScores(self,M,filename):
         out = file("%s/%s" % (self.build_dir,filename),"w")
@@ -525,7 +521,6 @@ def DarkenRowColor(clr,fraction=0.9):
 def BuildHTMLTable(tree,M,build_dir):
     global global_model_list
     global_model_list = M
-    global global_table_color    
     def _genHTML(node):
         global global_html
         global global_table_color
@@ -565,27 +560,20 @@ def BuildHTMLTable(tree,M,build_dir):
         row += '<td><div class="arrow"></div></td></tr>'
         global_html += row
 
-    for cat in tree.children:
-        global_table_color = cat.bgcolor
-        for var in cat.children:
-            TraversePreorder(var,_genHTML)
-        cat.name += " Summary"
-        _genHTML(cat)
-        cat.name.replace(" Summary","")
-    global_table_color = tree.bgcolor
-    tree.name = "Overall Summary"
-    _genHTML(tree)
+    TraversePreorder(tree,_genHTML)
     
 def GenerateTable(tree,M,S,composite=True):
     global global_html
     global global_model_list
+    global global_table_color
     if composite: CompositeScores(tree,M)
     global_model_list = M
+    global_table_color = tree.bgcolor
     global_html = ""
-    BuildHTMLTable(tree,M,S.build_dir)
+    for cat in tree.children: BuildHTMLTable(cat,M,S.build_dir)
     return global_html
 
-def GenerateSummaryFigure(tree,M,filename,rel_only=False):
+def GenerateSummaryFigure(tree,M,filename):
 
     models    = [m.name for m in M]
     variables = []
@@ -605,35 +593,9 @@ def GenerateSummaryFigure(tree,M,filename,rel_only=False):
             else:
                 data[row,:] = var.score
 
-    BenchmarkSummaryFigure(models,variables,data,filename,vcolor=vcolors,rel_only=rel_only)
+    BenchmarkSummaryFigure(models,variables,data,filename,vcolor=vcolors)
 
-def GenerateRelSummaryFigure(S,M,figname,rel_only=False):
 
-    # reorganize the relationship data
-    scores  = {}
-    counts  = {}
-    rows    = []
-    vcolors = []
-    for h1 in S.children:
-        for dep in h1.children:
-            dname = dep.name.split("/")[0]
-            for ind in dep.children:
-                iname = ind.name.split("/")[0]
-                key   = "%s/%s" % (dname,iname)
-                if scores.has_key(key):
-                    scores[key] += ind.score
-                    counts[key] += 1.
-                else:
-                    scores[key]  = np.copy(ind.score)
-                    counts[key]  = 1.
-                    rows   .append(key)
-                    vcolors.append(h1.bgcolor)
-    if len(rows) == 0: return
-    data = np.ma.zeros((len(rows),len(M)))
-    for i,row in enumerate(rows):
-        data[i,:] = scores[row] / counts[row]
-    BenchmarkSummaryFigure([m.name for m in M],rows,data,figname,rel_only=rel_only,vcolor=vcolors)
-    
 def GenerateRelationshipTree(S,M):
 
     # Create a tree which mimics the scoreboard for relationships, but
@@ -693,6 +655,7 @@ def GenerateRelationshipTree(S,M):
                             v.score[i] = grp.variables[rs[0]][...]
                         if "Overall Score global" not in grp.variables.keys(): continue
                         h2.score[i] = grp.variables["Overall Score global"][...]
+
 
     return rel_tree
 
