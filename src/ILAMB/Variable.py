@@ -3,7 +3,7 @@ from Regions import Regions
 from mpl_toolkits.basemap import Basemap
 import matplotlib.colors as colors
 from pylab import get_cmap
-from cf_units import Unit
+from cfunits import Units
 import ilamblib as il
 import Post as post
 import numpy as np
@@ -220,17 +220,6 @@ class Variable:
             
         return s
 
-    def nbytes(self):
-        r"""Estimate the memory usage of a variable in bytes.
-        """
-        nbytes = 0.
-        for key in self.__dict__.keys():
-            try:
-                nbytes += self.__dict__[key].nbytes
-            except:
-                pass
-        return nbytes
-
     def integrateInTime(self,**keywords):
         r"""Integrates the variable over a given time period.
 
@@ -297,7 +286,7 @@ class Variable:
         integral = np.ma.masked_array(integral,mask=mask,copy=False)
         
         # handle units
-        unit = Unit(self.unit)
+        unit = Units(self.unit)
         name = self.name + "_integrated_over_time"
         
         if mean:
@@ -311,18 +300,18 @@ class Variable:
             else:
                 dt = dt.sum(axis=0)   
             np.seterr(over='ignore',under='ignore')
-            integral = integral / dt
+            integral /= dt
             np.seterr(over='raise' ,under='raise' )
             
         else:
 
             # if not a mean, we need to potentially handle unit conversions
-            unit0    = Unit("d")*unit
-            unit     = Unit(unit0.format().split()[-1])
-            integral = unit0.convert(integral,unit)
+            unit0    = Units("d")*unit
+            unit     = Units(unit0.formatted().split()[-1])
+            integral = Units.conform(integral,unit0,unit)
         
         return Variable(data       = integral,
-                        unit       = "%s" % unit,
+                        unit       = unit.units,
                         name       = name,
                         lat        = self.lat,
                         lat_bnds   = self.lat_bnds,
@@ -414,7 +403,7 @@ class Variable:
         integral = np.ma.masked_array(integral,mask=mask,copy=False)
         
         # handle units
-        unit = Unit(self.unit)
+        unit = Units(self.unit)
         name = self.name + "_integrated_over_depth"
         
         if mean:
@@ -428,18 +417,18 @@ class Variable:
             else:
                 dz = dz.sum(axis=axis)   
             np.seterr(over='ignore',under='ignore')
-            integral = integral / dz
+            integral /= dz
             np.seterr(over='raise' ,under='raise' )
             
         else:
 
             # if not a mean, we need to potentially handle unit conversions
-            unit0    = Unit("m")*unit
-            unit     = Unit(unit0.format().split()[-1])
-            integral = unit0.convert(integral,unit)
+            unit0    = Units("m")*unit
+            unit     = Units(unit0.formatted().split()[-1])
+            integral = Units.conform(integral,unit0,unit)
         
         return Variable(data       = integral,
-                        unit       = "%s" % unit,
+                        unit       = unit.units,
                         name       = name,
                         time       = self.time,
                         time_bnds  = self.time_bnds,
@@ -532,13 +521,13 @@ class Variable:
         integral = _integrate(self.data,measure)
         if mean:
             np.seterr(under='ignore')
-            integral = integral / measure.sum()
+            integral /= measure.sum()
             np.seterr(under='raise')
 
         # handle the name and unit
         name = self.name + "_integrated_over_space"
         if region is not None: name = name.replace("space",region)            
-        unit = Unit(self.unit)
+        unit = Units(self.unit)
         if mean:
             
             # we have already divided thru by the non-masked area in
@@ -547,12 +536,12 @@ class Variable:
         else:
             
             # if not a mean, we need to potentially handle unit conversions
-            unit0    = Unit("m2")*unit
-            unit     = Unit(unit0.format().split()[-1])
-            integral = unit0.convert(integral,unit)
+            unit0    = Units("m2")*unit
+            unit     = Units(unit0.formatted().split()[-1])
+            integral = Units.conform(integral,unit0,unit)
             
         return Variable(data       = np.ma.masked_array(integral),
-                        unit       = "%s" % unit,
+                        unit       = unit.units,
                         time       = self.time,
                         time_bnds  = self.time_bnds,
                         depth      = self.depth,
@@ -721,7 +710,7 @@ class Variable:
             bnds[0]    = max(x[0] -0.5*(x[ 1]-x[ 0]),-180)
             bnds[-1]   = min(x[-1]+0.5*(x[-1]-x[-2]),+180)
             return bnds
-        assert Unit(var.unit) == Unit(self.unit)
+        assert Units(var.unit) == Units(self.unit)
         assert self.temporal == False
         assert self.ndata    == var.ndata
         assert self.layered  == False
@@ -763,7 +752,7 @@ class Variable:
     def convert(self,unit,density=998.2):
         """Convert the variable to a given unit.
 
-        We use the UDUNITS library via the cf_units python interface to
+        We use the UDUNITS library via the cfunits python interface to
         convert the variable's unit. Additional support is provided
         for unit conversions in which substance information is
         required. For example, in quantities such as precipitation it
@@ -788,53 +777,53 @@ class Variable:
             this object with its unit converted
 
         """
-        if unit is None: return self
-        src_unit  = Unit(self.unit)
-        tar_unit  = Unit(     unit)
+        src_unit  = Units(self.unit)
+        tar_unit  = Units(     unit)
         mask      = self.data.mask
 
         # Define some generic quantities
-        linear            = Unit("m")
-        linear_rate       = Unit("m s-1")
-        area_density      = Unit("kg m-2")
-        area_density_rate = Unit("kg m-2 s-1")
-        mass_density      = Unit("kg m-3")
-        volume_conc       = Unit("mol m-3")
-        mass_conc         = Unit("mol kg-1")
+        linear            = Units("m")
+        linear_rate       = Units("m s-1")
+        area_density      = Units("kg m-2")
+        area_density_rate = Units("kg m-2 s-1")
+        mass_density      = Units("kg m-3")
+        volume_conc       = Units("mol m-3")
+        mass_conc         = Units("mol kg-1")
 
-        # UDUNITS doesn't handle frequently found temperature expressions
+        # cfunits doesn't handle frequently found temperature expressions
         synonyms = {"K":"degK",
                     "R":"degR",
                     "C":"degC",
                     "F":"degF"}
         for syn in synonyms.keys():
-            if src_unit.format() == syn: src_unit = Unit(synonyms[syn])
-            if tar_unit.format() == syn: tar_unit = Unit(synonyms[syn])
+            if src_unit.units == syn: src_unit = Units(synonyms[syn])
+            if tar_unit.units == syn: tar_unit = Units(synonyms[syn])
         
         # Do we need to multiply by density?
-        if ( (src_unit.is_convertible(linear_rate) and tar_unit.is_convertible(area_density_rate)) or
-             (src_unit.is_convertible(linear     ) and tar_unit.is_convertible(area_density     )) or
-             (src_unit.is_convertible(mass_conc  ) and tar_unit.is_convertible(volume_conc      )) ):
+        if ( (src_unit.equivalent(linear_rate) and tar_unit.equivalent(area_density_rate)) or
+             (src_unit.equivalent(linear     ) and tar_unit.equivalent(area_density     )) or
+             (src_unit.equivalent(mass_conc  ) and tar_unit.equivalent(volume_conc      )) ):
             np.seterr(over='ignore',under='ignore')
             self.data *= density
             np.seterr(over='raise',under='raise')
             src_unit *= mass_density
             
         # Do we need to divide by density?
-        if ( (tar_unit.is_convertible(linear_rate) and src_unit.is_convertible(area_density_rate)) or
-             (tar_unit.is_convertible(linear     ) and src_unit.is_convertible(area_density     )) or
-             (tar_unit.is_convertible(mass_conc  ) and src_unit.is_convertible(volume_conc      )) ):
+        if ( (tar_unit.equivalent(linear_rate) and src_unit.equivalent(area_density_rate)) or
+             (tar_unit.equivalent(linear     ) and src_unit.equivalent(area_density     )) or
+             (tar_unit.equivalent(mass_conc  ) and src_unit.equivalent(volume_conc      )) ):
             np.seterr(over='ignore',under='ignore')
-            self.data = self.data / density
+            self.data /= density
             np.seterr(over='raise',under='raise')
-            src_unit = src_unit / mass_density
+            src_unit /= mass_density
             
         # Convert units
         try:
-            self.data = src_unit.convert(self.data,tar_unit)
+            self.data = Units.conform(self.data,src_unit,tar_unit)
             self.data = np.ma.masked_array(self.data,mask=mask)
             self.unit = unit
         except:
+            print "var_name = %s, src_unit = %s, target_unit = %s " % (self.name,src_unit,tar_unit)
             raise il.UnitConversionError()
         return self
     
@@ -1087,8 +1076,7 @@ class Variable:
         land   = keywords.get("land"  ,0.875)
         water  = keywords.get("water" ,0.750)
         pad    = keywords.get("pad"   ,5.0)
-        cbar   = keywords.get("cbar"  ,False)
-        
+
         rem_mask = None
         r = Regions()
         if self.temporal and not self.spatial:
@@ -1111,7 +1099,7 @@ class Variable:
             # Mask out areas outside our region
             rem_mask  = np.copy(self.data.mask)
             self.data.mask += r.getMask(region,self)
-            
+
             # Find the figure geometry
             if self.ndata:
                 LAT = np.ma.masked_array(self.lat,mask=self.data.mask,copy=True)
@@ -1121,19 +1109,38 @@ class Variable:
                 LAT,LON = np.meshgrid(self.lat,self.lon,indexing='ij')
                 LAT = np.ma.masked_array(LAT,mask=self.data.mask,copy=False)
                 LON = np.ma.masked_array(LON,mask=self.data.mask,copy=False)
+                LAT = self.lat[(LAT.mask==False).any(axis=1)]
+                TF  = (LON.mask==False).any(axis=0)
+                # do we need to shift longitudes to plot continuously
+                # over the dateline? 
+                dateline = True if (TF[0] == TF[-1] == True and
+                                    (TF==False).any()       and
+                                    LAT.min() < -45.        and
+                                    LAT.max() >  45.           ) else False
+                LON = self.lon[TF]
+                if dateline: LON = (LON>=0)*LON+(LON<0)*(LON+360)
                     
             lat0 = LAT.min() ; latf = LAT.max()
             lon0 = LON.min() ; lonf = LON.max()
             latm = LAT.mean(); lonm = LON.mean()
-            area = (latf-lat0)*(lonf-lon0)
-                
+            if dateline:
+                LON  = (LON <=180)*LON +(LON >180)*(LON -360)
+                lon0 = (lon0<=180)*lon0+(lon0>180)*(lon0-360)
+                lonf = (lonf<=180)*lonf+(lonf>180)*(lonf-360)
+                lonm = (lonm<=180)*lonm+(lonm>180)*(lonm-360)
+            area = (latf-lat0)
+            if dateline:
+                area *= (360-lonf+lon0)
+            else:
+                area *= (lonf-lon0)
+
             # Setup the plot projection depending on data limits
-            bmap = Basemap(projection = 'robin',
-                           lon_0      = 0,
-                           ax         = ax,
-                           resolution = 'c')
+            bmap = Basemap(projection     = 'robin',
+                               lon_0      = lonm,
+                               ax         = ax,
+                               resolution = 'c')
             if (lon0 < -170.) and (lonf > 170.):
-                if lat0 > 23.5:
+                if lat0 > 23.5: 
                     bmap = Basemap(projection  = 'npstere',
                                    boundinglat = lat0-5.,
                                    lon_0       = 0.,
@@ -1146,7 +1153,7 @@ class Variable:
                                    ax          = ax,
                                    resolution  = 'c')
             else:
-                if area < 10000.:
+                if area < 10000. and not dateline:
                     bmap = Basemap(projection = 'cyl',
                                    llcrnrlon  = lon0-2*pad,
                                    llcrnrlat  = lat0-  pad,
@@ -1176,14 +1183,11 @@ class Variable:
                 clrs = clmp(norm)
                 size = 35
                 ax   = bmap.scatter(x,y,s=size,color=clrs,ax=ax,linewidths=0,cmap=cmap)
-            if cbar:
-                cb = bmap.colorbar(ax,location='bottom',pad="5%")
-                if label is not None: cb.set_label(label)
             if rem_mask is not None: self.data.mask = rem_mask
         return ax
     
 
-    def interpolate(self,time=None,lat=None,lon=None,lat_bnds=None,lon_bnds=None,itype='nearestneighbor'):
+    def interpolate(self,time=None,lat=None,lon=None,itype='nearestneighbor'):
         """Use nearest-neighbor interpolation to interpolate time and/or space at given values.
 
         Parameters
@@ -1212,8 +1216,8 @@ class Variable:
             if lat is None: lat = self.lat
             if lon is None: lon = self.lon
             if itype == 'nearestneighbor':
-                rows  = (np.abs(lat[:,np.newaxis]-self.lat)).argmin(axis=1)
-                cols  = (np.abs(lon[:,np.newaxis]-self.lon)).argmin(axis=1)
+                rows  = np.apply_along_axis(np.argmin,1,np.abs(lat[:,np.newaxis]-self.lat))
+                cols  = np.apply_along_axis(np.argmin,1,np.abs(lon[:,np.newaxis]-self.lon))
                 args  = []
                 if self.temporal: args.append(range(self.time.size))
                 if self.layered:  args.append(range(self.depth.size))
@@ -1223,10 +1227,10 @@ class Variable:
                 mask  = data.mask[ind]
                 data  = data.data[ind]
                 data  = np.ma.masked_array(data,mask=mask)
-                frac  = self.area / il.CellAreas(self.lat,self.lon,self.lat_bnds,self.lon_bnds).clip(1e-12)
+                frac  = self.area / il.CellAreas(self.lat,self.lon).clip(1e-12)
                 frac  = frac.clip(0,1)
                 frac  = frac[np.ix_(rows,cols)]
-                output_area = frac * il.CellAreas(lat,lon,lat_bnds,lon_bnds)
+                output_area = frac * il.CellAreas(lat,lon)
             elif itype == 'bilinear':
                 from scipy.interpolate import RectBivariateSpline
                 if self.data.ndim == 3:
@@ -1610,7 +1614,7 @@ class Variable:
             R0    = 1.0
             std0  = std0.clip(1e-12)
             std   = std .clip(1e-12)
-            std   = std/std0
+            std  /= std0
             score = 4.0*(1.0+R.data)/((std+1.0/std)**2 *(1.0+R0))
         except:
             std   = np.asarray([0.0])

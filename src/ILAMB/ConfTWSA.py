@@ -1,8 +1,7 @@
 from Confrontation import Confrontation
-import matplotlib.pyplot as plt
 from Variable import Variable
-from Regions import Regions
 from netCDF4 import Dataset
+from copy import deepcopy
 import ilamblib as il
 import Post as post
 import numpy as np
@@ -23,16 +22,7 @@ class ConfTWSA(Confrontation):
                        "Seasonal Cycle Score"          :1.,
                        "Interannual Variability Score" :1.,
                        "Spatial Distribution Score"    :1.}
-        
-        # Now we overwrite some things which are different here
-        self.regions        = ['global']
-        self.layout.regions = self.regions
-
-        # Adding a member variable called basins, add them as regions
-        r = Regions()
-        nbasins = self.keywords.get("nbasins",30)
-        self.basins = r.addRegionNetCDF4(os.path.join("/".join(self.source.split("/")[:-3]),"runoff/Dai/basins_0.5x0.5.nc"))[:nbasins]
-
+    
     def stageData(self,m):
         r"""Extracts model data which is comparable to the observations.
 
@@ -72,35 +62,14 @@ class ConfTWSA(Confrontation):
 
         # get the model data, in the units of the obseravtions
         mod = m.extractTimeSeries(self.variable,
-                                  alt_vars     = self.alternate_vars,
-                                  expression   = self.derived,
-                                  initial_time = obs.time_bnds[ 0,0],
-                                  final_time   = obs.time_bnds[-1,1])
-
-        # if the derived expression is used, then we get a mass flux
-        # rate and need to accumulate
-        try:
-            mod.convert(obs.unit)
-        except:
-            mod = mod.accumulateInTime()
-            mod.name = obs.name
-        obs,mod = il.MakeComparable(obs,mod,clip_ref=True)
+                                  alt_vars = self.alternate_vars).convert(obs.unit)
+        obs,mod   = il.MakeComparable(obs,mod,clip_ref=True)
 
         # subtract off the mean
         mean      = obs.integrateInTime(mean=True)
         obs.data -= mean.data
         mean      = mod.integrateInTime(mean=True)
         mod.data -= mean.data
-
-        # compute mean values over each basin
-        odata = np.ma.zeros((obs.time.size,len(self.basins)))
-        mdata = np.ma.zeros((mod.time.size,len(self.basins)))
-        for i,basin in enumerate(self.basins):
-            odata[:,i] = obs.integrateInSpace(region=basin,mean=True).data
-            mdata[:,i] = mod.integrateInSpace(region=basin,mean=True).data
-        obs.data = odata; obs.ndata = odata.shape[1]; obs.spatial = False
-        mod.data = mdata; mod.ndata = mdata.shape[1]; mod.spatial = False
-        mod.data.mask = obs.data.mask
         
         return obs,mod
 
@@ -108,140 +77,110 @@ class ConfTWSA(Confrontation):
         return ["tws"],[]
         
     def confront(self,m):
-        """Confront the GRACE data by computing a mean over river
-        basins. Fine-scale, point comparisons aren't meaningful as the
-        underlying resolution of the GRACE data is 300-400 [m]. See
-        the following publication for more information.
+        """Confront
 
-        Swenson, Sean & National Center for Atmospheric Research Staff
-        (Eds). Last modified 08 Oct 2013. "The Climate Data Guide:
-        GRACE: Gravity Recovery and Climate Experiment: Surface mass,
-        total water storage, and derived variables." Retrieved from
-        https://climatedataguide.ucar.edu/climate-data/grace-gravity-recovery-and-climate-experiment-surface-mass-total-water-storage-and.
+        .. math:: \sigma(\mathbf{x}) = \sqrt{\frac{1}{t_f-t_0}\int_{t_0}^{t_f} (twsa(t,\mathbf{x})-0)^2\ dt }
 
         """
-        obs,mod = self.stageData(m)
 
-        # find the magnitude of the anomaly
-        obs_anom     = obs.rms()
-        obs_anom_val = obs_anom.siteStats()
-        mod_anom     = mod.rms()
-        mod_anom_val = mod_anom.siteStats()      
-        rmse         = obs.rmse(mod).convert(obs.unit)
-        rmse_val     = rmse.siteStats()
-        rmse_smap    = Variable(name = "",
-                                unit = "1",
-                                data = np.exp(-rmse.data/obs_anom.data),
-                                ndata = obs.ndata,
-                                lat   = obs.lat,
-                                lon   = obs.lon)
-        rmse_score   = rmse_smap.siteStats()
-        iav_score    = Variable(name = "Interannual Variability Score global",
-                                unit = "1",
-                                data = np.exp(-np.abs(mod_anom_val.data-obs_anom_val.data)/obs_anom_val.data))
+        obs,mod = self.stageData(m)
+        assert obs.spatial == mod.spatial == True
         
-        # remap for plotting
-        obs_anom_map = self._extendSitesToMap(obs_anom )
-        mod_anom_map = self._extendSitesToMap(mod_anom )
-        rmse_map     = self._extendSitesToMap(rmse     )
-        rmse_smap    = self._extendSitesToMap(rmse_smap)
+        # Get the standard deviation of the anomaly for both the
+        # observation and the model
+        obs_std       = deepcopy(obs)
+        np.seterr(under='ignore',over='ignore')
+        obs_std.data *= obs_std.data
+        np.seterr(under='raise',over='raise')
+        obs_std       = obs_std.integrateInTime(mean=True)
+        obs_std.data  = np.ma.sqrt(obs_std.data)
+        mod_std       = deepcopy(mod)
+        np.seterr(under='ignore',over='ignore')
+        mod_std.data *= mod_std.data
+        np.seterr(under='raise',over='raise')
+        mod_std       = mod_std.integrateInTime(mean=True)
+        mod_std.data  = np.ma.sqrt(mod_std.data)
+
+        # Difference map of the standard deviations
+        diff          = obs_std.spatialDifference(mod_std)
+        diff.name     = "diff"
         
-        # renames
-        obs_anom_val.name = "Anomaly Magnitude global"
-        mod_anom_val.name = "Anomaly Magnitude global"
-        obs_anom_map.name = "timeint_of_anomaly"
-        mod_anom_map.name = "timeint_of_anomaly"
-        rmse_map    .name = "rmse_of_anomaly"
-        rmse_smap   .name = "rmsescore_of_anomaly"
-        rmse_val    .name = "RMSE global"
-        rmse_score  .name = "RMSE Score global"
+        # RMSE of the anomaly
+        rmse          = obs.rmse(mod)
+
+        # Diff and RMSE score maps
+        obs_std_int  = obs_std.interpolate(lat=diff.lat,lon=diff.lon)
+        diff_score   = il.Score(diff,obs_std_int)
+        rmse_mean    = rmse.integrateInSpace(mean=True)
+        rmse_score   = il.Score(rmse,rmse_mean)
         
-        # dump results to a netCDF4 file
+        # Compute quantities over regions
+        obs_s         = {}
+        obs_s["std"]  = {}
+        obs_spaceint  = {}
+        mod_s         = {}
+        mod_s["std"]  = {}
+        mod_s["diff"] = {}
+        mod_s["rmse"] = {}
+        mod_s["diff score"] = {}
+        mod_s["rmse score"] = {}
+        mod_spaceint  = {}
+        for region in self.regions:
+
+            # Scalars
+            obs_s["std"       ][region] = obs_std   .integrateInSpace(region=region,mean=True)
+            mod_s["std"       ][region] = mod_std   .integrateInSpace(region=region,mean=True)
+            mod_s["diff"      ][region] = diff      .integrateInSpace(region=region,mean=True)
+            mod_s["rmse"      ][region] = rmse      .integrateInSpace(region=region,mean=True)
+            mod_s["diff score"][region] = diff_score.integrateInSpace(region=region,mean=True)
+            mod_s["rmse score"][region] = rmse_score.integrateInSpace(region=region,mean=True)
+
+            # Spatial integrals
+            obs_spaceint[region]  = obs    .integrateInSpace(region=region,mean=True)
+            mod_spaceint[region]  = mod    .integrateInSpace(region=region,mean=True)
+            
+            # Change names
+            obs_s["std" ]      [region].name = "Period Mean Anomaly Std %s" % region
+            mod_s["std" ]      [region].name = "Period Mean Anomaly Std %s" % region
+            mod_s["diff"]      [region].name = "Std Difference %s"          % region
+            mod_s["rmse"]      [region].name = "Anomaly RMSE %s"            % region
+            mod_s["diff score"][region].name = "Diff Score %s"              % region
+            mod_s["rmse score"][region].name = "RMSE Score %s"              % region
+            obs_spaceint       [region].name = "spaceint_of_twsa_over_%s"   % region
+            mod_spaceint       [region].name = "spaceint_of_twsa_over_%s"   % region
+        
+        # Change names
+        obs_std.name = "timeint_of_twsa"
+        mod_std.name = "timeint_of_twsa"
+        diff   .name = "bias_of_twsa"
+        
+        # Dump results to a netCDF4 file
         results = Dataset(os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name)),mode="w")
         results.setncatts({"name" :m.name, "color":m.color})
-        mod         .toNetCDF4(results,group="MeanState")
-        mod_anom_val.toNetCDF4(results,group="MeanState")
-        mod_anom_map.toNetCDF4(results,group="MeanState")
-        rmse_map    .toNetCDF4(results,group="MeanState")
-        rmse_smap   .toNetCDF4(results,group="MeanState")
-        rmse_val    .toNetCDF4(results,group="MeanState")
-        rmse_score  .toNetCDF4(results,group="MeanState")
-        iav_score   .toNetCDF4(results,group="MeanState")
+        mod_std     .toNetCDF4(results,group="MeanState")
+        diff        .toNetCDF4(results,group="MeanState")
+        for region in self.regions: mod_spaceint[region].toNetCDF4(results,group="MeanState")
+        for key in mod_s.keys():
+            for region in self.regions: mod_s[key][region].toNetCDF4(results,group="MeanState")
         results.close()
+
+        # If you are the master, dump Benchmark quantities too
         if self.master:
             results = Dataset(os.path.join(self.output_path,"%s_Benchmark.nc" % (self.name)),mode="w")
             results.setncatts({"name" :"Benchmark", "color":np.asarray([0.5,0.5,0.5])})
-            obs.toNetCDF4(results,group="MeanState")
-            obs_anom_val.toNetCDF4(results,group="MeanState")
-            obs_anom_map.toNetCDF4(results,group="MeanState")
+            obs_std     .toNetCDF4(results,group="MeanState")
+            for region in self.regions: obs_spaceint[region].toNetCDF4(results,group="MeanState")
+            for key in obs_s.keys():
+                for region in self.regions:
+                    obs_s[key][region].toNetCDF4(results,group="MeanState")
             results.close()
 
-    def _extendSitesToMap(self,var):
-        """A local function to extend site data to the basins.
-        
-        Parameters
-        ----------
-        var : ILAMB.Variable.Variable
-            the site-based variable we wish to extend to basins
-
-        Returns
-        -------
-        extended : ILAMB.Variable.Variable
-            the spatial variable which is the extended version of the
-            input variable
-        """
-        
-        # determine the global mask
-        global_mask = None
-        global_data = None
-        for i,basin in enumerate(self.basins):
-            name,lat,lon,mask = Regions._regions[basin]
-            keep = (mask == False)
-            if global_mask is None:
-                global_mask  = np.copy(mask)
-                global_data  = keep*var.data[i]
-            else:
-                global_mask *= mask
-                global_data += keep*var.data[i]
-        return Variable(name      = var.name,
-                        unit      = var.unit,
-                        data      = np.ma.masked_array(global_data,mask=global_mask),
-                        lat       = lat,
-                        lon       = lon)
-    
     def modelPlots(self,m):
-
-        # some of the plots can be generated using the standard
-        # routine, with some modifications
+        
         super(ConfTWSA,self).modelPlots(m)
+
         for page in self.layout.pages:
             for sec in page.figures.keys():
                 for fig in page.figures[sec]:
-                    fig.side = fig.side.replace("MEAN","ANOMALY MAGNITUDE")
-
-        # 
-        bname = os.path.join(self.output_path,"%s_Benchmark.nc" % (self.name       ))
-        fname = os.path.join(self.output_path,"%s_%s.nc"        % (self.name,m.name))
-        
-        # get the HTML page
-        page = [page for page in self.layout.pages if "MeanState" in page.name][0]  
-
-        if not os.path.isfile(bname): return
-        if not os.path.isfile(fname): return
-        obs = Variable(filename = bname, variable_name = "twsa", groupname = "MeanState")
-        mod = Variable(filename = fname, variable_name = "twsa", groupname = "MeanState")
-        for i,basin in enumerate(self.basins):
-
-            page.addFigure("Spatially integrated regional mean",
-                           basin,
-                           "MNAME_global_%s.png" % basin,
-                           basin,False,longname=basin)
-            
-            fig,ax = plt.subplots(figsize=(6.8,2.8),tight_layout=True)
-            ax.plot(obs.time/365+1850,obs.data[:,i],lw=2,color='k',alpha=0.5)
-            ax.plot(mod.time/365+1850,mod.data[:,i],lw=2,color=m.color      )
-            ax.grid()
-            ax.set_ylabel(post.UnitStringToMatplotlib(obs.unit))
-            fig.savefig(os.path.join(self.output_path,"%s_global_%s.png" % (m.name,basin)))
-            plt.close()
-
+                    fig.side = fig.side.replace("MEAN","ANOMALY")
+                    fig.side = fig.side.replace("BIAS","DIFFERENCE")
