@@ -31,27 +31,38 @@ Useful Information
   * `CLM <http://ilamb.ornl.gov/CLM/>`_ - land comparison against 3 CLM versions and 2 forcings
   * `CMIP5 <http://ilamb.ornl.gov/CMIP5/>`_ - land comparison against a collection of CMIP5 models
   * `IOMB <http://ilamb.ornl.gov/IOMB/>`_ - ocean comparison against a few ocean models
-    
+
+* Paper `preprint <https://www.ilamb.org/ILAMB_paper.pdf>`_ which
+  details the design and methodology employed in the ILAMB package
 * If you find the package or the ouput helpful in your research or
   development efforts, we kindly ask you to cite the following
   reference (DOI:10.18139/ILAMB.v002.00/1251621).
 
-ILAMB 2.2 Release
+ILAMB 2.3 Release
 -----------------
 
-We are pleased to announce version 2.2 of the ILAMB python package. Among many small bugfixes and enhancements, the new version contains the following new features:
+We are pleased to announce version 2.3 of the ILAMB python
+package. Among many bugfixes and improvements we highlight these major
+changes:
 
-* A new installed command ``ilamb-fetch`` has been included which can be run to automatically download the observational datasets. Running this command after the data has been downloaded will check your collection for updates and consistency.
-* A new installed command ``ilamb-doctor`` has been included which can be run with options similar to ``ilamb-run`` to help identify which values a particular configure file needs in order to run.
-* ILAMB will now check the spatial extents of all the models present in the current run and clip away to the largest shared extent. This allows ILAMB to be applied to regional models.
-* User-defined regions can now be added at runtime either by specifying latitude/longitude bounds, or a mask in a netCDF4 file. For specifics, consult the regions `tutorial <http://ilamb.ornl.gov/doc/custom_regions.html>`_.
-* Added a runoff and evaporative fraction benchmark to the ILAMB canon, removed the GFED3 and GFED4 burned area data products.
-* Added many more plots to the generic output including the RMSE and the score maps.
-* The ILAMB core has been enhanced to better handle depths. This has enabled ocean comparisons among others.
-* An initial collection of ocean datasets has been assembled in the ``demo/iomb.cfg`` file for ocean benchmarking.
-* The plotting phase of ``ilamb-run`` may now be skipped with the ``--skip_plots`` option.
-* Relationship overall scores are now available in an image on the main html output page.
-* Additional `tutorials <http://ilamb.ornl.gov/doc/>`_ have been added to explain these new features.
+* You may observe a large shift in some score values. In this version
+  we solidified our scoring methodology while writing a `paper
+  <https://www.ilamb.org/ILAMB_paper.pdf>`_ which necesitated
+  reworking some of the scores. For details, see the linked paper.
+* Made a memory optimization pass through the analysis routines. Peak
+  memory usage and the time at peak was reduced improving performance. 
+* Restructured the symbolic manipulation of derived variables to
+  greatly reduce the required memory.
+* Moved from using cfunits to cf_units. Both are python wrappers
+  around the UDUNITS library, but cfunits is stagnant and placed a
+  lower limit to the version of the netCDF4 python wrappers we could
+  use.
+* The scoring of the interannual variability was missed in the port
+  from version 1 to 2, we have added the metric.
+* The terrestrial water storage anomaly GRACE metric was changed to
+  compare mean anomaly values over large river basins. For details see
+  the ILAMB paper.
+
 
 Funding
 -------

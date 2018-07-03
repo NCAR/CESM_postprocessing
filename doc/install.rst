@@ -25,7 +25,7 @@ include:
 * netCDF4_, a python/numpy interface to the netCDF C library (you must have the C library installed)
 * sympy_, a python library for symbolic mathematics
 * mpi4py_, a python wrapper around the MPI library (you must have a MPI implementation installed)
-* cfunits_, a python interface to UNIDATA’s Udunits-2 library with CF extensions (you must have the Udunits library installed)
+* cf_units_, a python interface to UNIDATA’s Udunits-2 library with CF extensions (you must have the Udunits library installed)
 
 I have designated that a few of these dependencies are python
 interfaces to C libraries and so the library must also be installed
@@ -271,7 +271,7 @@ Next open the local copy of the file with a editor and search for
 .. _numpy:      https://www.numpy.org/
 .. _matplotlib: https://matplotlib.org/
 .. _netCDF4:    https://github.com/Unidata/netcdf4-python
-.. _cfunits:    https://bitbucket.org/cfpython/cfunits-python/
+.. _cf_units:   https://github.com/SciTools/cf-units
 .. _basemap:    https://github.com/matplotlib/basemap
 .. _sympy:      https://www.sympy.org/
 .. _mpi4py:     https://pythonhosted.org/mpi4py/

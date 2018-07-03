@@ -130,6 +130,28 @@ space_opts["rmsescore"] = { "name"      :"Temporally integrated period mean rmse
                             "sidelbl"   :"RMSE SCORE",
                             "haslegend" :True }
 
+space_opts["iav"]    = { "name"      :"Interannual variability",
+                          "cmap"      :"Reds",
+                          "sym"       :False,
+                          "ticks"     :None,
+                          "ticklabels":None,
+                          "label"     :"unit" ,
+                          "section"   :"Temporally integrated period mean",
+                          "pattern"   :"MNAME_RNAME_iav.png",
+                          "sidelbl"   :"MODEL INTERANNUAL VARIABILITY",
+                          "haslegend" :True }
+
+space_opts["iavscore"] = { "name"      :"Interannual variability score",
+                           "cmap"      :"RdYlGn",
+                           "sym"       :False,
+                           "ticks"     :None,
+                           "ticklabels":None,
+                           "label"     :"unit" ,
+                           "section"   :"Temporally integrated period mean",
+                           "pattern"   :"MNAME_RNAME_iavscore.png",
+                           "sidelbl"   :"INTERANNUAL VARIABILITY SCORE",
+                           "haslegend" :True }
+
 space_opts["shift"]   = { "name"      :"Temporally integrated mean phase shift",
                           "cmap"      :"PRGn",
                           "sym"       :True,
