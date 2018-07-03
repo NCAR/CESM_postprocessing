@@ -4,6 +4,8 @@ from mpl_toolkits.basemap import Basemap
 from ILAMB.Variable import Variable
 from netCDF4 import Dataset
 import ILAMB.ilamblib as il
+import ILAMB.Post as post
+import pylab as plt
 import numpy as np
 import os
 
@@ -54,7 +56,9 @@ class ConfRunoff(Confrontation):
                             obs.time_bnds[11::12,1]]).T
         obs   = obs.coarsenInTime(years)
         mod   = mod.coarsenInTime(years)
-
+        obs.name = "runoff"
+        mod.name = "runoff"
+        
         # Operate on model data to compute mean runoff values in each basin.
         data   = np.ma.zeros(obs.data.shape)
         for i,basin in enumerate(self.basins):
@@ -119,7 +123,7 @@ class ConfRunoff(Confrontation):
         """
         # Grab the data
         obs,mod = self.stageData(m)
-
+        
         # Basic analysis from ilamblib.AnalysisMeanState() for
         # datasites and only the global region
         obs_timeint     = obs.integrateInTime(mean=True)
@@ -159,7 +163,8 @@ class ConfRunoff(Confrontation):
         # Dump to files
         results = Dataset(os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name)),mode="w")
         results.setncatts({"name" :m.name, "color":m.color})
-        for var in [mod_period_mean,
+        for var in [mod,
+                    mod_period_mean,
                     mod_timeint,
                     bias,
                     bias_score,
@@ -171,9 +176,40 @@ class ConfRunoff(Confrontation):
         if self.master:
             results = Dataset(os.path.join(self.output_path,"%s_Benchmark.nc" % self.name),mode="w")
             results.setncatts({"name" :"Benchmark", "color":np.asarray([0.5,0.5,0.5])})
-            for var in [obs_period_mean,
+            for var in [obs,
+                        obs_period_mean,
                         obs_timeint]:
                 var.toNetCDF4(results,group="MeanState")
             results.close()
 
+    def modelPlots(self,m):
 
+        # some of the plots can be generated using the standard
+        # routine, with some modifications
+        super(ConfRunoff,self).modelPlots(m)
+
+        # 
+        bname = os.path.join(self.output_path,"%s_Benchmark.nc" % (self.name       ))
+        fname = os.path.join(self.output_path,"%s_%s.nc"        % (self.name,m.name))
+        
+        # get the HTML page
+        page = [page for page in self.layout.pages if "MeanState" in page.name][0]  
+    
+        if not os.path.isfile(bname): return
+        if not os.path.isfile(fname): return
+        obs = Variable(filename = bname, variable_name = "runoff", groupname = "MeanState")
+        mod = Variable(filename = fname, variable_name = "runoff", groupname = "MeanState")
+        for i,basin in enumerate(self.basins):
+
+            page.addFigure("Spatially integrated regional mean",
+                           basin,
+                           "MNAME_global_%s.png" % basin,
+                           basin,False,longname=basin)
+            
+            fig,ax = plt.subplots(figsize=(6.8,2.8),tight_layout=True)
+            ax.plot(obs.time/365+1850,obs.data[:,i],lw=2,color='k',alpha=0.5)
+            ax.plot(mod.time/365+1850,mod.data[:,i],lw=2,color=m.color      )
+            ax.grid()
+            ax.set_ylabel(post.UnitStringToMatplotlib(obs.unit))
+            fig.savefig(os.path.join(self.output_path,"%s_global_%s.png" % (m.name,basin)))
+            plt.close()

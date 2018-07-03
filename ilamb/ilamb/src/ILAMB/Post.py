@@ -223,11 +223,19 @@ class HtmlPage(object):
     def __str__(self):
 
         r = Regions()
-        def _sortFigures(figure,priority=["benchmark_timeint","timeint","timeintremap","bias","rmse","benchmark_phase","phase","shift","biasscore","rmsescore","shiftscore","spatial_variance","legend_spatial_variance","spaceint","accumulate","cycle","dtcycle","compcycle","temporal_variance"]):
+        def _sortFigures(figure):
+            macro = ["timeint","bias","rmse","iav","phase","shift","variance","spaceint","accumulate","cycle"]
             val = 1.
-            for i,pname in enumerate(priority):
-                if pname == figure.name: val += 2**i
-            return val
+            for i,m in enumerate(macro):
+                if m in figure.name: val += 3**i
+            if figure.name.startswith("benchmark"): val -= 1.
+            if figure.name.endswith("score"): val += 1.
+            if figure.name.startswith("legend"):
+                if "variance" in figure.name:
+                    val += 1.
+                else:
+                    val  = 0.
+            return val        
         
         code = """
     <div data-role="page" id="%s">
@@ -834,11 +842,14 @@ class HtmlSitePlotsPage(HtmlPage):
 class HtmlLayout():
 
     def __init__(self,pages,cname,years=None):
-
+        
         self.pages = pages
         self.cname = cname.replace("/"," / ")
         if years is not None:
-            self.cname += " / %d-%d" % (years)
+            try:
+                self.cname += " / %d-%d" % (years)
+            except:
+                pass
         for page in self.pages:
             page.pages = self.pages
             page.cname = self.cname
@@ -1048,7 +1059,7 @@ def BenchmarkSummaryFigure(models,variables,data,figname,vcolor=None,rel_only=Fa
     nvariables = len(variables)
     maxV       = max([len(v) for v in variables])
     maxM       = max([len(m) for m in models])
-    wpchar     = 0.1
+    wpchar     = 0.15
     wpcell     = 0.19
     hpcell     = 0.25
     w          = maxV*wpchar + max(4,nmodels)*wpcell
@@ -1085,6 +1096,8 @@ def BenchmarkSummaryFigure(models,variables,data,figname,vcolor=None,rel_only=Fa
         ax[0].set_yticklabels(variables[::-1])
         ax[0].tick_params('both',length=0,width=0,which='major')
         ax[0].tick_params(axis='y',pad=10)
+        ax[0].set_xlim(0,nmodels)
+        ax[0].set_ylim(0,nvariables)
         if vcolor is not None:
             for i,t in enumerate(ax[0].yaxis.get_ticklabels()):
                 t.set_backgroundcolor(vcolor[::-1][i])
@@ -1117,6 +1130,7 @@ def BenchmarkSummaryFigure(models,variables,data,figname,vcolor=None,rel_only=Fa
     ax[i].set_xticklabels(models,rotation=90)
     ax[i].tick_params('both',length=0,width=0,which='major')
     ax[i].set_yticks([])
+    ax[i].set_xlim(0,nmodels)
     ax[i].set_ylim(0,nvariables)
     if rel_only:
         ax[i].set_yticks     (np.arange(nvariables)+0.5)
