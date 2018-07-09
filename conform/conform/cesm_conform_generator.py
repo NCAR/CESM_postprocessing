@@ -244,12 +244,16 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
 
     variablelist = {}
     gridfile = None
+    nc_files.append(extra_dir+"/ocn_constants.nc")
     nc_files_l = comm.partition(nc_files,func=partition.EqualLength(),involved=True)
     for fn in nc_files_l:
         f = nc.Dataset(fn, "r")
         mt = fn.replace(root_dir,"").split("/")[-5]         
         stri = fn
         model_type = mt
+        if "ocn_constants" in fn:
+            model_type = "ocn"
+            mt = "ocn"
         if "lnd" in model_type or "rof" in model_type:
             model_type = 'lnd,rof'
         if "glc" in model_type:
@@ -315,7 +319,10 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
                         time_period_freq = f.time_period_freq
                     if time_period_freq not in variablelist[model_type][vn].keys():
                         variablelist[model_type][vn][time_period_freq] = {}
-                    date = stri.split('.')[-2]      
+                    if 'ocn_constants' in stri:
+                        date = "0000"
+                    else:
+                        date = stri.split('.')[-2]      
                     if date not in variablelist[model_type][vn][time_period_freq].keys():
                         variablelist[model_type][vn][time_period_freq][date] = {}
                     if 'files' not in variablelist[model_type][vn][time_period_freq][date].keys():
@@ -424,7 +431,11 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                 var_defs[j][split[0]] = {}
                 var_defs[j][split[0]]["freq"] = split[1].replace("[","").replace("]","").replace(":","").split(",")[0]
                 if 'fx' in var_defs[j][split[0]]["freq"]:
-                    var_defs[j][split[0]]["freq"] = 'mon'
+                    var_defs[j][split[0]]["freq"] = 'month_1'
+                elif 'mon' in var_defs[j][split[0]]["freq"]:
+                    var_defs[j][split[0]]["freq"] = 'month_1'
+                elif 'day' in var_defs[j][split[0]]["freq"]:
+                    var_defs[j][split[0]]["freq"] = 'day_1'
                 elif '6hr' in var_defs[j][split[0]]["freq"]:
                     var_defs[j][split[0]]["freq"] = 'hour_6'
                 elif '3hr' in var_defs[j][split[0]]["freq"]:
@@ -443,6 +454,14 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                 var_defs[j][split[0]]["var_check"] = {}
                 if 'landUse' in var_defs[j][split[0]]["vars"]:
                     var_defs[j][split[0]]["vars"].remove('landUse')
+                elif 'siline' in var_defs[j][split[0]]["vars"]:
+                    var_defs[j][split[0]]["vars"].remove('siline')
+                elif 'basin'  in var_defs[j][split[0]]["vars"]:
+                    var_defs[j][split[0]]["vars"].remove('basin')
+                elif 'iceband'  in var_defs[j][split[0]]["vars"]:
+                    var_defs[j][split[0]]["vars"].remove('iceband')
+                elif 'soilpools' in var_defs[j][split[0]]["vars"]:
+                    var_defs[j][split[0]]["vars"].remove('soilpools')
                 # check to see if we have all before we start
                 for v in var_defs[j][split[0]]["vars"]:
                     var_defs[j][split[0]]["var_check"][v] = []
@@ -519,6 +538,10 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                         stream = None
                         r = var_defs[j][split[0]]["realm"]
                         f = var_defs[j][split[0]]["freq"]
+                    if "mon" in f:
+                        f = "month_1"
+                    if "day" in f:
+                        f = "day_1"
                     found_r = None
                     if cmip6_realms[r] not in variable_list.keys(): 
                         print "Could not find ",cmip6_realms[r]," in ",variable_list.keys()
@@ -624,7 +647,6 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                                                 js_f[k]['definition'] = variable_list[found_r][v][freq][date]['time']
 
                                             if 'xxtimebndsxx' in var['definition']:
-                                                print 'TEST INFO: ',fl1[0]
                                                 if 'Imon' in j and 'cism' in fl1[0]:
                                                     js_f[k]['definition'] = "bounds(yeartomonth_time(chunits(time * 365, units=\"days since 0001-01-01\", calendar=\"noleap\")), bdim=\"hist_interval\")"
                                                 elif 'cism' in fl1[0]:
@@ -642,6 +664,11 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
 
             elif len(l.split(':')) > 1:
                 if 'No dependencies' in l:
+                    if len(js_fo[l.split(':')[0].strip()]["definition"])>0:
+                        print "PROBLEM DEFINITION: ",l.split(':')[0].strip(),": ",js_fo[l.split(':')[0].strip()]["definition"]
+                    else:
+                        print "NO DEFINITION FOUND: ",l.split(':')[0].strip(),": ",js_fo[l.split(':')[0].strip()]["definition"]
+                    found_all = False                    
                     no_def.append(l.split(':')[0].strip())
                 else:
                     if l.split(':')[1] != '':
@@ -653,7 +680,10 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
 
         if not found_all:
             print ('Missing these variables: ',missing_vars)
+        else:
+            print ('Found all needed files')
 
+    print "Total Size: ",len(spec_streams.keys())
     return spec_streams
 
 
@@ -802,7 +832,7 @@ def main(options, scomm, rank, size):
 
     # create the cesm stream to table mapping
 #    if rank == 0:
-    dout_s_root = cesmEnv['DOUT_S_ROOT']
+    dout_s_root = cesmEnv['TIMESERIES_OUTPUT_ROOTDIR']
     case = cesmEnv['CASE']
     pc_inpur_dir = cesmEnv['CONFORM_JSON_DIRECTORY']+'/PyConform_input/'
     #readArchiveXML(caseroot, dout_s_root, case, debug)

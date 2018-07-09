@@ -113,7 +113,31 @@ def main(argv=None):
                         o_dict[var]["definition"] = o_dict[var]["definition"].replace('alevel','lev')
                 elif 'landUse' in var:
                     o_dict[var]["definition"] = [0,1,2,3]
-                    o_dict[var]["attributes"]["requested"] = "primary_and_secondary_land=0, pastures=1, crops=2, urban=3"   
+                    o_dict[var]["attributes"]["requested"] = "primary_and_secondary_land=0, pastures=1, crops=2, urban=3" 
+                elif 'soiluse' in var:
+                    o_dict[var]["definition"] = [0,1,2]
+                    o_dict[var]["attributes"]["requested"] = "SOIL1 C=0, SOIL2 C=1, SOIL3 Cs=2" 
+                    o_dict[var]["attributes"]["type"] = "int"
+                    o_dict[var]["datatype"] = "int"
+                elif 'siline' in var:
+                    o_dict[var]["definition"] = [0,1,2,3]
+                    o_dict[var]["attributes"]["requested"] = "fram_strait=0, canadian_archipelego=1, barents_opening=2, bering_strait=3" 
+                    o_dict[var]["attributes"]["type"] = "int"
+                    o_dict[var]["datatype"] = "int"
+                elif 'basin' in var:
+                    o_dict[var]["definition"] = [0,1,2]
+                    o_dict[var]["attributes"]["requested"] = "atlantic_arctic_ocean=0, indian_pacific_ocean=1, global_ocean=2"
+                    o_dict[var]["attributes"]["type"] = "int"
+                    o_dict[var]["datatype"] = "int" 
+                    if 'latitude' in o_dict.keys():
+                        o_dict['latitude']["definition"] = 'lat_aux_grid'
+                    if 'latitude_bnds' in o_dict.keys():
+                        o_dict['latitude_bnds']["definition"] = "bounds(lat_aux_grid, bdim=\"d2\")"
+                        o_dict['latitude_bnds']["dimensions"] = ["latitude","d2"]
+                    if 'olevel' in o_dict.keys():
+                        o_dict['olevel']["definition"] = 'moc_z'
+                    if 'olevel_bnds' in  o_dict.keys():
+                        o_dict['olevel_bnds']["definition"] = "bounds(moc_z, bdim=\"d2\")"
             if 'landIce' in fn.split("_")[-3] or 'landIce' in fn.split("_")[-4] or 'atmos' in fn.split("_")[-3] or 'aerosol' in fn.split("_")[-3]:
                 if 'input_glob' in d1.keys() and "ygre" in o_dict.keys() and "xgre" in o_dict.keys():
                     if 'clm2' in d1['input_glob'].split(".")[0]:
