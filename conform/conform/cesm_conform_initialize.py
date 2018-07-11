@@ -85,7 +85,7 @@ def run_initialization(caseroot, debug):
     #debugMsg('envDict after readXML = {0}'.format(envDict), header=True, verbosity=2)
 
     # get the variables needed to send to iconform
-    global_attributes = envDict['CONFORM_GLOBAL_ATTRIBUTES']
+    global_attributes = envDict['CONFORM_GLOBAL_ATTRIBUTES']+","+caseroot+"/../archive_files/db.json"
     definitions = envDict['CONFORM_CESM_DEFINITIONS']
     exp_name = envDict['CONFORM_EXP_NAME']
     json_dir = envDict['CONFORM_JSON_DIRECTORY']+"/PyConform_input/"

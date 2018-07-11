@@ -607,8 +607,8 @@ def main(options):
     if not envDict['MACH']:
         raise OSError('create_postprocess ERROR: hostname "{0}" is not currently supported. Exiting...'.format(hostname))
 
-    # check if machine is cheyenne and if env POSTPROCESS_PATH_GEYSER is set
-    if envDict['MACH'] == 'cheyenne':
+    # check if env POSTPROCESS_PATH_GEYSER needs to be set
+    if (envDict['MACH'] == 'cheyenne' or envDict['MACH'] == 'geyser'):
         try:
             envDict["POSTPROCESS_PATH_GEYSER"] = os.environ["POSTPROCESS_PATH_GEYSER"]
         except KeyError:

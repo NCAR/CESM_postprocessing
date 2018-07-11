@@ -4,7 +4,7 @@
     <tr>
     {% for label, plot in plot_table.iteritems() %}
         {% if 'Error' in plot %}
-           <td>{{ label }}</td>
+           <td>{{ label|replace('- Error', ' ') }}</td>
         {% else %}
            <td><a href="{{ plot }}.{{ imgFormat }}">{{ label }}</a></td>
         {% endif %}

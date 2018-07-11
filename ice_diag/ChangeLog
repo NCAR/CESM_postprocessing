@@ -6,6 +6,26 @@ This file describes what tags were created and why
 ================================================================================
 
 Originator: duvivier
+Date: 24 May 2017
+Version: 1.0
+One-line Summary: Adding PIOMAS diagnostics and LENS ice volume
+Changes made:
+
+   M /diagnostics/diagnostics/ice/Plots/__init__.py
+   M /diagnostics/diagnostics/ice/Plots/ice_diags_plot_factory.py 
+   M /diagnostics/diagnostics/ice/Plots/web_hem_avg_wLENS.py
+   M /diagnostics/diagnostics/ice/Plots/web_hem_avg_wLENSDiff.py
+   A /diagnostics/diagnostics/ice/Plots/web_hem_avg_wPIOMAS.py
+   A /diagnostics/diagnostics/ice/Plots/web_hem_avg_wPIOMASDiff.py	
+   M /ice_diag/code/web_hem_avg.ncl
+   M /ice_diag/code/web_hem_avg_wLENS.ncl
+   A /ice_diag/code/web_hem_avg_wPIOMAS.ncl	
+   M /ice_diag/web/timeseries.html 
+   M /ice_diag/web/timeseries_diff.html
+
+================================================================================
+	
+Originator: duvivier
 Date: 6 October 2017
 Version: 1.0
 One-line Summary: Adding LENS spread diagnostics to 20th centry plots

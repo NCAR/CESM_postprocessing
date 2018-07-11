@@ -12,6 +12,7 @@ globalMeanNat0  FSH_G
 globalMeanNat0  FSH_TO_COUPLER
 globalMeanNat0  FSH_PRECIP_CONVERSION
 globalMeanNat0  FSH_RUNOFF_ICE_TO_LIQ
+globalMeanNat0  CPL_ENERGY_BAL
 globalMeanNat0  TV
 globalMeanNat0  TG
 globalMeanNat0  FSA

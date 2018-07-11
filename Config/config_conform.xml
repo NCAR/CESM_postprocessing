@@ -14,7 +14,7 @@
       <entry id="CONFORM_GLOBAL_ATTRIBUTES"
              type="string"
              valid_values=""  
-             value="/glade/p/cesm/conform-input/cmip6_input/CESM_CMIP6.ga,/glade/p/cesm/conform-input/cmip6_input/db.json"
+             value="/glade/p/cesm/conform-input/cmip6_input/CESM_CMIP6.ga"
              group="conform_info"
              desc="The full path file name to the global attributes files.  This file contains the attributes that will be added to all files."
              ></entry>

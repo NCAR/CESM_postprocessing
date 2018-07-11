@@ -4,6 +4,33 @@ PyReshaper Change Log
 Copyright 2017, University Corporation for Atmospheric Research
 See the LICENSE.rst file for details
 
+VERSION 1.0.6
+-------------
+
+ - Cleaning up testing framework for serial execution
+ - Renabled PyNIO option as a backend.  Works with PyNIO 1.5.0.
+ - Adding feature to impose `least_significant_digit` option to NetCDF4-python,
+   which saves the data to file using compression and "bit truncation" (i.e.,
+   lossy compression)
+ - Adding ability to set the read and write chunk-sizes separately
+ - Adding feature to ignore specific time-invariable metadata
+
+VERSION 1.0.5
+-------------
+
+ - New feature to allow reading additional time-invariant metadata
+   variable names from a "metadata file."  (Normally, all required
+   time-invariant metadata variable names are pulled from the first
+   time-slice file given as input to the Reshaper.  In addition to
+   the time-invariant metadata variable names found in the first
+   file, this option lets you pull additional names from a separately
+   declared file.)
+
+VERSION 1.0.4
+-------------
+
+ - Code cleanup and minor bugfixes
+ 
 VERSION 1.0.3
 -------------
 

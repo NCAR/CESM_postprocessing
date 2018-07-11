@@ -15,9 +15,9 @@ import cPickle as pickle
 from os import path as ospath
 
 
-#=======================================================================================================================
+#=========================================================================
 # create_specifier
-#=======================================================================================================================
+#=========================================================================
 def create_specifier(**kwargs):
     """
     Factory function for Specifier class objects.  Defined for convenience.
@@ -31,9 +31,9 @@ def create_specifier(**kwargs):
     return Specifier(**kwargs)
 
 
-#=======================================================================================================================
+#=========================================================================
 # Specifier
-#=======================================================================================================================
+#=========================================================================
 class Specifier(object):
 
     """
@@ -47,12 +47,15 @@ class Specifier(object):
                  infiles=[],
                  ncfmt='netcdf4',
                  compression=0,
+                 least_significant_digit=None,
                  prefix='tseries.',
                  suffix='.nc',
                  timeseries=None,
                  metadata=[],
                  meta1d=False,
                  backend='netCDF4',
+                 exclude_list=[],
+                 metafile=None,
                  **kwargs):
         """
         Initializes the internal data with optional arguments.
@@ -67,6 +70,7 @@ class Specifier(object):
             infiles (list): List of full-path input filenames
             ncfmt (str): String specifying the NetCDF data format ('netcdf','netcdf4','netcdf4c')
             compression (int): Compression level to use for NetCDF4 formatted data (overridden by the 'netcdf4c' format)
+            least_significant_digit (int): The digit (after the decimal) to assure precision to when using truncation before compression
             prefix (str): String specifying the full-path prefix common to all time-series output files
             suffix (str): String specifying the suffix common to all time-series output files
             timeseries (list): List of variable names to extract out from the input time-slices into their own
@@ -76,6 +80,9 @@ class Specifier(object):
                 time-series output file
             meta1d (bool): True if 1D time-variant variables should be treated as metadata variables, False otherwise.
             backend (str): Which I/O backend to use ('Nio' for PyNIO, 'netCDF4' for netCDF4-python)
+            exclude_list (list): List of time invariant variables to exclude from each timeseries file
+            metafile (str): Name of file from which to search for metadata (if unspecified, PyReshaper searches
+                for metadata in the first input file given)
             kwargs (dict): Optional arguments describing the Reshaper run
         """
 
@@ -88,6 +95,9 @@ class Specifier(object):
         # The string specifying the NetCDF file format for output
         self.compression_level = compression
 
+        # Least significant digits argument to NetCDF4 (ignored by PyNIO)
+        self.least_significant_digit = least_significant_digit
+
         # The common prefix to all output files (following the rule:
         #  prefix + variable_name + suffix)
         self.output_file_prefix = prefix
@@ -96,10 +106,12 @@ class Specifier(object):
         #  prefix + variable_name + suffix)
         self.output_file_suffix = suffix
 
-        # List of time-variant variables that should be given their own output file
+        # List of time-variant variables that should be given their own output
+        # file
         self.time_series = timeseries
 
-        # List of time-variant variables that should be included in all output files.
+        # List of time-variant variables that should be included in all output
+        # files.
         self.time_variant_metadata = metadata
 
         # Whether all 1D time-variant variables should be treated as metadata
@@ -107,6 +119,12 @@ class Specifier(object):
 
         # Store the netCDF I/O backend name
         self.io_backend = backend
+
+        # time invariant variables to exclude from each timeseries file
+        self.exclude_list = exclude_list
+
+        # Name of file from which to search for metadata
+        self.metadata_filename = metafile
 
         # Optional arguments associated with the reshaper operation
         self.options = kwargs
@@ -214,13 +232,15 @@ class Specifier(object):
         # Validate that each input file exists and is a regular file
         for ifile_name in self.input_file_list:
             if not ospath.isfile(ifile_name):
-                err_msg = "Input file {} is not a regular file".format(ifile_name)
+                err_msg = "Input file {} is not a regular file".format(
+                    ifile_name)
                 raise ValueError(err_msg)
 
         # Validate the value of the netcdf format string
         valid_formats = ['netcdf', 'netcdf4', 'netcdf4c']
         if self.netcdf_format not in valid_formats:
-            err_msg = "Output NetCDF file format {} is not valid".format(self.netcdf_format)
+            err_msg = "Output NetCDF file format {} is not valid".format(
+                self.netcdf_format)
             raise ValueError(err_msg)
 
         # Forcefully set the compression level if 'netcdf4c' format
@@ -229,7 +249,8 @@ class Specifier(object):
 
         # Validate the value of the compression level integer
         if self.compression_level < 0 or self.compression_level > 9:
-            err_msg = "NetCDF compression level {} is not in the valid range (0-9)".format(self.compression_level)
+            err_msg = "NetCDF compression level {} is not in the valid range (0-9)".format(
+                self.compression_level)
             raise ValueError(err_msg)
 
         # Validate the output file directory

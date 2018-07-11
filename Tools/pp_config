@@ -275,6 +275,10 @@ def main(options):
     for tree in xml_trees:
         xml_processor.xml_to_dict(tree, envDict)
 
+    # this should be done in the xml_to_dict!
+    # resolve all the xml variables
+    envDict = cesmEnvLib.readXML(case_dir, xml_filenames)
+
     # 'get' user input
     if options.get:
         entry_id = options.get[0]

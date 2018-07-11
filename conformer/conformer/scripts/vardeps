@@ -15,9 +15,9 @@ from argparse import ArgumentParser
 from os.path import exists
 
 
-#===================================================================================================
+#=========================================================================
 # Command-line Interface
-#===================================================================================================
+#=========================================================================
 def cli(argv=None):
     desc = """This tool will analyze a definitions text file or a JSON standardization
               file and print out the variables needed for each defined output variable."""
@@ -37,15 +37,18 @@ def cli(argv=None):
     return parser.parse_args(argv)
 
 
-#===================================================================================================
+#=========================================================================
 # variable_search
-#===================================================================================================
+#=========================================================================
 def variable_search(obj, vars=None):
     if vars is None:
         vars = set()
-    if isinstance(obj, parsing.ParsedVariable):
+    if isinstance(obj, parsing.VarType):
         vars.add(obj.key)
-    elif isinstance(obj, parsing.ParsedFunction):
+    elif isinstance(obj, parsing.OpType):
+        for arg in obj.args:
+            vars = variable_search(arg, vars=vars)
+    elif isinstance(obj, parsing.FuncType):
         for arg in obj.args:
             vars = variable_search(arg, vars=vars)
         for kwd in obj.kwds:
@@ -53,10 +56,10 @@ def variable_search(obj, vars=None):
     return vars
 
 
-#===================================================================================================
+#=========================================================================
 # print_columnar
-#===================================================================================================
-def print_columnar(x, textwidth=100, indent=0, header=''):
+#=========================================================================
+def print_columnar(x, textwidth=10000000, indent=0, header=''):
     hrstrp = '{}  '.format(str(header).rstrip())
     if len(hrstrp) > indent:
         indent = len(hrstrp)
@@ -68,19 +71,19 @@ def print_columnar(x, textwidth=100, indent=0, header=''):
     A = [x[i::Nr] for i in xrange(Nr)]
     print '{}{}'.format(hrstrp, '   '.join('{: <{Lmax}}'.format(r, Lmax=Lmax) for r in A[0]))
     for row in A[1:]:
-        print '{}{}'.format(' '*indent, '   '.join('{: <{Lmax}}'.format(r, Lmax=Lmax) for r in row))
-        
-        
-#===================================================================================================
+        print '{}{}'.format(' ' * indent, '   '.join('{: <{Lmax}}'.format(r, Lmax=Lmax) for r in row))
+
+
+#=========================================================================
 # Main Script Function
-#===================================================================================================
+#=========================================================================
 def main(argv=None):
     args = cli(argv)
 
     # Check that the file exists
     if not exists(args.filename):
         raise OSError('File {!r} not found'.format(args.filename))
-    
+
     # Read the definitions from the file
     vardefs = {}
     varfreqs = {}
@@ -94,7 +97,7 @@ def main(argv=None):
                 split = line.split('=')
                 if len(split) == 2:
                     vardefs[split[0].strip()] = split[1].strip()
-                elif len(line)>0 :
+                elif len(line) > 0:
                     print 'Could not parse this line: {!r}'.format(line)
     else:
         stddict = load(open(args.filename), object_pairs_hook=OrderedDict)
@@ -120,7 +123,8 @@ def main(argv=None):
             try:
                 vdeps = variable_search(parsing.parse_definition(vardefs[var]))
                 alldeps.update(vdeps)
-                fheader = ' [{},{}]'.format(varfreqs[var], varrealm[var]) if var in varfreqs else ''
+                fheader = ' [{},{}]'.format(
+                    varfreqs[var], varrealm[var]) if var in varfreqs else ''
                 vheader = '   {}{}:'.format(var, fheader)
                 print_columnar(sorted(vdeps), header=vheader)
             except:
@@ -133,8 +137,8 @@ def main(argv=None):
     print_columnar(sorted(alldeps), indent=3)
 
 
-#===================================================================================================
+#=========================================================================
 # Command-line Operation
-#===================================================================================================
+#=========================================================================
 if __name__ == '__main__':
     main()
