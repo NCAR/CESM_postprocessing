@@ -119,6 +119,10 @@ def main(argv=None):
                     o_dict[var]["attributes"]["requested"] = "SOIL1 C=0, SOIL2 C=1, SOIL3 Cs=2" 
                     o_dict[var]["attributes"]["type"] = "int"
                     o_dict[var]["datatype"] = "int"
+                elif 'soilpools' in var:
+                    o_dict[var]["definition"] = [0,1,2]
+                    o_dict[var]["attributes"]["type"] = "int"
+                    o_dict[var]["datatype"] = "int"
                 elif 'siline' in var:
                     o_dict[var]["definition"] = [0,1,2,3]
                     o_dict[var]["attributes"]["requested"] = "fram_strait=0, canadian_archipelego=1, barents_opening=2, bering_strait=3" 

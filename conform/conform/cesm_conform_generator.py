@@ -53,7 +53,7 @@ from pyconform.physarray import UnitsError
 
 
 # import the MPI related module
-from asaptools import partition, simplecomm, vprinter
+from asaptools import partition, simplecomm, vprinter, timekeeper
 
 external_mods = ['commonfunctions.py', 'pnglfunctions.py', 'CLM_landunit_to_CMIP6_Lut.py',
                  'CLM_pft_to_CMIP6_vegtype.py']
@@ -472,7 +472,10 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                         if 'landIce' in r:
                             f = 'year_1'
                         else:
-                            f = var_defs[j][split[0]]["freq"]
+                            if 'land' in r and 'h3' in js_fo[var_name]["input_glob"]:
+                                f = 'year_1'
+                            else:
+                                f = var_defs[j][split[0]]["freq"]
                     elif 'Odec' in j:
                         f = 'month_1'
                         r = 'ocean'
@@ -531,7 +534,10 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                         if 'landIce' in r:
                             f = 'year_1'
                         else:
-                            f = var_defs[j][split[0]]["freq"]
+                            if 'land' in r and 'h3' in js_fo[var_name]["input_glob"]:
+                                f = 'year_1'
+                            else:
+                                f = var_defs[j][split[0]]["freq"]
                     elif 'Odec' in j:
                         f = 'month_1' 
                     else:
@@ -540,7 +546,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                         f = var_defs[j][split[0]]["freq"]
                     if "mon" in f:
                         f = "month_1"
-                    if "day" in f:
+                    if "day" in f and 'day_365' not in f:
                         f = "day_1"
                     found_r = None
                     if cmip6_realms[r] not in variable_list.keys(): 
@@ -804,6 +810,10 @@ def run_PyConform(spec, file_glob, comm):
 def main(options, scomm, rank, size):
     """
     """
+    # setup an overall timer
+    timer = timekeeper.TimeKeeper()
+    timer.start("Total Time")
+
     # initialize the CASEROOT environment dictionary
     cesmEnv = dict()
 
@@ -901,6 +911,12 @@ def main(options, scomm, rank, size):
                 inter_comm.sync()
     print "(",rank,"/",lrank,")","  FINISHED"
     scomm.sync()
+
+    timer.stop("Total Time")
+    if rank == 0:
+        print('************************************************************')
+        print('Total Time: {0} seconds'.format(timer.get_time("Total Time")))
+        print('************************************************************')
 
 #===================================
 
