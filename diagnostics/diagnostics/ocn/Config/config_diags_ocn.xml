@@ -16,6 +16,13 @@
       <order>0</order>
       <comment>Settings that are common to all diagnostic types.</comment>
 
+      <entry id="OCN_COMP"
+	     type="char"
+	     valid_values="POP,MOM"
+	     value="POP"
+	     group="global"
+	     desc="Active ocean component used to run the case"
+	     ></entry>
 
       <entry id="OCNDIAG_DIAGROOTPATH"
 	     type="char"
