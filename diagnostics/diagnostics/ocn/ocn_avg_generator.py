@@ -340,7 +340,10 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         # call the pyAverager with the just SALT and TEMP for mavg only
         avgList = []
         avgList.append('mavg:{0}:{1}'.format(start_year, stop_year))
-        tmpInVarList = ['SALT', 'TEMP']
+        if ocn_comp == "POP":
+            tmpInVarList = ['SALT', 'TEMP']
+        elif ocn_comp == "MOM":
+            tmpInVarList = ['salt', 'temp']
         if main_comm.is_manager():
             debugMsg('Calling callPyAverager with averageList = {0}'.format(avgList), header=True, verbosity=1)
             debugMsg(' and inVarList = {0}'.format(tmpInVarList), header=True, verbosity=1)
@@ -373,9 +376,15 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         if len(averageListMoc) > 0:
             # call the pyAverager with the inVarList
             if 'MOC' in inVarList:
-                tmpInVarList = ['SALT', 'TEMP', 'MOC']
+                if ocn_comp == "POP":
+                    tmpInVarList = ['SALT', 'TEMP', 'MOC']
+                elif ocn_comp == "MOM":
+                    tmpInVarList = ['salt', 'temp', 'MOC'] #todo
             else:
-                tmpInVarList = ['SALT', 'TEMP']
+                if ocn_comp == "POP":
+                    tmpInVarList = ['SALT', 'TEMP']
+                elif ocn_comp == "MOM":
+                    tmpInVarList = ['salt', 'temp']
             if main_comm.is_manager():
                 debugMsg('Calling callPyAverager with averageListMoc = {0}'.format(averageListMoc), header=True, verbosity=1)
                 debugMsg(' and inVarList = {0}'.format(tmpInVarList), header=True, verbosity=1)
