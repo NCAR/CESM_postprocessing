@@ -162,7 +162,7 @@ def buildOcnAvgList(start_year, stop_year, tavgdir, main_comm, debugMsg):
 #========================================================================
 def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList,
                    diag_obs_root, netcdf_format, nlev, timeseries_obspath, 
-                   main_comm, debugMsg):
+                   ocn_comp, main_comm, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -199,8 +199,16 @@ def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList,
         ncfrmt = netcdf_format
     serial = False
     clobber = True
-    date_pattern = 'yyyymm-yyyymm'
     suffix = 'nc'
+
+    if ocn_comp == "POP":
+        date_pattern = 'yyyymm-yyyymm'
+        file_pattern = ['$prefix', '.', '$date_pattern', '.', '$suffix']
+    elif ocn_comp == "MOM":
+        date_pattern = 'yyyymm-yyyymm'
+        file_pattern = ['$prefix', '$date_pattern', '.', '$suffix']
+    else:
+        raise SystemExit("ERROR: invalid OCN_COMP")
 
     main_comm.sync();
 
@@ -251,6 +259,7 @@ def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList,
             obs_file = obs_file,
             reg_obs_file_suffix = reg_obs_file_suffix,
             vertical_levels = nlev,
+            file_pattern = file_pattern,
             main_comm = main_comm)
     except Exception as error:
         print(str(error))
@@ -275,7 +284,7 @@ def callPyAverager(in_dir, htype, tavgdir, case_prefix, averageList, varList,
 #=========================================================================
 def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries, inVarList,
                     tseries_start_year, tseries_stop_year, diag_obs_root, netcdf_format, 
-                    nlev, timeseries_obspath, main_comm, debugMsg):
+                    nlev, timeseries_obspath, main_comm, ocn_comp, debugMsg):
     """setup the pyAverager specifier class with specifications to create
        the climatology files in parallel.
 
@@ -298,8 +307,14 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
 
     """
     # create the list of averages to be computed
-    avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
-    case_prefix = '{0}.pop.h'.format(case)
+    if ocn_comp == "POP":
+        avgFileBaseName = '{0}/{1}.pop.h'.format(tavgdir,case)
+        case_prefix = '{0}.pop.h'.format(case)
+    elif ocn_comp == "MOM":
+        avgFileBaseName = '{0}/{1}.mom6.h'.format(tavgdir,case)
+        case_prefix = '{0}.mom6.h._'.format(case)
+    else:
+        raise SystemExit("ERROR: invalid OCN_COMP")
     averageList = []
     avgList = []
 
@@ -318,7 +333,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
                        case_prefix=case_prefix, averageList=avgList, 
                        varList=inVarList, diag_obs_root=diag_obs_root, 
                        netcdf_format=netcdf_format, nlev=nlev, 
-                       timeseries_obspath=timeseries_obspath, 
+                       timeseries_obspath=timeseries_obspath, ocn_comp=ocn_comp,
                        main_comm=main_comm, debugMsg=debugMsg)
         main_comm.sync()
 
@@ -333,7 +348,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
                        case_prefix=case_prefix, averageList=avgList, 
                        varList=tmpInVarList, diag_obs_root=diag_obs_root, 
                        netcdf_format=netcdf_format, nlev=nlev, 
-                       timeseries_obspath=timeseries_obspath, 
+                       timeseries_obspath=timeseries_obspath, ocn_comp=ocn_comp,
                        main_comm=main_comm, debugMsg=debugMsg)
     main_comm.sync()
 
@@ -369,7 +384,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
                            case_prefix=case_prefix, averageList=averageListMoc, 
                            varList=tmpInVarList, diag_obs_root=diag_obs_root, 
                            netcdf_format=netcdf_format, nlev=nlev, 
-                           timeseries_obspath=timeseries_obspath, 
+                           timeseries_obspath=timeseries_obspath, ocn_comp=ocn_comp,
                            main_comm=main_comm, debugMsg=debugMsg)
         main_comm.sync()
 
@@ -384,7 +399,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
                            case_prefix=case_prefix, averageList=averageList,
                            varList=tmpInVarList, diag_obs_root=diag_obs_root, 
                            netcdf_format=netcdf_format, nlev=nlev, 
-                           timeseries_obspath=timeseries_obspath, 
+                           timeseries_obspath=timeseries_obspath, ocn_comp=ocn_comp,
                            main_comm=main_comm, debugMsg=debugMsg)
         main_comm.sync()
 
@@ -464,11 +479,20 @@ def main(options, main_comm, debugMsg):
     sys.path.append(envDict['PATH'])
     main_comm.sync()
 
+    ocn_comp = envDict['OCN_COMP']
+    print(ocn_comp,main_comm._comm.Get_rank())
+
     # generate the climatology files used for all plotting types using the pyAverager
     if main_comm.is_manager():
         debugMsg('calling checkHistoryFiles for model case', header=True)
-        suffix = 'pop.h.*.nc'
-        file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
+        if ocn_comp == "POP":
+            suffix = 'pop.h.*.nc'
+            file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
+        elif ocn_comp == "MOM":
+            suffix = 'mom6.h._*.nc'
+            file_pattern = '.*\.mom6.h._\d{4,4}_\d{2,2}.*nc'
+        else:
+            raise SystemExit("ERROR: invalid OCN_COMP")
         start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
             envDict['MODELCASE_INPUT_TSERIES'], envDict['DOUT_S_ROOT'], envDict['CASE'],
             envDict['YEAR0'], envDict['YEAR1'], 'ocn', suffix, file_pattern, envDict['MODELCASE_SUBDIR'])
@@ -512,7 +536,7 @@ def main(options, main_comm, debugMsg):
                         tseries, envDict['MODEL_VARLIST'], envDict['TSERIES_YEAR0'], 
                         envDict['TSERIES_YEAR1'], envDict['DIAGOBSROOT'], 
                         envDict['netcdf_format'], int(envDict['VERTICAL']), 
-                        envDict['TIMESERIES_OBSPATH'], main_comm, debugMsg)
+                        envDict['TIMESERIES_OBSPATH'], main_comm, ocn_comp, debugMsg)
     except Exception as error:
         print(str(error))
         traceback.print_exc()
@@ -559,7 +583,7 @@ def main(options, main_comm, debugMsg):
                             envDict['cntrl_htype'], envDict['CNTRLTAVGDIR'], envDict['CNTRLCASE'], 
                             False, envDict['CNTRL_VARLIST'], 0, 0, envDict['DIAGOBSROOT'],
                             envDict['netcdf_format'], int(envDict['VERTICAL']), 
-                            envDict['TIMESERIES_OBSPATH'], main_comm, debugMsg)
+                            envDict['TIMESERIES_OBSPATH'], main_comm, ocn_comp, debugMsg)
         except Exception as error:
             print(str(error))
             traceback.print_exc()

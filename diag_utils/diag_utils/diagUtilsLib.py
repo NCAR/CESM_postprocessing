@@ -226,13 +226,13 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
             if hfiles:
                 # the first element of the hfiles list has the start year
                 tlist = hfiles[0].split('.')
-                slist = tlist[-2].split('-')
+                slist = re.split('-|_',tlist[-2])
+                slist = [s for s in slist if len(s)>0]
                 hfstart_year = slist[0]
                 hfstart_month = slist[1]
 
                 # the last element of the hfiles list has the stop year
                 tlist = hfiles[-1].split('.')
-                slist = tlist[-2].split('-')
                 hfstop_year = slist[0]
                 hfstop_month = slist[1]
             else:
