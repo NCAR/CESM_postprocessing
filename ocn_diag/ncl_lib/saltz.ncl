@@ -6,6 +6,8 @@ load "$NCLPATH/contour_plot.ncl"
 
 begin
 
+  print( " plotting SALINITY at "+ n_depth + " depth levels")
+
   fileid = addfile(file_netcdf,"r")
 
   ocn_comp = getenv("OCN_COMP")
