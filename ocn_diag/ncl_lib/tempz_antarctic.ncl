@@ -15,7 +15,15 @@ begin
 ; a loop is needed in order to find the smallest y index in each row 
 ;
 
-  tlat = fileid->TLAT
+  ocn_comp = getenv("OCN_COMP")
+  if (ocn_comp.eq."MOM") then
+    dout_s_root = getenv("DOUT_S_ROOT")
+    ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
+    tlat = ocn_geo_file->geolat
+  else ; POP
+    tlat = fileid->TLAT
+  end if
+
   y_max = 0
   do i = 0, dimsizes(tlat(0,:)) - 1
     ytmp =  min(ind(tlat(:,i) .ge. -50))
@@ -24,10 +32,17 @@ begin
     end if
   end do
   delete(tlat)
-  tlat = fileid->TLAT(:y_max,:)
-  tlon = fileid->TLONG(:y_max,:)
 
-  temp = fileid->TEMP(0,:,:y_max,:)
+  if (ocn_comp.eq."MOM") then
+    tlat = ocn_geo_file->geolat(:y_max,:)
+    tlon = ocn_geo_file->geolon(:y_max,:)
+    temp = fileid->temp(0,:,:y_max,:)
+  else ; POP
+    tlat = fileid->TLAT(:y_max,:)
+    tlon = fileid->TLONG(:y_max,:)
+    temp = fileid->TEMP(0,:,:y_max,:)
+  end if
+
   if (isatt(temp,"_FillValue"))
     missing = temp@_FillValue
   else
@@ -37,15 +52,23 @@ begin
   size = dimsizes(tlon)
   nx = size(1)
   ny = size(0)
-  kmt = fileid->KMT(:y_max,:)
-  kmu = fileid->KMU(:y_max,:)
-  region_mask = fileid->REGION_MASK(:y_max,:)
-  tarea = fileid->TAREA(:y_max,:)
-  uarea = fileid->UAREA(:y_max,:)
-  angle = fileid->ANGLE(:y_max,:)
-  z_t = fileid->z_t
-  nz = dimsizes(z_t)
-  z_t = z_t / 100.
+
+  if (ocn_comp.eq."MOM") then
+    gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+    gridInfoFile = addfile(gridInfoFilePath,"r")
+    kmt = gridInfoFile->KMT(:y_max,:)
+    region_mask = gridInfoFile->KMT(:y_max,:) ; TODO: fix_this !!!
+    tarea = gridInfoFile->TAREA(:y_max,:)
+    z_t = fileid->z_l
+    nz = dimsizes(z_t)
+  else ; POP
+    kmt = fileid->KMT(:y_max,:)
+    region_mask = fileid->REGION_MASK(:y_max,:)
+    tarea = fileid->TAREA(:y_max,:)
+    z_t = fileid->z_t
+    nz = dimsizes(z_t)
+    z_t = z_t / 100.
+  end if
 
   fileid_obs = addfile(file_T_obs,"r")
   temp_obs = fileid_obs->TEMP
