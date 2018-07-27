@@ -33,9 +33,7 @@ begin
   ny = size(0)
 
   if (ocn_comp.eq."MOM") then
-    diagobsroot = getenv("DIAGOBSROOT")
-    resolution = getenv("RESOLUTION")
-    gridInfoFilePath = diagobsroot+"/omwg/za_grids/"+resolution+"_grid_info.nc"
+    gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
     gridInfoFile = addfile(gridInfoFilePath,"r")
     kmt = gridInfoFile->KMT
     region_mask = kmt ; TODO: fix_this !!!

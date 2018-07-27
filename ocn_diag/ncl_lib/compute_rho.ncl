@@ -14,17 +14,31 @@ begin
   print("compute_rho.ncl file_out = " + file_out)
 
   fileid = addfile(file_T,"r")
-  TLONG = fileid->TLONG
-  TLAT = fileid->TLAT
-  z_t = fileid->z_t
-  time = fileid->time
-  TEMP = fileid->TEMP
 
-  fileid = addfile(file_S,"r")
-  SALT = fileid->SALT
+  ocn_comp = getenv("OCN_COMP")
+  if (ocn_comp.eq."MOM") then
+    ocn_geo_file = addfile(getenv("DOUT_S_ROOT")+"/ocn/hist/ocean_geometry.nc","r")
+    gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+    TLONG = ocn_geo_file->geolon
+    TLAT = ocn_geo_file->geolat
+    z_t = (/fileid->z_l/)
+    z_t!0 = "z_t"
+    time = fileid->time
+    TEMP = fileid->temp
+    fileid = addfile(file_S,"r")
+    SALT = fileid->salt
+  else ; POP
+    TLONG = fileid->TLONG
+    TLAT = fileid->TLAT
+    z_t = fileid->z_t
+    time = fileid->time
+    TEMP = fileid->TEMP
+    fileid = addfile(file_S,"r")
+    SALT = fileid->SALT
+  end if
 
   size = dimsizes(TEMP)
-;;  print("size = " + size)
+  print("size = " + size)
   nx = size(3)
   ny = size(2)
   nz = size(1)
