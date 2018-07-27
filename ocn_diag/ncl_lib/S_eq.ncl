@@ -7,7 +7,14 @@ load "$NCLPATH/pop_eq_avg.ncl"
 begin
 
    fileid = addfile(file_netcdf,"r")
-   salt = fileid->SALT(0,:,:,:)
+
+   ocn_comp = getenv("OCN_COMP")
+   if (ocn_comp.eq."MOM") then
+     salt = fileid->salt(0,:,:,:)
+   else ; POP
+     salt = fileid->SALT(0,:,:,:)
+   end if
+
    if (isatt(salt,"_FillValue"))
       missing = salt@_FillValue
    else
@@ -29,20 +36,43 @@ begin
      tlon = gridid->TLONG
      tlat = gridid->TLAT
    else
-     tlon = fileid->TLONG
-     tlat = fileid->TLAT
+     if (ocn_comp.eq."MOM") then
+       dout_s_root = getenv("DOUT_S_ROOT")
+       ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
+       tlon = ocn_geo_file->geolon
+       tlat = ocn_geo_file->geolat
+     else ; POP
+       tlon = fileid->TLONG
+       tlat = fileid->TLAT
+     end if
    end if
    size = dimsizes(tlon)
    nx = size(1)
    ny = size(0)
-   kmu = fileid->KMU
-   z_t = fileid->z_t
-   nz = dimsizes(z_t)
-   z_t = z_t / 100.
+
+
+   if (ocn_comp.eq."MOM") then
+     gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+     gridInfoFile = addfile(gridInfoFilePath,"r")
+     kmt = gridInfoFile->KMT
+     region_mask = kmt ; TODO: fix_this !!!
+     z_t = fileid->z_l
+     nz = dimsizes(z_t)
+   else ; POP
+     kmt = fileid->KMT
+     kmu = fileid->KMU
+     region_mask = fileid->REGION_MASK
+     z_t = fileid->z_t
+     nz = dimsizes(z_t)
+     z_t = z_t / 100.
+   end if
    z_max = ind_nearest_coord(500.0,z_t,0)
-   
+
    fileidobs = addfile(file_S_obs,"r")
    salt_obs = fileidobs->SALT
+   if (typeof(salt_obs).eq."float") then
+     missing := doubletofloat(missing)
+   end if
    salt_obs = where(salt_obs .gt. -10 .and. salt_obs .lt. 1e10,salt_obs,missing)
    if (isatt(salt_obs,"scale_factor")) then
       salt_obs = salt_obs * salt_obs@scale_factor
