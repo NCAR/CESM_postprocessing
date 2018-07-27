@@ -84,7 +84,6 @@ begin
      ; rotate vector
      field = tofloat(field * cos(angle) - field_2 * sin(-angle))
 
-     ; TODO: why is the following needed?
      if (ocn_comp.eq."MOM") then
        field = where(abs(field).lt.1e10,field,missing)
      end if
