@@ -235,6 +235,10 @@ do k = 0,nvar-1                ; Loop through variables to be plotted
 
     ; Convert salt units if necessary
     if (var_to_plot(k).eq."fsalt_ai") then
+    if (var_mean@units .eq. "kg/m2/s") then
+       print(var_mean@units)
+       var_mean = var_mean*86400.
+    end if
     if (var_mean@units .eq. "kg/m^2/s") then
        print(var_mean@units)
        var_mean = var_mean*86400.

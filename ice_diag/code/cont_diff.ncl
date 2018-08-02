@@ -375,6 +375,14 @@ delete(f2)
 
     ; Convert salt units if necessary
     if (var_to_plot(k).eq."fsalt_ai") then
+    if (var_prev@units .eq. "kg/m2/s") then
+       print(var_prev@units)
+       var_prev = var_prev*86400.
+    end if
+    if (var_new@units .eq. "kg/m2/s") then
+       print(var_new@units)
+       var_prev = var_new*86400.
+    end if
     if (var_prev@units .eq. "kg/m^2/s") then
        print(var_prev@units)
        var_prev = var_prev*86400.
