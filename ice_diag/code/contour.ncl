@@ -233,6 +233,14 @@ do k = 0,nvar-1                ; Loop through variables to be plotted
       fice_for_mask(:,:,j) = var_mean
     end if
 
+    ; Convert salt units if necessary
+    if (var_to_plot(k).eq."fsalt_ai") then
+    if (var_mean@units .eq. "kg/m^2/s") then
+       print(var_mean@units)
+       var_mean = var_mean*86400.
+    end if
+    end if
+
     nrank = dimsizes(dimsizes(lat2d))
     if (nrank .eq. 3) then
        var_mean@lat2d = lat2d(0,:,:)
