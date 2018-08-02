@@ -238,10 +238,12 @@ do k = 0,nvar-1                ; Loop through variables to be plotted
     if (var_mean@units .eq. "kg/m2/s") then
        print(var_mean@units)
        var_mean = var_mean*86400.
+       var_mean@units = "kg/m2/day"
     end if
     if (var_mean@units .eq. "kg/m^2/s") then
        print(var_mean@units)
        var_mean = var_mean*86400.
+       var_mean@units = "kg/m2/day"
     end if
     end if
 
