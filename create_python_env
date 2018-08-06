@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -l
 #
 # script to setup the python virtual environment for postprocessing
 #
@@ -205,14 +205,14 @@ fi
 #----------------------------------------------------------------------
 # compile and install ocn_diag remap shared object (remap.so) program
 #----------------------------------------------------------------------
-echo "---------------------------------------------------------"
-echo "$progname - Compiling ocn diagnostics remap.so"
+##echo "---------------------------------------------------------"
+##echo "$progname - Compiling ocn diagnostics remap.so"
 
 # reads XML and call subprocess f2py
-create_f2py_remap --machine $machine
-if [ $? -ne 0 ]; then
-    echo "WARNING: Problem with ocean diagnostics create_f2py_remap in $pp_dir"
-fi
+##create_f2py_remap --machine $machine
+##if [ $? -ne 0 ]; then
+##    echo "WARNING: Problem with ocean diagnostics create_f2py_remap in $pp_dir"
+##fi
 
 #----------------------------------------------------------------------
 # compile and install ocn_diag zonal average (za) program

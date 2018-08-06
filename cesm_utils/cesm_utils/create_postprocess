@@ -27,6 +27,7 @@ if sys.hexversion < 0x02070000:
 import argparse
 import collections
 import errno
+import getpass
 import itertools
 import os
 import platform
@@ -560,7 +561,7 @@ def initialize_main(envDict, options, standalone):
         envDict['PROJECT'] = options.project[0]
 
     # set the user name
-    envDict['USER_NAME'] = os.getlogin()
+    envDict['USER_NAME'] = getpass.getuser()
     if options.username:
         envDict['USER_NAME'] = options.username[0]
 

@@ -17,33 +17,23 @@ if [ ! -e {{ virtualEnvDir }} ]; then
     exit
 fi
 
-## NOTE: the module load order and when the python virtualenv is activated is IMPORTANT!
-##       Purging the modules first clears all environment variables that might have been set
-##       by the virtualenv activation. Consequently, in order to ensure a correct environment
-##       we must activate the virtualenv *after* the purge. 
-
-## 1. purge and load the default system modules that the virtualenv was built with
-
 {% for module in reset_modules %}
 {{ module }}
 {% endfor %}
-
-## 2. check the processName for ocn_diagnostics_geyser and set the OCNDIAG_DIAGROOTPATH 
-##    to point to the geyser virtualenv in order for the correct za compiled tool
 
 {% if "ocn_diagnostics_geyser" in processName %}
 pp_geyser_path=`./pp_config --get POSTPROCESS_PATH_GEYSER --value`
 ./pp_config --set OCNDIAG_DIAGROOTPATH=$pp_geyser_path/ocn_diag
 {% endif %}
 
-## 3. activate the virtualenv that contains all the non-bootstrapped dependencies
+## activate the virtualenv that contains all the non-bootstrapped dependencies
 
 cd {{ virtualEnvDir }}
 echo "Running from virtualenv directory:"
 pwd
 . activate
 
-## 4. load the boot-strap modules 
+## load the boot-strap modules 
 
 {% for module in modules %}
 {{ module }}

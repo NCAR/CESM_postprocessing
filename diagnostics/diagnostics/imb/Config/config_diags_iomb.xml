@@ -43,12 +43,12 @@
              desc="matplotlib backend for generating graphics, should be exported to the environment!"
              ></entry>
 
-      <entry id="IOMBDIAG_IOMB_ROOT"
+      <entry id="IOMBDIAG_ILAMB_ROOT"
              type="char"
              valid_values="/path/to/IOMB_ROOT"
              value="$IOMBDIAG_DIAGOBSROOT"
              group="iomb_env"
-             desc="Environment variable for the model data root path. These are data files downloaded using the ilamb-fetch command. NOTE: this is machine and / or user dependent."
+             desc="Environment variable for the model data root path. These are data files downloaded using the ilamb-fetch command. NOTE: this is machine and / or user dependent. Variable name ILAMB_ROOT is used to specify the data root for IOMB as well."
              ></entry>
     </group>
 
