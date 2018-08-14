@@ -24,6 +24,6 @@ module load cf_units/1.1.3
 module load pyngl/1.5.0b
 
 # prepend the virtualenv into the PATH
-PATH=/glade/u/apps/ch/opt/python/2.7.13/gnu/6.2.0/bin:${PATH}
+PATH=/glade/u/apps/ch/opt/udunits/2.2.26/gnu/6.3.0/include:/glade/u/apps/ch/opt/python/2.7.13/gnu/6.2.0/bin:${PATH}
 export PATH
 

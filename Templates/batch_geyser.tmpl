@@ -7,7 +7,6 @@
 #SBATCH -p dav
 #SBATCH -J {{ processName }}
 #SBATCH -A {{ project }}
-#SBATCH -C {{ queue }}
 #SBATCH --mem {{ memory }}
 #SBATCH -e {{ processName }}.err.%J
 #SBATCH -o {{ processName }}.out.%J

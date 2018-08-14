@@ -138,10 +138,8 @@ class ModelResult():
         else:
             self.land_fraction = (Dataset(self.variables["sftlf"][0]).variables["sftlf"])[...]
             # some models represent the fraction as a percent 
-            if np.ma.max(self.land_fraction) > 1: self.land_fraction *= 0.01
-            np.seterr(over='ignore')
+            if np.ma.max(self.land_fraction) > 1: self.land_fraction *= 0.01 
             self.land_areas = self.cell_areas*self.land_fraction
-            np.seterr(over='warn')
         self.land_area = np.ma.sum(self.land_areas)
         return
                 

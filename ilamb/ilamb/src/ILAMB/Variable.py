@@ -1087,8 +1087,7 @@ class Variable:
         land   = keywords.get("land"  ,0.875)
         water  = keywords.get("water" ,0.750)
         pad    = keywords.get("pad"   ,5.0)
-        cbar   = keywords.get("cbar"  ,False)
-        
+
         rem_mask = None
         r = Regions()
         if self.temporal and not self.spatial:
@@ -1111,7 +1110,7 @@ class Variable:
             # Mask out areas outside our region
             rem_mask  = np.copy(self.data.mask)
             self.data.mask += r.getMask(region,self)
-            
+
             # Find the figure geometry
             if self.ndata:
                 LAT = np.ma.masked_array(self.lat,mask=self.data.mask,copy=True)
@@ -1121,19 +1120,38 @@ class Variable:
                 LAT,LON = np.meshgrid(self.lat,self.lon,indexing='ij')
                 LAT = np.ma.masked_array(LAT,mask=self.data.mask,copy=False)
                 LON = np.ma.masked_array(LON,mask=self.data.mask,copy=False)
+                LAT = self.lat[(LAT.mask==False).any(axis=1)]
+                TF  = (LON.mask==False).any(axis=0)
+                # do we need to shift longitudes to plot continuously
+                # over the dateline? 
+                dateline = True if (TF[0] == TF[-1] == True and
+                                    (TF==False).any()       and
+                                    LAT.min() < -45.        and
+                                    LAT.max() >  45.           ) else False
+                LON = self.lon[TF]
+                if dateline: LON = (LON>=0)*LON+(LON<0)*(LON+360)
                     
             lat0 = LAT.min() ; latf = LAT.max()
             lon0 = LON.min() ; lonf = LON.max()
             latm = LAT.mean(); lonm = LON.mean()
-            area = (latf-lat0)*(lonf-lon0)
-                
+            if dateline:
+                LON  = (LON <=180)*LON +(LON >180)*(LON -360)
+                lon0 = (lon0<=180)*lon0+(lon0>180)*(lon0-360)
+                lonf = (lonf<=180)*lonf+(lonf>180)*(lonf-360)
+                lonm = (lonm<=180)*lonm+(lonm>180)*(lonm-360)
+            area = (latf-lat0)
+            if dateline:
+                area *= (360-lonf+lon0)
+            else:
+                area *= (lonf-lon0)
+
             # Setup the plot projection depending on data limits
-            bmap = Basemap(projection = 'robin',
-                           lon_0      = 0,
-                           ax         = ax,
-                           resolution = 'c')
+            bmap = Basemap(projection     = 'robin',
+                               lon_0      = lonm,
+                               ax         = ax,
+                               resolution = 'c')
             if (lon0 < -170.) and (lonf > 170.):
-                if lat0 > 23.5:
+                if lat0 > 23.5: 
                     bmap = Basemap(projection  = 'npstere',
                                    boundinglat = lat0-5.,
                                    lon_0       = 0.,
@@ -1146,7 +1164,7 @@ class Variable:
                                    ax          = ax,
                                    resolution  = 'c')
             else:
-                if area < 10000.:
+                if area < 10000. and not dateline:
                     bmap = Basemap(projection = 'cyl',
                                    llcrnrlon  = lon0-2*pad,
                                    llcrnrlat  = lat0-  pad,
@@ -1176,14 +1194,11 @@ class Variable:
                 clrs = clmp(norm)
                 size = 35
                 ax   = bmap.scatter(x,y,s=size,color=clrs,ax=ax,linewidths=0,cmap=cmap)
-            if cbar:
-                cb = bmap.colorbar(ax,location='bottom',pad="5%")
-                if label is not None: cb.set_label(label)
             if rem_mask is not None: self.data.mask = rem_mask
         return ax
     
 
-    def interpolate(self,time=None,lat=None,lon=None,lat_bnds=None,lon_bnds=None,itype='nearestneighbor'):
+    def interpolate(self,time=None,lat=None,lon=None,itype='nearestneighbor'):
         """Use nearest-neighbor interpolation to interpolate time and/or space at given values.
 
         Parameters
@@ -1212,8 +1227,8 @@ class Variable:
             if lat is None: lat = self.lat
             if lon is None: lon = self.lon
             if itype == 'nearestneighbor':
-                rows  = (np.abs(lat[:,np.newaxis]-self.lat)).argmin(axis=1)
-                cols  = (np.abs(lon[:,np.newaxis]-self.lon)).argmin(axis=1)
+                rows  = np.apply_along_axis(np.argmin,1,np.abs(lat[:,np.newaxis]-self.lat))
+                cols  = np.apply_along_axis(np.argmin,1,np.abs(lon[:,np.newaxis]-self.lon))
                 args  = []
                 if self.temporal: args.append(range(self.time.size))
                 if self.layered:  args.append(range(self.depth.size))
@@ -1223,10 +1238,10 @@ class Variable:
                 mask  = data.mask[ind]
                 data  = data.data[ind]
                 data  = np.ma.masked_array(data,mask=mask)
-                frac  = self.area / il.CellAreas(self.lat,self.lon,self.lat_bnds,self.lon_bnds).clip(1e-12)
+                frac  = self.area / il.CellAreas(self.lat,self.lon).clip(1e-12)
                 frac  = frac.clip(0,1)
                 frac  = frac[np.ix_(rows,cols)]
-                output_area = frac * il.CellAreas(lat,lon,lat_bnds,lon_bnds)
+                output_area = frac * il.CellAreas(lat,lon)
             elif itype == 'bilinear':
                 from scipy.interpolate import RectBivariateSpline
                 if self.data.ndim == 3:
