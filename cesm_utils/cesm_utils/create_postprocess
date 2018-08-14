@@ -891,8 +891,7 @@ def main(options):
     if envDict['MACH'] == 'cheyenne':
         hostname = 'dav'
         envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
-        ##pp_dav = os.environ["POSTPROCESS_PATH_DAV"]
-        pp_dav = os.environ["POSTPROCESS_PATH"]
+        pp_dav = os.environ["POSTPROCESS_PATH_DAV"]
 
         # get the machine dependent variables, modules and mpi run command in a dictionary
         machine = dict()
