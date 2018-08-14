@@ -195,6 +195,9 @@ def get_chunk_range(tper, size, start, cal, units):
     if 'day' in tper: #day
         end = float(start) + int(size)
 
+    elif 'daily' in tper: #day
+        end = float(start) + int(size)
+
     elif 'hour' in tper: #hour
         end = (float(size)/24.0) + float(start)
 
