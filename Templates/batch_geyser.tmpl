@@ -11,4 +11,4 @@
 #SBATCH --mem {{ memory }}
 #SBATCH -e {{ processName }}.err.%J
 #SBATCH -o {{ processName }}.out.%J
-
+#SBATCH -m block
