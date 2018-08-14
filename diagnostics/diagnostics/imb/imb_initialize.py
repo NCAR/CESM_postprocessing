@@ -206,9 +206,9 @@ def expand_batch_vars(envDict, imb_name):
         print('    {0} - {1}'.format(e.cmd, e.output))
 
 
-    # create a template and batch for geyser slurm
-    if envDict['MACH'] == 'cheyenne' or envDict['MACH'] == 'geyser':
-        hostname = 'geyser'
+    # create a template and batch for DAV slurm
+    if envDict['MACH'] == 'cheyenne' or envDict['MACH'] == 'dav':
+        hostname = 'dav'
         template_filename = '{0}_diagnostics_{1}.tmpl'.format(imb_name, hostname)
         templateLoader = jinja2.FileSystemLoader( searchpath='{0}'.format(envDict["CASEROOT"]) )
         templateEnv = jinja2.Environment( loader=templateLoader )

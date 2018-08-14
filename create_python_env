@@ -137,14 +137,12 @@ fi
 #----------------------------------------------------------------------
 env="${pp_dir}/cesm-env2"
 echo $env
-if [ -f $env ] && [ ${machine} != geyser ]; then
+if [ ! -d $env ]; then
     status="ERROR"
-    info="$progname - ${pp_dir}/cesm-env2 virtual environment already exists.
-It is only necessary to create the virtual environment once for a given machine.
-All post processing scripts residing in a CASE directory will activate and deactivate
-the virtual environment as necessary. 
+    info="$progname - ${pp_dir}/cesm-env2 virtual environment does not exist.
+Check the $module_script for the correct ncar_pylib virtualenv clone command.
+If a new or updated virtual environment needs to be created then follow these steps:
 
-If a new or updated virtual environment needs to be created then following these steps:
 >cd ${pp_dir}
 >make clobber
 >make clobber-env
@@ -162,17 +160,17 @@ cd $pp_dir
 # create the virtual environment. Makefile checks to see if it is
 # already setup, so only done once per case.
 #----------------------------------------------------------------------
-echo "$progname - making virtual environment in ${pp_dir}/cesm-env2."
-if [ ${machine} != geyser ]; then
-    make env
-    if [ $? -ne 0 ]; then
-	echo "ERROR: Unable to create virtual environment in ${pp_dir}/cesm-env2. Exiting..."
-	exit 1
-    fi
-fi
+##echo "$progname - making virtual environment in ${pp_dir}/cesm-env2."
+##if [ ${machine} != geyser ]; then
+##    make env
+##    if [ $? -ne 0 ]; then
+##	echo "ERROR: Unable to create virtual environment in ${pp_dir}/cesm-env2. Exiting..."
+##	exit 1
+##    fi
+##fi
 
 #----------------------------------------------------------------------
-# activate it for this script
+# activate virtualenv for remainder of this script
 #----------------------------------------------------------------------
 echo "$progname - activating virtual environment in ${pp_dir}/cesm-env2."
 . cesm-env2/bin/activate

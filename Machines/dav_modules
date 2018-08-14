@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-echo "Python boot-strap modules for machine cheyenne"
+echo "Python boot-strap modules for NCAR DAV"
 
 module load python/2.7.14
 module load intel/17.0.1
@@ -13,7 +13,7 @@ module load ncl/6.4.0
 
 # clone the ncat virtualenv first with helper script ncar_pylib
 # use "ncar_pylib --help" to see all options
-ncar_pylib -c 20180705 ${pp_dir}/cesm-env2
+ncar_pylib -c 20180510 ${pp_dir}/cesm-env2
 
 export PYTHONPATH=${pp_dir}/cesm-env2/lib/python2.7/site-packages
 

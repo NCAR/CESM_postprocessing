@@ -21,9 +21,9 @@ fi
 {{ module }}
 {% endfor %}
 
-{% if "ocn_diagnostics_geyser" in processName %}
-pp_geyser_path=`./pp_config --get POSTPROCESS_PATH_GEYSER --value`
-./pp_config --set OCNDIAG_DIAGROOTPATH=$pp_geyser_path/ocn_diag
+{% if "ocn_diagnostics_dav" in processName %}
+pp_dav_path=`./pp_config --get POSTPROCESS_PATH_DAV --value`
+./pp_config --set OCNDIAG_DIAGROOTPATH=$pp_dav_path/ocn_diag
 {% endif %}
 
 ## activate the virtualenv that contains all the non-bootstrapped dependencies
