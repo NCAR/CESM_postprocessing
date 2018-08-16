@@ -196,7 +196,7 @@ def ConvertCalendar(t,tbnd=None):
     t = ta.mean(axis=1)
     return t,ta
 
-def CellAreas(lat,lon,lat_bnds=None,lon_bnds=None):
+def CellAreas(lat,lon):
     """Given arrays of latitude and longitude, return cell areas in square meters.
 
     Parameters
@@ -212,11 +212,6 @@ def CellAreas(lat,lon,lat_bnds=None,lon_bnds=None):
         a 2D array of cell areas in [m2]
     """
     from constants import earth_rad
-
-    if (lat_bnds is not None and lon_bnds is not None):
-        return earth_rad**2*np.outer((np.sin(lat_bnds[:,1]*np.pi/180.)-
-                                      np.sin(lat_bnds[:,0]*np.pi/180.)),
-                                     (lon_bnds[:,1]-lon_bnds[:,0])*np.pi/180.)
 
     x = np.zeros(lon.size+1)
     x[1:-1] = 0.5*(lon[1:]+lon[:-1])
@@ -642,8 +637,15 @@ def FromNetCDF4(filename,variable_name,alternate_vars=[],t0=None,tf=None,group=N
                 raise ValueError("Non-linear units [%s] of the layered dimension [%s] in %s" % (dunit,depth_name,filename))
             depth = Unit(dunit).convert(depth,Unit("m"),inplace=True)
             if depth_bnd is not None:
+<<<<<<< HEAD
                 depth_bnd = Unit(dunit).convert(depth_bnd,Unit("m"),inplace=True)
                 
+||||||| merged common ancestors
+                depth_bnd = Units.conform(depth_bnd,Units(dunit),Units("m"),inplace=True)
+                
+=======
+                depth_bnd = Unit(dunit).convert(depth_bnd,Unit("m"),inplace=True)
+>>>>>>> ncar_pylib_ch
     if data_name      is not None:
         data = len(grp.dimensions[data_name])
         # if we have data sites, there may be lat/lon data to come
@@ -788,9 +790,10 @@ def ScoreSeasonalCycle(phase_shift):
                     unit  = "1",
                     name  = phase_shift.name.replace("phase_shift","phase_shift_score"),
                     ndata = phase_shift.ndata,
-                    lat   = phase_shift.lat, lat_bnds = phase_shift.lat_bnds,
-                    lon   = phase_shift.lon, lon_bnds = phase_shift.lon_bnds,
+                    lat   = phase_shift.lat,
+                    lon   = phase_shift.lon,
                     area  = phase_shift.area)
+
 
 def _composeGrids(v1,v2):
     lat_bnds = np.unique(np.hstack([v1.lat_bnds.flatten(),v2.lat_bnds.flatten()]))
@@ -803,7 +806,14 @@ def _composeGrids(v1,v2):
     lon      = lon_bnds.mean(axis=1)
     return lat,lon,lat_bnds,lon_bnds
 
+<<<<<<< HEAD
 def AnalysisMeanStateSites(ref,com,**keywords):
+||||||| merged common ancestors
+def AnalysisMeanState(ref,com,**keywords):
+=======
+def AnalysisMeanState(ref,com,**keywords):
+
+>>>>>>> ncar_pylib_ch
     """Perform a mean state analysis.
 
     This mean state analysis examines the model mean state in space
@@ -843,6 +853,7 @@ def AnalysisMeanStateSites(ref,com,**keywords):
     """
 
     from Variable import Variable
+
     regions           = keywords.get("regions"          ,["global"])
     dataset           = keywords.get("dataset"          ,None)
     benchmark_dataset = keywords.get("benchmark_dataset",None)
@@ -853,6 +864,7 @@ def AnalysisMeanStateSites(ref,com,**keywords):
     skip_rmse         = keywords.get("skip_rmse"        ,False)
     skip_iav          = keywords.get("skip_iav"         ,False)
     skip_cycle        = keywords.get("skip_cycle"       ,False)
+    res               = keywords.get("res"              ,0.5)
     ILAMBregions      = Regions()
     spatial           = False
     normalizer        = None
@@ -860,57 +872,35 @@ def AnalysisMeanStateSites(ref,com,**keywords):
     # Only study the annual cycle if it makes sense
     if    not ref.monthly: skip_cycle = True
     if ref.time.size < 12: skip_cycle = True
+<<<<<<< HEAD
     if skip_rmse         : skip_iav   = True
     
+||||||| merged common ancestors
+
+    # We find 
+=======
+    if skip_rmse         : skip_iav   = True
+    
+    # In order to deal with differences in grids and representation of
+    # land, we will interpolate both datasets to a fixed
+    # resolution. While not perfect we interpolate to a grid
+    # resolution higher than models are typically run. By convention,
+    # I will use capital letters for the interpolated quantities.
+
+>>>>>>> ncar_pylib_ch
     if spatial:
-        lat,lon,lat_bnds,lon_bnds = _composeGrids(ref,com)
-        REF = ref.interpolate(lat=lat,lon=lon,lat_bnds=lat_bnds,lon_bnds=lon_bnds)
-        COM = com.interpolate(lat=lat,lon=lon,lat_bnds=lat_bnds,lon_bnds=lon_bnds)
+        junk,junk,lat,lon = GlobalLatLonGrid(res)
+        REF = ref.interpolate(lat=lat,lon=lon,itype='bilinear')
+        COM = com.interpolate(lat=lat,lon=lon,itype='bilinear')
         
     # We find the mean values over the time period on the original
     # grid/datasites of each dataset
     ref_timeint = ref.integrateInTime(mean=True)
     com_timeint = com.integrateInTime(mean=True)
     if spatial:
-        
         REF_timeint = REF.integrateInTime(mean=True)
         COM_timeint = COM.integrateInTime(mean=True)
-
-        # Masks 
-        ref_mask    = REF_timeint.data.mask
-        com_mask    = COM_timeint.data.mask
-        ref_and_com = (ref_mask == False) * (com_mask == False)
-        ref_not_com = (ref_mask == False) * (com_mask == True )
-        com_not_ref = (ref_mask == True ) * (com_mask == False)        
-        ref_and_COM = Variable(name = "ref_and_COM", unit = ref.unit,
-                               data = np.ma.masked_array(COM_timeint.data,mask=(ref_and_com==False)),
-                               lat  = lat, lat_bnds = lat_bnds,
-                               lon  = lon, lon_bnds = lon_bnds,
-                               area = COM_timeint.area)
-        COM_not_ref = Variable(name = "COM_not_ref", unit = ref.unit,
-                               data = np.ma.masked_array(COM_timeint.data,mask=(com_not_ref==False)),
-                               lat  = lat, lat_bnds = lat_bnds,
-                               lon  = lon, lon_bnds = lon_bnds,
-                               area = COM_timeint.area)
-        REF_and_com = Variable(name = "REF_and_com", unit = REF.unit,
-                               data = np.ma.masked_array(REF_timeint.data,mask=(ref_and_com==False)),
-                               lat  = lat, lat_bnds = lat_bnds,
-                               lon  = lon, lon_bnds = lon_bnds,
-                               area = REF_timeint.area)
-        REF_not_com = Variable(name = "REF_not_com", unit = REF.unit,
-                               data = np.ma.masked_array(REF_timeint.data,mask=(ref_not_com==False)),
-                               lat  = lat, lat_bnds = lat_bnds,
-                               lon  = lon, lon_bnds = lon_bnds,
-                               area = REF_timeint.area)
-        
-        # Apply intersection mask
-        REF.data.mask += np.ones(REF.time.size,dtype=bool)[:,np.newaxis,np.newaxis] * (ref_and_com==False)
-        COM.data.mask += np.ones(COM.time.size,dtype=bool)[:,np.newaxis,np.newaxis] * (ref_and_com==False)
-        REF_timeint.data.mask = (ref_and_com==False)
-        COM_timeint.data.mask = (ref_and_com==False)
-        
     else:
-        
         REF         = ref
         COM         = com
         REF_timeint = ref_timeint
@@ -930,6 +920,7 @@ def AnalysisMeanStateSites(ref,com,**keywords):
     bias_score_map = Score(bias,crms)
     if spatial:
         bias_score_map.data.mask = (ref_and_com==False) # for some reason I need to explicitly force the mask
+    bias_score_map = Score(bias,REF_timeint)
     if not skip_rmse:
         cCOM = Variable(name = "centralized %s" % COM.name, unit = COM.unit,
                         data = np.ma.masked_array(COM.data-COM_timeint.data[np.newaxis,...],mask=COM.data.mask),
@@ -991,15 +982,11 @@ def AnalysisMeanStateSites(ref,com,**keywords):
     com_union_mean = {}; com_comp_mean = {}
     for region in regions:
         if spatial:
-            ref_period_mean[region] = ref_timeint    .integrateInSpace(region=region,mean=space_mean)
-            ref_union_mean [region] = REF_and_com    .integrateInSpace(region=region,mean=space_mean)
-            com_union_mean [region] = ref_and_COM    .integrateInSpace(region=region,mean=space_mean)
-            ref_comp_mean  [region] = REF_not_com    .integrateInSpace(region=region,mean=space_mean)
-            com_comp_mean  [region] = COM_not_ref    .integrateInSpace(region=region,mean=space_mean)
+            ref_period_mean[region] = REF_timeint    .integrateInSpace(region=region,mean=space_mean)
             ref_spaceint   [region] = REF            .integrateInSpace(region=region,mean=True)
-            com_period_mean[region] = com_timeint    .integrateInSpace(region=region,mean=space_mean)
+            com_period_mean[region] = COM_timeint    .integrateInSpace(region=region,mean=space_mean)
             com_spaceint   [region] = COM            .integrateInSpace(region=region,mean=True)
-            bias_val       [region] = bias           .integrateInSpace(region=region,mean=True)
+            bias_val       [region] = bias           .integrateInSpace(region=region,mean=space_mean)
             bias_score     [region] = bias_score_map .integrateInSpace(region=region,mean=True,weight=normalizer)
             if not skip_cycle:
                 ref_mean_cycle[region] = ref_cycle   .integrateInSpace(region=region,mean=True)
@@ -1009,9 +996,9 @@ def AnalysisMeanStateSites(ref,com,**keywords):
                 com_dtcycle   [region] = deepcopy(com_mean_cycle[region])
                 com_dtcycle   [region].data -= com_mean_cycle[region].data.mean()        
                 shift         [region] = shift_map      .integrateInSpace(region=region,mean=True,intabs=True)
-                shift_score   [region] = shift_score_map.integrateInSpace(region=region,mean=True,weight=normalizer)           
+                shift_score   [region] = shift_score_map.integrateInSpace(region=region,mean=True,weight=normalizer)            
             if not skip_rmse:
-                rmse_val   [region] = rmse           .integrateInSpace(region=region,mean=True)
+                rmse_val   [region] = rmse           .integrateInSpace(region=region,mean=space_mean)
                 rmse_score [region] = rmse_score_map .integrateInSpace(region=region,mean=True,weight=normalizer)
             if not skip_iav:
                 iav_score  [region] = iav_score_map .integrateInSpace(region=region,mean=True,weight=normalizer)
@@ -1038,9 +1025,9 @@ def AnalysisMeanStateSites(ref,com,**keywords):
             if not skip_iav:
                 iav_score  [region] = iav_score_map .siteStats(region=region,weight=normalizer)
                 
-        ref_period_mean[region].name = "Period Mean (original grids) %s" % (region)
+        ref_period_mean[region].name = "Period Mean %s"                % (region)
         ref_spaceint   [region].name = "spaceint_of_%s_over_%s"        % (ref.name,region)
-        com_period_mean[region].name = "Period Mean (original grids) %s" % (region)
+        com_period_mean[region].name = "Period Mean %s"                % (region)
         com_spaceint   [region].name = "spaceint_of_%s_over_%s"        % (ref.name,region)
         bias_val       [region].name = "Bias %s"                       % (region)
         bias_score     [region].name = "Bias Score %s"                 % (region)
@@ -1057,11 +1044,7 @@ def AnalysisMeanStateSites(ref,com,**keywords):
             shift         [region].name = "Phase Shift %s"                % (region)
             shift_score   [region].name = "Seasonal Cycle Score %s"       % (region)
         if spatial:
-            ref_union_mean[region].name = "Benchmark Period Mean (intersection) %s" % (region)
-            com_union_mean[region].name = "Model Period Mean (intersection) %s"     % (region)        
-            ref_comp_mean [region].name = "Benchmark Period Mean (complement) %s"   % (region)
-            com_comp_mean [region].name = "Model Period Mean (complement) %s"       % (region)        
-            sd_score      [region].name = "Spatial Distribution Score %s"           % (region)
+            sd_score   [region].name = "Spatial Distribution Score %s" % (region)
         
     # Unit conversions
     def _convert(var,unit):
@@ -1071,7 +1054,7 @@ def AnalysisMeanStateSites(ref,com,**keywords):
             var.convert(unit)
 
     if table_unit is not None:
-        for var in [ref_period_mean,com_period_mean,ref_union_mean,com_union_mean,ref_comp_mean,com_comp_mean]:
+        for var in [ref_period_mean,com_period_mean,bias_val,rmse_val]:
             _convert(var,table_unit)
     if plot_unit is not None:
         plot_vars = [com_timeint,ref_timeint,bias,com_spaceint,ref_spaceint,bias_val]
@@ -1086,10 +1069,6 @@ def AnalysisMeanStateSites(ref,com,**keywords):
     bias_score_map .name = "biasscore_map_of_%s"  % ref.name
     
     out_vars = [com_period_mean,
-                ref_union_mean,
-                com_union_mean,
-                ref_comp_mean,
-                com_comp_mean,
                 com_timeint,
                 com_mean_cycle,
                 com_dtcycle,
@@ -1100,6 +1079,9 @@ def AnalysisMeanStateSites(ref,com,**keywords):
                 shift,
                 shift_score]
     if com_spaceint[com_spaceint.keys()[0]].data.size > 1: out_vars.append(com_spaceint)
+    if spatial:
+        COM_timeint.name = "timeintremap_of_%s"  % ref.name
+        out_vars.append(COM_timeint)
     if not skip_cycle:
         com_maxt_map   .name = "phase_map_of_%s"      % ref.name
         shift_map      .name = "shift_map_of_%s"      % ref.name
@@ -1138,9 +1120,19 @@ def AnalysisMeanStateSites(ref,com,**keywords):
     if not skip_cycle:
         ref_maxt_map.name = "phase_map_of_%s"      % ref.name
         out_vars += [ref_maxt_map,ref_mean_cycle,ref_dtcycle]
+<<<<<<< HEAD
     if not skip_iav:
         ref_iav.name      = "iav_map_of_%s" % ref.name
         out_vars.append(ref_iav)
+||||||| merged common ancestors
+=======
+    if not skip_iav:
+        ref_iav.name      = "iav_map_of_%s" % ref.name
+        out_vars.append(ref_iav)
+    if spatial:
+        REF_timeint.name = "timeintremap_of_%s"  % ref.name
+        out_vars.append(REF_timeint)
+>>>>>>> ncar_pylib_ch
     if benchmark_dataset is not None:
         for var in out_vars:
             if type(var) == type({}):
@@ -1149,6 +1141,7 @@ def AnalysisMeanStateSites(ref,com,**keywords):
                 var.toNetCDF4(benchmark_dataset,group="MeanState")
                 
     return 
+<<<<<<< HEAD
     
         
 def AnalysisMeanStateSpace(ref,com,**keywords):
@@ -1165,6 +1158,31 @@ def AnalysisMeanStateSpace(ref,com,**keywords):
     the observational variable. In the spatial dimension, we compute a
     spatial mean for each of the desired regions and an average annual
     cycle.    
+||||||| merged common ancestors
+
+    
+def AnalysisRelationship(dep_var,ind_var,dataset,rname,**keywords):
+    """Perform a relationship analysis.
+    
+    Expand to provide details of what exactly is done.
+=======
+    
+        
+def AnalysisMeanStateSpace(ref,com,**keywords):
+    """Perform a mean state analysis.
+
+    This mean state analysis examines the model mean state in space
+    and time. We compute the mean variable value over the time period
+    at each spatial cell or data site as appropriate, as well as the
+    bias and RMSE relative to the observational variable. We will
+    output maps of the period mean values and bias. For each spatial
+    cell or data site we also estimate the phase of the variable by
+    finding the mean time of year when the maximum occurs and the
+    phase shift by computing the difference in phase with respect to
+    the observational variable. In the spatial dimension, we compute a
+    spatial mean for each of the desired regions and an average annual
+    cycle.    
+>>>>>>> ncar_pylib_ch
 
     Parameters
     ----------
@@ -1671,6 +1689,15 @@ def MakeComparable(ref,com,**keywords):
                 msg  = "%s Datasets have a different layering scheme" % logstring
                 logger.debug(msg)
                 raise VarsNotComparable()
+
+    # Apply the reference mask to the comparison dataset and
+    # optionally vice-versa
+    if not ref.layered:
+        mask = ref.interpolate(time=com.time,lat=com.lat,lon=com.lon)
+        com.data.mask += mask.data.mask
+        if mask_ref:
+            mask = com.interpolate(time=ref.time,lat=ref.lat,lon=ref.lon)
+            ref.data.mask += mask.data.mask
 
     # Convert the comparison to the units of the reference
     com = com.convert(ref.unit)

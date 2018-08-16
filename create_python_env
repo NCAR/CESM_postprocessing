@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -l
 #
 # script to setup the python virtual environment for postprocessing
 #
@@ -58,6 +58,7 @@ progname=`basename $0`
 # need absolute path (rather than relative path) because we use this
 # path to get to the machines directory
 pp_dir=$(absolute_path `dirname $0`)  
+export pp_dir
 
 #----------------------------------------------------------------------
 # Set default return values
@@ -136,14 +137,12 @@ fi
 #----------------------------------------------------------------------
 env="${pp_dir}/cesm-env2"
 echo $env
-if [ -f $env ]; then
+if [ ! -d $env ]; then
     status="ERROR"
-    info="$progname - ${pp_dir}/cesm-env2 virtual environment already exists.
-It is only necessary to create the virtual environment once for a given machine.
-All post processing scripts residing in a CASE directory will activate and deactivate
-the virtual environment as necessary. 
+    info="$progname - ${pp_dir}/cesm-env2 virtual environment does not exist.
+Check the $module_script for the correct ncar_pylib virtualenv clone command.
+If a new or updated virtual environment needs to be created then follow these steps:
 
-If a new or updated virtual environment needs to be created then following these steps:
 >cd ${pp_dir}
 >make clobber
 >make clobber-env
@@ -161,15 +160,17 @@ cd $pp_dir
 # create the virtual environment. Makefile checks to see if it is
 # already setup, so only done once per case.
 #----------------------------------------------------------------------
-echo "$progname - making virtual environment in ${pp_dir}/cesm-env2."
-make env
-if [ $? -ne 0 ]; then
-    echo "ERROR: Unable to create virtual environment in ${pp_dir}/cesm-env2. Exiting..."
-    exit 1
-fi
+##echo "$progname - making virtual environment in ${pp_dir}/cesm-env2."
+##if [ ${machine} != geyser ]; then
+##    make env
+##    if [ $? -ne 0 ]; then
+##	echo "ERROR: Unable to create virtual environment in ${pp_dir}/cesm-env2. Exiting..."
+##	exit 1
+##    fi
+##fi
 
 #----------------------------------------------------------------------
-# activate it for this script
+# activate virtualenv for remainder of this script
 #----------------------------------------------------------------------
 echo "$progname - activating virtual environment in ${pp_dir}/cesm-env2."
 . cesm-env2/bin/activate
@@ -202,14 +203,14 @@ fi
 #----------------------------------------------------------------------
 # compile and install ocn_diag remap shared object (remap.so) program
 #----------------------------------------------------------------------
-echo "---------------------------------------------------------"
-echo "$progname - Compiling ocn diagnostics remap.so"
+##echo "---------------------------------------------------------"
+##echo "$progname - Compiling ocn diagnostics remap.so"
 
 # reads XML and call subprocess f2py
-create_f2py_remap --machine $machine
-if [ $? -ne 0 ]; then
-    echo "WARNING: Problem with ocean diagnostics create_f2py_remap in $pp_dir"
-fi
+##create_f2py_remap --machine $machine
+##if [ $? -ne 0 ]; then
+##    echo "WARNING: Problem with ocean diagnostics create_f2py_remap in $pp_dir"
+##fi
 
 #----------------------------------------------------------------------
 # compile and install ocn_diag zonal average (za) program

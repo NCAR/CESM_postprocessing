@@ -1,4 +1,5 @@
-#! /usr/bin/env bash
+{{ batchdirectives }}
+
 ##########
 ##
 ## See https://github.com/NCAR/CESM_postprocessing/wiki for details
@@ -6,45 +7,33 @@
 ##
 ##########
 
-{{ batchdirectives }}
-
 if [ ! -e {{ virtualEnvDir }} ]; then
     echo "*************************************************************************************"
     echo "CESM {{ processName }} exiting due to non-existant python virtual environment in"
     echo "    {{ virtualEnvDir }}"
     echo "You must first run:"
-    echo "$SRCROOT/postprocessing/create_python_env.sh -machine [machine]"
+    echo "$POSTPROCESS_PATH/create_python_env -machine [machine]"
     echo "*************************************************************************************"
     exit
 fi
-
-## NOTE: the module load order and when the python virtualenv is activated is IMPORTANT!
-##       Purging the modules first clears all environment variables that might have been set
-##       by the virtualenv activation. Consequently, in order to ensure a correct environment
-##       we must activate the virtualenv *after* the purge. 
-
-## 1. purge and load the default system modules that the virtualenv was built with
 
 {% for module in reset_modules %}
 {{ module }}
 {% endfor %}
 
-## 2. check the processName for ocn_diagnostics_geyser and set the OCNDIAG_DIAGROOTPATH 
-##    to point to the geyser virtualenv in order for the correct za compiled tool
-
-{% if "ocn_diagnostics_geyser" in processName %}
-pp_geyser_path=`./pp_config --get POSTPROCESS_PATH_GEYSER --value`
-./pp_config --set OCNDIAG_DIAGROOTPATH=$pp_geyser_path/ocn_diag
+{% if "ocn_diagnostics_dav" in processName %}
+pp_dav_path=`./pp_config --get POSTPROCESS_PATH_DAV --value`
+./pp_config --set OCNDIAG_DIAGROOTPATH=$pp_dav_path/ocn_diag
 {% endif %}
 
-## 3. activate the virtualenv that contains all the non-bootstrapped dependencies
+## activate the virtualenv that contains all the non-bootstrapped dependencies
 
 cd {{ virtualEnvDir }}
 echo "Running from virtualenv directory:"
 pwd
 . activate
 
-## 4. load the boot-strap modules 
+## load the boot-strap modules 
 
 {% for module in modules %}
 {{ module }}

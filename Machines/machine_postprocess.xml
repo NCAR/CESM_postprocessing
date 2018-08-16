@@ -2,40 +2,91 @@
 
 <machine_postprocess>
 
-  <machine name="geyser" hostname="geyser">
-    <timeseries_pes queue="geyser" nodes="4" pes_per_node="16" wallclock="04:00:00" memory="100G">64</timeseries_pes>
-    <xconform_pes queue="geyser" nodes="4" pes_per_node="16" wallclock="06:00:00" memory="100G">64</xconform_pes>
+  <machine name="dav" hostname="dav,geyser,caldera,pronghorn,casper">
+    <timeseries_pes  nodes="4" pes_per_node="16" wallclock="04:00:00" memory="100G">64</timeseries_pes>
+    <xconform_pes  nodes="4" pes_per_node="16" wallclock="06:00:00" memory="100G">64</xconform_pes>
     <mpi_command>srun</mpi_command>
-    <pythonpath>/glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/lib/python2.7/site-packages</pythonpath>
+    <pythonpath></pythonpath>
     <f2py fcompiler="intelem" f77exec="/glade/apps/opt/modulefiles/ys/cmpwrappers/ifort">f2py</f2py>
     <za>
       <compiler>ifort</compiler>
       <flags>-c -g -O2</flags>
-      <include>-I/glade/apps/opt/netcdf/4.3.3.1/intel/16.0.0/include</include>
-      <libs>-L/glade/apps/opt/netcdf/4.3.3.1/intel/16.0.0/lib -lnetcdff -lnetcdf</libs>
+      <include>-I/glade/u/apps/dav/opt/netcdf/4.6.1/intel/17.0.1/include</include>
+      <libs>-L/glade/u/apps/dav/opt/netcdf/4.6.1/intel/17.0.1/lib -lnetcdff -lnetcdf</libs>
     </za>
     <reset_modules>
       <module>module purge</module>
-      <module>module load python/2.7.7</module>
     </reset_modules>
     <modules>
-      <module>module load intel/16.0.3</module>
+      <module>module load python/2.7.14</module>
+      <module>module load intel/17.0.1</module>
       <module>module load ncarenv</module>
-      <module>module load ncarbinlibs</module>
       <module>module load ncarcompilers</module>
-      <module>module load slurm/17</module>
-      <module>module load impi/5.1.1.109</module>
-      <module>module load numpy/1.11.0</module>
-      <module>module load scipy/0.18.1</module>
-      <module>module load mpi4py/2.0.0-impi</module>
-      <module>module load pynio/1.4.1</module>
-      <module>module load pyside/1.1.2</module>
-      <module>module load matplotlib/1.5.1</module>
-      <module>module load netcdf/4.3.0</module>
-      <module>module load nco/4.4.4</module>
-      <module>module load netcdf4python/1.2.4</module>
+      <module>module load impi</module>
+      <module>module load netcdf/4.6.1</module>
+      <module>module load nco/4.7.4</module>
       <module>module load ncl/6.4.0</module>
-      <module>module load pyngl/1.4.0</module>
+    </modules>
+    <components>
+      <component name="atm">
+	<averages_pes  nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
+	<diagnostics_pes  nodes="1" pes_per_node="16" wallclock="02:00:00" memory="100G">16</diagnostics_pes>
+	<regrid_pes  nodes="1" pes_per_node="6" wallclock="02:00:00" memory="100G">6</regrid_pes>
+	<obs_root>/glade/p/cesm/amwg/amwg_data</obs_root>
+      </component>
+      <component name="ice">
+	<averages_pes  nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
+	<diagnostics_pes  nodes="1" pes_per_node="4" wallclock="01:00:00" memory="100G">4</diagnostics_pes>
+	<obs_root>/glade/p/cesm/pcwg/ice/data</obs_root>
+      </component>
+      <component name="lnd">
+	<averages_pes  nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
+ 	<diagnostics_pes  nodes="1" pes_per_node="12" wallclock="02:00:00" memory="100G">12</diagnostics_pes>
+	<regrid_pes  nodes="1" pes_per_node="6" wallclock="02:00:00" memory="100G">6</regrid_pes>
+	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
+      </component>
+      <component name="ocn">
+	<averages_pes  nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
+	<diagnostics_pes  nodes="1" pes_per_node="16" wallclock="02:00:00" memory="100G">16</diagnostics_pes>
+	<obs_root>/glade/p/cesm/</obs_root>
+      </component>
+      <component name="ilamb">
+	<diagnostics_pes  nodes="1" pes_per_node="2" wallclock="01:00:00" memory="100G">2</diagnostics_pes>
+	<initialize_pes  nodes="1" pes_per_node="1" wallclock="00:00:10" memory="1G">1</initialize_pes>
+	<obs_root>/glade/p/cesm/lmwg_dev/oleson/ILAMB/ILAMB_all</obs_root>
+      </component>
+      <component name="iomb">
+	<diagnostics_pes  nodes="1" pes_per_node="2" wallclock="01:00:00" memory="100G">2</diagnostics_pes>
+	<initialize_pes  nodes="1" pes_per_node="1" wallclock="00:00:10" memory="1G">1</initialize_pes>
+	<obs_root>/glade/p/cesm/omwg/obs_data/IOMB</obs_root>
+      </component>
+    </components>
+  </machine>
+
+  <machine name="geyser" hostname="geyser">
+    <timeseries_pes queue="geyser" nodes="4" pes_per_node="16" wallclock="04:00:00" memory="100G">64</timeseries_pes>
+    <xconform_pes queue="geyser" nodes="4" pes_per_node="16" wallclock="06:00:00" memory="100G">64</xconform_pes>
+    <mpi_command>srun</mpi_command>
+    <pythonpath></pythonpath>
+    <f2py fcompiler="intelem" f77exec="/glade/apps/opt/modulefiles/ys/cmpwrappers/ifort">f2py</f2py>
+    <za>
+      <compiler>ifort</compiler>
+      <flags>-c -g -O2</flags>
+      <include>-I/glade/u/apps/dav/opt/netcdf/4.6.1/intel/17.0.1/include</include>
+      <libs>-L/glade/u/apps/dav/opt/netcdf/4.6.1/intel/17.0.1/lib -lnetcdff -lnetcdf</libs>
+    </za>
+    <reset_modules>
+      <module>module purge</module>
+    </reset_modules>
+    <modules>
+      <module>module load python/2.7.14</module>
+      <module>module load intel/17.0.1</module>
+      <module>module load ncarenv</module>
+      <module>module load ncarcompilers</module>
+      <module>module load impi</module>
+      <module>module load netcdf/4.6.1</module>
+      <module>module load nco/4.7.4</module>
+      <module>module load ncl/6.4.0</module>
     </modules>
     <components>
       <component name="atm">
@@ -87,24 +138,16 @@
     </za>
     <reset_modules>
       <module>module purge</module>
-      <module>module load ncarenv/1.2</module>
-      <module>module load intel/17.0.1</module>
-      <module>module load ncarcompilers/0.4.1</module>
-      <module>module load mpt/2.15f</module>
-      <module>module load python/2.7.13</module>
     </reset_modules>
     <modules>
-      <module>module load numpy/1.12.0</module>
-      <module>module load scipy/0.18.1</module>
-      <module>module load mpi4py/2.0.0-mpt</module>
-      <module>module load pynio/1.4.1</module>
-      <module>module load matplotlib/2.0.0</module>
-      <module>module load netcdf/4.4.1.1</module>
-      <module>module load nco/4.6.2</module>
-      <module>module load netcdf4-python/1.2.7</module>
-      <module>module load cf_units/1.1.3</module>
+      <module>module load python/2.7.14</module>
+      <module>module load intel/17.0.1</module>
+      <module>module load ncarenv</module>
+      <module>module load ncarcompilers</module>
+      <module>module load mpt/2.15f</module>
+      <module>module load netcdf/4.6.1</module>
+      <module>module load nco/4.7.4</module>
       <module>module load ncl/6.4.0</module>
-      <module>module load pyngl/1.5.0b</module>
     </modules>
     <components>
       <component name="atm">

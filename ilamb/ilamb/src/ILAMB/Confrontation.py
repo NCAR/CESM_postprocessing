@@ -383,12 +383,6 @@ class Confrontation(object):
                 vabs =  max(abs(limits[pname]["min"]),abs(limits[pname]["min"]))
                 limits[pname]["min"] = -vabs
                 limits[pname]["max"] =  vabs
-
-            # if a score, force to be [0,1]
-            if "score" in pname:
-                limits[pname]["min"] = 0
-                limits[pname]["max"] = 1
-
             limits[pname]["cmap"] = opts["cmap"]
             if limits[pname]["cmap"] == "choose": limits[pname]["cmap"] = self.cmap
 
@@ -1007,11 +1001,21 @@ class Confrontation(object):
                                "benchmark_rel_%s"            % ind_name,
                                "Benchmark_RNAME_rel_%s.png"  % ind_name,
                                legend    = False,
+                               short_name,
+                               "MNAME_RNAME_%s.png" % (short_name),
+                               legend = False,
+                page.addFigure(c.longname,
+                               "rel_%s"                      % ind_name,
+                               "MNAME_RNAME_rel_%s.png"      % ind_name,
+                               legend    = False,
                                benchmark = False)
                 page.addFigure(c.longname,
                                "rel_%s"                      % ind_name,
                                "MNAME_RNAME_rel_%s.png"      % ind_name,
                                legend    = False,
+                               short_name,
+                               "MNAME_RNAME_%s.png" % (short_name),
+                               legend = False,
                                benchmark = False)
                 page.addFigure(c.longname,
                                "rel_diff_%s"                 % ind_name,
@@ -1072,8 +1076,84 @@ class Confrontation(object):
                                  data = score).toNetCDF4(results,group="Relationships")
                     
 
-                    
+                page.addFigure(c.longname,
+                               "rel_func_%s"                 % ind_name,
+                               "MNAME_RNAME_rel_func_%s.png" % ind_name,
+                               legend    = False,
+                               benchmark = False)
+                
+                # Analysis over regions
+                lim_dep  = [dep_min,dep_max]
+                lim_ind  = [ind_min,ind_max]
+                longname = c.longname.split('/')[0]
+                for region in self.regions:
+                    ref_dist = _buildDistributionResponse(ref_ind,ref_dep,ind_lim=lim_ind,dep_lim=lim_dep,region=region)
+                    com_dist = _buildDistributionResponse(com_ind,com_dep,ind_lim=lim_ind,dep_lim=lim_dep,region=region)
+
+                    # Make the plots
+                    _plotDistribution(ref_dist[0],ref_dist[1],ref_dist[2],
+                                      "%s/%s,  %s" % (ind_name,   c.name,post.UnitStringToMatplotlib(ref_ind.unit)),
+                                      "%s/%s,  %s" % (dep_name,self.name,post.UnitStringToMatplotlib(ref_dep.unit)),
+                                      os.path.join(self.output_path,"%s_%s_rel_%s.png" % ("Benchmark",region,ind_name)))
+                    _plotDistribution(com_dist[0],com_dist[1],com_dist[2],
+                                      "%s/%s,  %s" % (ind_name,m.name,post.UnitStringToMatplotlib(com_ind.unit)),
+                                      "%s/%s,  %s" % (dep_name,m.name,post.UnitStringToMatplotlib(com_dep.unit)),
+                                      os.path.join(self.output_path,"%s_%s_rel_%s.png" % (m.name,region,ind_name)))
+                    _plotDifference  (ref_dist[0],com_dist[0],ref_dist[1],ref_dist[2],
+                                      "%s/%s,  %s" % (ind_name,m.name,post.UnitStringToMatplotlib(com_ind.unit)),
+                                      "%s/%s,  %s" % (dep_name,m.name,post.UnitStringToMatplotlib(com_dep.unit)),
+                                      os.path.join(self.output_path,"%s_%s_rel_diff_%s.png" % (m.name,region,ind_name)))
+                    _plotFunction    (ref_dist[3],ref_dist[4],com_dist[3],com_dist[4],ref_dist[1],ref_dist[2],
+                                      "%s,  %s" % (ind_name,post.UnitStringToMatplotlib(com_ind.unit)),
+                                      "%s,  %s" % (dep_name,post.UnitStringToMatplotlib(com_dep.unit)),
+                                      m.color,
+                                      os.path.join(self.output_path,"%s_%s_rel_func_%s.png" % (m.name,region,ind_name)))
             
+                    # Score the distribution
+                    score = _scoreDistribution(ref_dist[0],com_dist[0])
+                    sname = "%s Hellinger Distance %s" % (longname,region)
+                    if sname in scalars.variables:
+                        scalars.variables[sname][0] = score
+                    else:
+                        Variable(name = sname,
+                                 unit = "1",
+                                 data = score).toNetCDF4(results,group="Relationships")
+
+                    # Score the functional response
+                    score = _scoreFunction(ref_dist[3],com_dist[3])
+                    sname = "%s RMSE Score %s" % (longname,region)
+                    if sname in scalars.variables:
+                        scalars.variables[sname][0] = score
+                    else:
+                        Variable(name = sname,
+                                 unit = "1",
+                                 data = score).toNetCDF4(results,group="Relationships")
+                    
+                # score the relationship
+                i0,i1 = np.where(np.abs(obs_x[:,np.newaxis]-mod_x)<1e-12)
+                obs_y = obs_y[i0]; mod_y = mod_y[i1]
+                isnan = np.isnan(obs_y)*np.isnan(mod_y)
+                obs_y[isnan] = 0.; mod_y[isnan] = 0.
+                score = np.exp(-np.linalg.norm(obs_y-mod_y)/np.linalg.norm(obs_y))
+                vname = '%s RMSE Score %s' % (c.longname.split('/')[0],region)
+                if vname in scalars.variables:
+                    scalars.variables[vname][0] = score
+                else:
+                    Variable(name = vname, 
+                             unit = "1",
+                             data = score).toNetCDF4(results,group="Relationships")
+
+                # score the relationship
+                i0,i1 = np.where(np.abs(obs_x[:,np.newaxis]-mod_x)<1e-12)
+                score = np.exp(-np.linalg.norm(obs_y[i0]-mod_y[i1])/np.linalg.norm(obs_y[i0]))
+                vname = '%s RMSE Score %s' % (c.longname.split('/')[0],region)
+                if vname in scalars.variables:
+                    scalars.variables[vname][0] = score
+                else:
+                    Variable(name = vname, 
+                             unit = "1",
+                             data = score).toNetCDF4(results,group="Relationships")
+
 
 class FileContextManager():
 

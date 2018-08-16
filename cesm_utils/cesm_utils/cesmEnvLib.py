@@ -203,6 +203,8 @@ def get_hostname():
     index = hostname.find(".")
     if index > 0:
         hostname = hostname[0:index]
+    else:
+        hostname = re.split('(\d+)',hostname)[0]
 
     return hostname
 
