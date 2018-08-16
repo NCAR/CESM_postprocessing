@@ -3,7 +3,7 @@ from Regions import Regions
 from mpl_toolkits.basemap import Basemap
 import matplotlib.colors as colors
 from pylab import get_cmap
-from cfunits import Units
+from cf_units import Unit
 import ilamblib as il
 import Post as post
 import numpy as np
@@ -220,6 +220,17 @@ class Variable:
             
         return s
 
+    def nbytes(self):
+        r"""Estimate the memory usage of a variable in bytes.
+        """
+        nbytes = 0.
+        for key in self.__dict__.keys():
+            try:
+                nbytes += self.__dict__[key].nbytes
+            except:
+                pass
+        return nbytes
+
     def integrateInTime(self,**keywords):
         r"""Integrates the variable over a given time period.
 
@@ -286,7 +297,7 @@ class Variable:
         integral = np.ma.masked_array(integral,mask=mask,copy=False)
         
         # handle units
-        unit = Units(self.unit)
+        unit = Unit(self.unit)
         name = self.name + "_integrated_over_time"
         
         if mean:
@@ -300,18 +311,18 @@ class Variable:
             else:
                 dt = dt.sum(axis=0)   
             np.seterr(over='ignore',under='ignore')
-            integral /= dt
+            integral = integral / dt
             np.seterr(over='raise' ,under='raise' )
             
         else:
 
             # if not a mean, we need to potentially handle unit conversions
-            unit0    = Units("d")*unit
-            unit     = Units(unit0.formatted().split()[-1])
-            integral = Units.conform(integral,unit0,unit)
+            unit0    = Unit("d")*unit
+            unit     = Unit(unit0.format().split()[-1])
+            integral = unit0.convert(integral,unit)
         
         return Variable(data       = integral,
-                        unit       = unit.units,
+                        unit       = "%s" % unit,
                         name       = name,
                         lat        = self.lat,
                         lat_bnds   = self.lat_bnds,
@@ -403,7 +414,7 @@ class Variable:
         integral = np.ma.masked_array(integral,mask=mask,copy=False)
         
         # handle units
-        unit = Units(self.unit)
+        unit = Unit(self.unit)
         name = self.name + "_integrated_over_depth"
         
         if mean:
@@ -417,18 +428,18 @@ class Variable:
             else:
                 dz = dz.sum(axis=axis)   
             np.seterr(over='ignore',under='ignore')
-            integral /= dz
+            integral = integral / dz
             np.seterr(over='raise' ,under='raise' )
             
         else:
 
             # if not a mean, we need to potentially handle unit conversions
-            unit0    = Units("m")*unit
-            unit     = Units(unit0.formatted().split()[-1])
-            integral = Units.conform(integral,unit0,unit)
+            unit0    = Unit("m")*unit
+            unit     = Unit(unit0.format().split()[-1])
+            integral = unit0.convert(integral,unit)
         
         return Variable(data       = integral,
-                        unit       = unit.units,
+                        unit       = "%s" % unit,
                         name       = name,
                         time       = self.time,
                         time_bnds  = self.time_bnds,
@@ -521,13 +532,13 @@ class Variable:
         integral = _integrate(self.data,measure)
         if mean:
             np.seterr(under='ignore')
-            integral /= measure.sum()
+            integral = integral / measure.sum()
             np.seterr(under='raise')
 
         # handle the name and unit
         name = self.name + "_integrated_over_space"
         if region is not None: name = name.replace("space",region)            
-        unit = Units(self.unit)
+        unit = Unit(self.unit)
         if mean:
             
             # we have already divided thru by the non-masked area in
@@ -536,12 +547,12 @@ class Variable:
         else:
             
             # if not a mean, we need to potentially handle unit conversions
-            unit0    = Units("m2")*unit
-            unit     = Units(unit0.formatted().split()[-1])
-            integral = Units.conform(integral,unit0,unit)
+            unit0    = Unit("m2")*unit
+            unit     = Unit(unit0.format().split()[-1])
+            integral = unit0.convert(integral,unit)
             
         return Variable(data       = np.ma.masked_array(integral),
-                        unit       = unit.units,
+                        unit       = "%s" % unit,
                         time       = self.time,
                         time_bnds  = self.time_bnds,
                         depth      = self.depth,
@@ -710,7 +721,7 @@ class Variable:
             bnds[0]    = max(x[0] -0.5*(x[ 1]-x[ 0]),-180)
             bnds[-1]   = min(x[-1]+0.5*(x[-1]-x[-2]),+180)
             return bnds
-        assert Units(var.unit) == Units(self.unit)
+        assert Unit(var.unit) == Unit(self.unit)
         assert self.temporal == False
         assert self.ndata    == var.ndata
         assert self.layered  == False
@@ -752,7 +763,7 @@ class Variable:
     def convert(self,unit,density=998.2):
         """Convert the variable to a given unit.
 
-        We use the UDUNITS library via the cfunits python interface to
+        We use the UDUNITS library via the cf_units python interface to
         convert the variable's unit. Additional support is provided
         for unit conversions in which substance information is
         required. For example, in quantities such as precipitation it
@@ -777,53 +788,53 @@ class Variable:
             this object with its unit converted
 
         """
-        src_unit  = Units(self.unit)
-        tar_unit  = Units(     unit)
+        if unit is None: return self
+        src_unit  = Unit(self.unit)
+        tar_unit  = Unit(     unit)
         mask      = self.data.mask
 
         # Define some generic quantities
-        linear            = Units("m")
-        linear_rate       = Units("m s-1")
-        area_density      = Units("kg m-2")
-        area_density_rate = Units("kg m-2 s-1")
-        mass_density      = Units("kg m-3")
-        volume_conc       = Units("mol m-3")
-        mass_conc         = Units("mol kg-1")
+        linear            = Unit("m")
+        linear_rate       = Unit("m s-1")
+        area_density      = Unit("kg m-2")
+        area_density_rate = Unit("kg m-2 s-1")
+        mass_density      = Unit("kg m-3")
+        volume_conc       = Unit("mol m-3")
+        mass_conc         = Unit("mol kg-1")
 
-        # cfunits doesn't handle frequently found temperature expressions
+        # UDUNITS doesn't handle frequently found temperature expressions
         synonyms = {"K":"degK",
                     "R":"degR",
                     "C":"degC",
                     "F":"degF"}
         for syn in synonyms.keys():
-            if src_unit.units == syn: src_unit = Units(synonyms[syn])
-            if tar_unit.units == syn: tar_unit = Units(synonyms[syn])
+            if src_unit.format() == syn: src_unit = Unit(synonyms[syn])
+            if tar_unit.format() == syn: tar_unit = Unit(synonyms[syn])
         
         # Do we need to multiply by density?
-        if ( (src_unit.equivalent(linear_rate) and tar_unit.equivalent(area_density_rate)) or
-             (src_unit.equivalent(linear     ) and tar_unit.equivalent(area_density     )) or
-             (src_unit.equivalent(mass_conc  ) and tar_unit.equivalent(volume_conc      )) ):
+        if ( (src_unit.is_convertible(linear_rate) and tar_unit.is_convertible(area_density_rate)) or
+             (src_unit.is_convertible(linear     ) and tar_unit.is_convertible(area_density     )) or
+             (src_unit.is_convertible(mass_conc  ) and tar_unit.is_convertible(volume_conc      )) ):
             np.seterr(over='ignore',under='ignore')
             self.data *= density
             np.seterr(over='raise',under='raise')
             src_unit *= mass_density
             
         # Do we need to divide by density?
-        if ( (tar_unit.equivalent(linear_rate) and src_unit.equivalent(area_density_rate)) or
-             (tar_unit.equivalent(linear     ) and src_unit.equivalent(area_density     )) or
-             (tar_unit.equivalent(mass_conc  ) and src_unit.equivalent(volume_conc      )) ):
+        if ( (tar_unit.is_convertible(linear_rate) and src_unit.is_convertible(area_density_rate)) or
+             (tar_unit.is_convertible(linear     ) and src_unit.is_convertible(area_density     )) or
+             (tar_unit.is_convertible(mass_conc  ) and src_unit.is_convertible(volume_conc      )) ):
             np.seterr(over='ignore',under='ignore')
-            self.data /= density
+            self.data = self.data / density
             np.seterr(over='raise',under='raise')
-            src_unit /= mass_density
+            src_unit = src_unit / mass_density
             
         # Convert units
         try:
-            self.data = Units.conform(self.data,src_unit,tar_unit)
+            self.data = src_unit.convert(self.data,tar_unit)
             self.data = np.ma.masked_array(self.data,mask=mask)
             self.unit = unit
         except:
-            print "var_name = %s, src_unit = %s, target_unit = %s " % (self.name,src_unit,tar_unit)
             raise il.UnitConversionError()
         return self
     
@@ -1599,7 +1610,7 @@ class Variable:
             R0    = 1.0
             std0  = std0.clip(1e-12)
             std   = std .clip(1e-12)
-            std  /= std0
+            std   = std/std0
             score = 4.0*(1.0+R.data)/((std+1.0/std)**2 *(1.0+R0))
         except:
             std   = np.asarray([0.0])
