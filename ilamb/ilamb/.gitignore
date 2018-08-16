@@ -1,0 +1,15 @@
+.gitignore
+RDict.db
+RDict.log
+*.pyc
+*~
+*.orig
+#*#
+*#
+*.DS_Store
+*build*
+*graveyard*
+*.egg-info
+dist
+*_generated*
+src/ILAMB/generated_version.py
