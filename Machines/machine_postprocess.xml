@@ -144,7 +144,7 @@
       <module>module load intel/17.0.1</module>
       <module>module load ncarenv</module>
       <module>module load ncarcompilers</module>
-      <module>module load impi</module>
+      <module>module load mpt/2.15f</module>
       <module>module load netcdf/4.6.1</module>
       <module>module load nco/4.7.4</module>
       <module>module load ncl/6.4.0</module>
