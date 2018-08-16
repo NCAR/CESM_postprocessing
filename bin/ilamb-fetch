@@ -1,0 +1,97 @@
+#!/usr/bin/env python
+import hashlib,argparse,os,sys,urllib
+
+def BuildDirectories(filepath):
+    d = os.path.dirname(filepath)
+    if not os.path.isdir(d):
+        os.makedirs(d)
+        
+def filehash(filepath):
+    blocksize = 64*1024
+    sha = hashlib.sha1()
+    with open(filepath, 'rb') as fp:
+        while True:
+            data = fp.read(blocksize)
+            if not data:
+                break
+            sha.update(data)
+    return sha.hexdigest()
+
+def GenerateSha1sumFile(root,suffix=".nc"):
+    
+    lines = ""
+    for topdir, dirs, files in os.walk(root):
+        for fpath in [os.path.join(topdir, f) for f in files]:
+            if not fpath.endswith(suffix): continue
+            size = os.path.getsize(fpath)
+            sha = filehash(fpath)
+            name = os.path.relpath(fpath, root)
+            lines += '%s  %s\n' % (sha,name)
+    return lines
+
+def CheckSha1sumFile(sha1sumfile,root):
+
+    needs_updating = []
+    with file(sha1sumfile) as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.split()
+            sha1sum,filename = line
+            fpath = os.path.join(root,filename)
+            if os.path.isfile(fpath):
+                if sha1sum != filehash(fpath): needs_updating.append(filename)
+            else:
+                needs_updating.append(filename)
+    return needs_updating
+    
+# default value is ILAMB_ROOT if set
+local_root = "./"
+if os.environ.has_key("ILAMB_ROOT"): local_root = os.environ["ILAMB_ROOT"]
+
+# parse options
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--local_root', dest="local_root", metavar="PATH", type=str, default=local_root,
+                    help='Location on your system.')
+parser.add_argument('--remote_root', dest="remote_root", metavar="PATH", type=str, default="http://ilamb.ornl.gov/ILAMB-Data/",
+                    help='Location on the remote system.')
+parser.add_argument('-c', '--create', dest="create", action="store_true",
+                    help='Enable to create a sha1sum check file of the contents of the local root')
+args = parser.parse_args()
+
+# use create mode if you want to make a checksum file of a directory
+if args.create:
+    f = file(args.local_root + "/SHA1SUM",mode="w")
+    f.write(GenerateSha1sumFile(args.local_root))
+    f.close()
+    sys.exit()
+
+print "\nComparing remote location:\n\n\t%s\n\nTo local location:\n\n\t%s" % (args.remote_root,args.local_root)
+
+# download and build the sha1sum check files
+urllib.urlretrieve(args.remote_root + "/SHA1SUM",
+                   args.local_root  + "/SHA1SUM")
+if "404 Not Found" in file(args.local_root  + "/SHA1SUM").read():
+    raise ValueError("Could not find the sha1 sum file: %s" % (args.remote_root + "/SHA1SUM"))
+needs_updating = CheckSha1sumFile(args.local_root  + "/SHA1SUM",args.local_root)
+
+if len(needs_updating) == 0:
+    print "\nAll your data is up-to-date and clean.\n"
+    os.system("rm -f " + args.local_root  + "/SHA1SUM")
+    sys.exit()
+
+print "\nI found the following files which are missing, out of date, or corrupt:\n"
+for key in needs_updating:
+    print "\t%s/%s" % (args.local_root,key)
+    
+reply = str(raw_input('\nDownload replacements? [y/n] ')).lower().strip()
+if reply[0] == 'y':
+    print " "
+    for key in needs_updating:
+        print "\tDownloading %s/%s..." % (args.remote_root,key)
+        BuildDirectories(args.local_root  + "/" + key)
+        urllib.urlretrieve(args.remote_root + "/" + key,
+                           args.local_root  + "/" + key)
+    print "\nDownload complete. Rerun ilamb-fetch to check file integrity.\n"
+    
+os.system("rm -f " + args.local_root  + "/SHA1SUM")
+
