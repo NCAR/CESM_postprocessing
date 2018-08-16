@@ -266,7 +266,6 @@ class ModelResult():
 
         """      
         from sympy import sympify
-        from cfunits import Units
         if expression is None: raise il.VarNotInModel()
         args  = {}
         units = {}

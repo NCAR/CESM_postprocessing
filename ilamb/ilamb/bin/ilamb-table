@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+"""
+"""
+from ILAMB.Scoreboard import Scoreboard
+from netCDF4 import Dataset
+import os,argparse,sys
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--config', dest="config", metavar='config', type=str, nargs=1,
+                    help='path to configuration file to use')
+parser.add_argument('--build_dir', dest="build_dir", metavar='build_dir', type=str, nargs=1,default=["./_build"],
+                    help='path of where to save the output')
+parser.add_argument('--csv_file', dest="csv", metavar='csv', type=str, nargs=1,default=["table.csv"],
+                    help='destination filename for the table')
+
+args = parser.parse_args()
+if args.config is None:
+    print "\nError: You must specify a configuration file using the option --config\n"
+    sys.exit(1)
+    
+S = Scoreboard(args.config[0],verbose=False,build_dir=args.build_dir[0])
+
+region = "global"
+scalar = "RMSE"
+sname  = "%s %s" % (scalar,region)
+group  = "MeanState"
+table  = {}
+unit   = {}
+for c in S.list():
+    for subdir, dirs, files in os.walk(c.output_path):
+        for fname in files:
+            if not fname.endswith(".nc"): continue
+            with Dataset(os.path.join(c.output_path,fname)) as dset:                
+                if group     not in dset.groups              .keys(): continue
+                if "scalars" not in dset.groups[group].groups.keys(): continue
+                grp = dset.groups[group]["scalars"]
+                if sname     not in grp.variables.keys(): continue
+                var = grp.variables[sname]
+                if not table.has_key(c.longname):
+                    table[c.longname] = {}
+                    unit [c.longname] = var.units
+                table[c.longname][dset.name] = var[...]
+
+# What models have data?
+models = []
+for key in table.keys():
+    for m in table[key].keys():
+        if m not in models: models.append(m)
+models.sort()
+
+# render a table of values in csv format
+lines = ",".join(["Name","Units"] + models)
+for c in S.list():
+    if not table.has_key(c.longname): continue
+    line = "%s,%s" % (c.longname,unit[c.longname])
+    for m in models:
+        if table[c.longname].has_key(m):
+            line += ",%g" % (table[c.longname][m])
+        else:
+            line += ","
+    lines += "\n%s" % line
+
+with file(args.csv[0],mode="w") as f:
+    f.write(lines)
+
