@@ -312,7 +312,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         case_prefix = '{0}.pop.h'.format(case)
     elif ocn_comp == "MOM":
         avgFileBaseName = '{0}/{1}.mom6.h'.format(tavgdir,case)
-        case_prefix = '{0}.mom6.h._'.format(case)
+        case_prefix = '{0}.mom6.h_'.format(case)
     else:
         raise SystemExit("ERROR: invalid OCN_COMP")
     averageList = []
@@ -498,8 +498,8 @@ def main(options, main_comm, debugMsg):
             suffix = 'pop.h.*.nc'
             file_pattern = '.*\.pop\.h\.\d{4,4}-\d{2,2}\.nc'
         elif ocn_comp == "MOM":
-            suffix = 'mom6.h._*.nc'
-            file_pattern = '.*\.mom6.h._\d{4,4}_\d{2,2}.*nc'
+            suffix = 'mom6.h_*.nc'
+            file_pattern = '.*\.mom6.h_\d{4,4}_\d{2,2}.*nc'
         else:
             raise SystemExit("ERROR: invalid OCN_COMP")
         start_year, stop_year, in_dir, htype, firstHistoryFile = diagUtilsLib.checkHistoryFiles(
