@@ -58,7 +58,7 @@ try:
 except KeyError:
     err_msg = ('create_postprocess ERROR: please set the POSTPROCESS_PATH environment variable.' \
                ' For example on cheyenne: setenv POSTPROCESS_PATH /glade/p/cesm/postprocessing_ch' \
-               ' In addition, for DAV support: setenv POSTPROCESS_PATH_DAV /glade/p/cesm/postprocessing_dav')
+               ' In addition, for NCAR DAV support use the --add-dav command line option.')
     raise OSError(err_msg)
 
 cesm_pp_path = os.environ["POSTPROCESS_PATH"]
@@ -129,6 +129,18 @@ def commandline_options():
 
     parser.add_argument('-username', '--username', nargs=1, required=False,
                         help='User name (optional). Defaults to user login name.')
+
+    parser.add_argument('-add-dav', '--add-dav', dest='add_dav', nargs=1, required=False,
+                        help='Fully qualified path to the root of the CESM postprocessing ' \
+                        'virtualenv for the NCAR DAV cluster. This option sets the XML ' \
+                        'variable POSTPROCESS_PATH_DAV in env_postprocess.xml and ' \
+                        'creates all the necessary postprocessing batch scripts for the ' \
+                        'NCAR DAV Slurm manager. This option is only available when create_postprocess ' \
+                        'is run on NCAR machine cheyenne. A set of batch submission scripts in the ' \
+                        'postprocessing caseroot with the "_dav" extension are included along side '\
+                        'the cheyenne PBS submission scripts. '\
+                        'Example: /glade/p/cesm/postprocessing_dav. '\
+                        'Defaults to "undefined". (optional)')
 
     options = parser.parse_args()
         
@@ -577,6 +589,13 @@ def initialize_main(envDict, options, standalone):
     if options.username:
         envDict['USER_NAME'] = options.username[0]
 
+    # set the POSTPROCESS_PATH_DAV if option add-dav is specified
+    envDict['POSTPROCESS_PATH_DAV'] = 'undefined'
+    if options.add_dav:
+        # check to make sure virtualenv exists
+        if os.path.isfile('{0}/cesm-env2/bin/activate_this.py'.format(options.add_dav[0])):
+            envDict['POSTPROCESS_PATH_DAV'] = options.add_dav[0]
+
     return envDict
 
 # -------------------------------------------------------------------------------
@@ -619,15 +638,6 @@ def main(options):
     # check for undefined machine
     if not envDict['MACH']:
         raise OSError('create_postprocess ERROR: hostname "{0}" is not currently supported. Exiting...'.format(hostname))
-
-    # check if env POSTPROCESS_PATH_DAV needs to be set
-    if (envDict['MACH'] == 'cheyenne' or envDict['MACH'] == 'dav'):
-        try:
-            envDict["POSTPROCESS_PATH_DAV"] = os.environ["POSTPROCESS_PATH_DAV"]
-        except KeyError:
-            err_msg = ('create_postprocess ERROR: please set the POSTPROCESS_PATH_DAV environment variable.' \
-                       ' For example, setenv POSTPROCESS_PATH_DAV /glade/p/cesm/postprocessing_dav')
-            raise OSError(err_msg)
 
     # make the appropriate dirs in the caseroot
     try:
@@ -888,10 +898,10 @@ def main(options):
                      imb_options='{{ imb_options }}')
         
     # check if machine is cheyenne then create a set of dav submission scripts
-    if envDict['MACH'] == 'cheyenne':
+    if envDict['MACH'] == 'cheyenne' and envDict['POSTPROCESS_PATH_DAV'] != 'undefined':
         hostname = 'dav'
         envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
-        pp_dav = os.environ["POSTPROCESS_PATH_DAV"]
+        pp_dav = envDict["POSTPROCESS_PATH_DAV"]
 
         # get the machine dependent variables, modules and mpi run command in a dictionary
         machine = dict()
