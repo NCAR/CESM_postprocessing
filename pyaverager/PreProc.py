@@ -18,34 +18,6 @@ class PreProc(object):
         self.create_pre_proc(spec)
 
 
-    def read_obs(self,obs_file,tarea,tlong,tlat):
-
-        '''
-        Read in the ice observation file to get area, lat, and lon values.
-    
-        @param obs_file   The observation file to pull values from.
-
-        @param tarea      The variable name for tarea.
-
-        @param tlong      The variable name for tlong.
-
-        @param tlat       The vaiable name for tlat.
-
-        @return lat       A pointer to lat.
-
-        @return lon       A pointer to lon.
-
-        @reutrn area      The values for area.
-
-        '''
-        
-	file_hndl = Nio.open_file(obs_file,'r')
-	lat = file_hndl.variables[tlat]
-	lon = file_hndl.variables[tlong]
-	area = file_hndl.variables[tarea]
-        area = area[:]*1.0e-4     
-	return lat,lon,area
-
     def read_reg_mask(self,reg_file,reg_name):
 
         '''
@@ -197,7 +169,13 @@ class PreProc(object):
                 tarea = 'TAREA'
                 tlong = 'TLONG'
                 tlat = 'TLAT'
-                o_lat,o_lon,o_area = self.read_obs(obs_file,tarea,tlong,tlat)
+
+                # Read in the ice observation file to get area, lat, and lon values.
+                obs_file_hndl = Nio.open_file(obs_file,'r')
+                o_lat = obs_file_hndl.variables[tlat]
+                o_lon = obs_file_hndl.variables[tlong]
+                o_area = obs_file_hndl.variables[tarea]
+                o_area = o_area[:]*1.0e-4
 
 		# If using time series files, open the variable's file now
 		if (spec.hist_type == 'series'):
