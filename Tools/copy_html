@@ -112,6 +112,15 @@ def commandline_options():
     parser.add_argument('-debug', '--debug', nargs=1, required=False, type=int, default=0,
                         help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
+    parser.add_argument('--use-ssh-key', dest='use_ssh_key', action='store_true',
+                        help='Use a ssh key to connect to the remove web host defined by '\
+                        'XML variables "GLOBAL_WEBHOST" and "GLOBAL_WEBLOGIN". '\
+                        'If a ssh key is not present, then this option will cause '\
+                        'execution to stop as opposed to issuing a warning '\
+                        'and prompting for a password multiple times. '\
+                        'More details about how to create ssh keys is available at '\
+                        '"http://tools.cgd.ucar.edu/make_user_ssh_keys/index.html"')
+
     options = parser.parse_args()
         
     return options
@@ -197,7 +206,7 @@ def get_years(env, comp):
 #=======================================================================
 # check_ssh_key
 #=======================================================================
-def check_ssh_key(env):
+def check_ssh_key(env, use_ssh_key):
 
     # check if ssh key is set for passwordless access to the web host
     try:
@@ -205,8 +214,12 @@ def check_ssh_key(env):
                                  stderr=subprocess.STDOUT,
                                  shell=True)
     except subprocess.CalledProcessError as e:
-        print('WARNING: unable to connect to remote web host {0}@{1} without a password'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST']))
-        print('    You will be prompted for a password multiple times in order to copy the files.')
+        if use_ssh_key:
+            print('ERROR: unable to connect to remote web host {0}@{1} without a password'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST']))
+            sys.exit(1)
+        else:
+            print('WARNING: unable to connect to remote web host {0}@{1} without a password'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST']))
+            print('    You will be prompted for a password multiple times in order to copy the files.')
 
 
 #=======================================================================
@@ -559,8 +572,8 @@ def main(options):
     # load the env with all the env file entries
     env = cesmEnvLib.readXML(pp_caseroot, envFileList)
 
-    # check if sshkey is set
-    check_ssh_key(env)
+    # check if ssh key is set
+    check_ssh_key(env, options.use_ssh_key)
 
     # copy the different diag component web files
     for comp in compList:
