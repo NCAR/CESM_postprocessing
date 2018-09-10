@@ -13,6 +13,10 @@ from mpi4py import MPI
 import numpy as np
 import datetime,glob
 
+import pylab as plt
+from ILAMB.Post import RegisterCustomColormaps
+if "stoplight" not in plt.colormaps(): RegisterCustomColormaps()
+
 # MPI stuff
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
