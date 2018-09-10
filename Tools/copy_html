@@ -17,15 +17,9 @@ if sys.hexversion < 0x02070000:
 # built-in modules
 #
 import argparse
-import collections
-import datetime
 import errno
 import glob
 import os
-import platform
-import pprint
-import re
-import shutil
 import subprocess
 import traceback
 
@@ -55,9 +49,6 @@ if hasattr(sys, 'real_prefix'):
     try:
         import cesm_utils
     except:
-        #
-        # activate the virtual environment that was created by create_python_env.sh
-        #
         activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
         if not os.path.isfile(activate_file):
             err_msg = ('copy_html ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
@@ -69,9 +60,6 @@ if hasattr(sys, 'real_prefix'):
         except:
             raise OSError('copy_html ERROR: Unable to activate python virtualenv {0}'.format(activate_file))
 else:
-    #
-    # activate the virtual environment that was created by create_python_env.sh
-    #
     activate_file = '{0}/cesm-env2/bin/activate_this.py'.format(postprocess_path)
     if not os.path.isfile(activate_file):
              err_msg = ('copy_html ERROR: the virtual environment in {0} does not exist.'.format(postprocess_path) \
@@ -88,9 +76,6 @@ if sys.version_info[0] == 2:
 else:
     from configparser import ConfigParser as config_parser
 
-#
-# import modules installed in the virtual environment
-#
 from cesm_utils import cesmEnvLib
 import jinja2
 
@@ -229,22 +214,12 @@ def create_top_level(env, comp):
 
     # make sure top level remote directory exists
     try:
-        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}/{3}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp)], env=env, shell=True)
+        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}/{3}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp)], shell=True)
         pipe.wait()
-    except OSEerror as e:
+    except Exception as e:
         print('ERROR: unable to create remote directory {0}@{1}:{2}/{3}'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp))
         print('    {0} - {1}'.format(e.errno, e.strerror))
         sys.exit(1)
-
-    # create the logos subdir
-    try:
-        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}/logos'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'])], env=env, shell=True)
-        pipe.wait()
-    except OSEerror as e:
-        print('ERROR: unable to create remote directory {0}@{1}:{2}/logos'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR']))
-        print('    {0} - {1}'.format(e.errno, e.strerror))
-        sys.exit(1)
-
 
 #=======================================================================
 # scp_files - scp files to a remote server
@@ -252,10 +227,10 @@ def create_top_level(env, comp):
 def scp_files(env, local, remote):
 
     try:
-        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(local, remote)], env=env, shell=True)
+        pipe = subprocess.Popen( ['scp -r {0} {1}'.format(local, remote)], shell=True)
         pipe.wait()
         return True
-    except OSError as e:
+    except Exception as e:
         print('copy_html WARNING: scp command failed with error:')
         print('    {0} - {1}'.format(e.errno, e.strerror))
         return False
@@ -280,7 +255,12 @@ def read_paths(env, comp_data):
                 for line in lines:
                     values = line.split(':')
                     if 'copied' not in values[-1].lower():
-                        env[values[-2]] = values[-1]
+                        if values[-2] not in env.keys():
+                            env[values[-2]] = [values[-1]]
+                        else:
+                            env[values[-2]].append(values[-1])
+                    else:
+                        env[values[-2]] = []
     return env
 
 
@@ -331,9 +311,10 @@ def copy_files(env, comp, comp_data):
     if comp != 'ocn':
         for diag_type, key in comp_data.iteritems():
             # check if the diag_type key string that points to the local webdir is empty or not
-            if key in env:
-                if len(env[key]) > 0:
-                    local = env[key]
+            if key in env.keys():
+                for diag_dir in env[key]:
+                    if len(diag_dir) > 0:
+                        local = diag_dir
                     if not os.path.isdir(local):
                         print('copy_html WARNING: local directory = {0} does not exists.'.format(local))
                     else:
@@ -343,202 +324,55 @@ def copy_files(env, comp, comp_data):
                             print('     You will need to copy the files manually')
     else:
         # ocean need to create a tar file first
-        if os.path.isdir(env['OCNDIAG_WEBDIR']):
-            ok_to_copy = True
-            rootdir, workdir = os.path.split(env['OCNDIAG_WEBDIR'])
+        for diag_dir in env['OCNDIAG_WEBDIR']:
+            if os.path.isdir(diag_dir):
+                ok_to_copy = True
+                rootdir, workdir = os.path.split(diag_dir)
 
-            # fix for when there is a / at the end of the path
-            if len(workdir) == 0:
-                rootdir, workdir = os.path.split(rootdir)
+                # fix for when there is a / at the end of the path
+                if len(workdir) == 0:
+                    rootdir, workdir = os.path.split(rootdir)
 
-            tarfile = 'ocn{0}-{1}.tar.gz'.format(env['OCNDIAG_YEAR0'], env['OCNDIAG_YEAR1'])
-            cwd = os.getcwd()
-            os.chdir(rootdir)
-            if os.path.isfile(os.path.join(rootdir,tarfile)):
-                print('copy_html WARNING: ocean tar file = {0} already exists - please delete first.'.format(os.path.join(rootdir,tarfile)))
-                ok_to_copy = False
-            else:
-                tar_cmd = "tar cvfz {0} --exclude='*.nc' --exclude='*.nc_tmp' --exclude='*.tmp' --exclude='*.log.*' --exclude='*.asc' --exclude='*.ncl' --exclude='*.dt.*' {1}".format(tarfile, workdir)
+                # parse the workdir for years
+                diag_parts = workdir.split('.')[-1].split('-')
+                year0 = diag_parts[0]
+                year1 = diag_parts[1]
+                
+                tarfile = 'ocn{0}-{1}.tar.gz'.format(year0, year1)
+                cwd = os.getcwd()
+                os.chdir(rootdir)
+                if os.path.isfile(os.path.join(rootdir,tarfile)):
+                    print('copy_html WARNING: ocean tar file = {0} already exists - please delete first.'.format(os.path.join(rootdir,tarfile)))
+                    ok_to_copy = False
+                else:
+                    tar_cmd = "tar cvfz {0} --exclude='*.nc' --exclude='*.nc_tmp' --exclude='*.tmp' --exclude='*.log.*' --exclude='*.asc' --exclude='*.ncl' --exclude='*.dt.*' {1}".format(tarfile, workdir)
                 try:
-                    pipe = subprocess.Popen([tar_cmd], env=env, shell=True)
+                    pipe = subprocess.Popen([tar_cmd], shell=True)
                     pipe.wait()
-                except OSError as e:
+                except Exception as e:
                     print('copy_html WARNING: unable to execute tar command {0}'.format(tar_cmd))
-                    print('    You will need to copy the files in {0} manually to a web server.'.format(env['OCNDIAG_WEBDIR']))
+                    print('    You will need to copy the files in {0} manually to a web server.'.format(diag_dir))
                     print('    {0} - {1}'.format(e.returncode, e.output))
                     ok_to_copy = False
-            if ok_to_copy:
-                if scp_files(env, tarfile, remote):
-                    # untar the file on remote server
-                    ok_to_remove = True
-                    try:
-                        pipe = subprocess.Popen(["ssh {0}@{1} 'cd {2}/{3} ; tar xvfz {4}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp,tarfile)], env=env, shell=True)
-                        pipe.wait()
-                    except OSError as e:
-                        print('copy_html WARNING: unable to untar file {0} on remote server {1}@{2}:{3}/{4}'.format(tarfile, env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp))
-                        print('   You will need to untar files manually')
-                        ok_to_remove = False
-                if ok_to_remove:
-                    # remove the tar file on the remote server
-                    try:
-                        pipe = subprocess.Popen(["ssh {0}@{1} 'cd {2}/{3} ; rm {4}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp,tarfile)], env=env, shell=True)
-                        pipe.wait()
-                    except OSError as e:
-                        print('copy_html WARNING: unable to remove tar file {0} on remote server {1}@{2}:{3}/{4}'.format(tarfile, env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp))
-            os.chdir(cwd)
-
-
-#=======================================================================
-# create a main index page and copy it over to the remote server top level
-#=======================================================================
-def create_index(env, compList, activeList, comp_lookup):
-    """ create a main index.html page """
-
-    comp_casenames = {'atm' : {'model':'ATMDIAG_test_casename', 'control':'ATMDIAG_cntl_casename'},
-                      'ice' : {'model':'ICEDIAG_CASE_TO_CONT', 'control':'ICEDIAG_CASE_TO_DIFF'},
-                      'lnd' : {'model':'LNDDIAG_caseid_1', 'control':'LNDDIAG_caseid_2'},
-                      'ocn' : {'model':'CASE', 'control':'OCNDIAG_CNTRLCASE'}}
-
-    diag_dict = dict()
-    comp_data = dict()
-    link_dict = dict()
-    ocn_link_dict = dict()
-
-    for comp in compList:
-        if comp in activeList:
-            # create a section for links to the active component
-            (model_start_year, model_stop_year, control_start_year, control_stop_year, \
-                trends_start_year1, trends_stop_year1, trends_start_year2, trends_stop_year2) = get_years(env, comp)
-            # load up the diag_dict to be passed to the template with the case names and years
-            comp_data = comp_casenames[comp]
-            model = env[comp_data['model']]
-            control = env[comp_data['control']]
-
-            # load the diag dict with template variables
-            diag_dict[comp] = {'model':model, 'model_start_year':model_start_year, 'model_stop_year':model_stop_year, \
-                                   'trends_start_year1':trends_start_year1, 'trends_stop_year1':trends_stop_year1, \
-                                   'control':control, 'control_start_year':control_start_year, 'control_stop_year':control_stop_year, \
-                                   'trends_start_year2':trends_start_year2, 'trends_stop_year2':trends_stop_year2}
-
-            # get the remote relative links
-            comp_data = comp_lookup[comp]
-            if comp in ['atm', 'lnd']:
-                for diag_type, key in comp_data.iteritems():
-                    if key in env:
-                        if len(env[key]) > 0:
-                            root, diag_path = os.path.split(env[key])
-                            # fix for when there is a / at the end of the path
-                            if len(diag_path) == 0:
-                                root, diag_path = os.path.split(root)
-                            local_diag_path = diag_path
-                            if comp == 'lnd':
-                                local_diag_path = '{0}/setsIndex.html'.format(diag_path)
-                            link_dict[diag_type] = local_diag_path
-                        else:
-                            link_dict[diag_type] = None
-                        diag_dict[comp].update(link_dict)
-
-            elif comp == 'ice':
-                for diag_type, key in comp_data.iteritems():
-                    if key in env:
-                        if len(env[key]) > 0:
-                            root, diag_path = os.path.split(env[key])
-                            # fix for when there is a / at the end of the path
-                            if len(diag_path) == 0:
-                                root, diag_path = os.path.split(root)
-                            local_diag_path = '{0}/yrs{1}-{2}/'.format(diag_path, env['ICEDIAG_BEGYR_CONT'], env['ICEDIAG_ENDYR_CONT'])
-                            link_dict[diag_type] = local_diag_path
-                        else:
-                            link_dict[diag_type] = None
-                        diag_dict[comp].update(link_dict)
-
-            elif comp == 'ocn':
-                ocn_diag_types = {'OCNDIAG_MODEL_VS_OBS':('MODEL_VS_OBS','{0} (years {1}-{2}) - Observations'.format(model, model_start_year, model_stop_year)), \
-                                      'OCNDIAG_MODEL_VS_OBS_ECOSYS':('MODEL_VS_OBS_ECOSYS','{0} (years {1}-{2}) - Observations w/ ecosystem'.format(model, model_start_year, model_stop_year)), \
-                                      'OCNDIAG_MODEL_VS_CONTROL':('MODEL_VS_CONTROL_{0}'.format(control),'{0} (years {1}-{2}) - {3} (years {4}-{5})'.format(model, model_start_year, model_stop_year, control, control_start_year, control_stop_year)), \
-                                      'OCNDIAG_MODEL_VS_CONTROL_ECOSYS':('MODEL_VS_CONTROL_ECOSYS_{0}'.format(control),'{0} (years {1}-{2}) - {3} (years {4}-{5}) w/ ecosystem'.format(model, model_start_year, model_stop_year, control, control_start_year, control_stop_year)), \
-                                      'OCNDIAG_MODEL_TIMESERIES':('MODEL_TIMESERIES','{0} Timeseries (years {1}-{2})'.format(model, trends_start_year1, trends_stop_year1)), \
-                                      'OCNDIAG_MODEL_TIMESERIES_ECOSYS':('MODEL_TIMESERIES_ECOSYS','{0} Timeseries w/ ecosystem (years {1}-{2})'.format(model, trends_start_year1, trends_stop_year1))}
-
-                for diag_type, key in comp_data.iteritems():
-                    if key in env:
-                        if len(env[key]) > 0:
-                            root, diag_path = os.path.split(env[key])
-                            # fix for when there is a / at the end of the path
-                            if len(diag_path) == 0:
-                                root, diag_path = os.path.split(root)
-                            for ocn_diag_type, link_list in ocn_diag_types.iteritems():
-                                if env[ocn_diag_type].upper() in ['T','TRUE']:
-                                    local_diag_path = '{0}/{1}'.format(diag_path, link_list[0])
-                                    ocn_link_dict[ocn_diag_type] = (local_diag_path, link_list[1])
-                                else:
-                                    ocn_link_dict[ocn_diag_type] = None
-                        else:
-                            ocn_link_dict[ocn_diag_type] = None
-                    
-    # create the jinja template
-    templatePath = '{0}/Templates'.format(env['POSTPROCESS_PATH']) 
-
-    templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
-    templateEnv = jinja2.Environment( loader=templateLoader )
-    
-    template_file = 'diagnostics.tmpl'
-    template = templateEnv.get_template( template_file )
-    
-    # get the current datatime string for the template and filename
-    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    index_now = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
-
-    # set the template variables
-    templateVars = { 'casename' : env['CASE'],
-                     'tagname' : env['CESM_TAG'],
-                     'username' : env['USER_NAME'],
-                     'diag_dict' : collections.OrderedDict(sorted(diag_dict.items())),
-                     'ocn_link_dict': ocn_link_dict,
-                     'today': now,
-                     }
-
-    # write the main index.html page to the top working directory
-    main_html = template.render( templateVars )
-    workdir = '{0}/{1}'.format(env['PP_CASE_PATH'],'html_files')
-    if not os.path.exists(workdir):
-        os.makedirs(workdir)
-
-    with open( '{0}/index.{1}.html'.format(workdir, index_now), 'w') as index:
-        index.write(main_html)
-
-    # copy the and style sheet to the top level
-    remote = '{0}@{1}:{2}'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'])
-    localdir = '{0}/Templates/'.format(env['POSTPROCESS_PATH'])
-
-    local = '{0}/*.css'.format(localdir)
-    try:
-        pipe = subprocess.Popen( ['scp {0} {1}'.format(local, remote)], env=env, shell=True)
-        pipe.wait()
-    except OSError as e:
-        print('copy_html WARNING: scp command failed with error::')
-        print('    {0} - {1}'.format(e.errno, e.strerror))
-
-    # copy the top-level index.html
-    local = '{0}/index.{1}.html'.format(workdir, index_now)
-    try:
-        pipe = subprocess.Popen( ['scp {0} {1}'.format(local, remote)], env=env, shell=True)
-        pipe.wait()
-    except OSError as e:
-        print('copy_html WARNING: scp command failed with error:')
-        print('    {0} - {1}'.format(e.errno, e.strerror))
-
-    # copy the logos to the sub-dir
-    remote_logos = '{0}@{1}:{2}/logos'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'])
-    local = '{0}/logos/*.*'.format(localdir)
-    try:
-        pipe = subprocess.Popen( ['scp {0} {1}'.format(local, remote_logos)], env=env, shell=True)
-        pipe.wait()
-    except OSError as e:
-        print('copy_html WARNING: scp command failed with error::')
-        print('    {0} - {1}'.format(e.errno, e.strerror))
-
-
+                if ok_to_copy:
+                    if scp_files(env, tarfile, remote):
+                        # untar the file on remote server
+                        ok_to_remove = True
+                        try:
+                            pipe = subprocess.Popen(["ssh {0}@{1} 'cd {2}/{3} ; tar xvfz {4}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp,tarfile)], shell=True)
+                            pipe.wait()
+                        except Exception as e:
+                            print('copy_html WARNING: unable to untar file {0} on remote server {1}@{2}:{3}/{4}'.format(tarfile, env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp))
+                            print('   You will need to untar files manually')
+                            ok_to_remove = False
+                        if ok_to_remove:
+                            # remove the tar file on the remote server
+                            try:
+                                pipe = subprocess.Popen(["ssh {0}@{1} 'cd {2}/{3} ; rm {4}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp,tarfile)], shell=True)
+                                pipe.wait()
+                            except Exception as e:
+                                print('copy_html WARNING: unable to remove tar file {0} on remote server {1}@{2}:{3}/{4}'.format(tarfile, env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp))
+                os.chdir(cwd)
 
 #=======================================================================
 # main
@@ -588,9 +422,6 @@ def main(options):
             copy_files(env, comp, comp_data)
             activeList.append(comp)    
             update_web_dirs(env, comp_data)
-
-    # build a single web page to link to all the different components
-    create_index(env, compList, activeList, comp_lookup)
 
 #===================================
 
