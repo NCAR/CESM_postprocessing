@@ -1,13 +1,13 @@
+#!/bin/bash
+
 #PBS -N {{ processName }}
 #PBS -q {{ queue }}
 #PBS -l select={{ nodes }}:ncpus={{ ppn }}:mpiprocs={{ ppn }}
 #PBS -l walltime={{ wallclock }}
 #PBS -A {{ project }}
 
-. /glade/u/apps/ch/opt/lmod/7.2.1/lmod/lmod/init/bash
+source /etc/profile.d/modules.sh
 
-export I_MPI_DEVICE=rdma
 export MPI_UNBUFFERED_STDIO=true
 export TMPDIR=$TMPDIR
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/glade/u/apps/ch/opt/pythonpkgs/2.7/cf_units/1.1.3/gnu/6.2.0/lib

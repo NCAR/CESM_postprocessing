@@ -27,6 +27,7 @@ if sys.hexversion < 0x02070000:
 import argparse
 import collections
 import errno
+import getpass
 import itertools
 import os
 import platform
@@ -57,7 +58,7 @@ try:
 except KeyError:
     err_msg = ('create_postprocess ERROR: please set the POSTPROCESS_PATH environment variable.' \
                ' For example on cheyenne: setenv POSTPROCESS_PATH /glade/p/cesm/postprocessing_ch' \
-               ' In addition, for geyser support: setenv POSTPROCESS_PATH_GEYSER /glade/p/cesm/postprocessing_geyser')
+               ' In addition, for NCAR DAV support use the --add-dav command line option.')
     raise OSError(err_msg)
 
 cesm_pp_path = os.environ["POSTPROCESS_PATH"]
@@ -128,6 +129,18 @@ def commandline_options():
 
     parser.add_argument('-username', '--username', nargs=1, required=False,
                         help='User name (optional). Defaults to user login name.')
+
+    parser.add_argument('-add-dav', '--add-dav', dest='add_dav', nargs=1, required=False,
+                        help='Fully qualified path to the root of the CESM postprocessing ' \
+                        'virtualenv for the NCAR DAV cluster. This option sets the XML ' \
+                        'variable POSTPROCESS_PATH_DAV in env_postprocess.xml and ' \
+                        'creates all the necessary postprocessing batch scripts for the ' \
+                        'NCAR DAV Slurm manager. This option is only available when create_postprocess ' \
+                        'is run on NCAR machine cheyenne. A set of batch submission scripts in the ' \
+                        'postprocessing caseroot with the "_dav" extension are included along side '\
+                        'the cheyenne PBS submission scripts. '\
+                        'Example: /glade/p/cesm/postprocessing_dav. '\
+                        'Defaults to "undefined". (optional)')
 
     options = parser.parse_args()
         
@@ -270,7 +283,9 @@ def read_machine_xml(machineName, xmlFile):
             # get the timeseries pes first
             tseries_pes = xmlmachine.find('timeseries_pes')
             machine['timeseries_pes'] = tseries_pes.text
-            machine['timeseries_queue'] = tseries_pes.get('queue').lower()
+            machine['timeseries_queue'] = ''
+            if 'queue' in tseries_pes.attrib:
+                machine['timeseries_queue'] = tseries_pes.get('queue').lower()
             machine['timeseries_ppn'] = tseries_pes.get('pes_per_node').lower()
             machine['timeseries_wallclock'] = tseries_pes.get('wallclock').lower()
             machine['timeseries_nodes'] = ''
@@ -284,7 +299,9 @@ def read_machine_xml(machineName, xmlFile):
             # get the conform pes 
             xconform_pes = xmlmachine.find('xconform_pes')
             machine['xconform_pes'] = xconform_pes.text
-            machine['conform_queue'] = xconform_pes.get('queue').lower()
+            machine['conform_queue'] = ''
+            if 'queue' in xconform_pes.attrib:
+                machine['conform_queue'] = xconform_pes.get('queue').lower()
             machine['conform_ppn'] = xconform_pes.get('pes_per_node').lower()
             machine['conform_wallclock'] = xconform_pes.get('wallclock').lower()
             machine['conform_nodes'] = ''
@@ -318,7 +335,9 @@ def read_machine_xml(machineName, xmlFile):
                 avg = comp.find('averages_pes')
                 if avg is not None:
                     machine['{0}_averages_pes'.format(compName)] = avg.text
-                    machine['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
+                    machine['{0}_averages_queue'.format(compName)] = ''
+                    if 'queue' in avg.attrib:
+                        machine['{0}_averages_queue'.format(compName)] = avg.get('queue').lower()
                     machine['{0}_averages_ppn'.format(compName)] = avg.get('pes_per_node').lower()
                     machine['{0}_averages_wallclock'.format(compName)] = avg.get('wallclock').lower()
                     machine['{0}_averages_nodes'.format(compName)] = ''
@@ -332,7 +351,9 @@ def read_machine_xml(machineName, xmlFile):
                 diags = comp.find('diagnostics_pes')
                 if diags is not None:
                     machine['{0}_diagnostics_pes'.format(compName)] = diags.text
-                    machine['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
+                    machine['{0}_diagnostics_queue'.format(compName)] = ''
+                    if 'queue' in diags.attrib:
+                        machine['{0}_diagnostics_queue'.format(compName)] = diags.get('queue').lower()
                     machine['{0}_diagnostics_ppn'.format(compName)] = diags.get('pes_per_node').lower()
                     machine['{0}_diagnostics_wallclock'.format(compName)] = diags.get('wallclock').lower()
                     machine['{0}_diagnostics_nodes'.format(compName)] = ''
@@ -345,7 +366,9 @@ def read_machine_xml(machineName, xmlFile):
                 init = comp.find('initialize_pes')
                 if init is not None:
                     machine['{0}_initialize_pes'.format(compName)] = init.text
-                    machine['{0}_initialize_queue'.format(compName)] = init.get('queue').lower()
+                    machine['{0}_initialize_queue'.format(compName)] = ''
+                    if 'queue' in init.attrib:
+                        machine['{0}_initialize_queue'.format(compName)] = init.get('queue').lower()
                     machine['{0}_initialize_ppn'.format(compName)] = init.get('pes_per_node').lower()
                     machine['{0}_initialize_wallclock'.format(compName)] = init.get('wallclock').lower()
                     machine['{0}_initialize_nodes'.format(compName)] = ''
@@ -358,7 +381,9 @@ def read_machine_xml(machineName, xmlFile):
                 regrid = comp.find('regrid_pes')
                 if regrid is not None:
                     machine['{0}_regrid_pes'.format(compName)] = regrid.text
-                    machine['{0}_regrid_queue'.format(compName)] = regrid.get('queue').lower()
+                    machine['{0}_regrid_queue'.format(compName)] = ''
+                    if 'queue' in regrid.attrib:
+                        machine['{0}_regrid_queue'.format(compName)] = regrid.get('queue').lower()
                     machine['{0}_regrid_ppn'.format(compName)] = regrid.get('pes_per_node').lower()
                     machine['{0}_regrid_wallclock'.format(compName)] = regrid.get('wallclock').lower()
                     machine['{0}_regrid_nodes'.format(compName)] = ''
@@ -560,9 +585,16 @@ def initialize_main(envDict, options, standalone):
         envDict['PROJECT'] = options.project[0]
 
     # set the user name
-    envDict['USER_NAME'] = os.getlogin()
+    envDict['USER_NAME'] = getpass.getuser()
     if options.username:
         envDict['USER_NAME'] = options.username[0]
+
+    # set the POSTPROCESS_PATH_DAV if option add-dav is specified
+    envDict['POSTPROCESS_PATH_DAV'] = 'undefined'
+    if options.add_dav:
+        # check to make sure virtualenv exists
+        if os.path.isfile('{0}/cesm-env2/bin/activate_this.py'.format(options.add_dav[0])):
+            envDict['POSTPROCESS_PATH_DAV'] = options.add_dav[0]
 
     return envDict
 
@@ -606,15 +638,6 @@ def main(options):
     # check for undefined machine
     if not envDict['MACH']:
         raise OSError('create_postprocess ERROR: hostname "{0}" is not currently supported. Exiting...'.format(hostname))
-
-    # check if env POSTPROCESS_PATH_GEYSER needs to be set
-    if (envDict['MACH'] == 'cheyenne' or envDict['MACH'] == 'geyser'):
-        try:
-            envDict["POSTPROCESS_PATH_GEYSER"] = os.environ["POSTPROCESS_PATH_GEYSER"]
-        except KeyError:
-            err_msg = ('create_postprocess ERROR: please set the POSTPROCESS_PATH_GEYSER environment variable.' \
-                       ' For example, setenv POSTPROCESS_PATH_GEYSER /glade/p/cesm/postprocessing_geyser')
-            raise OSError(err_msg)
 
     # make the appropriate dirs in the caseroot
     try:
@@ -874,16 +897,16 @@ def main(options):
                      imb_env_vars='{% for env in imb_env_vars %}\n{{ env }}\n{% endfor %}',
                      imb_options='{{ imb_options }}')
         
-    # check if machine is cheyenne then create a set of geyser submission scripts
-    if envDict['MACH'] == 'cheyenne':
-        hostname = 'geyser'
+    # check if machine is cheyenne then create a set of dav submission scripts
+    if envDict['MACH'] == 'cheyenne' and envDict['POSTPROCESS_PATH_DAV'] != 'undefined':
+        hostname = 'dav'
         envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
-        pp_geyser = os.environ["POSTPROCESS_PATH_GEYSER"]
+        pp_dav = envDict["POSTPROCESS_PATH_DAV"]
 
         # get the machine dependent variables, modules and mpi run command in a dictionary
         machine = dict()
         machine = read_machine_xml(machineName=envDict['MACH'], 
-                                   xmlFile='{0}/Machines/machine_postprocess.xml'.format(pp_geyser))
+                                   xmlFile='{0}/Machines/machine_postprocess.xml'.format(pp_dav))
 
         # define the template files for the batch scripts
         batch_tmpl = 'batch_{0}.tmpl'.format(envDict['MACH'])
@@ -891,9 +914,9 @@ def main(options):
 
         # generate the timeseries batch submit script from template files
         postProcessCmd = 'cesm_tseries_generator.py'
-        processName = 'timeseries_geyser'
+        processName = 'timeseries_dav'
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
-        create_batch(ppDir=pp_geyser,
+        create_batch(ppDir=pp_dav,
                      pes=machine['timeseries_pes'], 
                      batchTmpl=batch_tmpl, runTmpl=run_tmpl, 
                      postProcessCmd=postProcessCmd, 
@@ -913,10 +936,10 @@ def main(options):
 
         # generate the xconform batch submit script from template files
         postProcessCmd = 'cesm_conform_generator.py'
-        processName = 'xconform_geyser'
+        processName = 'xconform_dav'
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
         xconform_tmpl = 'xconform.tmpl'
-        create_batch(ppDir=pp_geyser,
+        create_batch(ppDir=pp_dav,
                      pes=machine['xconform_pes'], 
                      batchTmpl=batch_tmpl, runTmpl=xconform_tmpl, 
                      postProcessCmd=postProcessCmd, 
@@ -936,10 +959,10 @@ def main(options):
 
         # generate the iconform batch submit script from template files
         postProcessCmd = 'cesm_conform_initialize.py'
-        processName = 'iconform_geyser'
+        processName = 'iconform_dav'
         outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
         iconform_tmpl = 'iconform.tmpl'
-        create_batch(ppDir=pp_geyser,
+        create_batch(ppDir=pp_dav,
                      pes=machine['xconform_pes'], 
                      batchTmpl=batch_tmpl, runTmpl=iconform_tmpl, 
                      postProcessCmd=postProcessCmd, 
@@ -961,9 +984,9 @@ def main(options):
         for comp in compList:
             # generate the averages batch submit script
             postProcessCmd = '{0}_avg_generator.py'.format(comp)
-            processName = '{0}_averages_geyser'.format(comp)
+            processName = '{0}_averages_dav'.format(comp)
             outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
-            create_batch(ppDir=pp_geyser,
+            create_batch(ppDir=pp_dav,
                          pes=machine['{0}_averages_pes'.format(comp)], 
                          batchTmpl=batch_tmpl, runTmpl=run_tmpl, 
                          postProcessCmd=postProcessCmd, 
@@ -983,9 +1006,9 @@ def main(options):
 
             # generate the diagnostics batch submit script
             postProcessCmd = '{0}_diags_generator.py'.format(comp)
-            processName = '{0}_diagnostics_geyser'.format(comp)
+            processName = '{0}_diagnostics_dav'.format(comp)
             outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
-            create_batch(ppDir=pp_geyser,
+            create_batch(ppDir=pp_dav,
                          pes=machine['{0}_diagnostics_pes'.format(comp)], 
                          batchTmpl=batch_tmpl, runTmpl=run_tmpl, 
                          postProcessCmd=postProcessCmd, 
@@ -1007,9 +1030,9 @@ def main(options):
         for comp in regridList:
             # generate the regrid batch submit script
             postProcessCmd = '{0}_regrid_generator.py'.format(comp)
-            processName = '{0}_regrid_geyser'.format(comp)
+            processName = '{0}_regrid_dav'.format(comp)
             outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
-            create_batch(pp_geyser,
+            create_batch(pp_dav,
                          pes=machine['{0}_regrid_pes'.format(comp)], 
                          batchTmpl=batch_tmpl, runTmpl=run_tmpl, 
                          postProcessCmd=postProcessCmd, 
@@ -1031,9 +1054,9 @@ def main(options):
         for imb in imbList:
             # generate the serial script that sets up the imb config file.
             postProcessCmd = 'imb_initialize.py'
-            processName = '{0}_initialize_geyser'.format(imb)
+            processName = '{0}_initialize_dav'.format(imb)
             outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'], processName)
-            create_batch(ppDir=pp_geyser,
+            create_batch(ppDir=pp_dav,
                          pes=machine['{0}_initialize_pes'.format(imb)],
                          batchTmpl=batch_tmpl, runTmpl=run_tmpl,
                          postProcessCmd=postProcessCmd,
@@ -1061,9 +1084,9 @@ def main(options):
             # variables and run imb_initialize multiple times, each time
             # write it out to imb_diagnostics.
             postProcessCmd = 'imb_diags_generator.py'
-            processName = '{0}_diagnostics_geyser'.format(imb)
+            processName = '{0}_diagnostics_dav'.format(imb)
             outFile = '{0}/{1}.tmpl'.format(envDict['PP_CASE_PATH'], processName)
-            create_batch(ppDir=pp_geyser,
+            create_batch(ppDir=pp_dav,
                          pes=machine['{0}_diagnostics_pes'.format(imb)],
                          batchTmpl=batch_tmpl, runTmpl=run_tmpl,
                          postProcessCmd=postProcessCmd,

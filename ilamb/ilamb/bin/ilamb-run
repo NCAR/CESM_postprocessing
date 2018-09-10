@@ -378,6 +378,7 @@ def WorkPost(M,C,W,S,verbose=False,skip_plots=False):
                 print ("    {0:>%d} {1:<%d} %s%s%s" % (maxCL,maxML,FAIL,ex.__class__.__name__,ENDC)).format(c.longname,m.name)
                 sys.stdout.flush()
 
+    comm.Barrier()
     for c in C:
         if not skip_plots:
             try:
@@ -476,7 +477,8 @@ parser.add_argument('--model_setup', dest="model_setup", type=str, nargs='+',def
                     help='list files model setup information')
 parser.add_argument('--skip_plots', dest="skip_plots", action="store_true",
                     help='enable to skip the plotting phase')
-
+parser.add_argument('--rel_only', dest="rel_only", action="store_true",
+                    help='enable only display relative differences in overall scores')
 args = parser.parse_args()
 if args.config is None:
     if rank == 0:
@@ -505,7 +507,8 @@ S = Scoreboard(args.config[0],
                master    = rank==0,
                verbose   = not args.quiet,
                build_dir = args.build_dir[0],
-               extents   = RestrictiveModelExtents(M))
+               extents   = RestrictiveModelExtents(M),
+               rel_only  = args.rel_only)
 C  = MatchRelationshipConfrontation(S.list())
 Cf = FilterConfrontationList(C,args.confront)
 
@@ -520,7 +523,7 @@ if args.logging:
 
 if rank == 0:
     logger.info(" " + " ".join(os.uname()))
-    for key in ["ILAMB","numpy","matplotlib","netCDF4","cfunits","sympy","mpi4py"]:
+    for key in ["ILAMB","numpy","matplotlib","netCDF4","cf_units","sympy","mpi4py"]:
         pkg  = __import__(key)
         try:
             path = pkg.__path__[0]

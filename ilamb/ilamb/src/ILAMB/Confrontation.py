@@ -161,7 +161,11 @@ class Confrontation(object):
         pages[-1].text = "\n"
         with Dataset(self.source) as dset:
             for attr in dset.ncattrs():
-                pages[-1].text += "<p><b>&nbsp;&nbsp;%s:&nbsp;</b>%s</p>\n" % (attr,dset.getncattr(attr).encode('ascii','ignore'))
+                try:
+                    attr_line = "<p><b>&nbsp;&nbsp;%s:&nbsp;</b>%s</p>\n" % (attr,str(dset.getncattr(attr)).encode('ascii','ignore'))
+                    pages[-1].text += attr_line
+                except:
+                    pass
         self.layout = post.HtmlLayout(pages,self.longname,years=(y0,yf))
 
         # Define relative weights of each score in the overall score
@@ -288,15 +292,29 @@ class Confrontation(object):
             mass_weighting = self.keywords.get("mass_weighting",False)
             skip_rmse      = self.keywords.get("skip_rmse"     ,False)
             skip_iav       = self.keywords.get("skip_iav"      ,False)
-            il.AnalysisMeanState(obs,mod,dataset   = fcm.mod_dset,
-                                 regions           = self.regions,
-                                 benchmark_dataset = fcm.obs_dset,
-                                 table_unit        = self.table_unit,
-                                 plot_unit         = self.plot_unit,
-                                 space_mean        = self.space_mean,
-                                 skip_rmse         = skip_rmse,
-                                 skip_iav          = skip_iav,
-                                 mass_weighting    = mass_weighting)
+            skip_cycle     = self.keywords.get("skip_cycle"    ,False)
+            if obs.spatial:
+                il.AnalysisMeanStateSpace(obs,mod,dataset   = fcm.mod_dset,
+                                          regions           = self.regions,
+                                          benchmark_dataset = fcm.obs_dset,
+                                          table_unit        = self.table_unit,
+                                          plot_unit         = self.plot_unit,
+                                          space_mean        = self.space_mean,
+                                          skip_rmse         = skip_rmse,
+                                          skip_iav          = skip_iav,
+                                          skip_cycle        = skip_cycle,
+                                          mass_weighting    = mass_weighting)
+            else:
+                il.AnalysisMeanStateSites(obs,mod,dataset   = fcm.mod_dset,
+                                          regions           = self.regions,
+                                          benchmark_dataset = fcm.obs_dset,
+                                          table_unit        = self.table_unit,
+                                          plot_unit         = self.plot_unit,
+                                          space_mean        = self.space_mean,
+                                          skip_rmse         = skip_rmse,
+                                          skip_iav          = skip_iav,
+                                          skip_cycle        = skip_cycle,
+                                          mass_weighting    = mass_weighting)
 
         logger.info("[%s][%s] Success" % (self.longname,m.name))
                 
@@ -636,7 +654,7 @@ class Confrontation(object):
 	                    plt.close()
                             
 	                # Jumping through hoops to get the benchmark plotted and in the html output
-	                if self.master and (pname == "timeint" or pname == "phase"):
+	                if self.master and (pname == "timeint" or pname == "phase" or pname == "iav"):
 	
 	                    opts = space_opts[pname]
 	
@@ -786,10 +804,8 @@ class Confrontation(object):
         f.close()
 
     def _relationship(self,m,nbin=25):
-        """This needs moved somehow into ilamblib to replace the current
-        function. But too much of this is tied to the confrontation
-        object and so for now it is more helpful here.
-
+        """
+        
         """
         
         def _retrieveData(filename):
@@ -799,228 +815,265 @@ class Confrontation(object):
             return Variable(filename      = filename,
                             groupname     = "MeanState",
                             variable_name = key[0])
+
+        def _checkLim(data,lim):
+            if lim is None:
+                lim     = [min(data.min(),data.min()),
+                           max(data.max(),data.max())]
+                delta   = 1e-8*(lim[1]-lim[0])
+                lim[0] -= delta
+                lim[1] += delta
+            else:
+                assert type(lim) == type([])
+                assert len (lim) == 2
+            return lim
+
+        def _limitExtents(vars):
+            lim = [+1e20,-1e20]
+            for v in vars:
+                lmin,lmax = _checkLim(v.data,None)
+                lim[0] = min(lmin,lim[0])
+                lim[1] = max(lmax,lim[1])
+            return lim
+    
+        def _buildDistributionResponse(ind,dep,ind_lim=None,dep_lim=None,region=None,nbin=25,eps=3e-3):
             
-        # if there are no relationships, get out of here
-        if self.relationships is None: return            
-        r = Regions()
-        
-        # get the HTML page
+            r = Regions()
+
+            # Checks on the input parameters
+            assert np.allclose(ind.data.shape,dep.data.shape)
+            ind_lim = _checkLim(ind.data,ind_lim)
+            dep_lim = _checkLim(dep.data,dep_lim)
+    
+            # Mask data
+            mask = ind.data.mask + dep.data.mask
+            if region is not None: mask += r.getMask(region,ind)
+            x = ind.data[mask==False].flatten()
+            y = dep.data[mask==False].flatten()
+
+            # Compute normalized 2D distribution 
+            dist,xedges,yedges = np.histogram2d(x,y,
+                                                bins  = [nbin,nbin],
+                                                range = [ind_lim,dep_lim])
+            dist  = np.ma.masked_values(dist.T,0).astype(float)
+            dist /= dist.sum()
+            
+            # Compute the functional response
+            which_bin = np.digitize(x,xedges).clip(1,xedges.size-1)-1
+            mean = np.ma.zeros(xedges.size-1)
+            std  = np.ma.zeros(xedges.size-1)
+            cnt  = np.ma.zeros(xedges.size-1)
+            np.seterr(under='ignore')
+            for i in range(mean.size):
+                yi = y[which_bin==i]
+                cnt [i] = yi.size
+                mean[i] = yi.mean()
+                std [i] = yi.std()
+            mean = np.ma.masked_array(mean,mask = (cnt/cnt.sum()) < eps)
+            std  = np.ma.masked_array( std,mask = (cnt/cnt.sum()) < eps)     
+            np.seterr(under='warn')
+            return dist,xedges,yedges,mean,std
+
+        def _scoreDistribution(ref,com):
+            mask = ref.mask + com.mask
+            ref  = np.ma.masked_array(ref.data,mask=mask).compressed()
+            com  = np.ma.masked_array(com.data,mask=mask).compressed()
+            return np.sqrt(((np.sqrt(ref)-np.sqrt(com))**2).sum())/np.sqrt(2)
+
+        def _scoreFunction(ref,com):
+            mask = ref.mask + com.mask
+            ref  = np.ma.masked_array(ref.data,mask=mask).compressed()
+            com  = np.ma.masked_array(com.data,mask=mask).compressed()
+            return np.exp(-np.linalg.norm(ref-com)/np.linalg.norm(ref))
+
+        def _plotDistribution(dist,xedges,yedges,xlabel,ylabel,filename):
+            fig,ax = plt.subplots(figsize=(6,5.25),tight_layout=True)
+            pc = ax.pcolormesh(xedges, yedges, dist,
+                               norm = LogNorm(),
+                               cmap = 'plasma' if plt.cm.cmap_d.has_key('plasma') else 'summer',
+                               vmin = 1e-4, vmax = 1e-1)
+            div = make_axes_locatable(ax)
+            fig.colorbar(pc,cax=div.append_axes("right",size="5%",pad=0.05),
+                         orientation="vertical",label="Fraction of total datasites")
+            ax.set_xlabel(xlabel,fontsize = 12)
+            ax.set_ylabel(ylabel,fontsize = 12 if len(ylabel) <= 60 else 10)
+            ax.set_xlim(xedges[0],xedges[-1])
+            ax.set_ylim(yedges[0],yedges[-1])
+            fig.savefig(filename)
+            plt.close()            
+
+        def _plotDifference(ref,com,xedges,yedges,xlabel,ylabel,filename):
+            ref = np.ma.copy(ref)
+            com = np.ma.copy(com)
+            ref.data[np.where(ref.mask)] = 0.
+            com.data[np.where(com.mask)] = 0.
+            diff = np.ma.masked_array(com.data-ref.data,mask=ref.mask*com.mask)
+            lim = np.abs(diff).max()
+            fig,ax = plt.subplots(figsize=(6,5.25),tight_layout=True)
+            pc = ax.pcolormesh(xedges, yedges, diff,
+                               cmap = 'Spectral_r',
+                               vmin = -lim, vmax = +lim)
+            div = make_axes_locatable(ax)
+            fig.colorbar(pc,cax=div.append_axes("right",size="5%",pad=0.05),
+                         orientation="vertical",label="Distribution Difference")
+            ax.set_xlabel(xlabel,fontsize = 12)
+            ax.set_ylabel(ylabel,fontsize = 12 if len(ylabel) <= 60 else 10)
+            ax.set_xlim(xedges[0],xedges[-1])
+            ax.set_ylim(yedges[0],yedges[-1])
+            fig.savefig(filename)
+            plt.close()
+
+        def _plotFunction(ref_mean,ref_std,com_mean,com_std,xedges,yedges,xlabel,ylabel,color,filename):
+            
+            xe    = 0.5*(xedges[:-1]+xedges[1:])
+            delta = 0.1*np.diff(xedges).mean()
+
+            # reference function
+            ref_x = xe - delta
+            ref_y = ref_mean
+            ref_e = ref_std
+            if not (ref_mean.mask==False).all():
+                ind   = np.where(ref_mean.mask==False)
+                ref_x = xe      [ind]-delta
+                ref_y = ref_mean[ind]
+                ref_e = ref_std [ind]
+                
+            # comparison function
+            com_x = xe + delta
+            com_y = com_mean
+            com_e = com_std
+            if not (com_mean.mask==False).all():
+                ind   = np.where(com_mean.mask==False)
+                com_x = xe      [ind]-delta
+                com_y = com_mean[ind]
+                com_e = com_std [ind]
+            
+            fig,ax = plt.subplots(figsize=(6,5.25),tight_layout=True)
+            ax.errorbar(ref_x,ref_y,yerr=ref_e,fmt='-o',color='k')
+            ax.errorbar(com_x,com_y,yerr=com_e,fmt='-o',color=color)
+            ax.set_xlabel(xlabel,fontsize = 12)
+            ax.set_ylabel(ylabel,fontsize = 12 if len(ylabel) <= 60 else 10)
+            ax.set_xlim(xedges[0],xedges[-1])
+            ax.set_ylim(yedges[0],yedges[-1])
+            fig.savefig(filename)
+            plt.close()
+            
+        # If there are no relationships to analyze, get out of here
+        if self.relationships is None: return      
+
+        # Get the HTML page
         page = [page for page in self.layout.pages if "Relationships" in page.name]
         if len(page) == 0: return
         page = page[0]
         
-        # try to get the dependent data from the model and obs
+        # Try to get the dependent data from the model and obs
         try:
-            obs_dep  = _retrieveData(os.path.join(self.output_path,"%s_%s.nc" % (self.name,"Benchmark")))
-            mod_dep  = _retrieveData(os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name     )))
+            ref_dep  = _retrieveData(os.path.join(self.output_path,"%s_%s.nc" % (self.name,"Benchmark")))
+            com_dep  = _retrieveData(os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name     )))
             dep_name = self.longname.split("/")[0]
             dep_min  = self.limits["timeint"]["min"]
             dep_max  = self.limits["timeint"]["max"]
         except:
             return
 
-        # open a dataset for recording the results of this
-        # confrontation (FIX: should be a with statement)
-        results = Dataset(os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name)),mode="r+")
+        with Dataset(os.path.join(self.output_path,"%s_%s.nc" % (self.name,m.name)),mode="r+") as results:
+            
+            # Grab/create a relationship and scalars group
+            group = None
+            if "Relationships" not in results.groups:
+                group = results.createGroup("Relationships")
+            else:
+                group = results.groups["Relationships"]
+            if "scalars" not in group.groups:
+                scalars = group.createGroup("scalars")
+            else:
+                scalars = group.groups["scalars"]
 
-        # grab/create a relationship and scalars group
-        group = None
-        if "Relationships" not in results.groups:
-            group = results.createGroup("Relationships")
-        else:
-            group = results.groups["Relationships"]
-        if "scalars" not in group.groups:
-            scalars = group.createGroup("scalars")
-        else:
-            scalars = group.groups["scalars"]
+            # for each relationship...
+            for c in self.relationships:
+                
+                # try to get the independent data from the model and obs
+                try:
+                    ref_ind  = _retrieveData(os.path.join(c.output_path,"%s_%s.nc" % (c.name,"Benchmark")))
+                    com_ind  = _retrieveData(os.path.join(c.output_path,"%s_%s.nc" % (c.name,m.name     )))
+                    ind_name = c.longname.split("/")[0]          
+                    ind_min  = c.limits["timeint"]["min"]-1e-12
+                    ind_max  = c.limits["timeint"]["max"]+1e-12
+                except:
+                    continue
 
-        # for each relationship...
-        for c in self.relationships:
-
-            # try to get the independent data from the model and obs
-            try:
-                obs_ind  = _retrieveData(os.path.join(c.output_path,"%s_%s.nc" % (c.name,"Benchmark")))
-                mod_ind  = _retrieveData(os.path.join(c.output_path,"%s_%s.nc" % (c.name,m.name     )))
-                ind_name = c.longname.split("/")[0]          
-                ind_min  = c.limits["timeint"]["min"]-1e-12
-                ind_max  = c.limits["timeint"]["max"]+1e-12
-            except:
-                continue
-
-            # for each reigon...
-            for region in self.regions:
-
-                # loop over dep/ind pairs of the obs and mod
-                obs_dist = None; mod_dist = None
-                xedges   = None; yedges   = None
-                obs_x    = None; obs_y    = None; obs_e    = None
-                mod_x    = None; mod_y    = None; mod_e    = None
-                delta    = None
-                for dep_var,ind_var,name,xlbl,ylbl in zip([obs_dep    ,mod_dep],
-                                                          [obs_ind    ,mod_ind],
-                                                          ["Benchmark",m.name ],
-                                                          [c   .name  ,m.name ],
-                                                          [self.name  ,m.name ]):
-
-                    # build the data masks: only count where we have
-                    # both dep and ind variable data inside the region
-                    mask      = dep_var.data.mask + ind_var.data.mask
-                    mask     += r.getMask(region,dep_var)
-                    x         = ind_var.data[mask==0].flatten()
-                    y         = dep_var.data[mask==0].flatten()
-
-                    # determine the 2D discrete distribution
-                    counts,xedges,yedges = np.histogram2d(x,y,
-                                                          bins  = [nbin,nbin],
-                                                          range = [[ind_min,ind_max],[dep_min,dep_max]])
-                    counts  = np.ma.masked_values(counts.T,0)
-                    counts /= float(counts.sum())
-                    if name == "Benchmark":
-                        obs_dist = counts
-                    else:
-                        mod_dist = counts
-                                            
-                    # render the figure
-                    fig,ax = plt.subplots(figsize=(6,5.25),tight_layout=True)
-                    cmap   = 'plasma'
-                    if not plt.cm.cmap_d.has_key(cmap): cmap = 'summer'
-                    pc     = ax.pcolormesh(xedges,
-                                           yedges,
-                                           counts,
-                                           norm = LogNorm(),
-                                           cmap = cmap,
-                                           vmin = 1e-4,
-                                           vmax = 1e-1)
-                    div    = make_axes_locatable(ax)
-                    fig.colorbar(pc,cax=div.append_axes("right",size="5%",pad=0.05),
-                                 orientation="vertical",
-                                 label="Fraction of total datasites")
-                    ax.set_xlabel("%s/%s,  %s" % (ind_name,xlbl,post.UnitStringToMatplotlib(ind_var.unit)))
-                    ylabel = "%s/%s,  %s" % (dep_name,ylbl,post.UnitStringToMatplotlib(dep_var.unit))
-                    fsize  = 12
-                    if len(ylabel) > 60: fsize = 10
-                    ax.set_ylabel(ylabel,fontsize=fsize)
-                    ax.set_xlim(ind_min,ind_max)
-                    ax.set_ylim(dep_min,dep_max)
-                    short_name = "rel_%s" % ind_name
-                    fig.savefig(os.path.join(self.output_path,"%s_%s_%s.png" % (name,region,short_name)))
-                    plt.close()
-
-                    # add the figure to the HTML layout
-                    if name == "Benchmark" and region == "global":
-                        short_name = short_name.replace("global_","")
-                        page.addFigure(c.longname,
-                                       "benchmark_" + short_name,
-                                       "Benchmark_RNAME_%s.png" % (short_name),
-                                       legend = False,
-                                       benchmark = False)
-                        page.addFigure(c.longname,
-                                       short_name,
-                                       "MNAME_RNAME_%s.png" % (short_name),
-                                       legend = False,
-                                       benchmark = False)
-
-                    # determine the 1D relationship curves
-                    bins  = np.linspace(ind_min,ind_max,nbin+1)
-                    delta = 0.1*(bins[1]-bins[0])
-                    inds  = np.digitize(x,bins)
-                    ids   = np.unique(inds).clip(1,bins.size-1)
-                    xb = []
-                    yb = []
-                    eb = []
-                    for i in ids:
-                        yt = y[inds==i]
-                        xi = 0.5
-                        xb.append(xi*bins[i-1]+(1.-xi)*bins[i])
-                        yb.append(yt.mean())
-                        try:
-                            eb.append(yt.std()) # for some reason this fails sometimes
-                        except:
-                            eb.append(np.sqrt(((yt-yb[-1])**2).sum()/float(yt.size)))
-                            
-                    if name == "Benchmark":
-                        obs_x = np.asarray(xb)
-                        obs_y = np.asarray(yb)
-                        obs_e = np.asarray(eb)
-                    else:
-                        mod_x = np.asarray(xb)
-                        mod_y = np.asarray(yb)
-                        mod_e = np.asarray(eb)
-                        
-                # compute and plot the difference
-                O = np.array(obs_dist.data)
-                M = np.array(mod_dist.data)
-                O[np.where(obs_dist.mask)] = 0.
-                M[np.where(mod_dist.mask)] = 0.
-                dif_dist = np.ma.masked_array(M-O,mask=obs_dist.mask*mod_dist.mask)
-                lim      = np.abs(dif_dist).max()
-                fig,ax   = plt.subplots(figsize=(6,5.25),tight_layout=True)
-                pc       = ax.pcolormesh(xedges,
-                                         yedges,
-                                         dif_dist,
-                                         cmap = "Spectral_r",
-                                         vmin = -lim,
-                                         vmax = +lim)
-                div      = make_axes_locatable(ax)
-                fig.colorbar(pc,cax=div.append_axes("right",size="5%",pad=0.05),
-                             orientation="vertical",
-                             label="Distribution Difference")
-                ax.set_xlabel("%s, %s" % (   c.longname.split("/")[0],post.UnitStringToMatplotlib(obs_ind.unit)))
-                ax.set_ylabel("%s, %s" % (self.longname.split("/")[0],post.UnitStringToMatplotlib(obs_dep.unit)))
-                ax.set_xlim(ind_min,ind_max)
-                ax.set_ylim(dep_min,dep_max)
-                short_name = "rel_diff_%s" % ind_name
-                fig.savefig(os.path.join(self.output_path,"%s_%s_%s.png" % (name,region,short_name)))
-                plt.close()
+                # Add figures to the html page
                 page.addFigure(c.longname,
-                               short_name,
-                               "MNAME_RNAME_%s.png" % (short_name),
-                               legend = False,
+                               "benchmark_rel_%s"            % ind_name,
+                               "Benchmark_RNAME_rel_%s.png"  % ind_name,
+                               legend    = False,
+                               benchmark = False)
+                page.addFigure(c.longname,
+                               "rel_%s"                      % ind_name,
+                               "MNAME_RNAME_rel_%s.png"      % ind_name,
+                               legend    = False,
+                               benchmark = False)
+                page.addFigure(c.longname,
+                               "rel_diff_%s"                 % ind_name,
+                               "MNAME_RNAME_rel_diff_%s.png" % ind_name,
+                               legend    = False,
+                               benchmark = False)
+                page.addFigure(c.longname,
+                               "rel_func_%s"                 % ind_name,
+                               "MNAME_RNAME_rel_func_%s.png" % ind_name,
+                               legend    = False,
                                benchmark = False)
                 
-                # score the distributions = 1 - Hellinger distance
-                score = 1.-np.sqrt(((np.sqrt(obs_dist)-np.sqrt(mod_dist))**2).sum())/np.sqrt(2)
-                vname = '%s Score %s' % (c.longname.split('/')[0],region)
-                #if vname in scalars.variables:
-                #    scalars.variables[vname][0] = score
-                #else:
-                #    Variable(name = vname, 
-                #             unit = "1",
-                #             data = score).toNetCDF4(results,group="Relationships")
+                # Analysis over regions
+                lim_dep  = [dep_min,dep_max]
+                lim_ind  = [ind_min,ind_max]
+                longname = c.longname.split('/')[0]
+                for region in self.regions:
+                    ref_dist = _buildDistributionResponse(ref_ind,ref_dep,ind_lim=lim_ind,dep_lim=lim_dep,region=region)
+                    com_dist = _buildDistributionResponse(com_ind,com_dep,ind_lim=lim_ind,dep_lim=lim_dep,region=region)
 
-                # plot the 1D curve
-                fig,ax = plt.subplots(figsize=(6,5.25),tight_layout=True)
-                ax.errorbar(obs_x-delta,obs_y,yerr=obs_e,fmt='-o',color='k')
-                ax.errorbar(mod_x+delta,mod_y,yerr=mod_e,fmt='-o',color=m.color)
-                ax.set_xlabel("%s, %s" % (   c.longname.split("/")[0],post.UnitStringToMatplotlib(obs_ind.unit)))
-                ax.set_ylabel("%s, %s" % (self.longname.split("/")[0],post.UnitStringToMatplotlib(obs_dep.unit)))
-                ax.set_xlim(ind_min,ind_max)
-                ax.set_ylim(dep_min,dep_max)
-                short_name = "rel_func_%s" % ind_name
-                fig.savefig(os.path.join(self.output_path,"%s_%s_%s.png" % (name,region,short_name)))
-                plt.close()
-                page.addFigure(c.longname,
-                               short_name,
-                               "MNAME_RNAME_%s.png" % (short_name),
-                               legend = False,
-                               benchmark = False)
+                    # Make the plots
+                    _plotDistribution(ref_dist[0],ref_dist[1],ref_dist[2],
+                                      "%s/%s,  %s" % (ind_name,   c.name,post.UnitStringToMatplotlib(ref_ind.unit)),
+                                      "%s/%s,  %s" % (dep_name,self.name,post.UnitStringToMatplotlib(ref_dep.unit)),
+                                      os.path.join(self.output_path,"%s_%s_rel_%s.png" % ("Benchmark",region,ind_name)))
+                    _plotDistribution(com_dist[0],com_dist[1],com_dist[2],
+                                      "%s/%s,  %s" % (ind_name,m.name,post.UnitStringToMatplotlib(com_ind.unit)),
+                                      "%s/%s,  %s" % (dep_name,m.name,post.UnitStringToMatplotlib(com_dep.unit)),
+                                      os.path.join(self.output_path,"%s_%s_rel_%s.png" % (m.name,region,ind_name)))
+                    _plotDifference  (ref_dist[0],com_dist[0],ref_dist[1],ref_dist[2],
+                                      "%s/%s,  %s" % (ind_name,m.name,post.UnitStringToMatplotlib(com_ind.unit)),
+                                      "%s/%s,  %s" % (dep_name,m.name,post.UnitStringToMatplotlib(com_dep.unit)),
+                                      os.path.join(self.output_path,"%s_%s_rel_diff_%s.png" % (m.name,region,ind_name)))
+                    _plotFunction    (ref_dist[3],ref_dist[4],com_dist[3],com_dist[4],ref_dist[1],ref_dist[2],
+                                      "%s,  %s" % (ind_name,post.UnitStringToMatplotlib(com_ind.unit)),
+                                      "%s,  %s" % (dep_name,post.UnitStringToMatplotlib(com_dep.unit)),
+                                      m.color,
+                                      os.path.join(self.output_path,"%s_%s_rel_func_%s.png" % (m.name,region,ind_name)))
+            
+                    # Score the distribution
+                    score = _scoreDistribution(ref_dist[0],com_dist[0])
+                    sname = "%s Hellinger Distance %s" % (longname,region)
+                    if sname in scalars.variables:
+                        scalars.variables[sname][0] = score
+                    else:
+                        Variable(name = sname,
+                                 unit = "1",
+                                 data = score).toNetCDF4(results,group="Relationships")
 
-                # score the relationship
-                i0,i1 = np.where(np.abs(obs_x[:,np.newaxis]-mod_x)<1e-12)
-                obs_y = obs_y[i0]; mod_y = mod_y[i1]
-                isnan = np.isnan(obs_y)*np.isnan(mod_y)
-                obs_y[isnan] = 0.; mod_y[isnan] = 0.
-                score = np.exp(-np.linalg.norm(obs_y-mod_y)/np.linalg.norm(obs_y))
-                vname = '%s RMSE Score %s' % (c.longname.split('/')[0],region)
-                if vname in scalars.variables:
-                    scalars.variables[vname][0] = score
-                else:
-                    Variable(name = vname, 
-                             unit = "1",
-                             data = score).toNetCDF4(results,group="Relationships")
+                    # Score the functional response
+                    score = _scoreFunction(ref_dist[3],com_dist[3])
+                    sname = "%s RMSE Score %s" % (longname,region)
+                    if sname in scalars.variables:
+                        scalars.variables[sname][0] = score
+                    else:
+                        Variable(name = sname,
+                                 unit = "1",
+                                 data = score).toNetCDF4(results,group="Relationships")
                     
-                
-        results.close()
+
+                    
+            
 
 class FileContextManager():
 
