@@ -10,100 +10,98 @@ from mpi4py import MPI
 import logging
 logger = logging.getLogger("%i" % MPI.COMM_WORLD.rank)
 
-def _evapfrac(sh,le,vname,energy_threshold):
-    mask = ((le.data<0)+
-            (sh.data<0)+
-            ((le.data+sh.data)<energy_threshold))
-    sh.data = np.ma.masked_array(sh.data,mask=mask)
-    le.data = np.ma.masked_array(le.data,mask=mask)
+def _albedo(dn,up,vname,energy_threshold):
+    mask    = (dn.data < energy_threshold)
+    dn.data = np.ma.masked_array(dn.data,mask=mask)
+    up.data = np.ma.masked_array(up.data,mask=mask)
     np.seterr(over='ignore',under='ignore')
-    ef      = np.ma.masked_array(le.data/(le.data+sh.data),mask=mask)
+    al      = np.ma.masked_array(up.data/dn.data,mask=mask)
     np.seterr(over='warn',under='warn')
-    ef      = Variable(name      = vname,
+    al      = Variable(name      = vname,
                        unit      = "1",
-                       data      = ef,
-                       lat       = sh.lat,
-                       lat_bnds  = sh.lat_bnds,
-                       lon       = sh.lon,
-                       lon_bnds  = sh.lon_bnds,
-                       time      = sh.time,
-                       time_bnds = sh.time_bnds)
-    return sh,le,ef
+                       data      = al,
+                       lat       = dn.lat,
+                       lat_bnds  = dn.lat_bnds,
+                       lon       = dn.lon,
+                       lon_bnds  = dn.lon_bnds,
+                       time      = dn.time,
+                       time_bnds = dn.time_bnds)
+    return dn,up,al
     
-class ConfEvapFraction(Confrontation):
+class ConfAlbedo(Confrontation):
 
     def stageData(self,m):
 
-        energy_threshold = float(self.keywords.get("energy_threshold",20.))
+        energy_threshold = float(self.keywords.get("energy_threshold",10))
 
         # Handle obs data
-        sh_obs = Variable(filename      = os.path.join(os.environ["ILAMB_ROOT"],"DATA/sh/GBAF/sh_0.5x0.5.nc"),
-                          variable_name = "sh")
-        le_obs = Variable(filename      = os.path.join(os.environ["ILAMB_ROOT"],"DATA/le/GBAF/le_0.5x0.5.nc"),
-                          variable_name = "le")
-        sh_obs,le_obs,obs = _evapfrac(sh_obs,le_obs,self.variable,energy_threshold)
+        dn_obs = Variable(filename      = self.source.replace("albedo","rsds"),
+                          variable_name = "rsds")
+        up_obs = Variable(filename      = self.source.replace("albedo","rsus"),
+                          variable_name = "rsus")
+        dn_obs,up_obs,obs = _albedo(dn_obs,up_obs,self.variable,energy_threshold)
 
         # Prune out uncovered regions
         if obs.time is None: raise il.NotTemporalVariable()
         self.pruneRegions(obs)
 
         # Handle model data
-        sh_mod = m.extractTimeSeries("hfss",
+        dn_mod = m.extractTimeSeries("rsds",
                                      initial_time = obs.time_bnds[ 0,0],
                                      final_time   = obs.time_bnds[-1,1],
                                      lats         = None if obs.spatial else obs.lat,
                                      lons         = None if obs.spatial else obs.lon)
-        le_mod = m.extractTimeSeries("hfls",
+        up_mod = m.extractTimeSeries("rsus",
                                      initial_time = obs.time_bnds[ 0,0],
                                      final_time   = obs.time_bnds[-1,1],
                                      lats         = None if obs.spatial else obs.lat,
                                      lons         = None if obs.spatial else obs.lon)
-        sh_mod,le_mod,mod = _evapfrac(sh_mod,le_mod,self.variable,energy_threshold)
+        dn_mod,up_mod,mod = _albedo(dn_mod,up_mod,self.variable,energy_threshold)
         
         # Make variables comparable
         obs,mod = il.MakeComparable(obs,mod,
                                     mask_ref  = True,
                                     clip_ref  = True,
                                     logstring = "[%s][%s]" % (self.longname,m.name))
-        sh_obs,sh_mod = il.MakeComparable(sh_obs,sh_mod,
+        dn_obs,dn_mod = il.MakeComparable(dn_obs,dn_mod,
                                           mask_ref  = True,
                                           clip_ref  = True,
                                           logstring = "[%s][%s]" % (self.longname,m.name))
-        le_obs,le_mod = il.MakeComparable(le_obs,le_mod,
+        up_obs,up_mod = il.MakeComparable(up_obs,up_mod,
                                           mask_ref  = True,
                                           clip_ref  = True,
                                           logstring = "[%s][%s]" % (self.longname,m.name))
         
-        # Compute the mean ef
-        sh_obs = sh_obs.integrateInTime(mean=True)
-        le_obs = le_obs.integrateInTime(mean=True)
+        # Compute the mean albedo
+        dn_obs = dn_obs.integrateInTime(mean=True)
+        up_obs = up_obs.integrateInTime(mean=True)
         np.seterr(over='ignore',under='ignore')
-        obs_timeint = np.ma.masked_array(le_obs.data/(le_obs.data+sh_obs.data),mask=(sh_obs.data.mask+le_obs.data.mask))
+        obs_timeint = np.ma.masked_array(up_obs.data/dn_obs.data,mask=(dn_obs.data.mask+up_obs.data.mask))
         np.seterr(over='warn',under='warn')
         obs_timeint = Variable(name      = self.variable,
                                unit      = "1",
                                data      = obs_timeint,
-                               lat       = sh_obs.lat,
-                               lat_bnds  = sh_obs.lat_bnds,
-                               lon       = sh_obs.lon,
-                               lon_bnds  = sh_obs.lon_bnds)
-        sh_mod = sh_mod.integrateInTime(mean=True)
-        le_mod = le_mod.integrateInTime(mean=True)
+                               lat       = dn_obs.lat,
+                               lat_bnds  = dn_obs.lat_bnds,
+                               lon       = dn_obs.lon,
+                               lon_bnds  = dn_obs.lon_bnds)
+        dn_mod = dn_mod.integrateInTime(mean=True)
+        up_mod = up_mod.integrateInTime(mean=True)
         np.seterr(over='ignore',under='ignore')
-        mod_timeint = np.ma.masked_array(le_mod.data/(le_mod.data+sh_mod.data),mask=(sh_mod.data.mask+le_mod.data.mask))
+        mod_timeint = np.ma.masked_array(up_mod.data/dn_mod.data,mask=(dn_mod.data.mask+up_mod.data.mask))
         np.seterr(over='warn',under='warn')
         mod_timeint = Variable(name      = self.variable,
                                unit      = "1",
                                data      = mod_timeint,
-                               lat       = sh_mod.lat,
-                               lat_bnds  = sh_mod.lat_bnds,
-                               lon       = sh_mod.lon,
-                               lon_bnds  = sh_mod.lon_bnds)
+                               lat       = dn_mod.lat,
+                               lat_bnds  = dn_mod.lat_bnds,
+                               lon       = dn_mod.lon,
+                               lon_bnds  = dn_mod.lon_bnds)
         
         return obs,mod,obs_timeint,mod_timeint
     
     def requires(self):
-        return ['hfss','hfls'],[]
+        return ['rsus','rsds'],[]
 
     def confront(self,m):
         r"""Confronts the input model with the observational data.

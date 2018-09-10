@@ -1200,6 +1200,8 @@ def AnalysisMeanStateSpace(ref,com,**keywords):
     skip_rmse         = keywords.get("skip_rmse"        ,False)
     skip_iav          = keywords.get("skip_iav"         ,False)
     skip_cycle        = keywords.get("skip_cycle"       ,False)
+    ref_timeint       = keywords.get("ref_timeint"      ,None)
+    com_timeint       = keywords.get("com_timeint"      ,None)
     ILAMBregions      = Regions()
     spatial           = ref.spatial
 
@@ -1230,10 +1232,18 @@ def AnalysisMeanStateSpace(ref,com,**keywords):
     ndata = REF.ndata
 
     # Find the mean values over the time period
-    ref_timeint = ref.integrateInTime(mean=True).convert(plot_unit)
-    com_timeint = com.integrateInTime(mean=True).convert(plot_unit)
-    REF_timeint = REF.integrateInTime(mean=True).convert(plot_unit)
-    COM_timeint = COM.integrateInTime(mean=True).convert(plot_unit)
+    if ref_timeint is None:
+        ref_timeint = ref.integrateInTime(mean=True).convert(plot_unit)
+        REF_timeint = REF.integrateInTime(mean=True).convert(plot_unit)
+    else:
+        ref_timeint.convert(plot_unit)
+        REF_timeint = ref_timeint.interpolate(lat=lat,lon=lon,lat_bnds=lat_bnds,lon_bnds=lon_bnds)
+    if com_timeint is None:
+        com_timeint = com.integrateInTime(mean=True).convert(plot_unit)
+        COM_timeint = COM.integrateInTime(mean=True).convert(plot_unit)
+    else:
+        com_timeint.convert(plot_unit)
+        COM_timeint = com_timeint.interpolate(lat=lat,lon=lon,lat_bnds=lat_bnds,lon_bnds=lon_bnds)        
     normalizer  = REF_timeint.data if mass_weighting else None
 
     # Report period mean values over all possible representations of
@@ -1354,7 +1364,38 @@ def AnalysisMeanStateSpace(ref,com,**keywords):
                 shift_score.name = "Seasonal Cycle Score %s" % region
                 shift_score.toNetCDF4(dataset,group="MeanState")
                 
-        del ref_cycle,com_cycle,shift_map,shift_score_map
+        del shift_map,shift_score_map
+
+        # IAV: maps, scalars, scores
+        if not skip_iav:
+            REF_iav = Variable(data = np.ma.masked_array(REF.data-ref_cycle.data[ref_cycle.time.searchsorted(REF.time % 365),...],mask=REF.data.mask),
+                               unit = unit,
+                               time = REF.time, time_bnds = REF.time_bnds,
+                               lat  = lat, lat_bnds = lat_bnds, lon = lon, lon_bnds = lon_bnds,
+                               area = REF.area, ndata = REF.ndata).rms()
+            COM_iav = Variable(data = np.ma.masked_array(COM.data-com_cycle.data[com_cycle.time.searchsorted(COM.time % 365),...],mask=COM.data.mask),
+                               unit = unit,
+                               time = COM.time, time_bnds = COM.time_bnds,
+                               lat  = lat, lat_bnds = lat_bnds, lon = lon, lon_bnds = lon_bnds,
+                               area = COM.area, ndata = COM.ndata).rms()
+            iav_score_map = Score(Variable(name = "diff %s" % name, unit = unit,
+                                           data = (COM_iav.data-REF_iav.data),
+                                           lat  = lat, lat_bnds = lat_bnds, lon = lon, lon_bnds = lon_bnds,
+                                           area = area, ndata = ndata),
+                                  REF_iav)
+            if benchmark_dataset is not None:
+                REF_iav.name = "iav_map_of_%s" % name
+                REF_iav.toNetCDF4(benchmark_dataset,group="MeanState")
+            if dataset is not None:
+                COM_iav.name = "iav_map_of_%s" % name
+                COM_iav.toNetCDF4(dataset,group="MeanState")
+                iav_score_map.name = "iavscore_map_of_%s"  % name
+                iav_score_map.toNetCDF4(dataset,group="MeanState")
+                for region in regions:
+                    iav_score = iav_score_map.integrateInSpace(region=region,mean=True,weight=normalizer)
+                    iav_score.name = "Interannual Variability Score %s" % region
+                    iav_score.toNetCDF4(dataset,group="MeanState")
+            del ref_cycle,com_cycle,REF_iav,COM_iav,iav_score_map
         
     # Bias: maps, scalars, and scores
     bias = REF_timeint.bias(COM_timeint).convert(plot_unit)
@@ -1362,9 +1403,9 @@ def AnalysisMeanStateSpace(ref,com,**keywords):
                     data = np.ma.masked_array(REF.data-REF_timeint.data[np.newaxis,...],mask=REF.data.mask),
                     time = REF.time, time_bnds = REF.time_bnds, ndata = REF.ndata,
                     lat  = lat, lat_bnds = lat_bnds, lon = lon, lon_bnds = lon_bnds, area = REF.area).convert(plot_unit)
-    REF_iav = cREF.rms()
+    REF_std = cREF.rms()
     if skip_rmse: del cREF
-    bias_score_map = Score(bias,REF_iav if REF.time.size > 1 else REF_timeint)
+    bias_score_map = Score(bias,REF_std if REF.time.size > 1 else REF_timeint)
     bias_score_map.data.mask = (ref_and_com==False) # for some reason I need to explicitly force the mask
     if dataset is not None:
         bias.name = "bias_map_of_%s" % name
@@ -1404,9 +1445,8 @@ def AnalysisMeanStateSpace(ref,com,**keywords):
                         area = COM.area, ndata = COM.ndata).convert(plot_unit)
         del COM
         crmse = cREF.rmse(cCOM).convert(plot_unit)
-        del cREF
-        if skip_iav: del cCOM
-        rmse_score_map = Score(crmse,REF_iav)
+        del cREF,cCOM
+        rmse_score_map = Score(crmse,REF_std)
         if dataset is not None:
             rmse.name = "rmse_map_of_%s" % name
             rmse.toNetCDF4(dataset,group="MeanState")
@@ -1420,30 +1460,6 @@ def AnalysisMeanStateSpace(ref,com,**keywords):
                 rmse_score.name = "RMSE Score %s" % region
                 rmse_score.toNetCDF4(dataset,group="MeanState")
         del rmse,crmse,rmse_score_map
-
-        # IAV: maps, scalars, scores
-        if not skip_iav:
-            COM_iav = cCOM.rms()
-            del cCOM
-            iav_score_map = Score(Variable(name = "diff %s" % name, unit = unit,
-                                           data = (COM_iav.data-REF_iav.data),
-                                           lat  = lat, lat_bnds = lat_bnds, lon = lon, lon_bnds = lon_bnds,
-                                           area = area, ndata = ndata),
-                                  REF_iav)
-            if benchmark_dataset is not None:
-                REF_iav.name = "iav_map_of_%s" % name
-                REF_iav.toNetCDF4(benchmark_dataset,group="MeanState")
-            if dataset is not None:
-                COM_iav.name = "iav_map_of_%s" % name
-                COM_iav.toNetCDF4(dataset,group="MeanState")
-                iav_score_map.name = "iavscore_map_of_%s"  % name
-                iav_score_map.toNetCDF4(dataset,group="MeanState")
-                for region in regions:
-                    iav_score = iav_score_map.integrateInSpace(region=region,mean=True,weight=normalizer)
-                    iav_score.name = "Interannual Variability Score %s" % region
-                    iav_score.toNetCDF4(dataset,group="MeanState")
-            del COM_iav,iav_score_map
-    del REF_iav
                
     return 
 
