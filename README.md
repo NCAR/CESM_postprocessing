@@ -5,7 +5,7 @@ The input data sets required by this code are separate from this repository. Ins
 for accessing these data sets will be coming soon. For NCAR users, the data sets are already
 loaded into a central location on glade and do not need to be downloaded. 
 
-The NCAR cheyenne and geyser quick start guide along with other documentation is available at:
+The NCAR cheyenne and DAV quick start guide along with other documentation is available at:
 
 http://github.com/NCAR/CESM_postprocessing/wiki/
 
