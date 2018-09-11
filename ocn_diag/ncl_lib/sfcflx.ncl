@@ -7,18 +7,28 @@ load "$NCLPATH/curl_pop.ncl"
 begin
 print ( "resolution = " + resolution )
 
-if ( (resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3") )then
-  field_name  = (/ "SHF",    "MELTH_F", \
-                  "SENH_F",  "LWUP_F",     "LWDN_F",  "EVAP_F",  \
-                  "SFWF",    "PREC_F",  "MELT_F",  \
-                  "ROFF_F",  "SALT_F", "TAUX", "TAUY",  \
+ocn_comp = getenv("OCN_COMP")
+
+if (ocn_comp.eq."MOM") then
+  field_name  = (/ "SHF",    "hfds", "MELTH_F", \
+                  "SENH_F",  "LWDN_F",  "EVAP_F",  \
+                  "PREC_F",  "MELT_F",  \
+                  "ROFF_F",  "sfdsi", "TAUX", "TAUY",  \
                   "SNOW_F" /)
-else
-   field_name  = (/ "SHF",     "SHF_TOTAL",  "SHF_QSW", "MELTH_F", \
-                  "SENH_F",  "LWUP_F",     "LWDN_F",  "EVAP_F",  \
-                  "SFWF",    "SFWF_TOTAL", "PREC_F",  "MELT_F",  \
-                  "ROFF_F",  "SALT_F", "TAUX", "TAUY", "CURL",  \
-                  "QFLUX",   "SNOW_F" /)
+else ; POP
+  if ( (resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3") )then
+    field_name  = (/ "SHF",    "MELTH_F", \
+                    "SENH_F",  "LWUP_F",     "LWDN_F",  "EVAP_F",  \
+                    "SFWF",    "PREC_F",  "MELT_F",  \
+                    "ROFF_F",  "SALT_F", "TAUX", "TAUY",  \
+                    "SNOW_F" /)
+  else
+     field_name  = (/ "SHF",     "SHF_TOTAL",  "SHF_QSW", "MELTH_F", \
+                    "SENH_F",  "LWUP_F",     "LWDN_F",  "EVAP_F",  \
+                    "SFWF",    "SFWF_TOTAL", "PREC_F",  "MELT_F",  \
+                    "ROFF_F",  "SALT_F", "TAUX", "TAUY", "CURL",  \
+                    "QFLUX",   "SNOW_F" /)
+  end if
 end if
 
 
@@ -28,12 +38,24 @@ if ((resolution .eq. "gx1v6") .or. (resolution .eq. "gx1v7")) then
 		"", "Foxx_netfwflx","Foxx_rain","", \
 		"", "", "Foxx_taux", "Foxx_tauy", \
 		"", "", "Foxx_snow" /)
+else if (resolution .eq. "tx0.66v1")
+  ;obs_var_name = (/  "", "Foxx_nethflx",  "Foxx_swnet", "", \
+	;	"Foxx_sen", "Foxx_lwup", "Foxx_lwdn","Foxx_evap", \
+	;	"", "Foxx_netfwflx","Foxx_rain","", \
+	;	"", "", "Foxx_taux", "Foxx_tauy", \
+	;	"", "", "Foxx_snow" /)
+  obs_var_name = (/  "", "",  "", "", \
+		"", "", "","", \
+		"", "","","", \
+		"", "", "", "", \
+		"", "", "" /)
 else
   obs_var_name = (/  "", "",  "", "", \
 		"", "", "","", \
 		"", "","","", \
 		"", "", "", "", \
 		"", "", "" /)
+end if
 end if
 		
 
@@ -42,32 +64,42 @@ print( " the number of fields to be processed is " + n_fields)
 
 missing = default_fillvalue("float")
 
-;;print("file_netcdf = "+file_netcdf)
-;;print("file_flux_obs = "+file_flux_obs)
-;;print("file_wind_obs = "+file_wind_obs)
+print("file_netcdf = "+file_netcdf)
+print("file_flux_obs = "+file_flux_obs)
+print("file_wind_obs = "+file_wind_obs)
 
 fileid     = addfile(file_netcdf,"r")
 fileid_obs = addfile(file_flux_obs,"r")
 fileid_windobs = addfile(file_wind_obs,"r")
 
-days_in_norm_year = fileid->days_in_norm_year
-sflux_factor = fileid->sflux_factor
-salinity_factor = fileid->salinity_factor
-rho_sw = fileid->rho_sw * 1000.0
-l_f = fileid->latent_heat_fusion / 1e4
-tlat = fileid->TLAT
-tlon = fileid->TLONG
-sizes = dimsizes(tlon)
-nx = sizes(1)
-ny = sizes(0)
-dxu = fileid->DXU
-dyu = fileid->DYU
-kmt = fileid->KMT
-kmu = fileid->KMU
-region_mask = fileid->REGION_MASK
-tarea = fileid->TAREA
-uarea = fileid->UAREA
-angle = fileid->ANGLE
+if (ocn_comp.eq."MOM") then
+  dout_s_root = getenv("DOUT_S_ROOT")
+  ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
+
+  sflux_factor = 0.1 ; ?????????
+  salinity_factor = 0.1 ; ?????????
+  tlon = ocn_geo_file->geolon
+  tlat = ocn_geo_file->geolat
+  gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+  gridInfoFile = addfile(gridInfoFilePath,"r")
+  kmt = gridInfoFile->KMT
+  region_mask = kmt ; TODO: fix_this !!!
+  tarea = gridInfoFile->TAREA
+  angle = gridInfoFile->ANGLE
+else
+  sflux_factor = fileid->sflux_factor
+  salinity_factor = fileid->salinity_factor
+  l_f = fileid->latent_heat_fusion / 1e4
+  tlat = fileid->TLAT
+  tlon = fileid->TLONG
+  dxu = fileid->DXU
+  dyu = fileid->DYU
+  kmt = fileid->KMT
+  region_mask = fileid->REGION_MASK
+  tarea = fileid->TAREA
+  uarea = fileid->UAREA
+  angle = fileid->ANGLE
+end if
 
 do n = 0, n_fields-1
 
@@ -150,7 +182,7 @@ do n = 0, n_fields-1
     end if
   else
     if (isfilevar(fileid,field_name(n))) then
-      field = fileid->$field_name(n)$
+      field := fileid->$field_name(n)$
     else
       field = _Missing
     end if
@@ -233,13 +265,15 @@ do n = 0, n_fields-1
 ;    units = " W m!e-2!n" 
   end if
 
-  if ( field_name(n) .eq. "SHF_TOTAL" ) then
+  if ( field_name(n) .eq. "SHF_TOTAL" .or. \
+       field_name(n) .eq. "hfds" ) then
     dmin      = -200.0
     dmax      =  200.0
     dmin_diff = -100.0
     dmax_diff =  100.0
 ;    units     = " W m!e-2!n"
     contourline = 1
+   field_name(n) = "SHF_TOTAL" ; for MOM6
   end if
 
   if ( field_name(n) .eq. "SENH_F" ) then
@@ -367,7 +401,8 @@ do n = 0, n_fields-1
     contourline=2
   end if
 
-  if ( field_name(n) .eq. "SALT_F" ) then
+  if ( field_name(n) .eq. "SALT_F" .or. \
+       field_name(n) .eq. "sfdsi" ) then
     dmin  = -3.0
     dmax  =  3.0 
 ;    units = " x10!e-5!n Kg m!e-2!n s!e-1!n"
@@ -375,7 +410,9 @@ do n = 0, n_fields-1
     ;printVarSummary(salinity_factor)
    if (abs(salinity_factor).gt.0.) then
     field = field * tofloat(sflux_factor) / ( tofloat(salinity_factor) * 1.0e-5 )
+    field@_FillValue = field@_FillValue * tofloat(sflux_factor) / ( tofloat(salinity_factor) * 1.0e-5 )
    end if
+   field_name(n) = "SALT_F" ; for MOM6
   end if
 
   if ( field_name(n) .eq. "TAUX" ) then 
@@ -478,12 +515,13 @@ do n = 0, n_fields-1
   else
      opt@do_panel = False
   end if
-  ;;print("drawing plot1")
+  print("drawing plot1")
+  print(field@_FillValue)
   plot1 = contour_plot(wks, field, tlon, tlat, kmt, region_mask, area, case_info, \
       	               missing, units, dlev, lev, coltab, opt)
 
   if (opt@do_panel) then
-  ;;print("drawing plot2")
+  print("drawing plot2")
   if (field_name(n) .eq. "CURL") then
       opt@contourline = 2
   else
