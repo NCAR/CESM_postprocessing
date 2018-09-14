@@ -10,10 +10,10 @@ print ( "resolution = " + resolution )
 ocn_comp = getenv("OCN_COMP")
 
 if (ocn_comp.eq."MOM") then
-  field_name  = (/ "SHF",    "hfds", "MELTH_F", \
-                  "SENH_F",  "LWDN_F",  "EVAP_F",  \
-                  "PREC_F",  "MELT_F",  \
-                  "ROFF_F",  "sfdsi", "TAUX", "TAUY",  \
+  field_name  = (/ "SHF",    "hfds", "rsntds", "hfsnthermds", \
+                  "hfsso",  "rlntds",  "evs",  \
+                  "precip",  "MELT_F",  \
+                  "friver",  "sfdsi", "taux", "tauy",  \
                   "SNOW_F" /)
 else ; POP
   if ( (resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3") )then
@@ -39,16 +39,11 @@ if ((resolution .eq. "gx1v6") .or. (resolution .eq. "gx1v7")) then
 		"", "", "Foxx_taux", "Foxx_tauy", \
 		"", "", "Foxx_snow" /)
 else if (resolution .eq. "tx0.66v1")
-  ;obs_var_name = (/  "", "Foxx_nethflx",  "Foxx_swnet", "", \
-	;	"Foxx_sen", "Foxx_lwup", "Foxx_lwdn","Foxx_evap", \
-	;	"", "Foxx_netfwflx","Foxx_rain","", \
-	;	"", "", "Foxx_taux", "Foxx_tauy", \
-	;	"", "", "Foxx_snow" /)
-  obs_var_name = (/  "", "",  "", "", \
-		"", "", "","", \
-		"", "","","", \
+  obs_var_name = (/  "", "Foxx_nethflx",  "Foxx_swnet", "", \
+		"Foxx_sen", "Foxx_lwdn","Foxx_evap", \
+		"Foxx_rain", "", \
 		"", "", "", "", \
-		"", "", "" /)
+		"" /)
 else
   obs_var_name = (/  "", "",  "", "", \
 		"", "", "","", \
@@ -76,8 +71,8 @@ if (ocn_comp.eq."MOM") then
   dout_s_root = getenv("DOUT_S_ROOT")
   ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
 
-  sflux_factor = 0.1 ; ?????????
-  salinity_factor = 0.1 ; ?????????
+  sflux_factor = 0.1 ; TODO ?????????
+  salinity_factor = 0.1 ; TODO ?????????
   tlon = ocn_geo_file->geolon
   tlat = ocn_geo_file->geolat
   gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
@@ -105,8 +100,8 @@ do n = 0, n_fields-1
 
   contourline = 3
   obsvar = ""
-  if (field_name(n) .eq. "TAUX" .or. \
-      field_name(n) .eq. "TAUY") then
+  if (field_name(n) .eq. "TAUX" .or. field_name(n) .eq. "taux" .or. \
+      field_name(n) .eq. "TAUY" .or. field_name(n) .eq. "tauy") then
 	obsfile = fileid_windobs
 	obs_prefix = "avXc2o_o_"
   else
@@ -122,7 +117,8 @@ do n = 0, n_fields-1
 	obsvar = obs_prefix + obs_var_name(n)
 	field_obs = obsfile->$obsvar$
   end if
-  if (field_name(n) .eq. "PREC_F") then
+  if (field_name(n) .eq. "PREC_F" .or. \
+      field_name(n) .eq. "precip" ) then
 	snow_varname = obs_prefix + "Foxx_snow"
 	snow = obsfile->$snow_varname$
         ;printVarSummary(snow)
@@ -205,6 +201,7 @@ do n = 0, n_fields-1
     end if
 
     area = tarea
+
     if ( field_name(n) .eq. "TAUX" ) then 
       field_2 = fileid->TAUY
       ;printVarSummary(field_2)
@@ -214,6 +211,23 @@ do n = 0, n_fields-1
       field = where(abs(field) .gt. 1.0e29, field@_FillValue, field)
       delete(field_2)
       area = uarea
+;      obsvar2 = obs_prefix + "Foxx_tauy"
+;      field_obs2 = obsfile->$obsvar2$
+      if (obsvar .ne. "") then
+        field_obs = where(abs(field_obs) .gt. 1.0e10, field_obs@_FillValue, field_obs)
+        field_obs = field_obs * 10.0
+;      field_obs2 = where(abs(field_obs2) .gt. 1.0e10, field_obs2@_FillValue, field_obs2)
+;      field_obs2 = field_obs2 * 10.0
+;      field_obs(0,:,:) = field_obs(0,:,:) * cos(angle) + field_obs2(0,:,:) * sin(-angle)
+;      delete(field_obs2)
+      end if
+
+    else if ( field_name(n) .eq. "taux" ) then
+      field_2 = fileid->tauy
+      field(0,:,:) = tofloat(field(0,:,:) * cos(angle) + field_2(0,:,:) * sin(-angle))
+      field = where(abs(field) .gt. 1.0e9, field@_FillValue, field)
+      delete(field_2)
+      area := ocn_geo_file->dxCu * ocn_geo_file->dyCu ; TODO: correct this !!!
 ;      obsvar2 = obs_prefix + "Foxx_tauy"
 ;      field_obs2 = obsfile->$obsvar2$
       if (obsvar .ne. "") then
@@ -241,8 +255,28 @@ do n = 0, n_fields-1
  ;     field_obs(0,:,:) = field_obs(0,:,:) * cos(angle) - field_obs2(0,:,:) * sin(-angle)
  ;     delete(field_obs2)
       end if
+
+    else if (field_name(n) .eq. "tauy" ) then
+      field_2 = fileid->taux
+      field(0,:,:) = tofloat(field(0,:,:) * cos(angle) - field_2(0,:,:) * sin(-angle))
+      field = where(abs(field) .gt. 1.0e9, field@_FillValue, field)
+      delete(field_2)
+      area := ocn_geo_file->dxCv * ocn_geo_file->dyCv ; TODO: correct this !!!
+ ;     obsvar2 = obs_prefix + "Foxx_taux"
+ ;     field_obs2 = obsfile->$obsvar2$
+      if (obsvar .ne. "") then
+        field_obs = where(abs(field_obs) .gt. 1.0e10, field_obs@_FillValue, field_obs)
+        field_obs = field_obs * 10.0
+ ;     field_obs2 = where(abs(field_obs2) .gt. 1.0e10, field_obs2@_FillValue, field_obs2)
+ ;     field_obs2 = field_obs2  * 10.0
+ ;     field_obs(0,:,:) = field_obs(0,:,:) * cos(angle) - field_obs2(0,:,:) * sin(-angle)
+ ;     delete(field_obs2)
+      end if
+
     end if
-  end if
+    end if
+    end if
+    end if
 
   dmin = missing 
   dmax = missing 
@@ -276,20 +310,24 @@ do n = 0, n_fields-1
    field_name(n) = "SHF_TOTAL" ; for MOM6
   end if
 
-  if ( field_name(n) .eq. "SENH_F" ) then
+  if ( field_name(n) .eq. "SENH_F" .or. \
+       field_name(n) .eq. "hfsso") then
     dmin      = -100.0
     dmax      =  40.0
     dmin_diff =  -50.0
     dmax_diff =   50.0
 ;    units     = " W m!e-2!n"
+   field_name(n) = "SENH_F" ; for MOM6
   end if
 
-  if ( field_name(n) .eq. "SHF_QSW" ) then
+  if ( field_name(n) .eq. "SHF_QSW" .or. \
+       field_name(n) .eq. "rsntds" ) then
     dmin      =   0.0
     dmax      = 400.0 
     dmin_diff = -50.0
     dmax_diff =  50.0
 ;    units     = " W m!e-2!n"
+   field_name(n) = "SHF_QSW" ; for MOM6
   end if
 
   if ( field_name(n) .eq. "LWUP_F" ) then
@@ -300,21 +338,30 @@ do n = 0, n_fields-1
 ;    units     = " W m!e-2!n"
   end if
 
-  if ( field_name(n) .eq. "LWDN_F" ) then
+  if ( field_name(n) .eq. "LWDN_F" .or. \
+       field_name(n) .eq. "rlntds" ) then
     dmin      =    0.0
     dmax      =  500.0
     dmin_diff = -100.0
     dmax_diff =  100.0
 ;    units     = " W m!e-2!n"
+   if (field_name(n) .eq. "rlntds") then
+	   field_obs = obsfile->x2oavg_Foxx_lwdn + obsfile->x2oavg_Foxx_lwup
+     dmin      =   -100.0
+     dmax      =    0.0
+   end if
+   field_name(n) = "LWDN_F" ; for MOM6
   end if
 
-  if ( field_name(n) .eq. "MELTH_F" ) then
+  if ( field_name(n) .eq. "MELTH_F" .or. \
+       field_name(n) .eq. "hfsnthermds") then
     dmin      = -50.0
     dmax      =   0.0
     dmin_diff =  -50.0
     dmax_diff =   50.0
 ;    units     = " W m!e-2!n"
     contourline = 2
+   field_name(n) = "MELTH_F" ; for MOM6
   end if
 
   if ( field_name(n) .eq. "SFWF"   ) then 
@@ -350,7 +397,8 @@ do n = 0, n_fields-1
     contourline = 2
   end if
 
-  if ( field_name(n) .eq. "ROFF_F" ) then
+  if ( field_name(n) .eq. "ROFF_F" .or. \
+       field_name(n) .eq. "friver" ) then
     dmin      = 0.0
     dmax      = 30.0
     dmin_diff =  -4.0
@@ -361,9 +409,11 @@ do n = 0, n_fields-1
     field_obs = field_obs / 1.0e-5
    end if
     contourline = 2
+   field_name(n) = "ROFF_F" ; for MOM6
   end if
 
-  if ( field_name(n) .eq. "EVAP_F" ) then
+  if ( field_name(n) .eq. "EVAP_F" .or. \
+       field_name(n) .eq. "evs" ) then
     dmin      = -14.0
     dmax      =   1.0
     dmin_diff =  -4.0
@@ -373,9 +423,11 @@ do n = 0, n_fields-1
    if (obsvar .ne. "") then
     field_obs = field_obs / 1.0e-5
    end if
+   field_name(n) = "EVAP_F" ; for MOM6
   end if
 
-  if ( field_name(n) .eq. "PREC_F" ) then
+  if ( field_name(n) .eq. "PREC_F" .or. \
+       field_name(n) .eq. "precip" ) then
     dmin      =  0.0
     dmax      =  14.0
     dmin_diff =  -8.0
@@ -386,6 +438,7 @@ do n = 0, n_fields-1
     field_obs = field_obs / 1.0e-5
    end if
     contourline=2
+   field_name(n) = "PREC_F" ; for MOM6
   end if
 
   if ( field_name(n) .eq. "SNOW_F" ) then
@@ -415,13 +468,21 @@ do n = 0, n_fields-1
    field_name(n) = "SALT_F" ; for MOM6
   end if
 
-  if ( field_name(n) .eq. "TAUX" ) then 
+  if ( field_name(n) .eq. "TAUX" ) then
     dmin      = -4.0
     dmax      =  4.0
     dmin_diff = -2.0
     dmax_diff =  2.0
 ;    units     = " dyn cm!e-2!n"
 ;    field_obs = field_obs * 10.
+  end if
+
+  if ( field_name(n) .eq. "taux" ) then
+    dmin      = -0.4
+    dmax      =  0.4
+    dmin_diff = -2.0
+    dmax_diff =  2.0
+    field_name(n)="TAUX"
   end if
 
   if ( field_name(n) .eq. "TAUY" ) then 
@@ -431,6 +492,14 @@ do n = 0, n_fields-1
     dmax_diff =  1.0 
 ;    units     = " dyn cm!e-2!n"
 ;    field_obs = field_obs * 10. 
+  end if
+
+  if ( field_name(n) .eq. "tauy" ) then
+    dmin      = -0.2
+    dmax      =  0.2
+    dmin_diff = -0.1
+    dmax_diff =  0.1
+    field_name(n)="TAUY"
   end if
 
   if ( field_name(n) .eq. "QFLUX" ) then
@@ -498,8 +567,15 @@ do n = 0, n_fields-1
 
   case_info = field_name(n)+" " + case_number + " " + time_info
 
+  if (ocn_comp.eq."MOM") then
+    if ( field_name(n) .eq. "LWDN_F")
+      case_info = "LWDN_F+LWUP_F !!!  " + case_number + " " + time_info
+    end if
+  end if
+
   case_info_diff = "MODEL - OBS ("+ file_flux_obs+")"
   if ( field_name(n) .eq. "TAUX" .or. field_name(n) .eq. "TAUY" .or. \
+  field_name(n) .eq. "taux" .or. field_name(n) .eq. "tauy" .or. \
 	field_name(n) .eq. "CURL" ) then \
     case_info_diff = "MODEL - OBS ("+ file_wind_obs+")"
   end if
