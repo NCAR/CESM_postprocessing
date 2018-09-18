@@ -358,7 +358,7 @@ def createClimFiles(start_year, stop_year, in_dir, htype, tavgdir, case, tseries
         if len(averageListMoc) > 0:
             # call the pyAverager with the inVarList
             if 'MOC' in inVarList:
-                tmpInVarList = ['SALT', 'TEMP', 'MOC']
+                tmpInVarList = ['MOC']
             else:
                 tmpInVarList = ['SALT', 'TEMP']
             if main_comm.is_manager():
