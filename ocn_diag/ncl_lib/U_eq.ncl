@@ -5,6 +5,7 @@ load "$NCLPATH/get_environment.ncl"
 load "$NCLPATH/pop_lon_shift.ncl"
 load "$NCLPATH/pop_eq_avg.ncl"
 begin
+
    fileid = addfile(file_netcdf,"r")
    uvel = fileid->UVEL(0,:,:,:)
    if (isatt(uvel,"_FillValue"))
@@ -132,6 +133,13 @@ begin
    res@trYReverse = True
    res@trYMaxF = 400.0
    res@trYMinF = 0.0
+   if ( (resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3") )then
+     ; ulon needs to be monotonically increasing and absent any missing_value
+     do i=0,3599
+      ulon(y_eq,i) = todouble(i)*0.1
+     end do
+     res@sfXArray = ulon(y_eq,:)
+   end if
    res@trXMaxF = 290.0
    res@trXMinF = 110.0
    plot1 = gsn_csm_contour(wks,temp1(:z_max,:),res)  

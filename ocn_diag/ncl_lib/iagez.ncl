@@ -9,7 +9,13 @@ begin
    print( " plotting IAGE at "+ n_depth + " depth levels")
    
    fileid = addfile(file_netcdf,"r")
-   iage = fileid->IAGE
+
+   if (isfilevar(fileid,"IAGE"))
+     iage = fileid->IAGE
+   else
+     return
+   end if
+
    if (isatt(iage,"_FillValue"))
       missing = iage@_FillValue
    else
