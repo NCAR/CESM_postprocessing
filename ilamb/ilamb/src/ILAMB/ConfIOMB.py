@@ -66,7 +66,7 @@ class ConfIOMB(Confrontation):
         pages[-1].text = "\n"
         with Dataset(self.source) as dset:
             for attr in dset.ncattrs():
-                pages[-1].text += "<p><b>&nbsp;&nbsp;%s:&nbsp;</b>%s</p>\n" % (attr,dset.getncattr(attr).encode('ascii','ignore'))
+                pages[-1].text += "<p><b>&nbsp;&nbsp;%s:&nbsp;</b>%s</p>\n" % (attr,str(dset.getncattr(attr)).encode('ascii','ignore'))
         self.layout = post.HtmlLayout(pages,self.longname)
 
     def stageData(self,m):
