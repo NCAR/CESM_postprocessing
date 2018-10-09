@@ -34,6 +34,27 @@ begin
   y_min = ind_nearest_coord(-1.5,lat(:,0),0)
   y_max = ind_nearest_coord(1.5,lat(:,0),0)
 
+  shift_needed = False
+  if ( (resolution .eq. "tx0.1v2") .or. (resolution .eq. "tx0.1v3") )then
+    shift_needed = True
+
+    field_orig = field
+    lon_orig = lon
+    lat_orig = lat
+    tarea_orig = tarea
+
+    field(:,:,:(nx-1-xs)) = field_orig(:,:,xs:nx-1)
+    field(:,:,(nx-xs):)   = field_orig(:,:,:xs-1)
+    lon(:,:(nx-1-xs))   = lon_orig(:,xs:nx-1)
+    lon(:,(nx-xs):)     = lon_orig(:,:xs-1)
+    lat(:,:(nx-1-xs))   = lat_orig(:,xs:nx-1)
+    lat(:,(nx-xs):)     = lat_orig(:,:xs-1)
+    tarea(:,:(nx-1-xs)) = tarea_orig(:,xs:nx-1)
+    tarea(:,(nx-xs):)   = tarea_orig(:,:xs-1)
+
+    xs = ind_nearest_coord(115,lon(y_eq,:),0)
+    xe = ind_nearest_coord(285,lon(y_eq,:),0)
+  end if
 
   str1 = sprintf("%.1f",abs(lat(y_min,0)))
   str2 = sprintf("%.1f",abs(lat(y_max,0)))
@@ -188,7 +209,16 @@ begin
   res@tiMainString = "ANOMALY ("+case_number+")"
   res@tmYLLabelsOn = False
   delete(res@tiYAxisString)
-  plot3 = gsn_csm_contour(wks,anom_cyc,res)
+
+  if (shift_needed) then
+    delete(res@trXMinF)
+    delete(res@trXMaxF)
+    xs = ind_nearest_coord(120,lon(y_eq,:),0)
+    xe = ind_nearest_coord(280,lon(y_eq,:),0)
+    plot3 = gsn_csm_contour(wks,anom_cyc(:,xs-1:xe+1),res)
+  else
+    plot3 = gsn_csm_contour(wks,anom_cyc,res)
+  end if
 
   panel_res = True
   panel_res@gsnMaximize = True

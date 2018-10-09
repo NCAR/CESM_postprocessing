@@ -115,6 +115,7 @@ def regrid_climos(env,main_comm):
 
     # If SE grid, convert to lat/lon grid
     regrid_script = 'regridclimo.ncl'
+
     # Convert Test Case
     if (env['test_regrid'] == 'True'):
         # get list of climo files to regrid
@@ -127,13 +128,17 @@ def regrid_climos(env,main_comm):
         local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
         for climo_file in local_climo_files:
             diagUtilsLib.atm_regrid(climo_file, regrid_script, env['test_res_in'], env['test_res_out'], env)
+
+    main_comm.sync()
     # Convert CNTL Case
-    if (env['MODEL_VS_MODEL'] == 'True' and env['cntl_regrid'] == 'True'):
+    if (env['MODEL_VS_MODEL'] and env['cntl_regrid']):
+        if main_comm.is_manager():
+            print('in cntl regrid')
         # get list of climo files to regrid
         endYr = (int(env['cntl_first_yr']) + int(env['cntl_nyrs'])) - 1
         subdir = '{0}.{1}-{2}'.format(env['cntl_casename'], env['cntl_first_yr'], endYr)
         workdir = '{0}/{1}'.format(env['cntl_path_climo'], subdir)
-        climo_files = glob.glob( env['cntl_path_climo']+'/*.nc')
+        climo_files = glob.glob( workdir+'/*.nc')
         # partition the climo files between the ranks so each rank will get a portion of the list to regrid
         local_climo_files = main_comm.partition(climo_files, func=partition.EqualStride(), involved=True)
         for climo_file in local_climo_files:
@@ -231,6 +236,8 @@ def main(options, main_comm, debugMsg):
 
     # check to see if the climos need to be regridded into a lat/lon grid
     if (envDict['test_regrid'] == 'True' or envDict['cntl_regrid'] == 'True'):
+        if main_comm.is_manager():
+            print('calling regrid_climos')
         regrid_climos(envDict, main_comm)
     main_comm.sync()
 
