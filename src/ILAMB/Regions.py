@@ -95,11 +95,12 @@ class Regions(object):
                 lat = dset.variables[v.dimensions[0]][...]
                 lon = dset.variables[v.dimensions[1]][...]
                 lbl = dset.variables[v.labels       ][...]
+                nam = dset.variables[v.names        ][...] if "names" in v.ncattrs() else lbl
                 ids = np.ma.compressed(np.unique(v[...]))
                 assert ids.max() < lbl.size
                 for i in ids:
                     label = lbl[i].lower()
-                    name  = lbl[i]
+                    name  = nam[i]
                     mask  = v[...].data != i
                     Regions._regions[label] = [name,lat,lon,mask]
                     labels.append(label)
@@ -165,8 +166,11 @@ class Regions(object):
         axes = range(var.data.ndim)
         if var.spatial: axes = axes[:-2]
         if var.ndata  : axes = axes[:-1]
-        keep  = (var.data.mask == False).any(axis=tuple(axes))
-        keep *= (self.getMask(label,var)==False)
+        keep = (self.getMask(label,var)==False)
+        if var.data.mask.size == 1:
+            if var.data.mask: keep *= 0
+        else:
+            keep *= (var.data.mask == False).any(axis=tuple(axes))
         if keep.sum() > 0: return True
         return False
         
