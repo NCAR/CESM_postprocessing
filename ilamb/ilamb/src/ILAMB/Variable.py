@@ -1220,8 +1220,7 @@ class Variable:
                 args.append(rows)
                 args.append(cols)
                 ind   = np.ix_(*args)
-                mask  = data.mask
-                if data.mask.size > 1: mask = data.mask[ind]
+                mask  = data.mask[ind]
                 data  = data.data[ind]
                 data  = np.ma.masked_array(data,mask=mask)
                 frac  = self.area / il.CellAreas(self.lat,self.lon,self.lat_bnds,self.lon_bnds).clip(1e-12)
