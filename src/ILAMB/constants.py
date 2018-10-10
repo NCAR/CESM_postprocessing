@@ -87,7 +87,7 @@ space_opts["timeintremap"] = { "name"      :"Temporally integrated remapped peri
                                "haslegend" :True }
 
 space_opts["bias"]    = { "name"      :"Temporally integrated period mean bias",
-                          "cmap"      :"bias",
+                          "cmap"      :"seismic",
                           "sym"       :True,
                           "ticks"     :None,
                           "ticklabels":None,

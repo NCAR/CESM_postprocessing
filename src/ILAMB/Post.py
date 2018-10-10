@@ -152,7 +152,7 @@ def TaylorDiagram(stddev,corrcoef,refstd,fig,colors,normalize=True):
 
 class HtmlFigure():
 
-    def __init__(self,name,pattern,side=None,legend=False,benchmark=False,longname=None,width=None,br=False):
+    def __init__(self,name,pattern,side=None,legend=False,benchmark=False,longname=None):
 
         self.name      = name
         self.pattern   = pattern
@@ -160,8 +160,6 @@ class HtmlFigure():
         self.legend    = legend
         self.benchmark = benchmark
         self.longname  = longname
-        self.width     = width
-        self.br        = br
         
     def generateClickRow(self,allModels=False):
         name = self.pattern
@@ -186,19 +184,17 @@ class HtmlFigure():
 
     def __str__(self):
 
-        opts = "width = %d" % self.width if self.width else ""
-        cls  = "break" if self.br else "container"
         code = """
-        <div class="%s" id="%s_div">
-          <div class="child">""" % (cls,self.name)
+        <div class="container" id="%s_div">
+          <div class="child">""" % (self.name)
         if self.side is not None:
             code += """
           <center>%s</center>""" % (self.side.replace(" ","&nbsp;"))
         code += """
-          <img src="" id="%s" alt="Data not available" %s></img>""" % (self.name,opts)
+          <img src="" id="%s" alt="Data not available"></img>""" % (self.name)
         if self.legend:
             code += """
-          <center><img src="legend_%s.png" id="leg"  alt="Data not available" %s></img></center>""" % (self.name.replace("benchmark_",""),opts)
+          <center><img src="legend_%s.png" id="leg"  alt="Data not available"></img></center>""" % (self.name.replace("benchmark_",""))
         code += """
           </div>
         </div>"""
@@ -318,12 +314,12 @@ class HtmlPage(object):
         self.sections = sections
         for section in sections: self.figures[section] = []
 
-    def addFigure(self,section,name,pattern,side=None,legend=False,benchmark=False,longname=None,width=None,br=False):
+    def addFigure(self,section,name,pattern,side=None,legend=False,benchmark=False,longname=None):
 
         assert section in self.sections
         for fig in self.figures[section]:
             if fig.name == name: return
-        self.figures[section].append(HtmlFigure(name,pattern,side=side,legend=legend,benchmark=benchmark,longname=longname,width=width,br=br))
+        self.figures[section].append(HtmlFigure(name,pattern,side=side,legend=legend,benchmark=benchmark,longname=longname))
     
     def setMetricPriority(self,priority):
         self.priority = priority
@@ -914,9 +910,6 @@ class HtmlLayout():
       .container{
         display:inline;
       }
-      .break{
-        clear:left;
-      }
       .child{
         margin-bottom:10px;
         display:inline-block;
@@ -1028,27 +1021,6 @@ def RegisterCustomColormaps():
                       (1.0, Gn[2], 0.0  ))}
     plt.register_cmap(name='RdGn', data=RdGn)
 
-    # bias colormap
-    val = 0.8
-    per = 0.2 /2
-    Rd  = cs.rgb_to_hsv(1,0,0)
-    Rd  = cs.hsv_to_rgb(Rd[0],Rd[1],val)
-    Bl  = cs.rgb_to_hsv(0,0,1)
-    Bl  = cs.hsv_to_rgb(Bl[0],Bl[1],val)
-    RdBl = {'red':   ((0.0    , 0.0,   Bl[0]),
-                      (0.5-per, 1.0  , 1.0  ),
-                      (0.5+per, 1.0  , 1.0  ),
-                      (1.0    , Rd[0], 0.0  )),
-            'green': ((0.0    , 0.0,   Bl[1]),
-                      (0.5-per, 1.0  , 1.0  ),
-                      (0.5+per, 1.0  , 1.0  ),
-                      (1.0    , Rd[1], 0.0  )),
-            'blue':  ((0.0    , 0.0,   Bl[2]),
-                      (0.5-per, 1.0  , 1.0  ),
-                      (0.5+per, 1.0  , 1.0  ),
-                      (1.0    , Rd[2], 0.0  ))}
-    plt.register_cmap(name='bias', data=RdBl)
-    
 
 def BenchmarkSummaryFigure(models,variables,data,figname,vcolor=None,rel_only=False):
     """Creates a summary figure for the benchmark results contained in the
