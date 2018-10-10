@@ -42,8 +42,9 @@ begin
     var_in   = getfilevarnames( sfile )
     nvar_in  = dimsizes(var_in)
 
-;---Specify a list of 1D variables on the source SE file that should NOT be copied
-    var_in_exclude = (/"lat", "lon", "date_written", "time_written", "time_bounds", "ZSOI", "DZSOI", "WATSAT", "SUCSAT", "BSW", "HKSAT", "area"/)  
+;---Specify a list of variables on the source SE file that should NOT be copied or interpolated
+;   var_in_exclude = (/"lat", "lon", "date_written", "time_written", "time_bounds", "ZSOI", "DZSOI", "WATSAT", "SUCSAT", "BSW", "HKSAT", "ZLAKE", "DZLAKE", "area"/)  
+    var_in_exclude = (/"lat", "lon", "date_written", "time_written", "time_bounds", "area"/)  
 
 ;---Specify a list of variables on the source SE file that should be directly copied 
     var_in_copy = (/"time", "levgrnd", "levlak", "levdcmp", "hist_interval","mscur"/)
@@ -148,17 +149,30 @@ begin
 ;===================================================================
     dNames   = getvardims(sfile)       ; get level info from source file
     dSizes   = getfiledimsizes(sfile)
-    ia       = ind(dNames.eq."levgrnd" )   ; # of levels
+    ia       = ind(dNames.eq."levgrnd" )
     ib       = ind(dNames.eq."levlak")
     klevgrnd = dSizes(ia)
     klevlak  = dSizes(ib)
-    if (any(dNames .eq. "levdcmp")) then
+    if (any(dNames .eq. "levdcmp")) then  ; levdcmp indicates a CLM4.5 or CLM5 simulation
+                                          ; and the dimensions below will all be present in both SP and BGC mode
       ic       = ind(dNames.eq."levdcmp")
       klevdcmp = dSizes(ic) 
-                                       ; standard CLM dimensions
-      dimNames = (/"time",    "lat",    "lon", "levgrnd",  "levlak", "levdcmp", "hist_interval"/)
-      dimSizes = (/    -1,     nlat,     mlon,  klevgrnd,   klevlak,  klevdcmp,               2/)
-      dimUnlim = (/  True,    False,    False,     False,     False,     False,           False/)
+      id       = ind(dNames.eq."levsoi")
+      klevsoi  = dSizes(id)
+      ie       = ind(dNames.eq."ltype")
+      kltype   = dSizes(ie)
+      ig       = ind(dNames.eq."cft")
+      kcft     = dSizes(ig)
+      ih       = ind(dNames.eq."natpft")
+      knatpft  = dSizes(ih)
+      ii       = ind(dNames.eq."glc_nec")
+      kglc_nec = dSizes(ii)
+      ij       = ind(dNames.eq."nvegwcs")
+      knvegwcs = dSizes(ij)
+                                       ; standard CLM5 dimensions
+      dimNames = (/"time",    "lat",    "lon", "levgrnd",  "levsoi",  "ltype", "cft",  "natpft",  "glc_nec",  "nvegwcs",  "levlak", "levdcmp", "hist_interval"/)
+      dimSizes = (/    -1,     nlat,     mlon,  klevgrnd,   klevsoi,   kltype,  kcft,   knatpft,   kglc_nec,   knvegwcs,   klevlak,  klevdcmp,               2/)
+      dimUnlim = (/  True,    False,    False,     False,     False,    False, False,     False,      False,      False,   False,       False,           False/)
       filedimdef(rgrd_nc,dimNames,dimSizes,dimUnlim)
     else
       dimNames = (/"time",    "lat",    "lon", "levgrnd",  "levlak", "hist_interval"/)
@@ -198,15 +212,24 @@ begin
            end if
            
            if (rank_in .eq.2 .and. .not.any(var_in(nv).eq.var_in_copy)) then
-               filevardef(rgrd_nc, var_in(nv), varvar_types \
-                                             , (/ "time", "lat", "lon" /)        )
-               dumAtts = new( 1, varvar_types)
+               vdims = getfilevardims(sfile, var_in(nv))
+               if (.not.any(vdims.eq."levgrnd") .and. .not.any(vdims.eq."levlak")) then
+                 filevardef(rgrd_nc, var_in(nv), varvar_types \
+                                               , (/ "time", "lat", "lon" /)        )
+                 dumAtts = new( 1, varvar_types)
+               else
+                 filevardef(rgrd_nc, var_in(nv), varvar_types \
+                                               , (/ vdims(0), "lat", "lon" /)        )
+                 dumAtts = new( 1, varvar_types)
+               end if
+               delete(vdims)
            end if
            if (rank_in .eq.3) then
                vdims = getfilevardims(sfile, var_in(nv))
                filevardef(rgrd_nc, var_in(nv), varvar_types \
                                              , (/ "time", vdims(1),  "lat", "lon" /)        )
                dumAtts = new( 1, varvar_types)
+               delete(vdims)
            end if
 
            varAtts = getfilevaratts(sfile, var_in(nv))
@@ -241,7 +264,7 @@ begin
                rgrd_nc->$var_in(nv)$ = sfile->$var_in(nv)$
               else
 
-                 if (var_in(nv) .eq. "landmask" .or. var_in(nv) .eq. "pftmask") then
+                 if (var_in(nv) .eq. "landmask" .or. var_in(nv) .eq. "pftmask" .or. var_in(nv) .eq. "nbedrock") then
                    maskmiss = int2flt(sfile->$var_in(nv)$)
                    maskmiss@_FillValue = 0.
                    maskmiss = where(ismissing(maskmiss),0.,1.)
