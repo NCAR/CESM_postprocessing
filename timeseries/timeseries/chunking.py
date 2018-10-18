@@ -9,8 +9,8 @@ from asaptools import partition
 
 def num2date(time_value, unit, calendar):
 ## fix for fractional time bounds
-#    if (math.floor(time_value) != time_value):
-#        time_value = int(round(time_value))
+    if (math.floor(time_value) != time_value):
+        time_value = int(round(time_value))
     if ('common_year' in unit):
         my_unit = unit.replace('common_year', 'day')
 ##        my_time_value = time_value * 365
@@ -80,13 +80,11 @@ def get_input_dates(glob_str, comm, rank, size):
 
         # get the time_period_freq global attribute from the first file
         if first:
-            if 'time_period_freq' in nc_atts:
+            try:
                 time_period_freq = f.getncattr('time_period_freq')
-                if rank == 0:
-                    print 'time_period_freq = ',time_period_freq
-            else:
-                if rank == 0:
-                    print 'Global attribute time_period_freq not found - set to XML tseries_tper element'
+                print 'time_period_freq = ',time_period_freq
+            except:
+                print 'Global attribute time_period_freq not found - set to XML tseries_tper element'
             first = False
         f.close()
 
@@ -95,9 +93,11 @@ def get_input_dates(glob_str, comm, rank, size):
     if size > 1:
         T1 = 31
         T2 = 32 
+        T3 = 33
         if rank==0:
             g_stream_dates = stream_dates
             g_file_slices = file_slices
+            g_att = att
             for i in range(0,size-1):
                 r,l_stream_dates = comm.collect(data=None, tag=T1)
                 g_stream_dates.update(l_stream_dates)               
@@ -105,20 +105,26 @@ def get_input_dates(glob_str, comm, rank, size):
                 r,l_file_slices = comm.collect(data=None, tag=T2)
                 g_file_slices.update(l_file_slices)
 
+                r,l_att = comm.collect(data=None, tag=T3)
+                g_att.update(l_att)
+
             comm.partition(g_stream_dates, func=partition.Duplicate(), involved=True)
             comm.partition(g_file_slices, func=partition.Duplicate(), involved=True)
+            comm.partition(g_att, func=partition.Duplicate(), involved=True)
         else:
             comm.collect(data=stream_dates, tag=T1) 
             comm.collect(data=file_slices, tag=T2)
-  
+            comm.collect(data=att, tag=T3) 
+ 
             g_stream_dates = comm.partition(func=partition.Duplicate(), involved=True)
             g_file_slices = comm.partition(func=partition.Duplicate(), involved=True)
-        if 'calendar' in att.keys():
-            calendar = att['calendar'] 
+            g_att = comm.partition(func=partition.Duplicate(), involved=True)
+        if 'calendar' in g_att.keys():
+            calendar = g_att['calendar'] 
         else:
             calendar = "noleap"
-        if 'units' in att.keys():
-            units = att['units'] 
+        if 'units' in g_att.keys():
+            units = g_att['units'] 
         else:
             units = "days since 0000-01-01 00:00:00"     
     comm.sync()
@@ -150,9 +156,16 @@ def get_cesm_date(fn,t=None):
            # for the first lnd and rof file
            if ( -1.0 < d < 0.0):
                d = 0
+        if t == 'bb':
+           d = f.variables[att['bounds']][0][0]
+           # for the first lnd and rof file
+           if ( -1.0 < d < 0.0):
+               d = 0
+           elif(d > 1):
+               d = d = f.variables[att['bounds']][0][1]
         elif t == 'e':
            l = len(f.variables[att['bounds']])
-           d = (f.variables[att['bounds']][l-1][0])
+           d = (f.variables[att['bounds']][l-1][1])-1
         elif t == 'ee':
            l = len(f.variables[att['bounds']])
            d = (f.variables[att['bounds']][l-1][1])
@@ -166,6 +179,7 @@ def get_cesm_date(fn,t=None):
 
 ##    d1 = cf_units.num2date(d,att['units'],att['calendar'].lower())
     d1 = num2date(d,att['units'],att['calendar'].lower())
+    f.close()
 
     return [str(d1.year).zfill(4),str(d1.month).zfill(2),str(d1.day).zfill(2),str(d1.hour).zfill(2)]
 
@@ -292,7 +306,10 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s):
                     else: # user indicated that they would like to end with an incomplete chunk
                         files[chunk_n] = {}
                         files[chunk_n]['fn'] = sorted(cfiles)
-                        files[chunk_n]['start'] = get_cesm_date(cfiles[0],t='b')
+                        if chunk_n > 0:
+                            files[chunk_n]['start'] = get_cesm_date(cfiles[0],t='bb')
+                        else:
+                            files[chunk_n]['start'] = get_cesm_date(cfiles[0],t='b')
                         files[chunk_n]['end'] = get_cesm_date(cfiles[-1],t='e')
                         for cd in sorted(cdates):
                             dates.append(cd)
@@ -302,8 +319,8 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s):
                 files[chunk_n] = {}
                 s_cdates = sorted(cdates)
                 files[chunk_n]['fn'] = sorted(cfiles)
-                files[chunk_n]['start'] = get_cesm_date(cfiles[0],t='b')  
-                files[chunk_n]['end'] = get_cesm_date(cfiles[-1],t='e') 
+                files[chunk_n]['start'] = get_cesm_date(cfiles[0],t='bb')  
+                files[chunk_n]['end'] = get_cesm_date(cfiles[-1],t='ee') 
                 for cd in sorted(cdates):
                     dates.append(cd)
             chunk_n = chunk_n+1
