@@ -322,10 +322,10 @@ do jj = 0, nseasons-1       ; Loop through seasonal means
       if (var_name_new.eq."CICE" .or. var_name_prev.eq."CICE".or. \
           var_name_new.eq."SIMIP" .or. var_name_prev.eq."SIMIP")then
          wks = gsn_open_wks(wks_type,wkdir + "diff_vec_"+season(jj)+"_"  \
-                         + "_cice_"+c_hemisphere(ihem))
+                         + "cice_"+c_hemisphere(ihem))
       else
          wks = gsn_open_wks(wks_type,wkdir + "diff_vec_"+season(jj)+"_"  \
-                         + "_csim_"+c_hemisphere(ihem))
+                         + "csim_"+c_hemisphere(ihem))
       end if
 
 ;     gsn_define_colormap(wks,"gui_default")
