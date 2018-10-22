@@ -22,6 +22,7 @@ begin
 
     method    = getenv("method")
     oldres    = getenv("oldres")
+    newres    = getenv("newres")
 
 ;---Get 1d destination lat/lons
     LL_dir   = getenv("wgt_dir")
@@ -72,8 +73,17 @@ begin
       fMAP_dir  = LL_dir
       fMAP_file = "map_ne30np4_nomask_TO_fv0.9x1.25_nomask_aave.130917.nc"
     else
-      fMAP_dir  = LL_dir
-      fMAP_file = "map_ne120np4_nomask_TO_fv0.23x0.31_nomask_aave.140123.nc"
+      if (oldres .eq. "SE_NE120" .and. newres .eq. "FV_768x1152") then
+        fMAP_dir  = LL_dir
+        fMAP_file = "map_ne120np4_nomask_TO_fv0.23x0.31_nomask_aave.140123.nc"
+      else
+        if (oldres .eq. "SE_NE120" .and. newres .eq. "FV_192x288") then
+          fMAP_dir  = LL_dir
+          fMAP_file = "map_ne120np4_nomask_TO_fv0.9x1.25_nomask_aave.181003.nc"
+        else
+          print((/"REGRIDDING NOT SUPPORTED FOR THIS oldres to newres"/))
+        end if
+      end if
     end if
     fMAP_path = fMAP_dir + fMAP_file
     fMAP      = addfile(fMAP_path,"r")
