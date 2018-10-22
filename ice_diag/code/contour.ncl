@@ -26,11 +26,17 @@ NH_min_lat   = 40
 NH_max_lat   = 90
 SH_min_lat   = -90
 SH_max_lat   = -45
-if (var_name.eq."NEW")then
+if (var_name.eq."CICE")then
   ; aice must be read in first for masking
   var_to_plot = (/"aice","hi","hs","Tsfc","flat_ai","fsens_ai", \
                 "congel","frazil","snoice","meltb","meltt", \
                 "meltl","dvidtt","dvidtd","daidtt","daidtd","fsalt_ai","albsni"/)
+else
+if (var_name.eq."SIMIP")then
+  ; aice must be read in first for masking
+  var_to_plot = (/"aice","hi","hs","sitemptop","sifllatstop","siflsenstop", \
+                "congel","frazil","sidmasssi","meltb","meltt", \
+                "meltl","dvidtt","dvidtd","daidtt","daidtd","siflsaltbot","albsni"/)
 else
   var_to_plot = (/"aice","hi","hs","Tsfc","Flat_aice","Fsens_aice", \
                   "growb","frazil","snoice","meltb","meltt", \
@@ -234,17 +240,21 @@ do k = 0,nvar-1                ; Loop through variables to be plotted
     end if
 
     ; Convert salt units if necessary
-    if (var_to_plot(k).eq."fsalt_ai") then
-    if (var_mean@units .eq. "kg/m2/s") then
+    if (var_to_plot(k).eq."fsalt_ai".or.var_to_plot(k).eq."siflsaltbot") then
+    if (var_mean@units .eq. "kg/m2/s".or.var_mean@units .eq. "kg/m^2/s".or. \
+        var_mean@units .eq. "kg m-2 s-1") then
        print(var_mean@units)
        var_mean = var_mean*86400.
        var_mean@units = "kg/m2/day"
     end if
-    if (var_mean@units .eq. "kg/m^2/s") then
-       print(var_mean@units)
-       var_mean = var_mean*86400.
-       var_mean@units = "kg/m2/day"
     end if
+
+    if (var_to_plot(k).eq."sidmasssi") then
+    if (var_mean@units .eq. "kg m-2 s-1") then
+;   Convert to cm/day
+       print(var_mean@units)
+       var_mean = var_mean*86400.*100./917.
+       var_mean@units = "cm/day"
     end if
 
     nrank = dimsizes(dimsizes(lat2d))
@@ -280,12 +290,12 @@ do k = 0,nvar-1                ; Loop through variables to be plotted
     print (season + " SH Min " + var_to_plot(k) + "=" +  SH_min)
     print (season + " SH Max " + var_to_plot(k) + "=" +  SH_max)
 
-    if (var_name.eq."NEW")then
+    if (var_name.eq."CICE".or.var_name.eq."SIMIP")then
        wks = gsn_open_wks(wks_type, wkdir + "con_"+season \
                   + "_" + var_to_plot(k) + "_cice")      ; open ps file
     else
        wks = gsn_open_wks(wks_type, wkdir + "con_"+season \
-                  + "_" + var_to_plot(k) + "_csim4")      ; open ps file
+                  + "_" + var_to_plot(k) + "_csim")      ; open ps file
     end if
 
     print (" Plotting " + var_to_plot(k) + " " + season)
@@ -329,12 +339,18 @@ do k = 0,nvar-1                ; Loop through variables to be plotted
 
     res@txFontHeightF  = 0.02
     res@cnLevels      =  NH_Pcntrs(k,:)
-    if (var_to_plot(k).eq."Tsfc") then
+    if (var_to_plot(k).eq."Tsfc" .or. var_to_plot(k).eq."sitemptop") then
+       if (var_mean@units .eq. "K") then
+          print(var_mean@units)
+          var_mean = var_mean - 273.15
+          var_mean@units = "degC"
+       end if
       if (season.eq."ann".or.season.eq."jas") then 
         res@cnLevels      =  SH_Pcntrs(k,:)
       end if
     end if
-    if (var_to_plot(k).eq."Flat_aice".or.var_to_plot(k).eq."growb".or. \
+    if (var_to_plot(k).eq."Flat_aice".or.var_to_plot(k).eq."flat_ai".or. \
+        var_to_plot(k).eq."sifllatstop".or.var_to_plot(k).eq."growb".or. \
         var_to_plot(k).eq."frazil".or.var_to_plot(k).eq."meltl") then
       if (season.eq."jas") then
         res@cnLevels      =  SH_Pcntrs(k,:)
@@ -374,12 +390,18 @@ do k = 0,nvar-1                ; Loop through variables to be plotted
    res@mpMinLatF  = SH_min_lat                ; minimum lat to plot
    res@mpMaxLatF  = SH_max_lat                ; maximum lat to plot
    res@cnLevels   =  SH_Pcntrs(k,:)
-   if (var_to_plot(k).eq."Tsfc") then
+   if (var_to_plot(k).eq."Tsfc".or.var_to_plot(k).eq."sitemptop") then
+       if (var_mean@units .eq. "K") then
+          print(var_mean@units)
+          var_mean = var_mean - 273.15
+          var_mean@units = "degC"
+       end if
      if (season.eq."jas") then
        res@cnLevels      =  NH_Pcntrs(k,:)
      end if
    end if
-    if (var_to_plot(k).eq."Flat_aice".or.var_to_plot(k).eq."growb".or. \
+    if (var_to_plot(k).eq."Flat_aice".or.var_to_plot(k).eq."flat_ai".or. \
+        var_to_plot(k).eq."sifllatstop".or.var_to_plot(k).eq."growb".or. \
         var_to_plot(k).eq."frazil".or.var_to_plot(k).eq."meltl") then
      if (season.ne."jfm") then
        res@cnLevels      =  NH_Pcntrs(k,:)
