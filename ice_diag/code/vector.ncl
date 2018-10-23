@@ -114,10 +114,10 @@ do j = 0, nseasons-1
 
   if (var_names.eq."CICE".or.var_names.eq."SIMIP") then
      wks = gsn_open_wks(wks_type,wkdir + "vec_"+season(j)+ \   ; open ps file
-                 + "_cice")
+                 "_cice")
   else
      wks = gsn_open_wks(wks_type,wkdir + "vec_"+season(j)+ \   ; open ps file
-                 + "_csim")
+                 "_csim")
   end if
   print (" Plotting " + season(j))
 

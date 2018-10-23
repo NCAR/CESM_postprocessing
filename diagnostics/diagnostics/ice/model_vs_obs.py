@@ -189,8 +189,12 @@ class modelVsObs(IceDiagnostic):
             print('DEBUG: model_vs_obs web_dir = {0}'.format(web_dir))
 
             html_dir = env['HTML_HOME']
+            var_name_type_cont = env['VAR_NAME_TYPE_CONT']
             create_ice_html.create_plotset_html(html_dir+'/index_temp.html',web_dir+'/index.html',env)
-            create_ice_html.create_plotset_html(html_dir+'/contour.html',web_dir+'/contour.html',env)
+            if 'SIMIP' in var_name_type_cont:
+                create_ice_html.create_plotset_html(html_dir+'/contour_simip.html',web_dir+'/contour.html',env)
+            else:
+                create_ice_html.create_plotset_html(html_dir+'/contour.html',web_dir+'/contour.html',env)
             create_ice_html.create_plotset_html(html_dir+'/timeseries.html',web_dir+'/timeseries.html',env)
             create_ice_html.create_plotset_html(html_dir+'/regional.html',web_dir+'/regional.html',env)
             create_ice_html.create_plotset_html(html_dir+'/vector.html',web_dir+'/vector.html',env)

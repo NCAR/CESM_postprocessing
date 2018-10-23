@@ -42,6 +42,7 @@ else
                   "growb","frazil","snoice","meltb","meltt", \
                   "meltl","dvidtt","dvidtd","daidtt","daidtd","Fsalt_aice","albsni"/)
 end if
+end if
 nvar = dimsizes(var_to_plot)
 NH_Pcntrs = new((/nvar,14/), float)
 SH_Pcntrs = new((/nvar,14/), float)
@@ -255,6 +256,7 @@ do k = 0,nvar-1                ; Loop through variables to be plotted
        print(var_mean@units)
        var_mean = var_mean*86400.*100./917.
        var_mean@units = "cm/day"
+    end if
     end if
 
     nrank = dimsizes(dimsizes(lat2d))
