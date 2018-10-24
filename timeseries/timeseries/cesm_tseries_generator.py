@@ -262,7 +262,7 @@ def divide_comm(scomm, l_spec):
     inter_comm(simplecomm) - this rank's subcommunicator it belongs to
     num_of_groups(int) - the total number of subcommunicators
     '''
-    min_procs_per_spec = 16
+    min_procs_per_spec = 36
     size = scomm.get_size()
     rank = scomm.get_rank()
 
