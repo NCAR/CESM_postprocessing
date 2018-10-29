@@ -25,10 +25,14 @@ NH_min_lat   = 40
 NH_max_lat   = 90
 SH_min_lat   = -90
 SH_max_lat   = -45
-if (var_names.eq."NEW") then
+if (var_names.eq."CICE") then
   var_to_read = (/"uvel","vvel"/)
 else
+if (var_names.eq."SIMIP") then
+  var_to_read = (/"siu","siv"/)
+else
   var_to_read = (/"u","v"/)
+end if
 end if
 ;-------END USER DEFINED QUANTITIES----------------
 
@@ -108,12 +112,12 @@ do j = 0, nseasons-1
 ; create plots
 ;************************************************
 
-  if (var_names.eq."NEW") then
+  if (var_names.eq."CICE".or.var_names.eq."SIMIP") then
      wks = gsn_open_wks(wks_type,wkdir + "vec_"+season(j)+ \   ; open ps file
-                 "_vel" + "_cice")
+                 "_cice")
   else
      wks = gsn_open_wks(wks_type,wkdir + "vec_"+season(j)+ \   ; open ps file
-                 "_vel" + "_csim4")
+                 "_csim")
   end if
   print (" Plotting " + season(j))
 
