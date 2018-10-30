@@ -71,7 +71,7 @@ def get_input_dates(glob_str, comm, rank, size):
         file_slices[fn] = len(all_t)
 
         # add all dates and which file they are located in
-        for t in all_t:
+        for t in all_t[:]:
             stream_dates[t] = fn
 
         # get all attributes of time in order to get cal and units 

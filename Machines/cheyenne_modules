@@ -13,7 +13,7 @@ module load ncl/6.4.0
 
 # clone the ncat virtualenv first with helper script ncar_pylib
 # use "ncar_pylib --help" to see all options
-ncar_pylib -c 20180705 ${pp_dir}/cesm-env2
+ncar_pylib -c 20181024 ${pp_dir}/cesm-env2
 
 export PYTHONPATH=${pp_dir}/cesm-env2/lib/python2.7/site-packages
 
