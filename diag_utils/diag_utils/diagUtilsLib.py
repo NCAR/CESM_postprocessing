@@ -498,6 +498,7 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
     env['area_file']= env['new_res_'+t]+'_area.nc' 
     env['procDir']  = tmp_outdir
     env['oldres']   = env['old_res_'+t]
+    env['newres']   = env['new_res_'+t]
     env['InFile']   = os.path.basename(climo_file)
     env['OutFile']  = env['new_res_'+t]+'_'+os.path.basename(climo_file)
     env['newfn']    = env['old_res_'+t]+'_'+os.path.basename(climo_file)

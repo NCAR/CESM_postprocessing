@@ -22,6 +22,7 @@ begin
 
     method    = getenv("method")
     oldres    = getenv("oldres")
+    newres    = getenv("newres")
 
 ;---Get 1d destination lat/lons
     LL_dir   = getenv("wgt_dir")
@@ -58,8 +59,15 @@ begin
       SrcSCRIP = LL_dir+"/SCRIPgrid_ne30np4_nomask_c101123.nc"
       SrcSCRIPFileName = "SCRIPgrid_ne30np4_nomask_c101123_"+RGRD_file
     else
-      SrcSCRIP = LL_dir+"/SCRIPgrid_ne120np4_nomask_c101123.nc"
-      SrcSCRIPFileName = "SCRIPgrid_ne120np4_nomask_c101123_"+RGRD_file
+      if (oldres .eq. "SE_NE30_CONUS") then
+        SrcSCRIP = LL_dir+"/SCRIPgrid_conus_30_x8_nomask_c170111.nc"
+        SrcSCRIPFileName = "SCRIPgrid_conus_30_x8_nomask_c170111_"+RGRD_file
+      else
+        if (oldres .eq. "SE_NE120") then
+          SrcSCRIP = LL_dir+"/SCRIPgrid_ne120np4_nomask_c101123.nc"
+          SrcSCRIPFileName = "SCRIPgrid_ne120np4_nomask_c101123_"+RGRD_file
+        end if
+      end if
     end if
     system("/bin/cp -f "+SrcSCRIP+" "+SrcSCRIPFileName)
     DstFileName  = "destination_grid_file_"+RGRD_file
@@ -72,8 +80,22 @@ begin
       fMAP_dir  = LL_dir
       fMAP_file = "map_ne30np4_nomask_TO_fv0.9x1.25_nomask_aave.130917.nc"
     else
-      fMAP_dir  = LL_dir
-      fMAP_file = "map_ne120np4_nomask_TO_fv0.23x0.31_nomask_aave.140123.nc"
+      if (oldres .eq. "SE_NE120" .and. newres .eq. "FV_768x1152") then
+        fMAP_dir  = LL_dir
+        fMAP_file = "map_ne120np4_nomask_TO_fv0.23x0.31_nomask_aave.140123.nc"
+      else
+        if (oldres .eq. "SE_NE120" .and. newres .eq. "FV_192x288") then
+          fMAP_dir  = LL_dir
+          fMAP_file = "map_ne120np4_nomask_TO_fv0.9x1.25_nomask_aave.181003.nc"
+        else
+          if (oldres .eq. "SE_NE30_CONUS" .and. newres .eq. "FV_192x288") then
+            fMAP_dir  = LL_dir
+            fMAP_file = "map_ne30_conus_nomask_TO_fv0.9x1.25_nomask_aave.181029.nc"
+          else
+            print((/"REGRIDDING NOT SUPPORTED FOR THIS oldres to newres"/))
+          end if
+        end if
+      end if
     end if
     fMAP_path = fMAP_dir + fMAP_file
     fMAP      = addfile(fMAP_path,"r")

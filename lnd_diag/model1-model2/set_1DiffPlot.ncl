@@ -237,10 +237,18 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
 	else
 	   rank1 = 3
 	   if (m .eq. 0) then
-        	x = tmp(m1:mm1,:,:)
+                if (c13Flag(i) .eq. "C13_") then  ; data is already globally averaged
+        	  x = tmp(m1:mm1)
+                else
+        	  x = tmp(m1:mm1,:,:)
+                end if
 	   end if
 	   if (m .eq. 1) then
-        	x = tmp(m2:mm2,:,:)
+                if (c13Flag(i) .eq. "C13_") then  ; data is already globally averaged
+        	  x = tmp(m2:mm2)
+                else
+                  x = tmp(m2:mm2,:,:)
+                end if
 	   end if
         end if
 	delete(tmp)
