@@ -57,15 +57,23 @@ c_hemisphere = (/"NH", "SH"/)
 season = (/"ann","jfm","amj","jas","ond"/)   ; These are for file names
 min_lat   = (/40., -90./) 
 max_lat   = (/90., -45./)
-if (var_name_new.eq."NEW")then
+if (var_name_new.eq."CICE")then
   var_to_read_new = (/"uvel","vvel"/)
+else
+if (var_name_new.eq."SIMIP")then
+  var_to_read_new = (/"siu","siv"/)
 else
   var_to_read_new = (/"u","v"/)
 end if
-if (var_name_prev.eq."NEW")then
+end if
+if (var_name_prev.eq."CICE")then
   var_to_read_prev = (/"uvel","vvel"/)
 else
+if (var_name_prev.eq."SIMIP")then
+  var_to_read_prev = (/"siu","siv"/)
+else
   var_to_read_prev = (/"u","v"/)
+end if
 end if
 title_for_plot = "Ice Velocity"
 units_for_plot = "(cm/s)"
@@ -311,12 +319,13 @@ do jj = 0, nseasons-1       ; Loop through seasonal means
       print ("Skipping plot since fields are identical")
     else
 
-      if (var_name_new.eq."NEW" .or. var_name_prev.eq."NEW")then
+      if (var_name_new.eq."CICE" .or. var_name_prev.eq."CICE".or. \
+          var_name_new.eq."SIMIP" .or. var_name_prev.eq."SIMIP")then
          wks = gsn_open_wks(wks_type,wkdir + "diff_vec_"+season(jj)+"_"  \
-                         + "uvel" + "_cice_"+c_hemisphere(ihem))
+                         + "cice_"+c_hemisphere(ihem))
       else
          wks = gsn_open_wks(wks_type,wkdir + "diff_vec_"+season(jj)+"_"  \
-                         + "uvel" + "_csim4_"+c_hemisphere(ihem))
+                         + "csim_"+c_hemisphere(ihem))
       end if
 
 ;     gsn_define_colormap(wks,"gui_default")

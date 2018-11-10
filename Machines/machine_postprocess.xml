@@ -125,8 +125,8 @@
   </machine>
 
   <machine name="cheyenne" hostname="cheyenne">
-    <timeseries_pes queue="regular" nodes="4" pes_per_node="18" wallclock="00:30:00">72</timeseries_pes>
-    <xconform_pes queue="regular" nodes="8" pes_per_node="4" wallclock="06:00:00">32</xconform_pes>
+    <timeseries_pes queue="regular" nodes="16" pes_per_node="9" wallclock="12:00:00">144</timeseries_pes>
+    <xconform_pes queue="regular" nodes="16" pes_per_node="4" wallclock="12:00:00">64</xconform_pes>
     <mpi_command>mpiexec_mpt dplace -s 1</mpi_command>
     <pythonpath></pythonpath>
     <f2py fcompiler="intelem" f77exec="/glade/u/apps/ch/opt/ncarcompilers/0.4.1/mpi/ifort">f2py</f2py>
@@ -157,7 +157,7 @@
 	<obs_root>/glade/p/cesm/amwg/amwg_data</obs_root>
       </component>
       <component name="ice">
-	<averages_pes queue="regular" nodes="4" pes_per_node="18" wallclock="01:00:00">72</averages_pes>
+	<averages_pes queue="regular" nodes="4" pes_per_node="4" wallclock="01:00:00">16</averages_pes>
 	<diagnostics_pes queue="regular" nodes="1" pes_per_node="8" wallclock="01:00:00">8</diagnostics_pes>
 	<obs_root>/glade/p/cesm/pcwg/ice/data</obs_root>
       </component>
@@ -168,7 +168,7 @@
 	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
       </component>
       <component name="ocn">
-	<averages_pes queue="regular" nodes="4" pes_per_node="18" wallclock="01:00:00">72</averages_pes>
+	<averages_pes queue="regular" nodes="4" pes_per_node="4" wallclock="01:00:00">16</averages_pes>
 	<diagnostics_pes queue="regular" nodes="1" pes_per_node="16" wallclock="01:00:00">16</diagnostics_pes>
 	<obs_root>/glade/p/cesm/</obs_root>
       </component>

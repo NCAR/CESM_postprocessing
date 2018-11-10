@@ -203,8 +203,14 @@ class modelVsModel(IceDiagnostic):
             print('DEBUG: model_vs_model web_dir = {0}'.format(web_dir))
 
             html_dir = env['HTML_HOME']
+            var_name_type_cont = env['VAR_NAME_TYPE_CONT']
+            var_name_type_diff = env['VAR_NAME_TYPE_DIFF']
             create_ice_html.create_plotset_html(html_dir+'/index_diff_temp.html',web_dir+'/index.html',env)
-            create_ice_html.create_plotset_html(html_dir+'/contour_diff.html',web_dir+'/contour.html',env)
+            if 'SIMIP' in var_name_type_cont or 'SIMIP' in var_name_type_diff:
+                create_ice_html.create_plotset_html(html_dir+'/contour_diff_simip.html',web_dir+'/contour.html',env)
+            else:
+                create_ice_html.create_plotset_html(html_dir+'/contour_diff.html',web_dir+'/contour.html',env)
+
             create_ice_html.create_plotset_html(html_dir+'/timeseries_diff.html',web_dir+'/timeseries.html',env)
             create_ice_html.create_plotset_html(html_dir+'/regional_diff.html',web_dir+'/regional.html',env)
             create_ice_html.create_plotset_html(html_dir+'/vector_diff.html',web_dir+'/vector.html',env)

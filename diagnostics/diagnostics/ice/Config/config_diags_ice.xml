@@ -171,8 +171,8 @@ Applies to both model and control cases."
 
   <entry id="ICEDIAG_VAR_NAME_TYPE_CONT"
            type="char"
-           valid_values="OLD/NEW"
-           value="NEW"
+           valid_values="CSIM/CICE/SIMIP"
+           value="SIMIP"
            group="cont_dataset"
            desc="OLD for u, v var names. NEW for uvel, vvel var names."
            ></entry>
@@ -261,8 +261,8 @@ Applies to both model and control cases."
 
   <entry id="ICEDIAG_VAR_NAME_TYPE_DIFF"
          type="char"
-         valid_values="OLD/NEW"
-         value="NEW"
+         valid_values="CSIM/CICE/SIMIP"
+         value="SIMIP"
          group="diff_dataset"
          desc="OLD for u, v var names. NEW for uvel, vvel var names."
          ></entry>
