@@ -8,11 +8,14 @@
 # Ignore python egg-info files
 *.egg-info/
 
+# Ignore externals brought in with manage_externals
+averager/pyAverager
+ilamb/ilamb
+reshaper/pyReshaper
+
 # Ignore python build and dist dirs
-averager/pyAverager/build/
 mpi_utils/pyTools/build/
 mpi_utils/pyTools/dist/
-ilamb/ilamb/dist/
 cesm_utils/dist/
 conform/dist/
 diag_utils/dist/
