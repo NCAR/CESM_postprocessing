@@ -12,6 +12,7 @@
 averager/pyAverager
 ilamb/ilamb
 reshaper/pyReshaper
+conformer/conformer
 
 # Ignore python build and dist dirs
 mpi_utils/pyTools/build/
