@@ -109,7 +109,7 @@ def setup_diags(envDict):
     diag_dict = dict()
     # ocean bgc being computed by IOMB
 ##    avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_CONTROL', 'MODEL_VS_CONTROL_ECOSYS', 'MODEL_TIMESERIES', 'MODEL_TIMESERIES_ECOSYS']
-    avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_CONTROL', 'MODEL_TIMESERIES']
+    avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_CONTROL', 'MODEL_TIMESERIES']
     for diag in avail_diags:
         diag_dict[diag] = False
         for key, value in envDict.iteritems():

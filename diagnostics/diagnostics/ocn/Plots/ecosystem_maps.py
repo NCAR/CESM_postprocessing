@@ -203,7 +203,7 @@ class EcosystemMaps_obs(EcosystemMaps):
         self._columns_s2 = [3]
         self._columns_s3 = [6]
 
-        self._columnns = [ self._columns_s1, self._columns_s2, self._columns_s3 ]
+        self._columns = [ self._columns_s1, self._columns_s2, self._columns_s3 ]
 
         self._plotTitles = ['Ecosystem: Maps', 'Ecosystem: Maps at Depth (with obs where applicable)']
         self._labels = ['NO3','PO4','SiO3','O2','DIC','ALK','Fe']
