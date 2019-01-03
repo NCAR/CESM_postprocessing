@@ -62,12 +62,12 @@ begin
 ; get case names and create filenames to read in
 ;*************************************************
   sig_lvl = stringtofloat(getenv("sig_lvl") )
-  zoom  = stringtointeger(getenv("reg_contour")); # (1 = SUB, 0 = GLOBAL)
-  if (zoom.eq.1)then
+  zoom  = stringtointeger(getenv("reg_contour")); # (0 = SUBREGION, 1 = GLOBAL)
+  if (zoom.eq.0)then
      min_lat = stringtofloat(getenv("min_lat"))
-     max_lat = stringtofloat(getenv("min_lat"))
+     max_lat = stringtofloat(getenv("max_lat"))
      min_lon = stringtofloat(getenv("min_lon"))
-     max_lon = stringtofloat(getenv("min_lon"))
+     max_lon = stringtofloat(getenv("max_lon"))
   end if
   seasons = (/"DJF","JJA","MAM","SON","ANN"/)
 ;*************************************************
@@ -657,6 +657,13 @@ begin
 
               res  = True
               res  = set2ResMvM(res)
+              if (zoom .eq. 0) then
+                res@mpLimitMode = "LatLon"
+                res@mpMinLatF = min_lat
+                res@mpMaxLatF = max_lat
+                res@mpMinLonF = min_lon
+                res@mpMaxLonF = max_lon
+              end if
               if (paleo .eq. "True") then
                  res@mpDataBaseVersion = "Ncarg4_1"
                  res@mpDataSetName     =  fname
@@ -867,6 +874,13 @@ begin
               if (obsFlag .eq. 1 .and. plotObs .eq. 1) then    ; OBS  plot (if present)
                  res  = True
                  res  = set2ResMvM(res)
+                 if (zoom .eq. 0) then
+                   res@mpLimitMode = "LatLon"
+                   res@mpMinLatF = min_lat
+                   res@mpMaxLatF = max_lat
+                   res@mpMinLonF = min_lon
+                   res@mpMaxLonF = max_lon
+                 end if
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
                     res@mpDataSetName     = fname
@@ -942,6 +956,13 @@ begin
 ;               set contour levels 
               res  = True
               res  = set2ResMvM(res)
+              if (zoom .eq. 0) then
+                res@mpLimitMode = "LatLon"
+                res@mpMinLatF = min_lat
+                res@mpMaxLatF = max_lat
+                res@mpMinLonF = min_lon
+                res@mpMaxLonF = max_lon
+              end if
               res@cnFillPalette = cmap1(13:240,:)
 
               if (paleo .eq. "True") then
@@ -1031,6 +1052,13 @@ begin
 
               res  = True     ; T-Test plots
               res  = set2ResMvM(res)
+              if (zoom .eq. 0) then
+                res@mpLimitMode = "LatLon"
+                res@mpMinLatF = min_lat
+                res@mpMaxLatF = max_lat
+                res@mpMinLonF = min_lon
+                res@mpMaxLonF = max_lon
+              end if
               if (paleo .eq. "True") then
                  res@mpDataBaseVersion = "Ncarg4_1"
                  res@mpDataSetName     = fname
@@ -1126,6 +1154,13 @@ begin
 
               res  = True     ; t-test plot (3D vars)
               res  = set2ResMvM(res)
+              if (zoom .eq. 0) then
+                res@mpLimitMode = "LatLon"
+                res@mpMinLatF = min_lat
+                res@mpMaxLatF = max_lat
+                res@mpMinLonF = min_lon
+                res@mpMaxLonF = max_lon
+              end if
               if (paleo .eq. "True") then
                  res@mpDataBaseVersion = "Ncarg4_1"
                  res@mpDataSetName     = fname
@@ -1217,6 +1252,13 @@ begin
                  k = karr(lev)
                  res  = True
                  res  = set2ResMvM(res)
+                 if (zoom .eq. 0) then
+                   res@mpLimitMode = "LatLon"
+                   res@mpMinLatF = min_lat
+                   res@mpMaxLatF = max_lat
+                   res@mpMinLonF = min_lon
+                   res@mpMaxLonF = max_lon
+                 end if
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
                     res@mpDataSetName     = fname
@@ -1309,6 +1351,13 @@ begin
 
                  res  = True
                  res  = set2ResMvM(res)
+                 if (zoom .eq. 0) then
+                   res@mpLimitMode = "LatLon"
+                   res@mpMinLatF = min_lat
+                   res@mpMaxLatF = max_lat
+                   res@mpMinLonF = min_lon
+                   res@mpMaxLonF = max_lon
+                 end if
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
                     res@mpDataSetName     = fname
@@ -1387,6 +1436,13 @@ begin
 
                  res  = True    ; T-Test plot (4D)
                  res  = set2ResMvM(res)
+                 if (zoom .eq. 0) then
+                   res@mpLimitMode = "LatLon"
+                   res@mpMinLatF = min_lat
+                   res@mpMaxLatF = max_lat
+                   res@mpMinLonF = min_lon
+                   res@mpMaxLonF = max_lon
+                 end if
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
                     res@mpDataSetName     = fname

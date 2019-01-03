@@ -65,20 +65,21 @@ begin
 ;;  fyr      = getenv("clim_first_yr_1")
   sig_lvl  = getenv("sig_lvl") 
   lyr   = (fyr + nyrs)-1 ; for plotting
-  zoom  = stringtointeger(getenv("reg_contour")); # (1 = SUB, 0 = GLOBAL)
-;;  zoom  = getenv("reg_contour"); # (1 = SUB, 0 = GLOBAL)
-  if (zoom.eq.1)then
+  zoom  = stringtointeger(getenv("reg_contour")); # (0 = SUBREGION, 1 = GLOBAL)
+  if (zoom.eq.0)then
      min_lat = stringtofloat(getenv("min_lat"))
-     max_lat = stringtofloat(getenv("min_lat"))
+     max_lat = stringtofloat(getenv("max_lat"))
      min_lon = stringtofloat(getenv("min_lon"))
-     max_lon = stringtofloat(getenv("min_lon"))
-
-;;     min_lat = getenv("min_lat")
-;;     max_lat = getenv("min_lat")
-;;     min_lon = getenv("min_lon")
-;;     max_lon = getenv("min_lon")
+     max_lon = stringtofloat(getenv("max_lon"))
   end if
   seasons  = (/"DJF","JJA","MAM","SON","ANN"/)
+  if (zoom .eq. 0) then
+    res@mpLimitMode = "LatLon"
+    res@mpMinLatF = min_lat
+    res@mpMaxLatF = max_lat
+    res@mpMinLonF = min_lon
+    res@mpMaxLonF = max_lon
+  end if
 ;*************************************************
 ; common plot resources
 ;*************************************************
@@ -499,6 +500,13 @@ begin
               end if
               res = True
               res = set2Res(res)
+              if (zoom .eq. 0) then
+                res@mpLimitMode = "LatLon"
+                res@mpMinLatF = min_lat
+                res@mpMaxLatF = max_lat
+                res@mpMinLonF = min_lon
+                res@mpMaxLonF = max_lon
+              end if
               if (colormap.eq.1) then
                  res@cnFillPalette = cmap1(13:240,:)
               end if
@@ -581,6 +589,13 @@ begin
 ;                  panel 1 plot: case 1 plot
                  res = True
                  res = set2Res(res)
+                 if (zoom .eq. 0) then
+                   res@mpLimitMode = "LatLon"
+                   res@mpMinLatF = min_lat
+                   res@mpMaxLatF = max_lat
+                   res@mpMinLonF = min_lon
+                   res@mpMaxLonF = max_lon
+                 end if
 
                  if (paleo .eq. "True") then
                     res@mpDataBaseVersion = "Ncarg4_1"
@@ -683,6 +698,13 @@ begin
          
                  res = True
                  res = set2Res(res)
+                 if (zoom .eq. 0) then
+                   res@mpLimitMode = "LatLon"
+                   res@mpMinLatF = min_lat
+                   res@mpMaxLatF = max_lat
+                   res@mpMinLonF = min_lon
+                   res@mpMaxLonF = max_lon
+                 end if
          
                  if (colormap.eq.1) then
                     res@cnFillPalette = cmap1(13:240,:)
@@ -798,6 +820,13 @@ begin
                       
                  res = True
                  res = set2Res(res)
+                 if (zoom .eq. 0) then
+                   res@mpLimitMode = "LatLon"
+                   res@mpMinLatF = min_lat
+                   res@mpMaxLatF = max_lat
+                   res@mpMinLonF = min_lon
+                   res@mpMaxLonF = max_lon
+                 end if
       
                  if (colormap.eq.0) then
                     cmap = RGBtoCmap("$DIAG_RESOURCES/rgb_files/diag10.rgb")  ; read in colormap.  10 colors for case maps.
