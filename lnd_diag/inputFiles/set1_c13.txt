@@ -18,7 +18,6 @@ globalTotlAnn   C13_ER
 globalTotlNat   C13_LEAFC
 globalTotlNat   C13_SOIL3C
 globalTotlNat   C13_SOIL4C
-globalTotlNat   C13_XSMRPOOL
 globalTotlNat   C13_FROOTC
 globalTotlNat   C13_LIVESTEMC
 globalTotlNat   C13_DEADSTEMC

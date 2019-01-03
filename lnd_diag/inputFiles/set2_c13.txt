@@ -18,7 +18,6 @@ globalMeanDay0  C13_ER
 globalMeanNat0  C13_LEAFC
 globalMeanNat0  C13_SOIL3C
 globalMeanNat0  C13_SOIL4C
-globalMeanNat0  C13_XSMRPOOL
 globalMeanNat0  C13_FROOTC
 globalMeanNat0  C13_LIVESTEMC
 globalMeanNat0  C13_DEADSTEMC
