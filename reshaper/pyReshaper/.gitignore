@@ -1,6 +1,0 @@
-*.nc
-*.pyc
-dist/
-build/
-PyReshaper.egg-info/
-/.settings/
