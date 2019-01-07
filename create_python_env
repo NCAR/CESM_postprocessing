@@ -15,7 +15,7 @@ function Usage {
     echo ""
     echo "     This script sets up the python virtual environment (env) for a given supported machine."
     echo "     This script executes the following steps:"
-    echo "     - loads the python modules for this machine necessary to boot-strap the env"
+    echo "     - clones the NCAR Python Library (NPL) for this machine necessary to boot-strap the env"
     echo "     - make env"
     echo "     - activate env"
     echo "     - install post-processing tools into the env"
@@ -152,22 +152,14 @@ and rerun this script."
     exit 0
 fi
 
+#----------------------------------------------------------------------
+# install the external tools via the manage_externals/checkout_externals
+#----------------------------------------------------------------------
+./manage_externals/checkout_externals 
+
 curdir=`pwd`
 echo $curdir
 cd $pp_dir
-
-#----------------------------------------------------------------------
-# create the virtual environment. Makefile checks to see if it is
-# already setup, so only done once per case.
-#----------------------------------------------------------------------
-##echo "$progname - making virtual environment in ${pp_dir}/cesm-env2."
-##if [ ${machine} != geyser ]; then
-##    make env
-##    if [ $? -ne 0 ]; then
-##	echo "ERROR: Unable to create virtual environment in ${pp_dir}/cesm-env2. Exiting..."
-##	exit 1
-##    fi
-##fi
 
 #----------------------------------------------------------------------
 # activate virtualenv for remainder of this script
