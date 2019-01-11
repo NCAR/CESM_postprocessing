@@ -285,9 +285,15 @@ class modelTimeseries(OceanDiagnostic):
 
         # all the plot module XML vars start with MVO_PM_  need to strip that off
         for key, value in env.iteritems():
-            if (re.search("\AMTS_PM_", key) and value.upper() in ['T','TRUE']):
-                k = key[4:]                
-                requested_plots.append(k)
+            if env['OCN_COMP'] == "MOM":
+                if (re.search("\AMOMTS_PM_", key) and value.upper() in ['T','TRUE']):
+                    k = key[6:]
+                    requested_plots.append(k)
+
+            else: # POP:
+                if (re.search("\AMTS_PM_", key) and value.upper() in ['T','TRUE']):
+                    k = key[4:]
+                    requested_plots.append(k)
 
         scomm.sync()
         print('model timeseries - after scomm.sync requested_plots = {0}'.format(requested_plots))
