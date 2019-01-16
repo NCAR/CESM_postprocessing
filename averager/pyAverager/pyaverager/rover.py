@@ -363,7 +363,10 @@ def set_slices_and_vars_time_slice(directory, file_pattern, prefix, suffix, star
             #file_prefix = directory+"/"+prefix
             yrS = str(yr)
             mS = str(m)
-            stamp = yrS.zfill(4)+"_"+mS.zfill(2)
+            if ".mom6." in prefix:
+                stamp = yrS.zfill(4)+"_"+mS.zfill(2)
+            else:
+                stamp = yrS.zfill(4)+"-"+mS.zfill(2)
             filename,file_prefix = get_slice_fn(file_pattern, directory, prefix, suffix, stamp)
             filename = directory+"/"+filename
             if (os.path.isfile(filename)):
@@ -379,7 +382,10 @@ def set_slices_and_vars_time_slice(directory, file_pattern, prefix, suffix, star
     # Grab variable list from a file.
     yrS = str(start_yr).zfill(4)
     #test_file = directory+"/"+prefix+"."+yrS+"-01.nc" 
-    stamp = yrS+"_01"
+    if ".mom6." in prefix:
+        stamp = yrS+"_01"
+    else:
+        stamp = yrS+"-01"
     test_file,file_prefix = get_slice_fn(file_pattern, directory, prefix, suffix, stamp)
     test_file = directory+'/'+test_file
     f = Nio.open_file(test_file,"r")

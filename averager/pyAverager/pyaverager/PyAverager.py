@@ -256,8 +256,6 @@ class PyAverager(object):
 			    region_name = spec.regions[int(region_num)]
 			    # Remove the region number as part of the average name
 			    ave_descr[0] = ave_name_split[0]
-                            # get the number of vertical levels
-                            nlev = spec.vertical_levels
 			else:
 			    region_name = 'null'
 			    region_num = -99
