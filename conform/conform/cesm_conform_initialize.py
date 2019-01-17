@@ -103,8 +103,8 @@ def run_initialization(caseroot, debug):
         print('WARNING',e.errno,e.strerror)  
    
     try:
-        pipe = subprocess.Popen(['cesm_extras -e {0} {1}/*'.format(
-            extra_field_json, json_dir)], env=envDict, shell=True, stdout=subprocess.PIPE)
+        pipe = subprocess.Popen(['cesm_extras -e {0} -c {1} {2}/*'.format(
+            extra_field_json, envDict['CASE'], json_dir)], env=envDict, shell=True, stdout=subprocess.PIPE)
         output = pipe.communicate()[0]
         print('cesm_extras:  {0}'.format(output))
         while pipe.poll() is None:
