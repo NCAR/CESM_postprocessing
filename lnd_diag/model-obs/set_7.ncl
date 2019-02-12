@@ -141,14 +141,14 @@ begin
  stn_name              = chartostring(dChr(:,33:59))
 
  nriv  = dimsizes(no)    ; number of rivers
- rtm_vol_at_stn = new(nriv,float)
- rtm_vol_at_stn_A = new(nriv,float)
- rtm_vol_at_stn_B = new(nriv,float)
- rtm_vol_at_stn_m = new((/months,nriv/),float)
- rtm_vol_at_stn_mA = new((/months,nriv/),float)
- rtm_vol_at_stn_mB = new((/months,nriv/),float)
- rtm_stn_lat_B = new(nriv,float)
- rtm_stn_lon_B = new(nriv,float)
+ rtm_vol_at_stn = new(nriv,double)
+ rtm_vol_at_stn_A = new(nriv,double)
+ rtm_vol_at_stn_B = new(nriv,double)
+ rtm_vol_at_stn_m = new((/months,nriv/),double)
+ rtm_vol_at_stn_mA = new((/months,nriv/),double)
+ rtm_vol_at_stn_mB = new((/months,nriv/),double)
+ rtm_stn_lat_B = new(nriv,double)
+ rtm_stn_lon_B = new(nriv,double)
 
  if (rmodel1 .eq. "False") then
    if (isfilevar(inptr1a,"QCHANR")) then
@@ -236,7 +236,7 @@ begin
 ; Prepare data for table of river flow
 ;----------------------------------------------
 
- riv_data = new((/11,nriv/),"float")
+ riv_data = new((/11,nriv/),"double")
  riv_data(0,:)  = ispan(1,nriv,1)
  riv_data(1,:)  = obs_vol_at_stn
  riv_data(2,:)  = fekete_rtm_vol_at_stn
@@ -427,7 +427,7 @@ begin
  res@gsnFrame               = False               ; Do not advance frame
  res@vpKeepAspect           = False
  res@vpWidthF               = 1.2
- ydata = new((/3,months+1/),"float")
+ ydata = new((/3,months+1/),"double")
  top10riv_index = (/0,5,1,6,2,7,3,8,4,9/)
 ;----------------------------------------------
 ; Open file for plots
@@ -601,8 +601,8 @@ begin
 ; Derive zonal average of ocean discharge at 1 degree resolution
 ;----------------------------------------------
 
- qchocnr_lat_A = new(nlat/2,"float")
- qchocnr_lat_B = new(nlat/2,"float")
+ qchocnr_lat_A = new(nlat/2,"double")
+ qchocnr_lat_B = new(nlat/2,"double")
  st_lat = 0
  fn_lat = 1
  do j = 0,nlat/2-1
@@ -624,7 +624,7 @@ begin
 ; Reorder north to south 
  tmp = qchocnr_lat_A(::-1)
 
- qchocnr_acc_A = new(nlat/2,"float")
+ qchocnr_acc_A = new(nlat/2,"double")
  qchocnr_acc_A(0) = tmp(0)
  do j = 1,nlat/2-1
    qchocnr_acc_A(j) = tmp(j)+qchocnr_acc_A(j-1)
@@ -632,7 +632,7 @@ begin
  delete(tmp)
  qchocnr_acc_A = qchocnr_acc_A(::-1)
 
- qchocnr_acc_B = new(nlat/2,"float")
+ qchocnr_acc_B = new(nlat/2,"double")
  qchocnr_acc_B = -999.
 
 ;----------------------------------------------
@@ -662,11 +662,11 @@ begin
  resR@trXMinF = xminl(k)
  resR@trXMaxF = xmaxl(k)
 
- ydataR = new((/3,180/),"float")
+ ydataR = new((/3,180/),"double")
  ydataR(0,:) = qchocnr_lat_A
  ydataR(1,:) = qchocnr_lat_B
  ydataR(2,:) = ann_disch_921riv(:,disch_id(k))
- ydataL = new((/3,180/),"float")
+ ydataL = new((/3,180/),"double")
  ydataL(0,:) = qchocnr_acc_A
  ydataL(1,:) = qchocnr_acc_B
  ydataL(2,:) = acc_ann_disch_921riv(:,acc_disch_id(k))
@@ -759,7 +759,7 @@ begin
  res@gsnFrame               = False               ; Do not advance frame
  res@vpKeepAspect           = False
  res@vpWidthF               = 1.2
- ydata = new((/3,months+1/),"float")
+ ydata = new((/3,months+1/),"double")
 ;----------------------------------------------
 ; Open file for plots
 ;----------------------------------------------
@@ -779,10 +779,10 @@ begin
 ; indian, arctic, med. and black seas, global) 
 ;----------------------------------------------
  do k = 0,5
-   tmp_A = new((/months,nlat,nlon/),"float")
-   tmp_B = new((/months,nlat,nlon/),"float")
-   qchocnr_mon_A = new(months,"float")
-   qchocnr_mon_B = new(months,"float")
+   tmp_A = new((/months,nlat,nlon/),"double")
+   tmp_B = new((/months,nlat,nlon/),"double")
+   qchocnr_mon_A = new(months,"double")
+   qchocnr_mon_B = new(months,"double")
 
    do m = 0,months-1
      if (k .eq. 5) then
