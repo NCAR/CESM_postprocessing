@@ -72,13 +72,19 @@ c_hemisphere = (/"NH", "SH"/)
 min_lat   = (/40., -90./) 
 max_lat   = (/90., -45./)
 
-if (var_name_new.eq."NEW".and.var_name_prev.eq."NEW")then
+if (var_name_new.eq."CICE".and.var_name_prev.eq."CICE")then
  var_to_plot = (/"aice","hi","hs","Tsfc",\
                  "frazil","snoice","meltb","meltt", \
                  "meltl","dvidtt","dvidtd","daidtt","daidtd", \
                  "congel", "flat_ai", "fsens_ai", "fsalt_ai", "albsni"/)
 else 
-if (var_name_new.eq."OLD".and.var_name_prev.eq."OLD")then
+if (var_name_new.eq."SIMIP".and.var_name_prev.eq."SIMIP")then
+ var_to_plot = (/"aice","hi","hs","sitemptop",\
+                 "frazil","sidmasssi","meltb","meltt", \
+                 "meltl","dvidtt","dvidtd","daidtt","daidtd", \
+                 "congel", "sifllatstop", "siflsenstop", "siflsaltbot", "albsni"/)
+else
+if (var_name_new.eq."CSIM".and.var_name_prev.eq."CSIM")then
  var_to_plot = (/"aice","hi","hs","Tsfc", \
                  "frazil","snoice","meltb","meltt", \
                  "meltl","dvidtt","dvidtd","daidtt","daidtd", \
@@ -87,6 +93,7 @@ else
  var_to_plot = (/"aice","hi","hs","Tsfc", \
                  "frazil","snoice","meltb","meltt", \
                  "meltl","dvidtt","dvidtd","daidtt","daidtd"/)
+end if
 end if
 end if
 
@@ -374,26 +381,33 @@ delete(f2)
     else
 
     ; Convert salt units if necessary
-    if (var_to_plot(k).eq."fsalt_ai") then
-    if (var_prev@units .eq. "kg/m2/s") then
-       print(var_prev@units)
-       var_prev = var_prev*86400.
-       var_prev@units = "kg/m2/day"
-    end if
-    if (var_new@units .eq. "kg/m2/s") then
+    if (var_to_plot(k).eq."fsalt_ai".or.var_to_plot(k).eq."siflsaltbot") then
+    if (var_new@units .eq. "kg/m2/s".or.var_new@units .eq. "kg/m^2/s".or. \
+        var_new@units .eq. "kg m-2 s-1") then
        print(var_new@units)
        var_new = var_new*86400.
        var_new@units = "kg/m2/day"
     end if
-    if (var_prev@units .eq. "kg/m^2/s") then
+    if (var_prev@units .eq. "kg/m2/s".or.var_prev@units .eq. "kg/m^2/s".or. \
+        var_prev@units .eq. "kg m-2 s-1") then
        print(var_prev@units)
        var_prev = var_prev*86400.
        var_prev@units = "kg/m2/day"
     end if
-    if (var_new@units .eq. "kg/m^2/s") then
+    end if
+
+    if (var_to_plot(k).eq."sidmasssi") then
+    if (var_new@units .eq. "kg m-2 s-1") then
+;   Convert to cm/day
        print(var_new@units)
-       var_new = var_new*86400.
-       var_new@units = "kg/m2/day"
+       var_new = var_new*86400.*100./917.
+       var_new@units = "cm/day"
+    end if
+    if (var_prev@units .eq. "kg m-2 s-1") then
+;   Convert to cm/day
+       print(var_prev@units)
+       var_prev = var_prev*86400.*100./917.
+       var_prev@units = "cm/day"
     end if
     end if
 
@@ -477,12 +491,13 @@ delete(f2)
         print ("Skipping plot since fields are identical")
       else
 
-      if (var_name_new.eq."NEW".or.var_name_prev.eq."NEW")then
+      if (var_name_new.eq."CICE".or.var_name_prev.eq."CICE".or. \
+          var_name_new.eq."SIMIP".or.var_name_prev.eq."SIMIP")then
          wks = gsn_open_wks(wks_type, wkdir + "diff_con_"+season + "_" + \
                            var_to_plot(k) + "_cice_"+c_hemisphere(ihem))
       else
          wks = gsn_open_wks(wks_type, wkdir + "diff_con_"+season + "_" + \
-                           var_to_plot(k) + "_csim4_"+c_hemisphere(ihem))
+                           var_to_plot(k) + "_csim_"+c_hemisphere(ihem))
       end if
 
 ; 2->102 is first colormap, 102->103 is second colormap
@@ -528,12 +543,23 @@ delete(f2)
 ; Set contour levels for NH
       if (c_hemisphere(ihem).eq."NH") then
         res@cnLevels             =  NH_Pcntrs(k,:)
-        if (var_to_plot(k).eq."Tsfc") then
+        if (var_to_plot(k).eq."Tsfc".or.var_to_plot(k).eq."sitemptop") then
+          if (var_new@units .eq. "K") then
+             print(var_new@units)
+             var_new = var_new - 273.15
+             var_new@units = "degC"
+          end if
+          if (var_prev@units .eq. "K") then
+             print(var_prev@units)
+             var_prev = var_prev - 273.15
+             var_prev@units = "degC"
+          end if
           if (season.ne."jfm") then
             res@cnLevels         = SH_Pcntrs(k,:)
           end if
         end if
-        if (var_to_plot(k).eq."Flat_aice".or.var_to_plot(k).eq."growb".or. \
+        if (var_to_plot(k).eq."Flat_aice".or.var_to_plot(k).eq."flat_ai".or. \
+            var_to_plot(k).eq."sifllatstop".or.var_to_plot(k).eq."growb".or. \
             var_to_plot(k).eq."frazil".or.var_to_plot(k).eq."meltl") then
           if (season.ne."jfm") then
             res@cnLevels         = SH_Pcntrs(k,:)
@@ -548,12 +574,23 @@ delete(f2)
 ; Set contour levels for SH
       if (c_hemisphere(ihem).eq."SH") then
         res@cnLevels   =  SH_Pcntrs(k,:)
-        if (var_to_plot(k).eq."Tsfc") then
+        if (var_to_plot(k).eq."Tsfc".or.var_to_plot(k).eq."sitemptop") then
+          if (var_new@units .eq. "K") then
+             print(var_new@units)
+             var_new = var_new - 273.15
+             var_new@units = "degC"
+          end if
+          if (var_prev@units .eq. "K") then
+             print(var_prev@units)
+             var_prev = var_prev - 273.15
+             var_prev@units = "degC"
+          end if
           if (season.ne."jfm") then
             res@cnLevels         =  NH_Pcntrs(k,:)
           end if
         end if
-        if (var_to_plot(k).eq."Flat_aice".or.var_to_plot(k).eq."growb".or. \
+        if (var_to_plot(k).eq."Flat_aice".or.var_to_plot(k).eq."flat_ai".or. \
+            var_to_plot(k).eq."sifllatstop".or.var_to_plot(k).eq."growb".or. \
             var_to_plot(k).eq."frazil".or.var_to_plot(k).eq."meltl") then
          if (season.ne."jfm") then
            res@cnLevels          =  NH_Pcntrs(k,:)

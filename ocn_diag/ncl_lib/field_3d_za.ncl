@@ -31,7 +31,7 @@ begin
 
   n_reg = dimsizes(region_index)
 
-  field_name = [/ "TEMP",  "SALT" , "IAGE" /] 
+  field_name = [/ "TEMP",  "SALT" /]
 
   fileid = addfile(file_netcdf,"r")
   fileidtobs = addfile(file_T_obs_za,"r")
@@ -49,6 +49,9 @@ begin
 
   f_za = addfile(file_netcdf_za,"r")
 
+  if (isfilevar(f_za,"IAGE")) then
+    ListPush(field_name,"IAGE")
+  end if
   if (isfilevar(f_za,"KAPPA_ISOP")) then
     ListPush(field_name,"KAPPA_ISOP")
   end if
