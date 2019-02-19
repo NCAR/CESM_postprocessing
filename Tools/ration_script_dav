@@ -1,0 +1,37 @@
+#!/bin/bash -l
+
+## test the mpi4py and ASAPPyTools utility on DAV with ncar_pylib virtualenv 
+
+#SBATCH -n 4
+#SBATCH -N 2
+#SBATCH --ntasks-per-node=2
+#SBATCH -t 00:05:00
+#SBATCH -p dav
+#SBATCH -J ration_test
+#SBATCH -A P93300606
+#SBATCH --mem 1G
+#SBATCH -e ration_test.err.%J
+#SBATCH -o ration_test.out.%J
+
+module purge
+module load python/2.7.14
+module load intel/17.0.1
+module load ncarenv
+module load ncarcompilers
+module load impi
+
+
+. /gpfs/fs1/work/aliceb/sandboxes/dev/postprocessing_dav/cesm-env2/bin/activate
+
+srun ./ration_test.py >> ./ration.log
+
+status=$?
+echo $status
+
+deactivate
+
+echo $status
+
+
+
+
