@@ -184,7 +184,7 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             log[comp+stream] = {'slices':[],'index':0}
                         ts_log_dates = log[comp+stream]['slices']
                         index = log[comp+stream]['index']
-                        files,dates,index = chunking.get_chunks(tper, index, size_n, stream_dates, ts_log_dates, cal, units, completechunk)
+                        files,dates,index = chunking.get_chunks(tper, index, size_n, stream_dates, ts_log_dates, cal, units, completechunk, tseries_tper)
                         for d in dates:
                             log[comp+stream]['slices'].append(float(d))
                         log[comp+stream]['index']=index
