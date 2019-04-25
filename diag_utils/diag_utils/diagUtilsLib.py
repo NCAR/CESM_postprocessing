@@ -200,11 +200,12 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     """
     if tseries.upper() in ['T','TRUE'] :
         htype = 'series'
-##        in_dir = '{0}/{1}/proc/tseries/month_1'.format(dout_s_root, comp)
     else :
         htype = 'slice'
-##        in_dir = '{0}/{1}/hist'.format(dout_s_root, comp)
 
+    # make sure subdir does not include a trailing "/"
+    if subdir.endswith('/'):
+        subdir = subdir[:-1]
     in_dir = '{0}/{1}/{2}'.format(dout_s_root, comp, subdir)
 
     # check the in_dir directory exists 

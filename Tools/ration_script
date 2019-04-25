@@ -1,28 +1,35 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 #
 # template to activate the virtualenv, call post process program, deactivate virtualenv
 #
 
-#BSUB -n 4
-#BSUB -R "span[ptile=2]"
-#BSUB -q geyser
-#BSUB -N
-#BSUB -a poe
-#BSUB -J ration_script
-#BSUB -W 00:02
-#BSUB -P P93300606 
+#PBS -N ration
+#PBS -q regular
+#PBS -l select=1:ncpus=8:mpiprocs=8
+#PBS -l walltime=00:00:02
+#PBS -A P93300606
 
-. /glade/apps/opt/lmod/lmod/init/bash
+source /etc/profile.d/modules.sh
 
-export MP_LABELIO=yes
+export MPI_UNBUFFERED_STDIO=true
+export TMPDIR=$TMPDIR
 
-module load python/2.7.7
+module purge
 
-. /glade/p/work/aliceb/sandboxes/dev/postprocessing/cesm-env2/bin/activate
+## activate the virtualenv that contains all the non-bootstrapped dependencies
+cd /glade/work/aliceb/sandboxes/dev/postprocessing_new/cesm-env2/bin
+echo "Running from virtualenv directory:"
+pwd
+. activate
 
-module load mpi4py/2.0.0
+## load the boot-strap modules 
+##module load python/2.7.14
+module load intel/17.0.1
+module load ncarenv
+module load ncarcompilers
+module load mpt/2.19
 
-mpirun.lsf ./ration_example.py >> ./ration.log
+mpiexec_mpt dplace -s 1 /glade/work/aliceb/sandboxes/dev/postprocessing_new/Tools/ration_test.py >> /glade/work/aliceb/sandboxes/dev/postprocessing_new/Tools/ration.log
 
 status=$?
 echo $status

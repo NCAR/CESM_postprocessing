@@ -13,7 +13,6 @@ def num2date(time_value, unit, calendar):
         time_value = int(round(time_value))
     if ('common_year' in unit):
         my_unit = unit.replace('common_year', 'day')
-##        my_time_value = time_value * 365
         my_time_value = int(round(time_value)) * 365
     else:
         my_unit = unit
@@ -130,7 +129,7 @@ def get_input_dates(glob_str, comm, rank, size):
     comm.sync()
     return g_stream_dates,g_file_slices,calendar.lower(),units,time_period_freq
 
-def get_cesm_date(fn,t=None):
+def get_cesm_date(fn,tseries_tper,t=None):
 
     '''
     Open a netcdf file and return its datestamp
@@ -156,19 +155,35 @@ def get_cesm_date(fn,t=None):
            # for the first lnd and rof file
            if ( -1.0 < d < 0.0):
                d = 0
-        if t == 'bb':
+        elif t == 'bb':
            d = f.variables[att['bounds']][0][0]
            # for the first lnd and rof file
            if ( -1.0 < d < 0.0):
                d = 0
            elif(d > 1):
-               d = d = f.variables[att['bounds']][0][1]
+               d = f.variables[att['bounds']][0][1]
         elif t == 'e':
            l = len(f.variables[att['bounds']])
            d = (f.variables[att['bounds']][l-1][1])-1
         elif t == 'ee':
            l = len(f.variables[att['bounds']])
            d = (f.variables[att['bounds']][l-1][1])
+
+        # problem if global attr time_period_freq does not exist in the nc file
+        if 'time_period_freq' in f.ncattrs():
+            if 'month' in f.time_period_freq:
+                if t=='bb' or t=='b':
+                    d = (f.variables[att['bounds']][0][0] + f.variables[att['bounds']][0][1]) / 2
+                if t=='ee' or t=='e':
+                    l = len(f.variables[att['bounds']])
+                    d = (f.variables[att['bounds']][l-1][0]+f.variables[att['bounds']][l-1][1])/2
+        elif 'month' in tseries_tper:
+            if t=='bb' or t=='b':
+                d = (f.variables[att['bounds']][0][0] + f.variables[att['bounds']][0][1]) / 2
+            if t=='ee' or t=='e':
+                l = len(f.variables[att['bounds']])
+                d = (f.variables[att['bounds']][l-1][0]+f.variables[att['bounds']][l-1][1])/2
+
     else:
         # problem if time has only one value when units are common_year
         try:
@@ -176,8 +191,6 @@ def get_cesm_date(fn,t=None):
         except:
             d = f.variables['time'][0]    
 
-
-##    d1 = cf_units.num2date(d,att['units'],att['calendar'].lower())
     d1 = num2date(d,att['units'],att['calendar'].lower())
     f.close()
 
@@ -202,7 +215,6 @@ def get_chunk_range(tper, size, start, cal, units):
     '''
 
     # Get the first date
-##    d1 = cf_units.num2date(start, units, cal)
     d1 = num2date(start, units, cal)
 
     # Figure out how many days each chunk should be
@@ -222,17 +234,15 @@ def get_chunk_range(tper, size, start, cal, units):
             y2 = y2 + 1
             m2 = m2 - 12
         d2 = datetime.datetime(y2, m2, d1.day, d1.hour, d1.minute)
-##        end = cf_units.date2num(d2, units, cal)
         end = date2num(d2, units, cal)
 
     elif 'year' in tper: #year
         d2 = datetime.datetime(int(size)+d1.year, d1.month, d1.day, d1.hour, d1.minute)
-##        end = cf_units.date2num(d2, units, cal)
         end = date2num(d2, units, cal)
 
     return start, end 
 
-def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s):
+def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s, tseries_tper):
 
     '''
     Figure out what chunks there are to do for a particular CESM output stream
@@ -249,6 +259,7 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s):
     units(string) - the units to use to figure out chunk size
     s(string) - flag to determine if we need to wait until we have all data before we create a chunk or
                 if it's okay to do an incomplete chunk
+    tseries_tper - time_period_freq read from XML rather than nc file
 
     Output:
     files(dictionary) - keys->chunk, values->a list of all files needed for this chunk and the start and end dates 
@@ -307,10 +318,10 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s):
                         files[chunk_n] = {}
                         files[chunk_n]['fn'] = sorted(cfiles)
                         if chunk_n > 0:
-                            files[chunk_n]['start'] = get_cesm_date(cfiles[0],t='bb')
+                            files[chunk_n]['start'] = get_cesm_date(cfiles[0],tseries_tper,t='bb')
                         else:
-                            files[chunk_n]['start'] = get_cesm_date(cfiles[0],t='b')
-                        files[chunk_n]['end'] = get_cesm_date(cfiles[-1],t='e')
+                            files[chunk_n]['start'] = get_cesm_date(cfiles[0],tseries_tper,t='b')
+                        files[chunk_n]['end'] = get_cesm_date(cfiles[-1],tseries_tper,t='e')
                         for cd in sorted(cdates):
                             dates.append(cd)
                     e = True
@@ -319,8 +330,11 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s):
                 files[chunk_n] = {}
                 s_cdates = sorted(cdates)
                 files[chunk_n]['fn'] = sorted(cfiles)
-                files[chunk_n]['start'] = get_cesm_date(cfiles[0],t='bb')  
-                files[chunk_n]['end'] = get_cesm_date(cfiles[-1],t='ee') 
+                if chunk_n > 0:
+                    files[chunk_n]['start'] = get_cesm_date(cfiles[0],tseries_tper,t='bb')  
+                else:
+                    files[chunk_n]['start'] = get_cesm_date(cfiles[0],tseries_tper,t='b') 
+                files[chunk_n]['end'] = get_cesm_date(cfiles[-1],tseries_tper,t='ee') 
                 for cd in sorted(cdates):
                     dates.append(cd)
             chunk_n = chunk_n+1
