@@ -417,6 +417,12 @@ def initialize_envDict(envDict, caseroot, debugMsg, standalone):
     if envDict['plot_SON_climo']:
         envDict['seas'].append('SON')
 
+    if envDict['test_path_history_subdir'].endswith('/'):
+        envDict['test_path_history_subdir'] = envDict['test_path_history_subdir'][:-1]
+
+    if envDict['cntl_path_history_subdir'].endswith('/'):
+        envDict['cntl_path_history_subdir'] = envDict['cntl_path_history_subdir'][:-1]
+
     return envDict
 
 #======
