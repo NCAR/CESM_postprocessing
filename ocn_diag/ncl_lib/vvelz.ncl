@@ -13,7 +13,11 @@ begin
    ocn_comp = getenv("OCN_COMP")
    if (ocn_comp.eq."MOM") then
      uvel = fileid->u
+     delete(uvel&xq)
+     delete(uvel&yh)
      vvel = fileid->v
+     delete(vvel&xh)
+     delete(vvel&yq)
      uvel = 100.0 * uvel
      vvel = 100.0 * vvel
      dout_s_root = getenv("DOUT_S_ROOT")

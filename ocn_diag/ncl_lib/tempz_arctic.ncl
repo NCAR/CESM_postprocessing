@@ -85,6 +85,13 @@ begin
     else
       field = temp(klev,:,:)
     end if
+
+    if (ocn_comp.eq."MOM") then
+      delete(field&xh)
+      delete(field&yh)
+    end if
+
+
     if (dimsizes(dimsizes(temp_obs)) .eq. 4) then
       field_obs = temp_obs(0,klev,y_min:,:)
     else

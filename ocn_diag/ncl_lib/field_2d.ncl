@@ -107,6 +107,12 @@ begin
       field = where (abs(field) .gt. 1.0e10, field@_FillValue, field)
     end if
 
+    if (ocn_comp.eq."MOM") then
+      delete(field&xh)
+      delete(field&yh)
+    end if
+
+
     dmin = missing 
     dmax = missing 
     ; POP ----------------------------------------------------------

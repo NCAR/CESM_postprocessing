@@ -25,8 +25,12 @@ begin
     z_t!0 = "z_t"
     time = fileid->time
     TEMP = fileid->temp
+    delete(TEMP&xh)
+    delete(TEMP&yh)
     fileid = addfile(file_S,"r")
     SALT = fileid->salt
+    delete(SALT&xh)
+    delete(SALT&yh)
   else ; POP
     TLONG = fileid->TLONG
     TLAT = fileid->TLAT

@@ -37,6 +37,8 @@ begin
     tlat = ocn_geo_file->geolat(:y_max,:)
     tlon = ocn_geo_file->geolon(:y_max,:)
     temp = fileid->temp(0,:,:y_max,:)
+    delete(temp&xh)
+    delete(temp&yh)
   else ; POP
     tlat = fileid->TLAT(:y_max,:)
     tlon = fileid->TLONG(:y_max,:)

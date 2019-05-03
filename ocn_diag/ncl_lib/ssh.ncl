@@ -19,6 +19,8 @@ begin
       region_mask = kmt ; TODO: fix_this !!!
       tarea = gridInfoFile->TAREA
       field = fileid->SSH
+      delete(field&xh)
+      delete(field&yh)
       field = where(field.eq.1e20,fileid->SSH@missing_value,field*100.0) ; TODO, remove hardcoded missing_value 
       field_miss = field@missing_value
     else ; POP

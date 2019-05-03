@@ -11,6 +11,8 @@ begin
    ocn_comp = getenv("OCN_COMP")
    if (ocn_comp.eq."MOM") then
      temp = fileid->temp(0,:,:,:)
+     delete(temp&xh)
+     delete(temp&yh)
    else ; POP
      temp = fileid->TEMP(0,:,:,:)
    end if

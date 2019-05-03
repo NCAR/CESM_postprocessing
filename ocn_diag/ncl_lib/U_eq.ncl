@@ -12,6 +12,8 @@ begin
    ocn_comp = getenv("OCN_COMP")
    if (ocn_comp.eq."MOM") then
      uvel = fileid->u(0,:,:,:)
+     delete(uvel&xq)
+     delete(uvel&yh)
      uvel = where(uvel.eq.1e20,uvel@missing_value,uvel*100.0) ; TODO, remove hardcoded missing_value 
    else ; POP
      uvel = fileid->UVEL(0,:,:,:)

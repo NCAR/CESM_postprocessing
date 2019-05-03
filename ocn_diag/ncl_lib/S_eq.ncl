@@ -11,6 +11,8 @@ begin
    ocn_comp = getenv("OCN_COMP")
    if (ocn_comp.eq."MOM") then
      salt = fileid->salt(0,:,:,:)
+     delete(salt&xh)
+     delete(salt&yh)
    else ; POP
      salt = fileid->SALT(0,:,:,:)
    end if

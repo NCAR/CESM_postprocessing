@@ -186,6 +186,21 @@ do n = 0, n_fields-1
   end if
   end if
 
+  if (ocn_comp.eq."MOM") then
+    if (iscoord(field,"xh")) then
+      delete(field&xh)
+    end if
+    if (iscoord(field,"xq")) then
+      delete(field&xq)
+    end if
+    if (iscoord(field,"yh")) then
+      delete(field&yh)
+    end if
+    if (iscoord(field,"yq")) then
+      delete(field&yq)
+    end if
+  end if
+
   if (.not.all(ismissing(field))) then
     if (iscoord(field,"ULONG")) then
        ugrid = True

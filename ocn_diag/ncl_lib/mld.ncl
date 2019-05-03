@@ -72,6 +72,21 @@ begin
 ;;  field@_FillValue = missing_value
   field@_FillValue = default_fillvalue(typeof(field))
   field = where(field .eq. field@missing_value,field@_FillValue,field)
+  if (ocn_comp.eq."MOM") then
+    if (iscoord(field,"xh")) then
+      delete(field&xh)
+    end if
+    if (iscoord(field,"xq")) then
+      delete(field&xq)
+    end if
+    if (iscoord(field,"yh")) then
+      delete(field&yh)
+    end if
+    if (iscoord(field,"yq")) then
+      delete(field&yq)
+    end if
+  end if
+
   PD = new((/nz,ny,nx/),double)
 
   MLD = new((/2,nc,nt,ny,nx/),double)

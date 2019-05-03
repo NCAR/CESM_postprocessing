@@ -13,6 +13,8 @@ begin
   ocn_comp = getenv("OCN_COMP")
   if (ocn_comp.eq."MOM") then
     salt = fileid->salt
+    delete(salt&xh)
+    delete(salt&yh)
     dout_s_root = getenv("DOUT_S_ROOT")
     ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
     tlon = ocn_geo_file->geolon

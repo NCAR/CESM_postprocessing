@@ -37,6 +37,8 @@ begin
     tlat = ocn_geo_file->geolat(y_min:,:)
     tlon = ocn_geo_file->geolon(y_min:,:)
     salt = fileid->salt(0,:,y_min:,:)
+    delete(salt&xh)
+    delete(salt&yh)
   else ; POP
     tlat = fileid->TLAT(y_min:,:)
     tlon = fileid->TLONG(y_min:,:)
