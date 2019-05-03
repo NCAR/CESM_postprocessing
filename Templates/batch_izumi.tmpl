@@ -1,0 +1,11 @@
+#PBS -N {{ processName }}
+#PBS -q {{ queue }}
+#PBS -l nodes={{ nodes }}:ppn={{ ppn }}
+#PBS -l walltime={{ wallclock }}
+#PBS -A {{ project }}
+
+source /usr/share/Modules/init/sh
+
+#export I_MPI_DEVICE=rdma
+#export MPI_UNBUFFERED_STDIO=true
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/glade/u/apps/ch/opt/pythonpkgs/2.7/cf_units/1.1.3/gnu/6.2.0/lib

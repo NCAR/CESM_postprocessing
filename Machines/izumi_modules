@@ -1,0 +1,30 @@
+#!/bin/sh
+
+echo "Python boot-strap modules for machine izumi"
+source /usr/share/Modules/init/sh
+
+module load lang/python/2.7.14
+module load tool/ncl/6.5.0
+module load tool/nco/4.7.5
+
+#module load numpy/1.11.0
+#module load scipy/0.18.1
+#module load mpi4py/2.0.0
+#module load pynio/1.4.1
+#module load pyside/1.1.2
+#module load matplotlib/1.5.1
+#module load intel/12.1.5
+#module load netcdf/4.3.0
+#module load nco/4.4.4
+#module load ncl/6.4.0
+#module load netcdf4python/1.2.4
+#module load pyngl/1.4.0
+
+# prepend the virtualenv into the PATH
+#export PATH=/glade/apps/contrib/virtualenv/12.0.7:${PATH}
+#export PATH
+
+# may need basemap for ocn ecosys
+
+module list
+
