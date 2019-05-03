@@ -9,50 +9,83 @@ begin
   missing = 1.0e30
 
   fileid = addfile(file_netcdf,"r")
-  if (isfilevar(fileid,"HMXL")) then
-    ListPush(field_name,"HMXL")
-  end if
-  if (isfilevar(fileid,"HBLT")) then
-    ListPush(field_name,"HBLT")
-  end if
-  if (isfilevar(fileid,"SU")) then
-    ListPush(field_name,"SU")
-  end if
-  if (isfilevar(fileid,"SV")) then
-    ListPush(field_name,"SV")
-  end if
-  if (isfilevar(fileid,"BSF")) then
-    ListPush(field_name,"BSF")
-  end if
-  if (isfilevar(fileid,"DIA_DEPTH")) then
-    ListPush(field_name,"DIA_DEPTH")
-  end if
-  if (isfilevar(fileid,"TLT")) then
-    ListPush(field_name,"TLT")
-  end if
-  if (isfilevar(fileid,"INT_DEPTH")) then
-    ListPush(field_name,"INT_DEPTH")
+
+  ocn_comp = getenv("OCN_COMP")
+  if (ocn_comp.eq."MOM") then
+    ;if (isfilevar(fileid,"HMXL")) then
+    ;  ListPush(field_name,"HMXL")
+    ;end if
+    if (isfilevar(fileid,"KPP_OBLdepth")) then
+      ListPush(field_name,"KPP_OBLdepth")
+    end if
+    ;if (isfilevar(fileid,"SU")) then
+    ;  ListPush(field_name,"SU")
+    ;end if
+    ;if (isfilevar(fileid,"SV")) then
+    ;  ListPush(field_name,"SV")
+    ;end if
+    ;if (isfilevar(fileid,"BSF")) then
+    ;  ListPush(field_name,"BSF")
+    ;end if
+    ;if (isfilevar(fileid,"DIA_DEPTH")) then
+    ;  ListPush(field_name,"DIA_DEPTH")
+    ;end if
+    ;if (isfilevar(fileid,"TLT")) then
+    ;  ListPush(field_name,"TLT")
+    ;end if
+    ;if (isfilevar(fileid,"INT_DEPTH")) then
+    ;  ListPush(field_name,"INT_DEPTH")
+    ;end if
+  else ; POP
+    if (isfilevar(fileid,"HMXL")) then
+      ListPush(field_name,"HMXL")
+    end if
+    if (isfilevar(fileid,"HBLT")) then
+      ListPush(field_name,"HBLT")
+    end if
+    if (isfilevar(fileid,"SU")) then
+      ListPush(field_name,"SU")
+    end if
+    if (isfilevar(fileid,"SV")) then
+      ListPush(field_name,"SV")
+    end if
+    if (isfilevar(fileid,"BSF")) then
+      ListPush(field_name,"BSF")
+    end if
+    if (isfilevar(fileid,"DIA_DEPTH")) then
+      ListPush(field_name,"DIA_DEPTH")
+    end if
+    if (isfilevar(fileid,"TLT")) then
+      ListPush(field_name,"TLT")
+    end if
+    if (isfilevar(fileid,"INT_DEPTH")) then
+      ListPush(field_name,"INT_DEPTH")
+    end if
   end if
 
   n_fields = ListCount(field_name)
   print( " the number of fields to be processed is " +  n_fields)
 
-  days_in_norm_year = fileid->days_in_norm_year
-  sflux_factor = fileid->sflux_factor
-  salinity_factor = fileid->salinity_factor
-  rho_sw = fileid->rho_sw * 1000.0
-  l_f = fileid->latent_heat_fusion / 1e4
-  tlat = fileid->TLAT
-  tlon = fileid->TLONG
-  sizes = dimsizes(tlon)
-  nx = sizes(1)
-  ny = sizes(0)
-  kmt = fileid->KMT
-  kmu = fileid->KMU
-  region_mask = fileid->REGION_MASK
-  tarea = fileid->TAREA
-  uarea = fileid->UAREA
-  angle = fileid->ANGLE
+  if (ocn_comp.eq."MOM") then
+    dout_s_root = getenv("DOUT_S_ROOT")
+    ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")                                                  
+    tlon = ocn_geo_file->geolon
+    tlat = ocn_geo_file->geolat
+    gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+    gridInfoFile = addfile(gridInfoFilePath,"r")
+    kmt = gridInfoFile->KMT
+    region_mask = kmt ; TODO: fix_this !!!
+    tarea = gridInfoFile->TAREA
+  else ; POP
+    tlat = fileid->TLAT
+    tlon = fileid->TLONG
+    kmt = fileid->KMT
+    kmu = fileid->KMU
+    region_mask = fileid->REGION_MASK
+    tarea = fileid->TAREA
+    uarea = fileid->UAREA
+    angle = fileid->ANGLE
+  end if
 
   do n=0,n_fields-1 
 
@@ -76,6 +109,7 @@ begin
 
     dmin = missing 
     dmax = missing 
+    ; POP ----------------------------------------------------------
     if ( fname .eq. "HMXL"       .or. \
       fname .eq. "HBLT"       .or. \
       fname .eq. "DIA_DEPTH"  .or. \
@@ -108,6 +142,15 @@ begin
       contourline = (/0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,1,0,0, \
       0,1,0,0,0,1,0,0,0/)
     end if  
+
+    ; MOM ----------------------------------------------------------
+    if ( fname .eq. "KPP_OBLdepth" ) then
+      dmin  =   0.0
+      dmax  = 400.0
+      units = "m"
+      contourline = 2
+      fname = "HBLT"
+    end if
 
     if ( dmin      .eq. missing  .or.  dmax      .eq. missing ) then 
       print( " user must set the contour limits .... ")

@@ -16,6 +16,13 @@
       <order>0</order>
       <comment>Settings that are common to all diagnostic types.</comment>
 
+      <entry id="OCN_COMP"
+	     type="char"
+	     valid_values="POP,MOM"
+	     value="POP"
+	     group="global"
+	     desc="Active ocean component used to run the case"
+	     ></entry>
 
       <entry id="OCNDIAG_DIAGROOTPATH"
 	     type="char"
@@ -1111,6 +1118,13 @@ Applies to both model and control cases."
 	     value="TRUE"
 	     group="model_timeseries_plots"
 	     desc="Logical to control whether to generate monthly mean max MOC time series (TRUE) or not (FALSE)."></entry>
+
+      <entry id="OCNDIAG_MOMTS_PM_GA"
+	     type="logical"
+	     valid_values="TRUE,FALSE"
+	     value="FALSE"
+	     group="model_timeseries_plots"
+	     desc="Logical to control whether to generate MOM6 global average fields"></entry>
     </group>
 
     <group name="model_vs_obs_ecosys_plots">

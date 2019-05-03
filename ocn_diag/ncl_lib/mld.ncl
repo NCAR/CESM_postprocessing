@@ -27,10 +27,20 @@ begin
 
   fileid = addfile(file_tavg,"r")
 
-  kmt = fileid->KMT
-  region_mask = fileid->REGION_MASK
-  tarea = fileid->TAREA
-  ht = fileid->HT
+  ocn_comp = getenv("OCN_COMP")
+  if (ocn_comp.eq."MOM") then
+    gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+    gridInfoFile = addfile(gridInfoFilePath,"r")
+    kmt = gridInfoFile->KMT
+    region_mask = kmt ; TODO: fix_this !!!
+    tarea = gridInfoFile->TAREA
+    ht = gridInfoFile->HT
+  else ; POP
+    kmt = fileid->KMT
+    region_mask = fileid->REGION_MASK
+    tarea = fileid->TAREA
+    ht = fileid->HT
+  end if
 
   fileid = addfile(file_netcdf,"r")
   field = fileid->PD
@@ -48,10 +58,12 @@ begin
   time = fileid->time
 
 ; convert depth and HT to m from cm
+  if (ocn_comp.eq."POP") then
+    depth = depth * 0.01
+    ht    = ht    * 0.01
+    tarea = tarea * 1.0e-4
+  end if
 
-  depth = depth * 0.01
-  ht    = ht    * 0.01
-  tarea = tarea * 1.0e-4
   size = dimsizes(field)
   nx = size(3)
   ny = size(2)

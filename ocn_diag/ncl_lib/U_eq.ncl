@@ -7,7 +7,16 @@ load "$NCLPATH/pop_eq_avg.ncl"
 begin
 
    fileid = addfile(file_netcdf,"r")
-   uvel = fileid->UVEL(0,:,:,:)
+
+   ; TODO: fix staggering of MOM6 velocities in this and remaining velocity plot scripts
+   ocn_comp = getenv("OCN_COMP")
+   if (ocn_comp.eq."MOM") then
+     uvel = fileid->u(0,:,:,:)
+     uvel = where(uvel.eq.1e20,uvel@missing_value,uvel*100.0) ; TODO, remove hardcoded missing_value 
+   else ; POP
+     uvel = fileid->UVEL(0,:,:,:)
+   end if
+
    if (isatt(uvel,"_FillValue"))
       missing = uvel@_FillValue
    else
@@ -24,16 +33,35 @@ begin
      ulon = gridid->ULONG
      ulat = gridid->ULAT
    else
-     ulon = fileid->ULONG
-     ulat = fileid->ULAT
+     if (ocn_comp.eq."MOM") then
+       dout_s_root = getenv("DOUT_S_ROOT")
+       ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
+       ulon = ocn_geo_file->geolonb
+       ulat = ocn_geo_file->geolatb
+     else ; POP
+       ulon = fileid->ULONG
+       ulat = fileid->ULAT
+     end if
    end if
    size = dimsizes(uvel)
    nx = size(2)
    ny = size(1)
    nz = size(0)
-   z_t = fileid->z_t
-   nz = dimsizes(z_t)
-   z_t = z_t / 100.
+
+   if (ocn_comp.eq."MOM") then
+     gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+     gridInfoFile = addfile(gridInfoFilePath,"r")
+     kmt = gridInfoFile->KMT
+     region_mask = kmt ; TODO: fix_this !!!
+     z_t = fileid->z_l
+     nz = dimsizes(z_t)
+   else ; POP
+     kmt = fileid->KMT
+     region_mask = fileid->REGION_MASK
+     z_t = fileid->z_t
+     nz = dimsizes(z_t)
+     z_t = z_t / 100.
+   end if
    z_max = ind_nearest_coord(500.0,z_t,0)
    y_eq = ind_nearest_coord(0,ulat(:,0),0)
    ulon = where(ulon .lt. 0, ulon+ 360, ulon)

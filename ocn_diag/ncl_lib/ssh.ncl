@@ -7,21 +7,29 @@ begin
     missing = 1.0e30
     
     fileid = addfile(file_netcdf,"r")
-    tlat = fileid->TLAT
-    tlon = fileid->TLONG
-    sizes = dimsizes(tlon)
-    nx = sizes(1)
-    ny = sizes(0)
-    ulat = fileid->ULAT
-    ulon = fileid->ULONG
-    kmt = fileid->KMT
-    kmu = fileid->KMU
-    region_mask = fileid->REGION_MASK
-    tarea = fileid->TAREA
-    uarea = fileid->UAREA
-    angle = fileid->ANGLE
-    field = fileid->SSH
-    field_miss = field@missing_value
+    ocn_comp = getenv("OCN_COMP")
+    if (ocn_comp.eq."MOM") then
+      dout_s_root = getenv("DOUT_S_ROOT")
+      ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
+      tlon = ocn_geo_file->geolon
+      tlat = ocn_geo_file->geolat
+      gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+      gridInfoFile = addfile(gridInfoFilePath,"r")
+      kmt = gridInfoFile->KMT
+      region_mask = kmt ; TODO: fix_this !!!
+      tarea = gridInfoFile->TAREA
+      field = fileid->SSH
+      field = where(field.eq.1e20,fileid->SSH@missing_value,field*100.0) ; TODO, remove hardcoded missing_value 
+      field_miss = field@missing_value
+    else ; POP
+      tlon = fileid->TLONG
+      tlat = fileid->TLAT
+      kmt = fileid->KMT
+      region_mask = fileid->REGION_MASK
+      tarea = fileid->TAREA
+      field = fileid->SSH
+      field_miss = field@missing_value
+    end if
     
     
     fileid     = addfile(file_SSH_obs,"r")

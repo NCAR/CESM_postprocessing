@@ -14,7 +14,8 @@ begin
 
   mod_field = field
   if (isatt(field,"_FillValue")) then
-    mod_field = where(rmask .lt. 0, field@_FillValue, mod_field)
+    ;mod_field = where(rmask .lt. 0, field@_FillValue, mod_field)
+    mod_field = where(kmt.eq.0,field@_FillValue, mod_field)
   else
     mod_field = where(rmask .lt. 0, missing, mod_field)
     mod_field@_FillValue = missing
@@ -56,7 +57,10 @@ begin
   field_max = max(mod_field)
 
   if ((.not. isatt(opt,"nomean")) .or. opt@nomean .ne. 1) then
-    larea = where(ismissing(mod_field),area@_FillValue,area)
+    ;larea = where(ismissing(mod_field),area@_FillValue,area)
+    larea = where(kmt.eq.0,field@_FillValue,area)
+    area@_FillValue = field@_FillValue
+    larea@_FillValue = field@_FillValue
     mean = wgt_areaave2(mod_field,larea,0)
     rms = sqrt(sum (mod_field * mod_field * larea) / sum(larea)) 
   end if

@@ -26,8 +26,8 @@ SUBDIRS = \
 	timeseries \
         conformer \
         conform \
-	ilamb \
-	diagnostics 
+	diagnostics \
+# ilamb \
 
 # MAKECMDGOALS is the make option: make 'clobber' or 'all'
 TARGET = $(MAKECMDGOALS)

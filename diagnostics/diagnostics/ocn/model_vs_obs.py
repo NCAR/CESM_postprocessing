@@ -90,7 +90,8 @@ class modelVsObs(OceanDiagnostic):
 
         # create the global zonal average file used by most of the plotting classes
         print('    model vs. obs - calling create_za')
-        diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env)
+        #diagUtilsLib.create_za( env['WORKDIR'], env['TAVGFILE'], env['GRIDFILE'], env['TOOLPATH'], env)
+        print('done')
 
         return env
 

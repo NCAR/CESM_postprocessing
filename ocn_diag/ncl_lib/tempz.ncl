@@ -9,29 +9,46 @@ begin
   print( " plotting TEMP at "+ n_depth + " depth levels")
 
   fileid = addfile(file_netcdf,"r")
-  temp = fileid->TEMP
+
+  ocn_comp = getenv("OCN_COMP")
+  if (ocn_comp.eq."MOM") then
+    temp = fileid->temp
+    dout_s_root = getenv("DOUT_S_ROOT")
+    ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
+    tlon = ocn_geo_file->geolon
+    tlat = ocn_geo_file->geolat
+  else ; POP
+    temp = fileid->TEMP
+    tlon = fileid->TLONG
+    tlat = fileid->TLAT
+  end if
   if (isatt(temp,"_FillValue"))
     missing = temp@_FillValue
   else
     missing = 1e30
   end if
   units = temp@units
-  tlon = fileid->TLONG
-  tlat = fileid->TLAT
   size = dimsizes(tlon)
   nx = size(1)
   ny = size(0)
-  ulon = fileid->ULONG
-  ulat = fileid->ULAT
-  kmt = fileid->KMT
-  kmu = fileid->KMU
-  region_mask = fileid->REGION_MASK
-  tarea = fileid->TAREA
-  uarea = fileid->UAREA
-  angle = fileid->ANGLE
-  z_t = fileid->z_t
-  nz = dimsizes(z_t)
-  z_t = z_t / 100.
+
+  if (ocn_comp.eq."MOM") then
+    gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+    gridInfoFile = addfile(gridInfoFilePath,"r")
+    kmt = gridInfoFile->KMT
+    region_mask = kmt ; TODO: fix_this !!!
+    tarea = gridInfoFile->TAREA
+    z_t = fileid->z_l
+    nz = dimsizes(z_t)
+  else ; POP
+    kmt = fileid->KMT
+    kmu = fileid->KMU
+    region_mask = fileid->REGION_MASK
+    tarea = fileid->TAREA
+    z_t = fileid->z_t
+    nz = dimsizes(z_t)
+    z_t = z_t / 100.
+  end if
 
   fileid_obs = addfile(file_T_obs,"r")
   temp_obs = fileid_obs->TEMP

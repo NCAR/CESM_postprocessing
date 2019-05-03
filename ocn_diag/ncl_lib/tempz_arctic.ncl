@@ -14,7 +14,15 @@ begin
 ; speed up processing by only using data in the range of the plot output
 ; a loop is needed in order to find the smallest y index in each row 
 ;
-  tlat = fileid->TLAT
+  ocn_comp = getenv("OCN_COMP")
+  if (ocn_comp.eq."MOM") then
+    dout_s_root = getenv("DOUT_S_ROOT")
+    ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
+    tlat = ocn_geo_file->geolat
+  else ; POP
+    tlat = fileid->TLAT
+  end if
+
   y_min = dimsizes(tlat(:,0)) - 1
   do i = 0, dimsizes(tlat(0,:)) - 1
     ytmp =  max(ind(tlat(:,i) .le. 60))
@@ -23,10 +31,17 @@ begin
     end if
   end do
   delete(tlat)
-  tlat = fileid->TLAT(y_min:,:)
-  tlon = fileid->TLONG(y_min:,:)
 
-  temp = fileid->TEMP(0,:,y_min:,:)
+  if (ocn_comp.eq."MOM") then
+    tlat = ocn_geo_file->geolat(y_min:,:)
+    tlon = ocn_geo_file->geolon(y_min:,:)
+    temp = fileid->temp(0,:,y_min:,:)
+  else ; POP
+    tlat = fileid->TLAT(y_min:,:)
+    tlon = fileid->TLONG(y_min:,:)
+    temp = fileid->TEMP(0,:,y_min:,:)
+  end if
+
   if (isatt(temp,"_FillValue"))
     missing = temp@_FillValue
   else
@@ -36,13 +51,23 @@ begin
   size = dimsizes(tlon)
   nx = size(1)
   ny = size(0)
-  kmt = fileid->KMT(y_min:,:)
-  kmu = fileid->KMU(y_min:,:)
-  region_mask = fileid->REGION_MASK(y_min:,:)
-  tarea = fileid->TAREA(y_min:,:)
-  z_t = fileid->z_t
-  nz = dimsizes(z_t)
-  z_t = z_t / 100.
+
+  if (ocn_comp.eq."MOM") then
+    gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+    gridInfoFile = addfile(gridInfoFilePath,"r")
+    kmt = gridInfoFile->KMT(y_min:,:)
+    region_mask = gridInfoFile->KMT(y_min:,:) ; TODO: fix_this !!!
+    tarea = gridInfoFile->TAREA(y_min:,:)
+    z_t = fileid->z_l
+    nz = dimsizes(z_t)
+  else ; POP
+    kmt = fileid->KMT(y_min:,:)
+    region_mask = fileid->REGION_MASK(y_min:,:)
+    tarea = fileid->TAREA(y_min:,:)
+    z_t = fileid->z_t
+    nz = dimsizes(z_t)
+    z_t = z_t / 100.
+  end if
 
   fileid_obs = addfile(file_T_obs,"r")
   temp_obs = fileid_obs->TEMP
@@ -66,7 +91,7 @@ begin
       field_obs = temp_obs(klev,y_min:,:)
     end if
     field_diff = field_obs
-    field_diff = field - field_obs
+    field_diff = doubletofloat(field) - field_obs
     nlev = 21
     if ( depth(l) .le. 1800 ) then
       dmin  =  -4.0

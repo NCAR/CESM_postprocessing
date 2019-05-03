@@ -9,32 +9,54 @@ begin
    print( " plotting UVEL at "+ n_depth + " depth levels")
    
    fileid = addfile(file_netcdf,"r")
-   uvel = fileid->UVEL
+
+   ocn_comp = getenv("OCN_COMP")
+   if (ocn_comp.eq."MOM") then
+     uvel = fileid->u
+     vvel = fileid->v
+     uvel = 100.0 * uvel
+     vvel = 100.0 * vvel
+     dout_s_root = getenv("DOUT_S_ROOT")
+     ocn_geo_file = addfile(dout_s_root+"/ocn/hist/ocean_geometry.nc","r")
+     tlon = ocn_geo_file->geolon
+     tlat = ocn_geo_file->geolat
+   else ; POP
+     uvel = fileid->UVEL
+     vvel = fileid->VVEL
+     temp = fileid->TEMP
+     tlon = fileid->TLONG
+     tlat = fileid->TLAT
+   end if
+
    if (isatt(uvel,"_FillValue"))
       missing = uvel@_FillValue
    else
       missing = 1e30
    end if
    units = uvel@units
-   vvel = fileid->VVEL
    
-   tlon = fileid->TLONG
-   tlat = fileid->TLAT
    size = dimsizes(tlon)
    nx = size(1)
    ny = size(0)
-   ulon = fileid->ULONG
-   ulat = fileid->ULAT
-   kmt = fileid->KMT
-   kmu = fileid->KMU
-   region_mask = fileid->REGION_MASK
-   tarea = fileid->TAREA
-   uarea = fileid->UAREA
-   angle = fileid->ANGLE
-   anglet = fileid->ANGLET
-   z_t = fileid->z_t
-   nz = dimsizes(z_t)
-   z_t = z_t / 100.
+
+   if (ocn_comp.eq."MOM") then
+     gridInfoFilePath = getenv("DIAGOBSROOT")+"/omwg/za_grids/"+getenv("RESOLUTION")+"_grid_info.nc"
+     gridInfoFile = addfile(gridInfoFilePath,"r")
+     kmt = gridInfoFile->KMT
+     region_mask = kmt ; TODO: fix_this !!!
+     tarea = gridInfoFile->TAREA
+     z_t = fileid->z_l
+     nz = dimsizes(z_t)
+     angle = get_d2r("double")*gridInfoFile->ANGLE
+   else
+     kmt = fileid->KMT
+     region_mask = fileid->REGION_MASK
+     tarea = fileid->TAREA
+     z_t = fileid->z_t
+     nz = dimsizes(z_t)
+     z_t = z_t / 100.
+     angle = fileid->ANGLE
+   end if
 
    nlev = 21
    coltab = new(nlev + 1,"integer")
@@ -61,6 +83,10 @@ begin
      end if
      ; rotate vector
      field = tofloat(field * cos(angle) + field_2 * sin(-angle))
+
+     if (ocn_comp.eq."MOM") then
+       field = where(abs(field).lt.1e10,field,missing)
+     end if
 
 ;
 ;    "gauss" level type not supported yet
