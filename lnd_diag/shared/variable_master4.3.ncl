@@ -11740,6 +11740,1306 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "C14_PSNSUN_TO_CPOOL") then
+    info@flux=True
+    info@longName="C14 GPP from Sunlit Canopy"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     =  1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.5, 1.0, 1.5, 2.0, 4.0, 6., 8., 10., 12./)
+    info@cn_LevelsDiff             = (/-5.0, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5/)
+    return(info)
+  end if
+
+  if (varName .eq. "C14_PSNSHADE_TO_CPOOL") then
+    info@flux=True
+    info@longName="C14 GPP from Shaded Canopy"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     =  1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.5, 1.0, 1.5, 2.0, 4.0, 6., 8., 10., 12./)
+    info@cn_LevelsDiff             = (/-5.0, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5/)
+    return(info)
+  end if
+
+  if (varName .eq. "C14_AGNPP") then
+    info@flux=True
+    info@longName="C14 Aboveground NPP"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.12, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2., 2.5 /)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+  
+  if (varName .eq. "C14_BGNPP") then
+    info@flux=True
+    info@longName="C14 Belowground NPP"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.12, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2., 2.5 /)
+    info@cn_LevelsDiff             = (/-1.0, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "C14_AR") then
+    info@flux=True
+    info@longName="C14 Autotrophic Respiration (MR + GR)"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/.25, 0.5, 1.0, 2.0, 3., 4., 5., 6., 7./)
+    info@cn_LevelsDiff             = (/-2.50, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5/)
+    return(info)
+  end if
+
+  if (varName .eq. "C14_COL_CTRUNC") then
+    info@flux=False
+    info@longName="C14 Column-Level Sink for C Truncation" 
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    return(info)
+  end if
+
+  if (varName .eq. "C14_COL_FIRE_CLOSS") then
+    info@flux=True
+    info@longName="C14 Totl Col-Level Fire C Loss"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0, 10.0, 20.0, 30.0, 40.0, 50., 60., 70., 80./)
+    info@cn_LevelsDiff             = (/-10.0, -8.0, -6.0, -4.0, -2.0, 0, 2.0, 4.0, 6.0, 8.0, 10/)
+    return(info)
+  end if
+
+  if (varName .eq. "C14_CPOOL") then
+    info@flux=False
+    info@longName="C14 Temporary Photosynthate C Pool"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_XSMRPOOL") then
+    info@flux=False
+    info@longName="C14 Temporary Photosynthate C Pool"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_CWDC") then
+    info@flux=False
+    info@longName="C14 Coarse Woody Debris Carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+    
+  if (varName .eq. "C14_DEADCROOTC") then
+    info@flux=False
+    info@longName="C14 Dead Coarse Root Carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_DEADSTEMC") then
+    info@flux=False
+    info@longName="C14 Dead Stem Carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  
+  if (varName .eq. "C14_DISPVEGC") then
+    info@flux=False
+    info@longName="C14 Displayed Veg Carbon, Excluding Storage and Cpool"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    return(info)
+  end if
+
+  if (varName .eq. "C14_ER") then
+    info@flux=True
+    info@longName="C14 Totl Ecosystem Respiration (AR + HR)"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_FROOTC") then
+    info@flux=False
+    info@longName="C14 Fine Root CC"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_GPP") then
+    info@flux=True
+    info@longName="C14 Gross Primary Production"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_GR") then
+    info@flux=True
+    info@longName="C14 Total Growth Respiration"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_HR") then
+    info@flux=True
+    info@longName="C14 Total Hetereotrophic Respiration"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_LEAFC") then
+    info@flux=False
+    info@longName="C14 Leaf Carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_LITHR") then
+    info@flux=True
+    info@longName="C14 Litter Hetereotrophic Respiration"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_LITR1C") then
+    info@flux=False
+    info@longName="C14 Litter Labile C"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    return(info)
+  end if
+
+  if (varName .eq. "C14_LITR2C") then
+    info@flux=False
+    info@longName="C14 Litter Cellulose C"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    return(info)
+  end if
+
+  if (varName .eq. "C14_LITR3C") then
+    info@flux=False
+    info@longName="C14 Litter Lignin C"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    return(info)
+  end if
+
+  if (varName .eq. "C14_LIVECROOTC") then
+    info@flux=False
+    info@longName="C14 Live Coarse Root Carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_LIVESTEMC") then
+    info@flux=False
+    info@longName="C14 Live Stem C"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_MR") then
+    info@flux=True
+    info@longName="C14 Maintenance Respiration"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_NEE") then
+    info@flux=True
+    info@longName="C14 Net Ecosys Exchange of C;Incl Fire Flx;Pos for Source"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_NEP") then
+    info@flux=True
+    info@longName="C14 Net Ecosystem Production;Excl Fire Flx;Pos for Sink"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_NPP") then
+    info@flux=True
+    info@longName="C14 Net Primary Production"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_PFT_CTRUNC") then
+    info@flux=False
+    info@longName="C14 Pft-Level Sink for C Truncation"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_PFT_FIRE_CLOSS") then
+    info@flux=True
+    info@longName="C14 Totl Pft-Level Fire C Loss"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_RR") then
+    info@flux=True
+    info@longName="C14 Root Respiration (Fine Root MR + Total Root GR)"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_SOIL1C") then
+    info@flux=False
+    info@longName="C14 Soil Organic Matter C (Fast Pool)"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  
+  if (varName .eq. "C14_SOIL2C") then
+    info@flux=False
+    info@longName="C14 Soil Organic Matter C (Medium Pool)"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_SOIL3C") then
+    info@flux=False
+    info@longName="C14 Soil Organic Matter C (Slow Pool)"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_SOIL4C") then
+    info@flux=False
+    info@longName="C14 Soil Organic Matter C (Slowest Pool)"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_SOMHR") then
+    info@flux=True
+    info@longName="C14 SOM Hetereotrophic Respiration"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_SR") then
+    info@flux=True
+    info@longName="C14 Totl Soil Respiration (HR + Root Resp)"
+    info@nativeUnits = "gC/m^2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "per mil v PDB"
+    info@globalTotal_Annual__SF    = 1.0
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "per mil v PDB"
+    info@globalMean_Annual__SF     = 1.0
+    info@globalMean_Daily__units   = "per mil v PDB"
+    info@globalMean_Daily__SF      = 1.0
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_STORVEGC") then
+    info@flux=False
+    info@longName="C14 Stored Vegetation C, Excluding Cpool"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_TOTLITC") then
+    info@flux=False
+    info@longName="C14 Totl Litter Carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  
+  if (varName .eq. "C14_TOTSOMC") then
+    info@flux=False
+    info@longName="C14 Total SOM Carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  
+  if (varName .eq. "C14_TOTECOSYSC") then
+    info@flux=False
+    info@longName="C14 Totl Ecosystem C, Incl Veg But Excl Cpool"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_TOTCOLC") then
+    info@flux=False
+    info@longName="C14 Total Column C, Incl Veg and Cpool"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_TOTPFTC") then
+    info@flux=False
+    info@longName="C14 Totl PFT-Level C, Including Cpool"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C14_TOTVEGC") then
+    info@flux=False
+    info@longName="C14 Total Vegetation C, Excluding Cpool"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
   if (varName .eq. "VOCFLXT") then
     info@flux=True
     info@longName="Total VOC flux into Atmosphere"
