@@ -1,0 +1,12 @@
+#!/bin/sh -x
+
+echo "Python boot-strap modules for machine cori"
+source /opt/modules/default/init/sh
+
+module load python/2.7-anaconda-5.2
+
+source activate ppenv
+# may need basemap for ocn ecosys
+export PYTHONPATH=${HOME}/workflowtools/CESM_postprocessing/cesm-env2/lib/python2.7/site-packages:${HOME}/.conda/envs/ppenv/lib/python2.7/site-packages:$PYTHONPATH
+module list
+

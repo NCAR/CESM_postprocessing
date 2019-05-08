@@ -183,40 +183,32 @@
     </components>
   </machine>
 
-<!-- TODO - Edison settings need to be updated -->
-  <machine name="edison" hostname="edison">
-    <timeseries_pes queue="regular" wallclock="02:00">144</timeseries_pes>
-    <xconform_pes queue="regular" wallclock="06:00">144</xconform_pes>
+  <machine name="cori" hostname="cori">
+    <timeseries_pes queue="regular" wallclock="02:00" pes_per_node="4">128</timeseries_pes>
+    <xconform_pes queue="regular" wallclock="06:00" pes_per_node="4">128</xconform_pes>
     <mpi_command>aprun -n {{ pes }}</mpi_command>
-    <pythonpath>/global/project/projectdirs/ccsm1/pythonlib/lib/python2.7/site-packages/PyNIO</pythonpath>
+    <pythonpath>/global/homes/j/jedwards/.conda/envs/ppenv/lib/python2.7/site-packages:/global/homes/j/jedwards/workflowtools/CESM_postprocessing/cesm-env2/lib/python2.7/site-packages</pythonpath>
     <f2py fcompiler="intelem" f77exec="/opt/intel/composer_xe_2015.1.133/bin/intel64/ifort">f2py</f2py>
     <za>
       <compiler>ifort</compiler>
       <flags>-c -g -O2</flags>
-      <include>-I-I/opt/cray/netcdf/4.3.2/INTEL/140/include</include>
-      <libs>-L/opt/cray/netcdf/4.3.2/INTEL/140/lib -lnetcdff -L/opt/cray/hdf5/1.8.13/INTEL/140/lib -lnetcdf</libs>
+      <include>-I/usr/common/software/netcdf/4.3.2/hsw/intel/include</include>
+      <libs>-L/usr/common/software/netcdf/4.3.2/hsw/intel/lib -lnetcdff -lnetcdf</libs>
     </za>
     <reset_modules>
       <module>module restore system</module>
-      <module>module load python/2.7.7</module>
+      <module>module load python/2.7-anaconda-5.2</module>
     </reset_modules>
     <modules>
-      <module>module load python/2.7.9</module>
-      <module>module load virtualenv/12.1.1</module>
-      <module>module load numpy/1.9.2</module>
-      <module>module load scipy/0.15.1</module>
-      <module>module load mpi4py/2.0.0</module>
-      <module>module load matplotlib/1.4.3</module>
-      <module>module load nco/4.3.9</module>
-      <module>module load ncl/6.1.1</module>
-      <module>module load cray-netcdf/4.3.2</module>
-      <module>module load cray-hdf5/1.8.13</module>
+      <module>module load python/2.7-anaconda-5.2</module>
+      <module>module load cray-netcdf/4.6.1</module>
+      <module>module load cray-hdf5/1.10.2.0</module>
     </modules>
     <components>
       <component name="atm">
 	<averages_pes queue="regular" pes_per_node="4" wallclock="00:30">120</averages_pes>
 	<diagnostics_pes queue="regular" pes_per_node="4" wallclock="02:00">24</diagnostics_pes>
-	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
+	<regrid_pes queue="regular" pes_per_node="2" wallclock="02:00">6</regrid_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
       </component>
       <component name="ice">
@@ -234,6 +226,16 @@
 	<averages_pes queue="regular" pes_per_node="8" wallclock="00:30">120</averages_pes>
 	<diagnostics_pes queue="regular" pes_per_node="4" wallclock="02:00">24</diagnostics_pes>
 	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
+      </component>
+      <component name="ilamb">
+	<diagnostics_pes  nodes="1" pes_per_node="2" wallclock="01:00:00" memory="100G">2</diagnostics_pes>
+	<initialize_pes  nodes="1" pes_per_node="1" wallclock="00:00:10" memory="1G">1</initialize_pes>
+	<obs_root>/global/project/projectdirs/ccsm1/lmwg/oleson/ILAMB/ILAMB_all</obs_root>
+      </component>
+      <component name="iomb">
+	<diagnostics_pes  nodes="1" pes_per_node="2" wallclock="01:00:00" memory="100G">2</diagnostics_pes>
+	<initialize_pes  nodes="1" pes_per_node="1" wallclock="00:00:10" memory="1G">1</initialize_pes>
+	<obs_root>/global/project/projectdirs/ccsm1/omwg/obs_data/IOMB</obs_root>
       </component>
     </components>
   </machine>
