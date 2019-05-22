@@ -647,9 +647,9 @@ def main(options):
     envDict['PP_CASE_PATH'] = pp_case_path
 
     # get the machine name from the hostname
-    hostname = cesmEnvLib.get_hostname()
-    envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
-
+    #    hostname = cesmEnvLib.get_hostname()
+    #    envDict['MACH'] = cesmEnvLib.get_machine_name(hostname, '{0}/Machines/machine_postprocess.xml'.format(envDict['POSTPROCESS_PATH']))
+    envDict['MACH'] = 'aleph'
     # check for undefined machine
     if not envDict['MACH']:
         raise OSError('create_postprocess ERROR: hostname "{0}" is not currently supported. Exiting...'.format(hostname))
