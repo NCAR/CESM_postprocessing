@@ -50,12 +50,14 @@ begin
   scale_type = new(nvar,"string")
   vars       = new(nvar,"string")
   c13Flag    = new(nvar,"string")
+  c14Flag    = new(nvar,"string")
   dynContour = new(nvar,"string")
   do i=0,nvar-1
      scale_type(i) = charactertostring(tmp(i,0:12))
      dynContour(i) = charactertostring(tmp(i,13))
      vars(i)       = charactertostring(tmp(i,16:))
      c13Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
+     c14Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
   end do
 
 ;*************************************************
@@ -253,11 +255,16 @@ begin
               x1  = derive_del13C(vars(i),in1, scale_type(i),0,2)
               x11 = derive_del13C(vars(i),in11,scale_type(i),0,2)
            else
-              x1  = in1 ->$filevar$
-              x11 = in11->$filevar$
-              plot_check_1  = True
-              plot_check_11 = True
-              delete(filevar)
+              if (c14Flag(i) .eq. "C14_") then
+                 x1  = derive_del14C(vars(i),in1, scale_type(i),0,2)
+                 x11 = derive_del14C(vars(i),in11,scale_type(i),0,2)
+              else
+                 x1  = in1 ->$filevar$
+                 x11 = in11->$filevar$
+                 plot_check_1  = True
+                 plot_check_11 = True
+                 delete(filevar)
+              end if
            end if
         else
            if (info@derivedVariable .eq. True) then
@@ -289,11 +296,16 @@ begin
               x2  = derive_del13C(vars(i),in2, scale_type(i),0,2)
               x22 = derive_del13C(vars(i),in22,scale_type(i),0,2)
            else
-              x2  = in2 ->$filevar$
-              x22 = in22->$filevar$
-              plot_check_2  = True
-              plot_check_22 = True
-              delete(filevar)
+              if (c14Flag(i) .eq. "C14_") then
+                 x2  = derive_del14C(vars(i),in2, scale_type(i),0,2)
+                 x22 = derive_del14C(vars(i),in22,scale_type(i),0,2)
+              else
+                 x2  = in2 ->$filevar$
+                 x22 = in22->$filevar$
+                 plot_check_2  = True
+                 plot_check_22 = True
+                 delete(filevar)
+              end if
            end if
         else
            if (info@derivedVariable .eq. True) then
@@ -315,6 +327,7 @@ begin
            if (vars(i) .eq. "TSA" ) then
               x3 = ptr_wm->$vars(i)$
               x3 = x3 - 273.15  ; convert K to C 
+;             x3 = x3 - 273.15  ; convert K to C 
               k2c = True
               lon3 = ptr_wm->lon
               lat3 = ptr_wm->lat
@@ -466,6 +479,8 @@ begin
         if (x1@units .eq. "K") then
            x1 = x1 - 273.15  ; convert K to C 
            x2 = x2 - 273.15  ; convert K to C 
+;          x1 = x1 - 273.15  ; convert K to C 
+;          x2 = x2 - 273.15  ; convert K to C 
         end if
 
       ; catch NaNs 
@@ -673,7 +688,7 @@ begin
                  res@cnLevelSelectionMode = "ExplicitLevels" ; explicit contour levels
                  res@cnLevels             = info@cn_Levels   ; contour levels
               else 
-                 if (c13Flag(i) .eq. "C13_") then
+                 if (c13Flag(i) .eq. "C13_" .or. c14Flag(i) .eq. "C14_") then
                     useMin12 = -40              ; hardcode boundaries to expectations
                     useMax12 = 0                ; hardcode boundaries to expectations
                  else
@@ -981,7 +996,7 @@ begin
                     useMax1  = 2.5*sd    ; = maxdiff
                  end if
                 
-                 if (c13Flag(i) .eq. "C13_") then
+                 if (c13Flag(i) .eq. "C13_" .or. c14Flag(i) .eq. "C14_") then
                     useMin1 = -40              ; hardcode boundaries to expectations
                     useMax1 = 0                ; hardcode boundaries to expectations
                  end if
