@@ -280,7 +280,8 @@ def read_machine_xml(machineName, xmlFile):
         if machineName.lower() == xmlmachine.get('name').lower():
 
             found = True
-            # get the timeseries pes first
+
+            # get the timeseries pes 
             tseries_pes = xmlmachine.find('timeseries_pes')
             machine['timeseries_pes'] = tseries_pes.text
             machine['timeseries_queue'] = ''
@@ -294,7 +295,6 @@ def read_machine_xml(machineName, xmlFile):
             machine['timeseries_memory'] = ''
             if 'memory' in tseries_pes.attrib:
                 machine['timeseries_memory'] = tseries_pes.get('memory')
-
 
             # get the conform pes 
             xconform_pes = xmlmachine.find('xconform_pes')
@@ -310,6 +310,21 @@ def read_machine_xml(machineName, xmlFile):
             machine['conform_memory'] = ''
             if 'memory' in xconform_pes.attrib:
                 machine['conform_memory'] = xconform_pes.get('memory')
+
+            # get the ocn_remap pes 
+            ocn_remap_pes = xmlmachine.find('ocn_remap_pes')
+            machine['ocn_remap_pes'] = ocn_remap_pes.text
+            machine['ocn_remap_queue'] = ''
+            if 'queue' in ocn_remap_pes.attrib:
+                machine['ocn_remap_queue'] = ocn_remap_pes.get('queue').lower()
+            machine['ocn_remap_ppn'] = ocn_remap_pes.get('pes_per_node').lower()
+            machine['ocn_remap_wallclock'] = ocn_remap_pes.get('wallclock').lower()
+            machine['ocn_remap_nodes'] = ''
+            if 'nodes' in ocn_remap_pes.attrib:
+                machine['ocn_remap_nodes'] = ocn_remap_pes.get('nodes').lower()
+            machine['ocn_remap_memory'] = ''
+            if 'memory' in ocn_remap_pes.attrib:
+                machine['ocn_remap_memory'] = ocn_remap_pes.get('memory')
 
             # get the mpi run command
             machine['mpi_command'] = xmlmachine.find('mpi_command').text
@@ -685,6 +700,13 @@ def main(options):
     create_env_file(envDict=envDict, configFile=config_file, tmplFile=tmpl_file, 
                     envFile=env_file, obs_root='', comp='', standalone=standalone)
 
+    # generate the env_ocn_remap.xml file
+    config_file = '{0}/Config/config_ocn_remap.xml'.format(envDict['POSTPROCESS_PATH'])
+    env_file = '{0}/env_ocn_remap.xml'.format(envDict['PP_CASE_PATH'])
+    tmpl_file = 'env_postprocess.tmpl'
+    create_env_file(envDict=envDict, configFile=config_file, tmplFile=tmpl_file, 
+                    envFile=env_file, obs_root='', comp='', standalone=standalone)
+
     # generate the env_diags_[component].xml files
     for comp in itertools.chain(compList, imbList):
         dir_name = comp
@@ -768,6 +790,30 @@ def main(options):
                  wallclock=machine['conform_wallclock'],
                  memory=machine['conform_memory'],
                  options=options, standalone=standalone)
+
+    # generate the ocn_remap batch submit script from template files
+    postProcessCmd = 'ocn_remap_generator.py'
+    processName = 'ocn_remap'
+    outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
+    ocn_remap_tmpl = 'postprocess.tmpl'
+    create_batch(ppDir=envDict['POSTPROCESS_PATH'], 
+                 pes=machine['ocn_remap_pes'], 
+                 batchTmpl=batch_tmpl, runTmpl=ocn_remap_tmpl, 
+                 postProcessCmd=postProcessCmd, 
+                 mpiCmd=machine['mpi_command'], outFile=outFile, 
+                 processName=processName, 
+                 project=envDict['PROJECT'], 
+                 pythonpath=machine['pythonpath'], 
+                 caseRoot=envDict['PP_CASE_PATH'], 
+                 reset_modules=machine['reset_modules'], 
+                 modules=machine['modules'], 
+                 queue=machine['ocn_remap_queue'], 
+                 ppn=machine['ocn_remap_ppn'], 
+                 nodes=machine['ocn_remap_nodes'], 
+                 wallclock=machine['ocn_remap_wallclock'], 
+                 memory=machine['ocn_remap_memory'],
+                 options=options, standalone=standalone)
+
 
     # generate the diagnostics batch submit scripts from template files
     for comp in compList:
@@ -978,6 +1024,28 @@ def main(options):
                      nodes=machine['conform_nodes'],
                      wallclock=machine['conform_wallclock'],
                      memory=machine['conform_memory'],
+                     options=options, standalone=standalone)
+
+        # generate the ocn_remap batch submit script from template files
+        postProcessCmd = 'ocn_remap_generator.py'
+        processName = 'ocn_remap_dav'
+        outFile = '{0}/{1}'.format(envDict['PP_CASE_PATH'],processName)
+        create_batch(ppDir=pp_dav,
+                     pes=machine['ocn_remap_pes'], 
+                     batchTmpl=batch_tmpl, runTmpl=run_tmpl, 
+                     postProcessCmd=postProcessCmd, 
+                     mpiCmd=machine['mpi_command'], outFile=outFile, 
+                     processName=processName, 
+                     project=envDict['PROJECT'], 
+                     pythonpath=machine['pythonpath'], 
+                     caseRoot=envDict['PP_CASE_PATH'], 
+                     reset_modules=machine['reset_modules'], 
+                     modules=machine['modules'], 
+                     queue=machine['ocn_remap_queue'],
+                     ppn=machine['ocn_remap_ppn'],
+                     nodes=machine['ocn_remap_nodes'],
+                     wallclock=machine['ocn_remap_wallclock'],
+                     memory=machine['ocn_remap_memory'],
                      options=options, standalone=standalone)
 
         # generate the diagnostics batch submit scripts from template files

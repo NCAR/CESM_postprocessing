@@ -261,6 +261,10 @@ def read_paths(env, comp_data):
                             env[values[-2]].append(values[-1])
                     else:
                         env[values[-2]] = []
+
+    if 'OCNDIAG_WEBDIR' not in env:
+        env['OCNDIAG_WEBDIR'] = list()
+
     return env
 
 

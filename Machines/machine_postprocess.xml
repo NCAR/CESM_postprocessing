@@ -5,6 +5,7 @@
   <machine name="dav" hostname="dav,geyser,caldera,pronghorn,casper">
     <timeseries_pes  nodes="4" pes_per_node="16" wallclock="04:00:00" memory="100G">64</timeseries_pes>
     <xconform_pes  nodes="4" pes_per_node="16" wallclock="06:00:00" memory="100G">64</xconform_pes>
+    <ocn_remap_pes  nodes="4" pes_per_node="9" wallclock="08:00:00" memory="100G">32</ocn_remap_pes>
     <mpi_command>srun</mpi_command>
     <pythonpath></pythonpath>
     <f2py fcompiler="intelem" f77exec="/glade/apps/opt/modulefiles/ys/cmpwrappers/ifort">f2py</f2py>
@@ -126,6 +127,7 @@
   <machine name="cheyenne" hostname="cheyenne">
     <timeseries_pes queue="regular" nodes="16" pes_per_node="9" wallclock="12:00:00">144</timeseries_pes>
     <xconform_pes queue="regular" nodes="16" pes_per_node="4" wallclock="12:00:00">64</xconform_pes>
+    <ocn_remap_pes queue="regular" nodes="4" pes_per_node="9" wallclock="08:00:00">32</ocn_remap_pes>
     <mpi_command>mpiexec_mpt dplace -s 1</mpi_command>
     <pythonpath></pythonpath>
     <f2py fcompiler="intelem" f77exec="/glade/u/apps/ch/opt/ncarcompilers/0.4.1/mpi/ifort">f2py</f2py>
