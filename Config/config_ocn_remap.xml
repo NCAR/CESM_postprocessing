@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+
+<config_definition version="1.0">
+
+  <groups>
+    <group name="global">
+      <order>0</order>
+      <comment>Settings for controlling ocean remapping of CMIP6 variables.</comment>
+
+      <entry id="OCNREMAP_matrix_2d_fname"
+	     type="char"
+	     valid_values=""
+	     value="$POSTPROCESS_PATH/ocean_remap/ocean_remap/POP_gx1v7_to_latlon_1x1_0E_mask_conserve_20181015.nc"
+	     group="global"
+	     desc="Full path to matrix 2d file"
+	     ></entry>
+
+      <entry id="OCNREMAP_matrix_3d_fname"
+	     type="char"
+	     valid_values=""
+	     value="$POSTPROCESS_PATH/ocean_remap/ocean_remap/POP_gx1v7_to_latlon_1x1_0E_fulldepth_conserve_20181015.nc"
+	     group="global"
+	     desc="Full path to matrix 3d file"
+	     ></entry>
+
+      <entry id="OCNREMAP_cmip6"
+	     type="char"
+	     valid_values=""
+	     value="$POSTPROCESS_PATH/ocean_remap/ocean_remap/ocn_vars.txt"
+	     group="global"
+	     desc="Full path to a text file that contains per line MIP_TABLE:VARNAME.  This list and the data path can be pieced together to find all files to be regridded."
+	     ></entry>
+
+      <entry id="OCNREMAP_filelist"
+	     type="char"
+	     valid_values=""
+	     value="$POSTPROCESS_PATH/ocean_remap/ocean_remap/file_list.txt"
+	     group="global"
+	     desc="Full path to a text file that contains a full path file name per line that needs to be regridded."
+	     ></entry>
+
+      <entry id="OCNREMAP_indir"
+	     type="char"
+	     valid_values=""
+	     value="/glade/collections/cdg/cmip6/[case_id]"
+	     group="global"
+	     desc="Full path to a base directory to find files to regrid.  All files with the *.nc found under this path will be regridded, unless restricted with the OCNREMAP_cmip6 or OCNREMAP_filelist options."
+	     ></entry>
+
+      <entry id="OCNREMAP_outdir"
+	     type="char"
+	     valid_values=""
+	     value="/glade/collections/cdg/cmip6/[case_id]"
+	     group="global"
+	     desc="Full path to a output directory (base directory if CMIP6)"
+	     ></entry>
+
+      <entry id="OCNREMAP_chunk"
+	     type="char"
+	     valid_values=""
+	     value="10"
+	     group="global"
+	     desc="The amount of time slices to operate on at once."
+	     ></entry>
+
+    </group>
+  </groups>
+
+</config_definition>
+
