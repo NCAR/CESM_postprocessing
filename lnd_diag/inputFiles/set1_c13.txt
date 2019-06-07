@@ -1,4 +1,5 @@
 globalTotlAnn   C13_NEE
+globalTotlAnn   C13_NBP
 globalTotlAnn   C13_NEP
 globalTotlAnn   C13_GPP
 globalTotlAnn   C13_PSNSUN_TO_CPOOL
@@ -34,6 +35,7 @@ globalTotlNat   C13_PFT_CTRUNC
 globalTotlAnn   C13_COL_FIRE_CLOSS
 globalTotlAnn   C13_PFT_FIRE_CLOSS
 globalTotlAnn   C14_NEE
+globalTotlAnn   C14_NBP
 globalTotlAnn   C14_NEP
 globalTotlAnn   C14_GPP
 globalTotlAnn   C14_PSNSUN_TO_CPOOL

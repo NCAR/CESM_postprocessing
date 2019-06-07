@@ -93,10 +93,12 @@ print("Now printing plot #" + p)
   scale_type = new(nvars,"string")
   vars       = new(nvars,"string")
   c13Flag    = new(nvars,"string")
+  c14Flag    = new(nvars,"string")
   do i=0,nvars-1
   	scale_type(i) = charactertostring(tmp(i,0:12))
     	vars(i)       = charactertostring(tmp(i,16:))
         c13Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
+        c14Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
   end do
   delete(tmp)
 
@@ -182,6 +184,8 @@ print("Now printing plot #" + p)
   array2    = new((/nvars, nlat2, nlon2/),"float")
   array13c1 = new((/nvars/),"float")
   array13c2 = new((/nvars/),"float")
+  array14c1 = new((/nvars/),"float")
+  array14c2 = new((/nvars/),"float")
 
 ; read all variables into memory first and stuff them into two arrays (2 cases)
   varLabelsA = new(nvars,"string")
@@ -197,9 +201,13 @@ print("Now printing plot #" + p)
       filevar = vars(i)
       if(isfilevar(in1,filevar))then
          if (c13Flag(i) .eq. "C13_") then
-                x1 = derive_del13C(vars(i),in1,scale_type(i),nyrs1,5)
+            x1 = derive_del13C(vars(i),in1,scale_type(i),nyrs1,5)
          else
-          	x1 = in1->$filevar$
+            if (c14Flag(i) .eq. "C14_") then
+               x1 = derive_del14C(vars(i),in1,scale_type(i),nyrs1,5)
+            else
+               x1 = in1->$filevar$
+            end if
 	 end if
       else
           if (info@derivedVariable .eq. True) then
@@ -209,7 +217,7 @@ print("Now printing plot #" + p)
               end if
            else
               print("Case 1 variable "+ vars(i)+ " is not a defined variable.")
-              if (c13Flag(i) .eq. "C13_") then
+              if (c13Flag(i) .eq. "C13_" .or. c14Flag(i) .eq. "C14_") then
 	        x1 = new((/nyrs1/),"float")
 	        x1!0 ="time"
 	        x1&time =time1
@@ -229,9 +237,13 @@ print("Now printing plot #" + p)
       filevar = vars(i)
       if(isfilevar(in2,filevar))then
           if (c13Flag(i) .eq. "C13_") then
-                x2 = derive_del13C(vars(i),in2,scale_type(i),nyrs2,5)
+             x2 = derive_del13C(vars(i),in2,scale_type(i),nyrs2,5)
           else
+             if (c14Flag(i) .eq. "C14_") then
+                x2 = derive_del14C(vars(i),in2,scale_type(i),nyrs2,5)
+             else
           	x2 = in2->$filevar$
+             end if
 	  end if
       else
           if (info@derivedVariable .eq. True) then
@@ -241,7 +253,7 @@ print("Now printing plot #" + p)
               end if
            else
               print("Case 2 variable "+ vars(i)+ " is not a defined variable.")
-              if (c13Flag(i) .eq. "C13_") then
+              if (c13Flag(i) .eq. "C13_" .or. c14Flag(i) .eq. "C14_") then
 	        x2 = new((/nyrs2/),"float")
 	        x2!0 ="time"
 	        x2&time =time2
@@ -284,8 +296,13 @@ print("Now printing plot #" + p)
           array13c1(i) = x1
           array13c2(i) = x2
        else
-          array1(i,:,:) = x1
-          array2(i,:,:) = x2
+          if (c14Flag(i) .eq. "C14_") then
+             array14c1(i) = x1
+             array14c2(i) = x2
+          else
+             array1(i,:,:) = x1
+             array2(i,:,:) = x2
+          end if
        end if
 
        delete(x1)
@@ -325,14 +342,21 @@ do region=startNumber,nreg-1
 		value1 = x1		; del13C values are regionally averaged before conversion
 		value2 = x2
 	   else
-	   	x1 = array1(i,:,:)
-	   	x2 = array2(i,:,:)
-		; NOTE:  area units are m2
+	        if (c14Flag(i) .eq. "C14_") then 
+	           x1 = array14c1(i)
+                   x2 = array14c2(i)
+		   value1 = x1		; del14C values are regionally averaged before conversion
+		   value2 = x2
+                else
+	   	   x1 = array1(i,:,:)
+	   	   x2 = array2(i,:,:)
+		   ; NOTE:  area units are m2
 
-           	value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
-		  	regions_file,time1,nTime,compare)
-           	value2 = regional_values(x2,region,area2,landfrac2,scale_type(i),\
-		  	regions_file,time2,nTime,compare)
+           	   value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
+                            regions_file,time1,nTime,compare)
+           	   value2 = regional_values(x2,region,area2,landfrac2,scale_type(i),\
+                            regions_file,time2,nTime,compare)
+                end if
 	   end if
 
 	   ; load up a big array to work with Keith's existing print fcn
@@ -373,6 +397,7 @@ end do		;  end of region loop
 
    delete(vars)
    delete(c13Flag)
+   delete(c14Flag)
    delete(varLabelsR)
    delete(varLabelsA)
    delete(varUnits)
@@ -381,6 +406,8 @@ end do		;  end of region loop
    delete(array2)
    delete(array13c1)
    delete(array13c2)
+   delete(array14c1)
+   delete(array14c2)
    delete(scale_type)
    delete(plot_name)
    delete(title)

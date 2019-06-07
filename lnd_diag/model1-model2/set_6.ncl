@@ -165,7 +165,7 @@ nplots = 12
                 titstr(6) = "Gridcell Surface CH4 Flux"
                 titstr(7) = "Carbon Use Efficiency (NPP/GPP)"
                 titstr(8) = "Soil NO3 Pool Loss to Leaching"
-                titstr(9) = "Soil NO3 Pool Loss to Runoff"
+                titstr(9) = "NPP_NUPTAKE/(NPP_NUPTAKE+NPP)"
         else
             if (casa .eq. 1) then
                 fileName   = "set6_casaFlx.txt"
