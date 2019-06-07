@@ -99,6 +99,7 @@ do p=0,nplots-1
   scale_type = new(nvars,"string")
   vars       = new(nvars,"string")
   c13Flag    = new(nvars,"string")
+  c14Flag    = new(nvars,"string")
   obsFlag    = new(nvars,"integer")
   resoln     = new(nvars,"integer")
   obsFlag    = 0
@@ -106,6 +107,7 @@ do p=0,nplots-1
   	scale_type(i) = charactertostring(tmp(i,0:12))
     	vars(i)       = charactertostring(tmp(i,16:))
         c13Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
+        c14Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
   end do
   delete(tmp)
 
@@ -213,7 +215,7 @@ do p=0,nplots-1
   array6    = new((/nvars, nlat6, nlon6/),"double")
   array7    = new((/nvars, nlat7, nlon7/),"double")
   array13c1 = new((/nvars/),"double")
-  array13c2 = new((/nvars/),"double")
+  array14c1 = new((/nvars/),"double")
 
 ; read all variables into memory first and stuff them into two arrays (2 cases)
   varLabelsR = new(nvars,"string")
@@ -234,13 +236,21 @@ do p=0,nplots-1
       filevar = vars(i)
       if(isfilevar(in1,filevar) .and. info@derivedVariable .eq. False)then
           if (c13Flag(i) .eq. "C13_") then
-                x1 = derive_del13C(vars(i),in1,scale_type(i),nyrs,5)
-      	        if(all(ismissing(x1)))then
-                    print("variable "+ vars(i)+ " values are all missing")
-		    plot_check(i) = False
-                end if
+             x1 = derive_del13C(vars(i),in1,scale_type(i),nyrs,5)
+             if(all(ismissing(x1)))then
+                print("variable "+ vars(i)+ " values are all missing")
+                plot_check(i) = False
+             end if
           else
-          	x1 = in1->$filevar$
+             if (c14Flag(i) .eq. "C14_") then
+                x1 = derive_del14C(vars(i),in1,scale_type(i),nyrs,5)
+                if(all(ismissing(x1)))then
+                   print("variable "+ vars(i)+ " values are all missing")
+                   plot_check(i) = False
+                end if
+             else
+                x1 = in1->$filevar$
+             end if
 	  end if
 	  delete(filevar)
       else
@@ -616,7 +626,11 @@ do p=0,nplots-1
       if (c13Flag(i) .eq. "C13_") then
       	array13c1(i) = x1
       else
-      	array1(i,:,:) = x1
+        if (c14Flag(i) .eq. "C14_") then
+          array14c1(i) = x1
+        else
+      	  array1(i,:,:) = x1
+        end if
       end if
  
       delete(x1)
@@ -694,13 +708,18 @@ do region=startNumber,nreg-1
 	      end if
 	      compare = "model"
               if (c13Flag(i) .eq. "C13_") then 
-	   	     x1 = array13c1(i)
-		     value1 = x1		; del13C values are regionally averaged before conversion
+                 x1 = array13c1(i)
+		 value1 = x1		; del13C values are regionally averaged before conversion
               else
-	   	     x1 = array1(i,:,:)
-		     ; NOTE:  area units are m2
-           	     value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
-		  	      regions_file,time1,nTime,compare)
+                 if (c14Flag(i) .eq. "C14_") then 
+	   	    x1 = array14c1(i)
+		    value1 = x1		; del14C values are regionally averaged before conversion
+                 else
+	   	    x1 = array1(i,:,:)
+		    ; NOTE:  area units are m2
+           	    value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
+		            regions_file,time1,nTime,compare)
+                 end if
 	      end if
 	      delete(x1)
 	   else
@@ -759,6 +778,7 @@ do region=startNumber,nreg-1
    delete(vv)
    delete(vars)
    delete(c13Flag)
+   delete(c14Flag)
    delete(varLabelsR)
    delete(varLabelsA)
    delete(vLongNames)
@@ -771,7 +791,7 @@ do region=startNumber,nreg-1
    delete(array6)
    delete(array7)
    delete(array13c1)
-   delete(array13c2)
+   delete(array14c1)
    delete(scale_type)
    delete(plot_name)
    delete(title)

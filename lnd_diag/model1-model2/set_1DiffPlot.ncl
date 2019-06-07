@@ -23,10 +23,12 @@ begin
   scale_type = new(nvar,"string")
   vars       = new(nvar,"string")
   c13Flag    = new(nvar,"string")
+  c14Flag    = new(nvar,"string")
   do i=0,nvar-1
     scale_type(i) = charactertostring(tmp(i,0:12))
     vars(i)       = charactertostring(tmp(i,16:))
     c13Flag(i)    = charactertostring(tmp(i,16:19))     
+    c14Flag(i)    = charactertostring(tmp(i,16:19))     
   end do
   delete(tmp)
 
@@ -183,7 +185,11 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
          if (c13Flag(i) .eq. "C13_") then
            	tmp = derive_del13C(vars(i),in,scale_type(i),yrs(m),1)
          else
+            if (c14Flag(i) .eq. "C14_") then
+           	tmp = derive_del14C(vars(i),in,scale_type(i),yrs(m),1)
+            else
          	tmp = in->$filevar$
+            end if
 	 end if
          plot_check = True
          delete(filevar)
@@ -237,14 +243,14 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
 	else
 	   rank1 = 3
 	   if (m .eq. 0) then
-                if (c13Flag(i) .eq. "C13_") then  ; data is already globally averaged
+                if (c13Flag(i) .eq. "C13_" .or. c14Flag(i) .eq. "C14_") then  ; data is already globally averaged
         	  x = tmp(m1:mm1)
                 else
-        	  x = tmp(m1:mm1,:,:)
+                  x = tmp(m1:mm1,:,:)
                 end if
 	   end if
 	   if (m .eq. 1) then
-                if (c13Flag(i) .eq. "C13_") then  ; data is already globally averaged
+                if (c13Flag(i) .eq. "C13_" .or. c14Flag(i) .eq. "C14_") then  ; data is already globally averaged
         	  x = tmp(m2:mm2)
                 else
                   x = tmp(m2:mm2,:,:)
@@ -269,10 +275,10 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
     	    legendLabel = "  "+cases(0) + " - " + cases(1) 
 
 ; calculate global summation or global total      
-            if (c13Flag(i) .ne. "C13_") then
+            if (c13Flag(i) .ne. "C13_" .and. c14Flag(i) .ne. "C14_") then
                     var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
             else
-                    var_plot = x    ; del13C vars are globally averaged before the del value is calculated
+                    var_plot = x    ; del14C vars are globally averaged before the del value is calculated
             end if
 
             rank2 = dimsizes(dimsizes(var_plot))

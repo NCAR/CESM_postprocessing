@@ -37,12 +37,14 @@ begin
   scale_type = new(nvar,"string")
   vars       = new(nvar,"string")
   c13Flag    = new(nvar,"string")
+  c14Flag    = new(nvar,"string")
   dynContour = new(nvar,"string")
   do i=0,nvar-1
     scale_type(i) = charactertostring(tmp(i,0:12))
     dynContour(i) = charactertostring(tmp(i,13))
     vars(i)       = charactertostring(tmp(i,16:))
     c13Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
+    c14Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
   end do
   delete(tmp)
 
@@ -224,7 +226,11 @@ begin
            if (c13Flag(i) .eq. "C13_") then
               x1 = derive_del13C(vars(i),in1,scale_type(i),0,2)
            else
-              x1 = in1->$filevar$
+              if (c14Flag(i) .eq. "C14_") then
+                 x1 = derive_del14C(vars(i),in1,scale_type(i),0,2)
+              else
+                 x1 = in1->$filevar$
+              end if
            end if
            plot_check = True
            delete(filevar)
@@ -525,7 +531,7 @@ begin
                     res@cnLevelSelectionMode = "ExplicitLevels" ; explicit contour levels
                     res@cnLevels        = info@cn_Levels   ; contour levels
                  else 
-                    if (c13Flag(i) .eq. "C13_") then
+                    if (c13Flag(i) .eq. "C13_" .or. c14Flag(i) .eq. "C14_") then
                        useMin1 = -40  ; hardcode boundaries to expectations
                        useMax1 = 0  ; hardcode boundaries to expectations
                     else
@@ -751,7 +757,7 @@ begin
                        useMin1  = -2.5*sd   ; = mindiff
                        useMax1  = 2.5*sd    ; = maxdiff
                     end if
-                    if (c13Flag(i) .eq. "C13_") then
+                    if (c13Flag(i) .eq. "C13_" .or. c14Flag(i) .eq. "C14_") then
                        useMin1 = -40              ; hardcode boundaries to expectations
                        useMax1 = 0                ; hardcode boundaries to expectations
                     end if            

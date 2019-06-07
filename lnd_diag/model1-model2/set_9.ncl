@@ -308,6 +308,8 @@ begin
      if (vars(i) .eq. "TSA") then
         x1 = x1-273.15
         x2 = x2-273.15
+;       x1 = x1-273.15
+;       x2 = x2-273.15
      end if             
      if (vars(i) .eq. "PREC") then
         x1 = x1*86400
@@ -467,6 +469,10 @@ begin
      		x2  = x2-273.15
      		x11 = x11-273.15
      		x22 = x22-273.15
+;    		x1  = x1-273.15
+;    		x2  = x2-273.15
+;    		x11 = x11-273.15
+;    		x22 = x22-273.15
      	end if		
      	if (vars(i) .eq. "PREC") then
      		x1  = x1*86400

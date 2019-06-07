@@ -503,6 +503,19 @@ begin
     return(var)
   end if
 
+  if(var_name.eq."NUPTAKE_FRACTION")then
+    npp = ptr ->NPP
+    npp_nuptake = ptr ->NPP_NUPTAKE
+
+    var = npp                    ; trick to retain meta data
+    nuptake_npp = npp_nuptake + npp
+    if (any(nuptake_npp .eq. 0)) then    ; set zeros to _FillValue
+      nuptake_npp = mask(nuptake_npp,(nuptake_npp .eq. 0),False)
+    end if
+    var = npp_nuptake/nuptake_npp
+    return(var)
+  end if
+
   if(var_name.eq."BTRAN")then
     if (isfilevar(ptr,"BTRANMN")) then
       var = ptr ->BTRANMN
@@ -1288,12 +1301,74 @@ begin
       ctot = mask(ctot,(ctot .eq. 0),False)
     end if
     var = ctot ; trick to retain meta data
+    ; Use C13/C ratio of 0.01112
+    ; This value is slightly different from the value of the PDB standard 
+    ; given in Stenstrom et al. (2011) "A guide to radiocarbon units and 
+    ; calculations": 0.0112372. However, wikipedia states that this value is 
+    ; incorrect as a result of a sign error in the interconversion between standards.
+    ; It gives a value of 0.01118 (doesn't agree with the value used below either).
+    ; So, not sure where this value came from. It was originally put into the diagnostics
+    ; package by Peter Thornton
     var = ( ((c13/ctot) / 0.01112) - 1.) * 1000.
     ; NOTE:  del13C :  valid range = -40 to 0 per mil PDB
-    ; values outside this range are considered spurious and set to missing.
-    if (var_name .eq. "C13_NEP" .or. var_name .eq. "C13_NEE") then
+    ; values outside the following range are considered spurious and set to missing.
+    if (var_name .eq. "C13_NEP" .or. var_name .eq. "C13_NEE" .or. var_name .eq. "C13_NBP") then
       	var = mask(var,(var .lt. -40 .or. var .gt. 0),False)
     end if
+    return(var)
+end 
+;*************************************************************************************************
+undef("derive_del14C")
+function derive_del14C(var_name:string,ptr:file,scale_type:string,nyrs:integer,set:integer)
+; derive various variables
+local nlev,landfrac,area,c14,ic14,ctot,ictot,ctotName,c14Name
+begin
+    tmp      = stringtochar(var_name)
+    ctotName = charactertostring(tmp(4:))
+    c14Name  = charactertostring(tmp)
+    if(isfilevar(ptr,c14Name) .and. isfilevar(ptr,ctotName))then
+        ictot    = ptr->$ctotName$
+        ic14     = ptr->$c14Name$
+    else
+        print("variable "+ var_name+ " is not a defined variable")
+	; if derived variable is not found, return an array of missing values.
+  	var  = new(1,"float")
+	return(var)
+    end if
+
+    landfrac = ptr->landfrac
+    area     = ptr->area
+    if (set .eq. 1 .or. set .eq. 5) then
+        if(isfilevar(ptr,"levsoi")) then
+        	nlev = getfilevardimsizes(ptr,"levsoi")
+        end if
+        if(isfilevar(ptr,"levgrnd")) then
+        	nlev = getfilevardimsizes(ptr,"levgrnd")
+        end if
+	c14  = global_values(var_name, ic14, area,landfrac,scale_type,nyrs,nlev)
+	ctot = global_values(var_name, ictot,area,landfrac,scale_type,nyrs,nlev)
+	if (set .eq. 5) then
+		c14  =  avg(c14)    ; average over time period
+		ctot =  avg(ctot)   ; average over time period
+	end if
+    else 
+	ctot = ictot
+	c14  = ic14
+    end if
+
+    if (any(ctot .eq. 0)) then  ; set zeros to _FillValue
+      ctot = mask(ctot,(ctot .eq. 0),False)
+    end if
+    var = ctot ; trick to retain meta data
+;   ; Use standard C14/C ratio, Rs, of 1.176e-12 (Karlen et al., 1968)
+;   var = ( ((c14/ctot) / (1.176e-12)) - 1.) * 1000.
+;   ; Use C14/C ratio specified in CLM5 of 1.0e-12 (Koven et al., 2013)
+    var = ( ((c14/ctot) / (1.0e-12)) - 1.) * 1000.
+    ; NOTE:  del14C :  valid range = ? to ? per mil
+    ; values outside the following range are considered spurious and set to missing.
+;   if (var_name .eq. "C14_NEP" .or. var_name .eq. "C14_NEE" .or. var_name .eq. "C14_NBP") then
+;     	var = mask(var,(var .lt. -40 .or. var .gt. 0),False)
+;   end if
     return(var)
 end 
 ;*************************************************************************************************

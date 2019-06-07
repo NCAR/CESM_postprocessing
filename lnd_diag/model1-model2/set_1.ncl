@@ -25,10 +25,12 @@ begin
   scale_type = new(nvar,"string")
   vars       = new(nvar,"string")
   c13Flag    = new(nvar,"string")
+  c14Flag    = new(nvar,"string")
   do i=0,nvar-1
     scale_type(i) = charactertostring(tmp(i,0:12))
     vars(i)       = charactertostring(tmp(i,16:))
     c13Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
+    c14Flag(i)    = charactertostring(tmp(i,16:19))     ; derived variable prefix
   end do
 
 ;*************************************************
@@ -162,6 +164,7 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
 ; main loop
 ;*************************************************
   do i=0,dimsizes(vars)-1 
+     print((/vars(i)/))
      do m = 0,1 
         if (m .eq. 0) then 
            useFlag = useCommon1 
@@ -209,7 +212,11 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
            if (c13Flag(i) .eq. "C13_") then
               x = derive_del13C(vars(i),in,scale_type(i),yrs(m),1)
            else
-              x = in->$filevar$
+              if (c14Flag(i) .eq. "C14_") then
+                 x = derive_del14C(vars(i),in,scale_type(i),yrs(m),1)
+              else
+                 x = in->$filevar$
+              end if
            end if
            plot_check = True
            delete(filevar)
@@ -269,10 +276,10 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
            cases(m) = cases(m) + " (" + yrs_ave + ")"
 
  ; calculate global summation or global total      
-           if (c13Flag(i) .ne. "C13_") then
+           if (c13Flag(i) .ne. "C13_" .and. c14Flag(i) .ne. "C14_") then
               var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
            else
-              var_plot = x        ; del13C vars are globally averaged before the del value is calculated
+              var_plot = x        ; del13C and del14C vars are globally averaged before the del value is calculated
            end if
 
            rank2 = dimsizes(dimsizes(var_plot))
