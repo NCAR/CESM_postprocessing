@@ -81,6 +81,7 @@ globalMeanAnn0  NECM
 globalMeanAnn0  NFIX
 globalMeanAnn0  NRETRANS
 globalMeanAnn0  NPP_NUPTAKE
+globalMeanNat0  NUPTAKE_FRACTION
 globalMeanAnn0  FFIX_TO_SMINN
 globalMeanAnn0  NPP_NFIX
 globalMeanAnn0  NPP_NACTIVE
