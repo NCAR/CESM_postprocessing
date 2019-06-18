@@ -17,19 +17,19 @@ export TMPDIR=$TMPDIR
 module purge
 
 ## activate the virtualenv that contains all the non-bootstrapped dependencies
-cd /glade/work/aliceb/sandboxes/dev/postprocessing_new/cesm-env2/bin
+cd $POSTPROCESS_PATH/cesm-env2/bin
 echo "Running from virtualenv directory:"
 pwd
 . activate
 
-## load the boot-strap modules 
+## load the boot-strap modules
 ##module load python/2.7.14
 module load intel/17.0.1
 module load ncarenv
 module load ncarcompilers
 module load mpt/2.19
 
-mpiexec_mpt dplace -s 1 /glade/work/aliceb/sandboxes/dev/postprocessing_new/Tools/ration_test.py >> /glade/work/aliceb/sandboxes/dev/postprocessing_new/Tools/ration.log
+mpiexec_mpt dplace -s 1 $POSTPROCESS_PATH/Tools/ration_test.py >> $POSTPROCESS_PATH/Tools/ration.log
 
 status=$?
 echo $status
@@ -37,7 +37,3 @@ echo $status
 deactivate
 
 echo $status
-
-
-
-
