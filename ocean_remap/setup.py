@@ -50,7 +50,7 @@ setup(
     author_email="klindsay@ucar.edu",
     packages=['ocean_remap'],
     version=get_version(),
-    scripts=['ocean_remap/ocn_remap_generator.py'],
+    #scripts=[],
     #install_requires=get_requires(),
     #dependency_links=get_dependencies(),
     include_package_data=True,
