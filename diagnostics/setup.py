@@ -55,7 +55,7 @@ setup(
              'diagnostics/ice/ice_diags_generator.py','diagnostics/ice/ice_avg_generator.py',
              'diagnostics/lnd/lnd_diags_generator.py','diagnostics/lnd/lnd_avg_generator.py',
              'diagnostics/imb/imb_diags_generator.py', 'diagnostics/imb/imb_initialize.py',
-             'diagnostics/lnd/lnd_regrid_generator.py'],
+             'diagnostics/lnd/lnd_regrid_generator.py', 'diagnostics/ocn/ocn_remap_generator.py'],
     install_requires=get_requires(),
     #dependency_links=get_dependencies(),
     include_package_data=True,

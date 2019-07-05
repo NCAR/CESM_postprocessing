@@ -701,7 +701,7 @@ def main(options):
                     envFile=env_file, obs_root='', comp='', standalone=standalone)
 
     # generate the env_ocn_remap.xml file
-    config_file = '{0}/Config/config_ocn_remap.xml'.format(envDict['POSTPROCESS_PATH'])
+    config_file = '{0}/diagnostics/diagnostics/ocn/Config/config_ocn_remap.xml'.format(envDict['POSTPROCESS_PATH'])
     env_file = '{0}/env_ocn_remap.xml'.format(envDict['PP_CASE_PATH'])
     tmpl_file = 'env_postprocess.tmpl'
     create_env_file(envDict=envDict, configFile=config_file, tmplFile=tmpl_file, 
