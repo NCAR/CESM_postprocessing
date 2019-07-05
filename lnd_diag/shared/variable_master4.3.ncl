@@ -7594,7 +7594,7 @@ if (varName .eq. "LITTERC_HR") then
 
   if (varName .eq. "QRGWL") then
     info@flux=True
-    info@longName="surface runoff at glaciers, wetlands, lakes"
+    info@longName="surface runoff at glaciers (liquid only), wetlands, lakes; also includes melted ice runoff from QSNWCPICE"
     info@nativeUnits = "mm/s"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -7640,6 +7640,126 @@ if (varName .eq. "LITTERC_HR") then
     ; -- Origin 
     info@model		           = "CN" 
     info@derivedVariable           = True 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,1.,2.,3.,4.,5.,6.,7.,8./)
+    info@cn_LevelsDiff             =  (/-4.,-2.,-1.,-0.5,-0.25,0.,0.25,0.5,1.,2.,4./)
+    info@cn_LevelsDiffObs          =  (/-10., -8., -6., -4., -2., 0., 2, 4, 6, 8, 10./)
+    return(info)
+  end if
+
+  if (varName .eq. "QRUNOFF_RAIN_TO_SNOW_CONVERSION") then
+    info@flux=True
+    info@longName="liquid runoff from rain-to-snow conversion when this conversion leads to immediate runoff"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,1.,2.,3.,4.,5.,6.,7.,8./)
+    info@cn_LevelsDiff             =  (/-4.,-2.,-1.,-0.5,-0.25,0.,0.25,0.5,1.,2.,4./)
+    info@cn_LevelsDiffObs          =  (/-10., -8., -6., -4., -2., 0., 2, 4, 6, 8, 10./)
+    return(info)
+  end if
+
+  if (varName .eq. "QFLX_LIQ_DYNBAL") then
+    info@flux=True
+    info@longName="liq dynamic land cover change conversion runoff flux"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,1.,2.,3.,4.,5.,6.,7.,8./)
+    info@cn_LevelsDiff             =  (/-4.,-2.,-1.,-0.5,-0.25,0.,0.25,0.5,1.,2.,4./)
+    info@cn_LevelsDiffObs          =  (/-10., -8., -6., -4., -2., 0., 2, 4, 6, 8, 10./)
+    return(info)
+  end if
+
+  if (varName .eq. "QFLX_ICE_DYNBAL") then
+    info@flux=True
+    info@longName="ice dynamic land cover change conversion runoff flux"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,1.,2.,3.,4.,5.,6.,7.,8./)
+    info@cn_LevelsDiff             =  (/-4.,-2.,-1.,-0.5,-0.25,0.,0.25,0.5,1.,2.,4./)
+    info@cn_LevelsDiffObs          =  (/-10., -8., -6., -4., -2., 0., 2, 4, 6, 8, 10./)
+    return(info)
+  end if
+
+  if (varName .eq. "QRUNOFF_ICE") then
+    info@flux=True
+    info@longName="total liquid runoff not incl correction for LULCC (ice landunits only)"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
     info@clampVariable             = False
     ; -- contour intervals
     info@cn_Explicit               = True
@@ -7831,6 +7951,151 @@ if (varName .eq. "LITTERC_HR") then
   if (varName .eq. "QSNOMELT_ICE") then
     info@flux=True
     info@longName="snow melt over glacier units"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-5.,-2.5,-1.,-.5,-.1,0.,.1,.5,1.,2.5,5./)
+    return(info)
+  end if
+
+  if (varName .eq. "QSNOFRZ") then
+    info@flux=True
+    info@longName="column-integrated snow freezing rate"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-5.,-2.5,-1.,-.5,-.1,0.,.1,.5,1.,2.5,5./)
+    return(info)
+  end if
+
+  if (varName .eq. "QSNOFRZ_ICE") then
+    info@flux=True
+    info@longName="column-integrated snow freezing rate (ice landunits only)"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-5.,-2.5,-1.,-.5,-.1,0.,.1,.5,1.,2.5,5./)
+    return(info)
+  end if
+
+  if (varName .eq. "QICE") then
+    info@flux=True
+    info@longName="ice growth/melt"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-5.,-2.5,-1.,-.5,-.1,0.,.1,.5,1.,2.5,5./)
+    return(info)
+  end if
+
+  if (varName .eq. "QICE_FRZ") then
+    info@flux=True
+    info@longName="ice growth"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "mm/y"
+    info@globalTotal_Annual__SF    = secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-5.,-2.5,-1.,-.5,-.1,0.,.1,.5,1.,2.5,5./)
+    return(info)
+  end if
+
+  if (varName .eq. "QICE_MELT") then
+    info@flux=True
+    info@longName="ice melt"
     info@nativeUnits = "mm/s"
     ; -- global Total
     info@globalTotal__units        = "NA"
