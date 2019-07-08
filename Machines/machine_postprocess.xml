@@ -132,16 +132,16 @@
     <pythonpath></pythonpath>
     <f2py fcompiler="intelem" f77exec="/glade/u/apps/ch/opt/ncarcompilers/0.4.1/mpi/ifort">f2py</f2py>
     <za>
-      <compiler>ifort</compiler>
+      <compiler>gfortran</compiler>
       <flags>-c -g -O2</flags>
-      <include>-I/glade/u/apps/ch/opt/netcdf/4.6.1/intel/17.0.1/include</include>
-      <libs>-L/glade/u/apps/ch/opt/netcdf/4.6.1/intel/17.0.1/lib -lnetcdff -lnetcdf</libs>
+      <include>-I/glade/u/apps/ch/opt/netcdf/4.6.3/gnu/8.3.0/include</include>
+      <libs>-L/glade/u/apps/ch/opt/netcdf/4.6.3/gnu/8.3.0/lib -lnetcdff -lnetcdf</libs>
     </za>
     <reset_modules>
       <module>module purge</module>
     </reset_modules>
     <modules>
-      <module>module load intel/17.0.1</module>
+      <module>module load gnu/8.3.0</module>
       <module>module load ncarenv</module>
       <module>module load ncarcompilers</module>
       <module>module load mpt/2.19</module>
