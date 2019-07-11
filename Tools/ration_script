@@ -23,8 +23,7 @@ pwd
 . activate
 
 ## load the boot-strap modules
-##module load python/2.7.14
-module load intel/17.0.1
+module load gnu/8.3.0
 module load ncarenv
 module load ncarcompilers
 module load mpt/2.19

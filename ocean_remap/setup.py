@@ -45,22 +45,17 @@ def get_dependencies():
     return readfile(DEPENDENCIES_FILE, lambda f: f.read().strip())
 
 setup(
-    name="diagnostics",
-    author="Alice Bertini",
-    author_email="aliceb@ucar.edu",
-    packages=['diagnostics'],
+    name="ocean_remap",
+    author="Keith Lindsay",
+    author_email="klindsay@ucar.edu",
+    packages=['ocean_remap'],
     version=get_version(),
-    scripts=['diagnostics/ocn/ocn_diags_generator.py','diagnostics/ocn/ocn_avg_generator.py',
-             'diagnostics/atm/atm_diags_generator.py','diagnostics/atm/atm_avg_generator.py',
-             'diagnostics/ice/ice_diags_generator.py','diagnostics/ice/ice_avg_generator.py',
-             'diagnostics/lnd/lnd_diags_generator.py','diagnostics/lnd/lnd_avg_generator.py',
-             'diagnostics/imb/imb_diags_generator.py', 'diagnostics/imb/imb_initialize.py',
-             'diagnostics/lnd/lnd_regrid_generator.py', 'diagnostics/ocn/ocn_remap_generator.py'],
-    install_requires=get_requires(),
+    #scripts=[],
+    #install_requires=get_requires(),
     #dependency_links=get_dependencies(),
     include_package_data=True,
     zip_safe=True,
-    test_suite="diagnostics.tests",
-    description="CESM Python Diagnostics Tools.",
-    use_2to3=True,
+    #test_suite="timeseries.tests",
+    description="CESM2 CMIP6 Ocean file remapping tool.",
+    use_2to3=True
 )
