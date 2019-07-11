@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# This wrapper script calls the ocean_remap class to remap CESM CMIP6 conformed variables
+# on the native 1-degree Greenland displace pole grid (gx1v7) to a regular lat-lon grid.
 
 from __future__ import print_function
 import sys
@@ -20,7 +22,7 @@ from asaptools import partition, simplecomm, vprinter, timekeeper
 from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
-import ocean_remap as remap
+from ocean_remap import ocean_remap as remap
 
 
 #=====================================================
