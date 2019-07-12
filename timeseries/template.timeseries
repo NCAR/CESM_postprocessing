@@ -5,12 +5,13 @@ import os, sys
 
 os.chdir('{{ caseroot }}')
 _LIBDIR = os.path.join("{{ cimeroot }}", "scripts", "Tools")
+
 sys.path.append(_LIBDIR)
 
 from standard_script_setup          import *
 from CIME.case import Case
 from CIME.utils import expect, new_lid, run_cmd
-
+import six, glob
 logger = logging.getLogger(__name__)
 
 def _main_func(description):
@@ -19,9 +20,14 @@ def _main_func(description):
     expect(postprocess_path,"POSTPROCESS_PATH not found, must be defined in environment")
     ppenv_bin = os.path.join(postprocess_path,"cesm-env2","bin")
     activate_this_file = os.path.join(ppenv_bin,"activate_this.py")
-    execfile(activate_this_file, dict(__file__=activate_this_file))
+    if six.PY2:
+        execfile(activate_this_file, dict(__file__=activate_this_file))
+    else:
+        exec(open(activate_this_file).read())
+
     caseroot = "{{ caseroot }}"
     job = "timeseries"
+
     with Case(caseroot, read_only=False) as case:
         run_exe = os.path.join(ppenv_bin,"cesm_tseries_generator.py")
         env_mach_specific = case.get_env('mach_specific')
@@ -40,11 +46,12 @@ def _main_func(description):
         executable, mpi_arg_list = env_mach_specific.get_mpirun(case, mpi_attribs, job, overrides=overrides)
         cmd = executable+" "+" ".join(mpi_arg_list) + " " + run_exe
         os.environ["ARGS_FOR_SCRIPT"] = " --caseroot={}".format(os.path.join(caseroot,"postprocess"))
+        cmd = case.get_resolved_value(cmd)
+        print("MPICMD: {}".format(cmd))
         stat = run_cmd(cmd,
                        verbose=True,
                        arg_stdout=os.path.join(caseroot,"timeseries."+new_lid()),
                        combine_output=True, from_dir=os.path.join(caseroot,"postprocess"))
-
 
 
 if __name__ == "__main__":
