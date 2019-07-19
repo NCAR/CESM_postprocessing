@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 {{ batchdirectives }}
 
 import os, sys
@@ -22,7 +22,7 @@ import six, glob
 logger = logging.getLogger(__name__)
 
 def timeseries_transfer_list(case):
-    glade_path = os.path.join(os.sep+"glade","scratch","jedwards","aleph","archive",case.get_value("CASE"))
+    glade_path = os.path.join(os.sep+"glade","collections","cdg","date","CESM2-LENS2","archive",case.get_value("CASE"))
     dout_s_root = case.get_value("DOUT_S_ROOT")
     #    with open("tseries_file_send","w") as fd:
     #        for path in glob.iglob(os.path.join(dout_s_root,"*","proc","tseries","**"),recursive=True):
