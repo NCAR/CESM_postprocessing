@@ -22,6 +22,12 @@ diag_utils/dist/
 diagnostics/dist/
 timeseries/dist/
 
+cesm_utils/build/
+conform/build/
+diag_utils/build/
+diagnostics/build/
+timeseries/build/
+
 # Ignore cesm-env2
 cesm-env2/
 
