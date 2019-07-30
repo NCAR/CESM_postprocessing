@@ -1,4 +1,5 @@
 globalMeanDay0  C13_NEE
+globalMeanDay0  C13_NBP
 globalMeanDay0  C13_NEP
 globalMeanDay0  C13_GPP
 globalMeanDay0  C13_PSNSUN_TO_CPOOL
@@ -32,6 +33,7 @@ globalMeanNat0  C13_TOTECOSYSC
 globalMeanAnn0  C13_COL_FIRE_CLOSS
 globalMeanAnn0  C13_PFT_FIRE_CLOSS
 globalMeanDay0  C14_NEE
+globalMeanDay0  C14_NBP
 globalMeanDay0  C14_NEP
 globalMeanDay0  C14_GPP
 globalMeanDay0  C14_PSNSUN_TO_CPOOL

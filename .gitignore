@@ -14,6 +14,7 @@ ilamb/ilamb
 reshaper/pyReshaper
 conformer/conformer
 mpi_utils/pyTools
+ocean_remap/ocean_remap
 
 # Ignore python build and dist dirs
 cesm_utils/dist/
@@ -21,6 +22,7 @@ conform/dist/
 diag_utils/dist/
 diagnostics/dist/
 timeseries/dist/
+ocean_remap/dist/
 
 cesm_utils/build/
 conform/build/

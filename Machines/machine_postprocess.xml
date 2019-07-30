@@ -5,6 +5,7 @@
   <machine name="dav" hostname="dav,geyser,caldera,pronghorn,casper">
     <timeseries_pes  nodes="4" pes_per_node="16" wallclock="04:00:00" memory="100G">64</timeseries_pes>
     <xconform_pes  nodes="4" pes_per_node="16" wallclock="06:00:00" memory="100G">64</xconform_pes>
+    <ocn_remap_pes  nodes="4" pes_per_node="9" wallclock="08:00:00" memory="100G">32</ocn_remap_pes>
     <mpi_command>srun</mpi_command>
     <pythonpath></pythonpath>
     <f2py fcompiler="intelem" f77exec="/glade/apps/opt/modulefiles/ys/cmpwrappers/ifort">f2py</f2py>
@@ -24,7 +25,7 @@
       <module>module load impi</module>
       <module>module load netcdf/4.6.1</module>
       <module>module load nco/4.7.4</module>
-      <module>module load ncl/6.4.0</module>
+      <module>module load ncl/6.6.2</module>
     </modules>
     <components>
       <component name="atm">
@@ -126,26 +127,27 @@
   <machine name="cheyenne" hostname="cheyenne">
     <timeseries_pes queue="regular" nodes="16" pes_per_node="9" wallclock="12:00:00">144</timeseries_pes>
     <xconform_pes queue="regular" nodes="16" pes_per_node="4" wallclock="12:00:00">64</xconform_pes>
+    <ocn_remap_pes queue="regular" nodes="4" pes_per_node="9" wallclock="08:00:00">32</ocn_remap_pes>
     <mpi_command>mpiexec_mpt dplace -s 1</mpi_command>
     <pythonpath></pythonpath>
     <f2py fcompiler="intelem" f77exec="/glade/u/apps/ch/opt/ncarcompilers/0.4.1/mpi/ifort">f2py</f2py>
     <za>
-      <compiler>ifort</compiler>
+      <compiler>gfortran</compiler>
       <flags>-c -g -O2</flags>
-      <include>-I/glade/u/apps/ch/opt/netcdf/4.6.1/intel/17.0.1/include</include>
-      <libs>-L/glade/u/apps/ch/opt/netcdf/4.6.1/intel/17.0.1/lib -lnetcdff -lnetcdf</libs>
+      <include>-I/glade/u/apps/ch/opt/netcdf/4.6.3/gnu/8.3.0/include</include>
+      <libs>-L/glade/u/apps/ch/opt/netcdf/4.6.3/gnu/8.3.0/lib -lnetcdff -lnetcdf</libs>
     </za>
     <reset_modules>
       <module>module purge</module>
     </reset_modules>
     <modules>
-      <module>module load intel/17.0.1</module>
+      <module>module load gnu/8.3.0</module>
       <module>module load ncarenv</module>
       <module>module load ncarcompilers</module>
       <module>module load mpt/2.19</module>
-      <module>module load netcdf/4.6.1</module>
-      <module>module load nco/4.7.4</module>
-      <module>module load ncl/6.4.0</module>
+      <module>module load netcdf/4.6.3</module>
+      <module>module load nco/4.7.9</module>
+      <module>module load ncl/6.6.2</module>
     </modules>
     <components>
       <component name="atm">

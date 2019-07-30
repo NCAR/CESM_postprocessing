@@ -38,6 +38,34 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="xconform_pes">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="queue" use="optional"/>
+	  <xs:attribute name="nodes" use="optional"/>
+	  <xs:attribute name="pes_per_node" use="optional"/>
+	  <xs:attribute name="wallclock" use="required"/>
+	  <xs:attribute name="memory" use="optional"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ocn_remap_pes">
+    <xs:complexType>
+      <xs:simpleContent>
+	<xs:extension base="xs:string">
+	  <xs:attribute name="queue" use="optional"/>
+	  <xs:attribute name="nodes" use="optional"/>
+	  <xs:attribute name="pes_per_node" use="optional"/>
+	  <xs:attribute name="wallclock" use="required"/>
+	  <xs:attribute name="memory" use="optional"/>
+	</xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="averages_pes">
     <xs:complexType>
       <xs:simpleContent>
@@ -158,6 +186,8 @@
     <xs:complexType>
       <xs:sequence>
 	<xs:element ref="timeseries_pes" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="xconform_pes" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="ocn_remap_pes" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="mpi_command" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="pythonpath" minOccurs="0" maxOccurs="1"/>
 	<xs:element ref="f2py" minOccurs="0" maxOccurs="1"/>

@@ -70,6 +70,7 @@ globalTotlAnn   NECM
 globalTotlAnn   NFIX
 globalTotlAnn   NRETRANS
 globalTotlAnn   NPP_NUPTAKE
+globalMeanNat   NUPTAKE_FRACTION
 globalTotlAnn   FFIX_TO_SMINN
 globalTotlAnn   NPP_NFIX
 globalTotlAnn   NPP_NACTIVE

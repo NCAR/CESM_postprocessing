@@ -7,4 +7,4 @@ globalMeanDay   ER
 globalMeanDay   FCH4
 globalMeanNat   CUE
 globalMeanDay   SMIN_NO3_LEACHED
-globalMeanDay   SMIN_NO3_RUNOFF
+globalMeanNat   NUPTAKE_FRACTION

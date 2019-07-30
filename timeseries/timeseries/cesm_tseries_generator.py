@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 """Generate variable time-series files from a CESM case
 
-This script provides an interface between the CESM CASE environment 
+This script provides an interface between the CESM CASE environment
 and the Python package for time slice-to-series operation, pyReshaper.
 
 It resides in the $SRCROOT/postprocessing/cesm-env2
@@ -57,7 +57,7 @@ def commandline_options():
     parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
                         help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
-    parser.add_argument('--caseroot', nargs=1, required=True, 
+    parser.add_argument('--caseroot', nargs=1, required=True,
                         help='fully quailfied path to case root directory')
 
     parser.add_argument('--standalone', action='store_true',
@@ -70,14 +70,14 @@ def commandline_options():
         err_msg = 'cesm_tseries_generator.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
         raise OSError(err_msg)
 
-    return options
+    return options.caseroot[0], options.debug[0], options.standalone, options.backtrace
 
 #==============================================================================================
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
 #==============================================================================================
-def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone, completechunk, 
+def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone, completechunk,
                    generate_all, debug, debugMsg, comm, rank, size):
-    """ reads the $CASEROOT/env_timeseries.xml file and builds a fully defined list of 
+    """ reads the $CASEROOT/env_timeseries.xml file and builds a fully defined list of
          reshaper specifications to be passed to the pyReshaper tool.
 
     Arguments:
@@ -127,9 +127,9 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                 if file_spec.find("tseries_create") is not None:
                     tseries_create = file_spec.find("tseries_create").text
 
-                    # check if the tseries_create element is set to TRUE            
+                    # check if the tseries_create element is set to TRUE
                     if tseries_create.upper() in ["T","TRUE"] or generate_all.upper() in ["T","TRUE"]:
-                        
+
                         # check if tseries_format is an element for this file_spec and if it is valid
                         if file_spec.find("tseries_output_format") is not None:
                             tseries_output_format = file_spec.find("tseries_output_format").text
@@ -154,7 +154,7 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
 
                         # get a list of all the input files for this stream from the archive location
                         history_files = list()
-                        in_file_path = '/'.join( [input_rootdir,rootdir,subdir] )                        
+                        in_file_path = '/'.join( [input_rootdir,rootdir,subdir] )
 
                         # get XML tseries elements for chunking
                         if file_spec.find("tseries_tper") is not None:
@@ -204,7 +204,7 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                             if rank == 0:
                                 debugMsg("tseries_output_prefix = {0}".format(tseries_output_prefix), header=True, verbosity=1)
 
-                            # format the time series variable output suffix based on the 
+                            # format the time series variable output suffix based on the
                             # tseries_tper setting suffix needs to start with a "."
                             freq_array = ["week","day","hour","min"]
                             if "year" in tseries_tper:
@@ -242,13 +242,13 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                                 debugMsg("    output_file_suffix = {0}".format(spec.output_file_suffix), header=True, verbosity=1)
                                 debugMsg("    time_variant_metadata = {0}".format(spec.time_variant_metadata), header=True, verbosity=1)
                                 debugMsg("    exclude_list = {0}".format(spec.exclude_list), header=True, verbosity=1)
-                            
+
                             # append this spec to the list of specifiers
                             specifiers.append(spec)
     return specifiers,log
 
 def divide_comm(scomm, l_spec):
-  
+
     '''
     Divide the communicator into subcommunicators, leaving rank one to hand out reshaper jobs to run.
     The part of the parallelization will be handled by this script, with the parallelization now over
@@ -272,19 +272,19 @@ def divide_comm(scomm, l_spec):
         num_of_groups = size/min_procs_per_spec
     if l_spec < num_of_groups:
         num_of_groups = l_spec
-    
+
     # the global master needs to be in its own subcommunicator
-    # ideally it would not be in any, but the divide function 
+    # ideally it would not be in any, but the divide function
     # requires all ranks to participate in the call
     if rank == 0:
         temp_color = 0
     else:
-        temp_color = (rank % num_of_groups)+1 
+        temp_color = (rank % num_of_groups)+1
     groups = []
     for g in range(0,num_of_groups+1):
         groups.append(g)
     group = groups[temp_color]
-     
+
     inter_comm,multi_comm = scomm.divide(group)
 
     return inter_comm,num_of_groups
@@ -293,14 +293,11 @@ def divide_comm(scomm, l_spec):
 # main
 #======
 
-def main(options, scomm, rank, size, debug, debugMsg):
+def main(caseroot, standalone, scomm, rank, size, debug, debugMsg):
     """
     """
     # initialize the CASEROOT environment dictionary
     cesmEnv = dict()
-
-    # CASEROOT is given on the command line as required option --caseroot
-    caseroot = options.caseroot[0]
 
     # get the XML variables loaded into a hash
     env_file_list = ['env_postprocess.xml']
@@ -309,8 +306,8 @@ def main(options, scomm, rank, size, debug, debugMsg):
     # initialize the specifiers list to contain the list of specifier classes
     specifiers = list()
 
-    tseries_input_rootdir = cesmEnv['TIMESERIES_INPUT_ROOTDIR'] 
-    tseries_output_rootdir = cesmEnv['TIMESERIES_OUTPUT_ROOTDIR'] 
+    tseries_input_rootdir = cesmEnv['TIMESERIES_INPUT_ROOTDIR']
+    tseries_output_rootdir = cesmEnv['TIMESERIES_OUTPUT_ROOTDIR']
     case = cesmEnv['CASE']
     completechunk = cesmEnv['TIMESERIES_COMPLETECHUNK']
     generate_all = cesmEnv['TIMESERIES_GENERATE_ALL']
@@ -318,8 +315,8 @@ def main(options, scomm, rank, size, debug, debugMsg):
         completechunk = 1
     else:
         completechunk = 0
-    specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir, 
-                                    case, options.standalone, completechunk, generate_all,
+    specifiers,log = readArchiveXML(caseroot, tseries_input_rootdir, tseries_output_rootdir,
+                                    case, standalone, completechunk, generate_all,
                                     debug, debugMsg, scomm, rank, size)
     scomm.sync()
 
@@ -351,11 +348,11 @@ def main(options, scomm, rank, size, debug, debugMsg):
             while i != -99:
                 i = scomm.ration(tag=GWORK_TAG) # recv from global
                 for x in range(1,lsize):
-                    inter_comm.ration(i, LWORK_TAG) # send to local ranks  
+                    inter_comm.ration(i, LWORK_TAG) # send to local ranks
                 if i != -99:
                     # create the PyReshaper object - uncomment when multiple specifiers is allowed
                     reshpr = reshaper.create_reshaper(specifiers[i], serial=False, verbosity=debug, simplecomm=inter_comm)
-                    # Run the conversion (slice-to-series) process 
+                    # Run the conversion (slice-to-series) process
                     reshpr.convert()
                 inter_comm.sync()
 
@@ -363,16 +360,16 @@ def main(options, scomm, rank, size, debug, debugMsg):
         else:
             i = -999
             while i != -99:
-                i = inter_comm.ration(tag=LWORK_TAG) # recv from local root    
+                i = inter_comm.ration(tag=LWORK_TAG) # recv from local root
                 if i != -99:
                     # create the PyReshaper object - uncomment when multiple specifiers is allowed
                     reshpr = reshaper.create_reshaper(specifiers[i], serial=False, verbosity=debug, simplecomm=inter_comm)
-                    # Run the conversion (slice-to-series) process 
+                    # Run the conversion (slice-to-series) process
                     reshpr.convert()
                 inter_comm.sync()
 
     if rank == 0:
-        # Update system log with the dates that were just converted 
+        # Update system log with the dates that were just converted
         debugMsg('before chunking.write_log', header=True, verbosity=1)
         chunking.write_log('{0}/logs/ts_status.log'.format(caseroot), log)
         debugMsg('after chunking.write_log', header=True, verbosity=1)
@@ -386,20 +383,19 @@ def main(options, scomm, rank, size, debug, debugMsg):
 if __name__ == "__main__":
     # initialize simplecomm object
     scomm = simplecomm.create_comm(serial=False)
-
+    sys.argv.extend([] if "ARGS_FOR_SCRIPT" not in os.environ else os.environ["ARGS_FOR_SCRIPT"].split())
     # setup an overall timer
     timer = timekeeper.TimeKeeper()
     timer.start("Total Time")
 
     # get commandline options
-    options = commandline_options()
-    debug = options.debug[0]
+    caseroot, debug, standalone, backtrace = commandline_options()
 
     # initialize global vprinter object for printing debug messages
     debugMsg = vprinter.VPrinter(header='', verbosity=0)
-    if options.debug:
+    if debug:
         header = 'cesm_tseries_generator: DEBUG... '
-        debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
+        debugMsg = vprinter.VPrinter(header=header, verbosity=debug)
 
     rank = scomm.get_rank()
     size = scomm.get_size()
@@ -408,7 +404,7 @@ if __name__ == "__main__":
         debugMsg('Running on {0} cores'.format(size), header=True)
 
     try:
-        status = main(options, scomm, rank, size, debug, debugMsg)
+        status = main(caseroot, standalone, scomm, rank, size, debug, debugMsg)
         scomm.sync()
         timer.stop("Total Time")
         if rank == 0:
@@ -419,8 +415,6 @@ if __name__ == "__main__":
         sys.exit(0)
     except Exception as error:
         print(str(error))
-        if options.backtrace:
+        if backtrace:
             traceback.print_exc()
         sys.exit(1)
-
-
