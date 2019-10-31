@@ -505,14 +505,19 @@ begin
 
   if(var_name.eq."NUPTAKE_FRACTION")then
     npp = ptr ->NPP
-    npp_nuptake = ptr ->NPP_NUPTAKE
+    if (isfilevar(ptr,"NPP_NUPTAKE")) then
+      npp_nuptake = ptr ->NPP_NUPTAKE
 
-    var = npp                    ; trick to retain meta data
-    nuptake_npp = npp_nuptake + npp
-    if (any(nuptake_npp .eq. 0)) then    ; set zeros to _FillValue
-      nuptake_npp = mask(nuptake_npp,(nuptake_npp .eq. 0),False)
+      var = npp                    ; trick to retain meta data
+      nuptake_npp = npp_nuptake + npp
+      if (any(nuptake_npp .eq. 0)) then    ; set zeros to _FillValue
+        nuptake_npp = mask(nuptake_npp,(nuptake_npp .eq. 0),False)
+      end if
+      var = npp_nuptake/nuptake_npp
+    else
+      var = npp
+      var = var@_FillValue
     end if
-    var = npp_nuptake/nuptake_npp
     return(var)
   end if
 
