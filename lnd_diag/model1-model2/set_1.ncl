@@ -247,6 +247,7 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
               if (isvar("x")) then
                  delete(x)
               end if        
+              data(m,:) = data@_FillValue
               plot_check = False
               continue
            end if
