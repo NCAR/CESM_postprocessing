@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#
+# template to activate the virtualenv, call post process program, deactivate virtualenv
+#
+
+#PBS -N ration
+#PBS -q iccp
+#PBS -l select=1:ncpus=16:mpiprocs=4
+#PBS -l walltime=00:00:20
+##PBS -A P93300606
+
+#source /opt/modules/default/init/bash
+
+#module purge
+
+## activate the virtualenv that contains all the non-bootstrapped dependencies
+source /home/jedwards/workflow/CESM_postprocessing/cesm-env2/bin/activate
+cd $PBS_O_WORKDIR
+echo "Running from virtualenv directory:"
+pwd
+../cesm_utils/cesm_utils/module_check
+
+mpirun ./ration_test.py 
+
+status=$?
+echo $status
+
+deactivate
+
+echo $status
+
+
+
+
