@@ -127,6 +127,7 @@
   <machine name="aleph" hostname="aleph">
     <timeseries_pes queue="regular" nodes="16" pes_per_node="9" wallclock="12:00:00">144</timeseries_pes>
     <xconform_pes queue="regular" nodes="16" pes_per_node="4" wallclock="12:00:00">64</xconform_pes>
+    <ocn_remap_pes queue="regular" nodes="4" pes_per_node="9" wallclock="08:00:00">32</ocn_remap_pes>
     <mpi_command>mpirun</mpi_command>
     <pythonpath>/home/jedwards/anaconda2/bin</pythonpath>
     <f2py fcompiler="intelem" f77exec="/glade/u/apps/ch/opt/ncarcompilers/0.4.1/mpi/ifort">f2py</f2py>
