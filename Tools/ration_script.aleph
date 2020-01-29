@@ -20,7 +20,7 @@ echo "Running from virtualenv directory:"
 pwd
 ../cesm_utils/cesm_utils/module_check
 
-mpirun ./ration_test.py 
+/home/jedwards/anaconda2/envs/ppenv/bin/mpirun ./ration_test.py 
 
 status=$?
 echo $status
