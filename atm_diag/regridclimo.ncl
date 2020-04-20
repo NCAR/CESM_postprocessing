@@ -223,7 +223,7 @@ end if
     var_in_exclude = (/"lat", "lon", "area", "date_written", "time_written"/)  
 
     ;--- Specify a list of variables on the source SE file that should be directly copied 
-    var_in_copy = (/"time_bnds"/)  
+    var_in_copy = (/"time_bnds","cosp_ht_bnds","cosp_sr_bnds","cosp_prs_bnds","cosp_tau_bnds"/)  
 
     ;--- Specify a list of variables to be regridded
     var_out        = "All_Variables"     ; to be regridded
@@ -293,11 +293,34 @@ end if
     ib       = ind(dNames.eq."ilev")
     klev     = dSizes(ia)
     klevi    = dSizes(ib)
-                                       ; standard CAM dimensions
-    dimNames = (/"time",    "lat",    "lon", "lev",  "ilev", "nbnd", "chars"/)  
-    dimSizes = (/ -1   ,    nlat ,    mlon ,  klev,  klevi ,   2   ,    8   /) 
-    dimUnlim = (/ True ,    False,    False, False,  False , False , False  /)   
-    filedimdef(dst_file,dimNames,dimSizes,dimUnlim)
+; cosp dimensions
+    if (any("cosp_scol".eq.dNames))
+       iscol = ind(dNames.eq."cosp_scol")
+       nscol = dSizes(iscol)
+       itau = ind(dNames.eq."cosp_tau")
+       ntau = dSizes(itau)
+       iprs = ind(dNames.eq."cosp_prs")
+       nprs = dSizes(iprs)
+       isr = ind(dNames.eq."cosp_sr")
+       nsr = dSizes(isr)
+       isza = ind(dNames.eq."cosp_sza")
+       nsza = dSizes(isza)
+       iht = ind(dNames.eq."cosp_ht")
+       nht = dSizes(iht)
+; CAM dimensions plus cosp
+       dimNames = (/"time",    "lat",    "lon", "lev",  "ilev", "nbnd", "chars","cosp_scol","cosp_prs","cosp_sr","cosp_tau","cosp_sza","cosp_ht"/)
+       dimSizes = (/ -1   ,    nlat ,    mlon ,  klev,  klevi ,   2   ,    8   ,nscol      ,nprs      ,nsr      ,ntau      ,nsza      ,nht      /)
+       dimUnlim = (/ True ,    False,    False, False,  False , False , False  ,False      ,False     ,False    ,False     ,False    ,False     /)
+       filedimdef(dst_file,dimNames,dimSizes,dimUnlim)
+    else	
+; standard CAM dimensions
+       dimNames = (/"time",    "lat",    "lon", "lev",  "ilev", "nbnd", "chars"/)  
+       dimSizes = (/ -1   ,    nlat ,    mlon ,  klev,  klevi ,   2   ,    8   /) 
+       dimUnlim = (/ True ,    False,    False, False,  False , False , False  /)   
+       filedimdef(dst_file,dimNames,dimSizes,dimUnlim)
+    end if
+
+
 
 ;--- The following are explicitly added because they are 'special'
 
@@ -332,6 +355,13 @@ end if
                vdims = getfilevardims(src_file, var_in(nv))
                filevardef(dst_file, var_in(nv), getfilevartypes(src_file,var_in(nv)) \
                                              , (/ "time", vdims(1),  "lat", "lon" /)        )
+               delete(vdims)
+           end if
+           if (rank_in .eq.4.and.var_in(nv).eq."FISCCP1_COSP") then
+               vdims = getfilevardims(src_file, var_in(nv))
+               filevardef(dst_file, var_in(nv), getfilevartypes(src_file,var_in(nv)) \
+                                             , (/ "time", "cosp_prs", "cosp_tau","lat", "lon" /)        )
+               delete(vdims)
            end if
 
            dumAtts = new( 1, getfilevartypes(src_file,var_in(nv)))
@@ -374,13 +404,13 @@ end if
            any(var_in(nv).eq.var_in_copy)       ) then
 
            rank_in = dimsizes(getfilevardimsizes(src_file, var_in(nv)))
-
            if (rank_in .eq.1 .or. any(var_in(nv).eq.var_in_copy) ) then
                dst_file->$var_in(nv)$ = (/ src_file->$var_in(nv)$ /)
            end if
            if (rank_in .ge.2 .and. .not.any(var_in(nv).eq.var_in_copy)) then
                dst_file->$var_in(nv)$ = (/ ESMF_regrid_with_weights(src_file->$var_in(nv)$,wgtFileName,Opt_RGRD) /)
            end if
+	   delete(rank_in)
         end if
        end if
     end do       ; nv
