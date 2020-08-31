@@ -16,6 +16,6 @@ module load ncl/6.6.2
 # use "ncar_pylib --help" to see all options
 ncar_pylib -c 20200417 ${pp_dir}/cesm-env2
 
-export PYTHONPATH=${pp_dir}/cesm-env2/lib/python2.7/site-packages
+export PYTHONPATH=${pp_dir}/cesm-env2/lib/python3.7/site-packages
 
 module list

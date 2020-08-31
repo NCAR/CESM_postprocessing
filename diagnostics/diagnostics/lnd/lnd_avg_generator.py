@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Generate lnd climatology average files for a given CESM case 
 
 This script provides an interface between:

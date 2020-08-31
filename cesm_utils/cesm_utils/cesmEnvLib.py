@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """
-This module provides utility functions for working with the CESM 
+This module provides utility functions for working with the CESM
 $CASEROOT post-processing  XML files
 __________________________
 Created on Apr 30, 2014
@@ -29,7 +29,7 @@ re_val = re.compile(r'\$(\{([A-Za-z0-9_]+)\}|[A-Za-z0-9_]+)')
 def expand (val, src):
   """
   Recursively traverse the environment dictionary to expand all environment variables
-  
+
   Arguments
   val (string) - value to be expanded
   src (dictionary) -  source dictionary to search and resolve param val
@@ -52,7 +52,7 @@ def readXML(casedir, env_file_list):
   env_file_list - list of env_*.xml files to parse in the casedir
 
   Return:
-  output (dictionary) 
+  output (dictionary)
   """
   output = os.environ.copy()
   for efile in env_file_list:
@@ -67,13 +67,13 @@ def readXML(casedir, env_file_list):
       raise TypeError(err_msg)
 
   # expand nested environment variables
-  for k,v in output.iteritems():
+  for k,v in output.items():
     output[k] = expand(v, output)
 
   # remove () in output dictionary values
-  for k,v in output.iteritems():
+  for k,v in output.items():
     output[k] = re.sub('[()]', '', v)
-    
+
   return output
 
 #======================================================================================
@@ -82,11 +82,11 @@ def readXML(casedir, env_file_list):
 def setXmlEnv(indict):
   """
   Takes a dictionary and sets the shell environment
-  
+
   Arguments:
   indict (dictionary) - id=value pairs used to set environment variables
   """
-  for k,v in indict.iteritems():
+  for k,v in indict.items():
 ##    print('setXMLenv debug: key = {0}, value = {1}'.format(k,v))
       if not isinstance(v, basestring):
           os.environ[k] = str(v)
@@ -95,12 +95,12 @@ def setXmlEnv(indict):
 
 
 #==============================================
-# checkEnv - check if a XML env var is defined 
+# checkEnv - check if a XML env var is defined
 # WARNING - this doesn't work in virtual env because of perl XML::LibXML!!!
 #==============================================
 def checkEnv(varname, relpath):
     """checkEnv - check if an env var is defined
-    and if not, try to retrieve it from the casedir xmlquery 
+    and if not, try to retrieve it from the casedir xmlquery
 
     Arguments:
     varname (string) - env var name to check
@@ -132,11 +132,11 @@ def checkEnv(varname, relpath):
 #=======================================================
 def checkFile(filename, mode):
     """checkFile - check if a file exists and if it is readable
-    
+
     Arguments:
     filename (string) - input full path filename
     mode (string) - checks for access mode - valid values are read, write, exec
-    
+
     Returns:
     rc - return True if file exists and is accessible by mode
          return False if file does not exist or is not accessible by mode
@@ -173,7 +173,7 @@ def purge(dir, pattern):
 
 #===========================================
 # which - check if a file is in the sys.path
-#===========================================   
+#===========================================
 def which(program):
 
     def is_exe(fpath):
@@ -192,9 +192,9 @@ def which(program):
 
     return None
 
-#===========================================   
+#===========================================
 # get_hostname
-#===========================================   
+#===========================================
 def get_hostname():
     """ get_hostname
         return the platform hostname
@@ -209,9 +209,9 @@ def get_hostname():
     return hostname
 
 
-#===========================================   
+#===========================================
 # get_machine_name
-#===========================================   
+#===========================================
 def get_machine_name(hostname, xmlFile):
     """ get_machine_xml - return the machine name
     from the xmlFile given the hostname.
@@ -233,4 +233,3 @@ def get_machine_name(hostname, xmlFile):
                     machine = xmlmachine.get("name").lower()
 
     return machine
-

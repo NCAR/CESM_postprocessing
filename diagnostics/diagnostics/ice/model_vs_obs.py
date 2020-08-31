@@ -112,7 +112,7 @@ class modelVsObs(IceDiagnostic):
         local_html_list = list()
 
         # all the plot module XML vars start with 'set_'  need to strip that off
-        for key, value in env.iteritems():
+        for key, value in env.items():
             if   ("PLOT_"in key and value == 'True'):
                 if ("DIFF" not in key):
                     requested_plot_sets.append(key)
@@ -138,7 +138,7 @@ class modelVsObs(IceDiagnostic):
             # set all env variables (global and particular to this plot call
             plot_class.check_prerequisites(env)
             # Stringify the env dictionary
-            for name,value in plot_class.plot_env.iteritems():
+            for name,value in plot_class.plot_env.items():
                 plot_class.plot_env[name] = str(value)
             # call script to create plots
             for script in plot_class.ncl_scripts:
@@ -169,7 +169,7 @@ class modelVsObs(IceDiagnostic):
 
             # Move images tot the oppropriate directories
             plot_dir_map = {'icesat':'obs', 'ASPeCt':'obs', 'con_':'contour', 'vec_':'vector', 'line':'line', 'clim':'line'}
-            for key,dir in plot_dir_map.iteritems():
+            for key,dir in plot_dir_map.items():
                 glob_string = env['WKDIR']+'/*'+key+'*.png'
                 imgs = glob.glob(glob_string)
                 if imgs > 0:

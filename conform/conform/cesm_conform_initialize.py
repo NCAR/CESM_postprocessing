@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Create the input specification for the tool that 
 conforms data to experiment specifications 
 from CESM time-series files. 

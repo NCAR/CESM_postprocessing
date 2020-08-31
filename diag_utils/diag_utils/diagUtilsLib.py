@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """
 This module provides utility functions for the diagnostics wrapper python scripts.
 __________________________
@@ -94,7 +94,7 @@ def strip_prefix(indict, prefix):
 #    i = len(prefix) + 1;
     i = len(prefix);
 
-    for k,v in indict.iteritems():
+    for k,v in indict.items():
         if k.startswith(prefix):
             outdict[k[i:]] = v
 #            outdict[k[8:]] = v
@@ -473,7 +473,7 @@ def atm_regrid(climo_file, regrid_script, in_grid, out_grid, env):
 
     # Stringify the env dictionary
     env_copy = env.copy()
-    for name,value in env_copy.iteritems():
+    for name,value in env_copy.items():
         env_copy[name] = str(value)
 
     # Call ncl to regrid the climo file
@@ -511,7 +511,7 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
      
     # Stringify the env dictionary
     env_copy = env.copy()
-    for name,value in env_copy.iteritems():
+    for name,value in env_copy.items():
         env_copy[name] = str(value)
 
     # Call ncl to regrid the climo file

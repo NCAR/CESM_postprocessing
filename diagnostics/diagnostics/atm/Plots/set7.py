@@ -68,7 +68,7 @@ class Set7(AtmosphereDiagnosticPlot):
         # Put plot names together and add to expected plot list
         self.expectedPlots = []
         if 'OBS' in env['CNTL']:
-            for ob_set,var_list in mo_vars.iteritems():
+            for ob_set,var_list in mo_vars.items():
                 for var in var_list:
                     self.expectedPlots.append(pref+var+'_'+ob_set+'_NP_'+suf)
                     self.expectedPlots.append(pref+var+'_'+ob_set+'_SP_'+suf)

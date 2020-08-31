@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Generate atm diagnostics from a CESM case 
 
 This script provides an interface between:
@@ -90,7 +90,7 @@ def setup_diags(envDict):
     """
     requested_diags = []
     avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_MODEL']
-    for key, value in envDict.iteritems():
+    for key, value in envDict.items():
         if (key in avail_diags and value == 'True'):
             requested_diags.append(key)
 

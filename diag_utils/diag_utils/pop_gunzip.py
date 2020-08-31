@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """ pop_gunzip parallel util
 """
 from __future__ import print_function

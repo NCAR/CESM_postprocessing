@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Generate ocn diagnostics from a CESM case 
 
 This script provides an interface between:
@@ -112,7 +112,7 @@ def setup_diags(envDict):
     avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_OBS_ECOSYS', 'MODEL_VS_CONTROL', 'MODEL_TIMESERIES']
     for diag in avail_diags:
         diag_dict[diag] = False
-        for key, value in envDict.iteritems():
+        for key, value in envDict.items():
             if (diag == key and value.upper() in ['T','TRUE']):
                 requested_diags.append(key)
                 diag_dict[diag] = '{0}'.format(diag)

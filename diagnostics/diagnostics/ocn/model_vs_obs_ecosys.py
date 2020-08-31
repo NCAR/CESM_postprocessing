@@ -116,7 +116,7 @@ class modelVsObsEcosys(OceanDiagnostic):
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
 
         # all the plot module XML vars start with MVOECOSYS_PM_  need to strip that off
-        for key, value in env.iteritems():
+        for key, value in env.items():
             if (re.search("\AMVOECOSYS_PM_", key) and value.upper() in ['T','TRUE']):
                 k = key[10:]                
                 requested_plots.append(k)

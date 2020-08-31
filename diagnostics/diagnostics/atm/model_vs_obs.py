@@ -152,7 +152,7 @@ class modelVsObs(AtmosphereDiagnostic):
         templatePath = '{0}/diagnostics/diagnostics/atm/Templates'.format(env['POSTPROCESS_PATH']) 
 
         # all the plot module XML vars start with 'set_'  need to strip that off
-        for key, value in env.iteritems():
+        for key, value in env.items():
             if   ("wset_"in key and (value == 'True' or env['all_waccm_sets'] == 'True')):
                 requested_plot_sets.append(key)
             elif ("cset_"in key and (value == 'True' or env['all_chem_sets'] == 'True')):
@@ -169,7 +169,7 @@ class modelVsObs(AtmosphereDiagnostic):
         plots_weights = []
         for plot_set in requested_plot_sets:
             requested_plots.update(atm_diags_plot_factory.atmosphereDiagnosticPlotFactory(plot_set,env))
-        for plot_id,plot_class in requested_plots.iteritems():
+        for plot_id,plot_class in requested_plots.items():
             if hasattr(plot_class, 'weight'):
                 factor = plot_class.weight
             else:
@@ -188,7 +188,7 @@ class modelVsObs(AtmosphereDiagnostic):
             # set all env variables (global and particular to this plot call
             plot_class.check_prerequisites(env)
             # Stringify the env dictionary
-            for name,value in plot_class.plot_env.iteritems():
+            for name,value in plot_class.plot_env.items():
                 plot_class.plot_env[name] = str(value)
             # call script to create plots
             for script in plot_class.ncl_scripts:

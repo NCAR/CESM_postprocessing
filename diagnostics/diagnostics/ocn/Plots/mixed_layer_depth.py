@@ -82,7 +82,7 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         num_cols = 2
         plot_table = dict()
 
-        for plot_file, label in self._webPlotsDict.iteritems():
+        for plot_file, label in self._webPlotsDict.items():
             img_file = '{0}.{1}'.format(plot_file, imgFormat)
             rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
             if not rc:

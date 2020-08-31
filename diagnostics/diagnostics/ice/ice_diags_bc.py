@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Base class for ice diagnostics
 """
 from __future__ import print_function

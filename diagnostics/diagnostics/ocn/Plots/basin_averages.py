@@ -69,7 +69,7 @@ class BasinAverages(OceanDiagnosticPlot):
         plot_table = dict()
         num_cols = 3
 
-        for plot_file, label in self._webPlotsDict.iteritems():
+        for plot_file, label in self._webPlotsDict.items():
             img_file = '{0}.{1}'.format(plot_file, imgFormat)
             rc, err_msg = cesmEnvLib.checkFile( '{0}/{1}'.format(workdir, img_file), 'read' )
             if not rc:

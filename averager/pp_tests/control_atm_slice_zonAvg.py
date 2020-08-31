@@ -1,9 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 from __future__ import print_function
 import sys
 
-# check the system python version and require 2.7.x or greater                                                                                                              
+# check the system python version and require 2.7.x or greater
 if sys.hexversion < 0x02070000:
     print(70 * '*')
     print('ERROR: {0} requires python >= 2.7.x. '.format(sys.argv[0]))
@@ -115,8 +115,8 @@ key_infile = '{0}/mike_simone_trop.cam.h0.2011-01.nc'.format(in_dir)
 
 # Get a list of variables that we have input data for
 import Nio
-    
-# Open file and get all variable names 
+
+# Open file and get all variable names
 f = Nio.open_file(key_infile,'r')
 fileVars = f.variables.keys()
 
@@ -129,27 +129,26 @@ for var in required_vars:
     #if all_chem_sets or cset_1 or cset_2 or cset_3 or cset_4 or cset_5 or cset_6 or cset_7:
 for var in cam_chem_vars:
     if var in fileVars:
-        var_list.append(var) # Found in in_files, add to the var_list 
+        var_list.append(var) # Found in in_files, add to the var_list
 
 for var in waccm_vars:
     if var in fileVars:
-        var_list.append(var) # Found in in_files, add to the var_list 
+        var_list.append(var) # Found in in_files, add to the var_list
 
 #### End user modify ####
 
 pyAveSpecifier = specification.create_specifier(in_directory=in_dir,
-			          out_directory=out_dir,
-				  prefix=pref,
+                                  out_directory=out_dir,
+                                  prefix=pref,
                                   suffix=suffix,
                                   date_pattern=date_pattern,
-				  hist_type=htype,
-				  avg_list=average,
-				  varlist=var_list,
+                                  hist_type=htype,
+                                  avg_list=average,
+                                  varlist=var_list,
                                   collapse_dim=collapse_dim,
-				  weighted=wght,
-				  ncformat=ncfrmt,
-				  serial=serial,
+                                  weighted=wght,
+                                  ncformat=ncfrmt,
+                                  serial=serial,
                                   clobber=clobber)
 
 PyAverager.run_pyAverager(pyAveSpecifier)
-

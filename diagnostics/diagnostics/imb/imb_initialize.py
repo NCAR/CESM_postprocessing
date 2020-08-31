@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Generate input for ILAMB
 
 This script provides an interface between:

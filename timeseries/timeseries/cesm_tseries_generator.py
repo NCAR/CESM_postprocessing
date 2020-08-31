@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Generate variable time-series files from a CESM case
 
 This script provides an interface between the CESM CASE environment
@@ -188,7 +188,7 @@ def readArchiveXML(caseroot, input_rootdir, output_rootdir, casename, standalone
                         for d in dates:
                             log[comp+stream]['slices'].append(float(d))
                         log[comp+stream]['index']=index
-                        for cn,cf in files.iteritems():
+                        for cn,cf in files.items():
 
                             if rank == 0:
                                 if not os.path.exists(tseries_output_dir):

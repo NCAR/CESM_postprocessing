@@ -100,7 +100,7 @@ class modelVsModel(LandDiagnostic):
         local_html_list = list()
 
         # all the plot module XML vars start with 'set_' 
-        for key, value in env.iteritems():
+        for key, value in env.items():
             if ("set_" in key and value == 'True'):
                 requested_plot_sets.append(key)
         scomm.sync()
@@ -116,7 +116,7 @@ class modelVsModel(LandDiagnostic):
         for plot_set in requested_plot_sets:
             requested_plots.update(lnd_diags_plot_factory.LandDiagnosticPlotFactory(plot_set,env))
 
-        #for plot_id,plot_class in requested_plots.iteritems(): 
+        #for plot_id,plot_class in requested_plots.items(): 
         #    if hasattr(plot_class, 'weight'):
         #        factor = plot_class.weight
         #    else:
@@ -145,7 +145,7 @@ class modelVsModel(LandDiagnostic):
             plot_class.check_prerequisites(env)
 
             # Stringify the env dictionary
-            for name,value in plot_class.plot_env.iteritems():
+            for name,value in plot_class.plot_env.items():
                 plot_class.plot_env[name] = str(value)
 
             # call script to create plots

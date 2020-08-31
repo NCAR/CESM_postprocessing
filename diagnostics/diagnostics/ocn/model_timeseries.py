@@ -284,7 +284,7 @@ class modelTimeseries(OceanDiagnostic):
         templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
 
         # all the plot module XML vars start with MVO_PM_  need to strip that off
-        for key, value in env.iteritems():
+        for key, value in env.items():
             if (re.search("\AMTS_PM_", key) and value.upper() in ['T','TRUE']):
                 k = key[4:]                
                 requested_plots.append(k)
@@ -359,7 +359,7 @@ class modelTimeseries(OceanDiagnostic):
                     shortname, html = plot_obj.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
                     html_order[shortname] = html
 
-            for k, v in html_order.iteritems():
+            for k, v in html_order.items():
                 print('Adding html for plot = {0}'.format(k))
                 plot_html += v
 

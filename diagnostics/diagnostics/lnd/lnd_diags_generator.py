@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Generate lnd diagnostics from a CESM case 
 
 This script provides an interface between:
@@ -91,7 +91,7 @@ def setup_diags(envDict):
     """
     requested_diags = []
     avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_MODEL']
-    for key, value in envDict.iteritems():
+    for key, value in envDict.items():
         if (key in avail_diags and value == 'True'):
             requested_diags.append(key)
 
@@ -292,7 +292,7 @@ def main(options, main_comm, debugMsg, timer):
 
             # debug check if the envDict contains a non-string entry
             if lmaster:
-                for k,v in envDict.iteritems():
+                for k,v in envDict.items():
                     if not isinstance(v, basestring):
                         debugMsg('lnd_diags_generator - envDict: key = {0}, value = {1}'.format(k,v), header=True, verbosity=1)
 

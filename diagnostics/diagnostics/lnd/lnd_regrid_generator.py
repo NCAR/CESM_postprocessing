@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Generate regridded land climatology and means files
 
 This script provides an interface between:

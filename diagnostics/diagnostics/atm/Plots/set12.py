@@ -97,7 +97,7 @@ class Set12(AtmosphereDiagnosticPlot):
 
         # Put plot names together and add to expected plot list
         self.expectedPlots = []
-        for name,info in self.stations.iteritems():
+        for name,info in self.stations.items():
             for var in variables:
                 self.expectedPlots.append(pref+name+'_'+var+suf)
 
@@ -119,7 +119,7 @@ class Set12(AtmosphereDiagnosticPlot):
         
         # Create the station id text file that will indicate which stations to create plots for
         station_file = open(env['test_path_diag']+'station_ids','w')
-        for station,info in self.stations.iteritems(): 
+        for station,info in self.stations.items(): 
             if env[info['name']] == 'True':
                 station_file.write(str(info['id'])+'\n')
         station_file.close()
