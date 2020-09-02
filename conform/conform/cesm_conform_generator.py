@@ -520,7 +520,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
         end = False
         found_all = True
         missing_vars = []
-        output = p.stdout.read().split('\n')
+        output = p.stdout.read().decode('utf8').split('\n')
         for l in output:
             if '[' in l and ']' in l and ':' in l:
                 split = l.split();
@@ -1061,7 +1061,7 @@ def main(options, scomm, rank, size):
                     print("({}/{}) failures {}".format(rank,lrank,failures))
 
                 inter_comm.sync()
-    print("({}/{}) FINISHED".format(rank,lrank))
+        print("({}/{}) FINISHED".format(rank,lrank))
 
     scomm.sync()
 
