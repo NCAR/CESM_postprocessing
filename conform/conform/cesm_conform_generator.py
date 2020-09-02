@@ -234,7 +234,7 @@ def find_nc_files(root_dir):
            #streams.append(fn.split('.')[:-2])
            if 'tseries' in root:
                nc_files.append(os.path.join(root, fn))
-    print 'Found ',len(nc_files), " in ", root_dir
+    print ('Found {} in {}'.format(len(nc_files), root_dir))
     return nc_files
 
 def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
@@ -340,7 +340,7 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
                     gridfile = '{0}/{1}x{2}x{3}.nc'.format(extra_dir,mt,lt,ln)
             if gridfile is not None:
                 if not os.path.isfile(gridfile):
-                    print 'not found: ',gridfile
+                    print( 'not found: {}'.format(gridfile))
                     gridfile = None
 
             for vn,ob in f.variables.items():
@@ -514,8 +514,8 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
 
         # get the cesm var names from the defs in json file
         cmd = "vardeps -f -n "+j
-        print '---------------------------------------'
-        print cmd
+        print( '---------------------------------------')
+        print("{}".format( cmd))
         p = subprocess.Popen([cmd], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
         end = False
         found_all = True
@@ -626,7 +626,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                             missing_vars.append(v)
                 #Look up
                 for v in var_defs[j][split[0]]["vars"]:
-                    print "TRYING TO FIND: ",v
+                    print("TRYING TO FIND: {}".format(v))
                     var_defs[j][split[0]]["var_check"][v] = []
                     var_name = j.split("_")[-2]
                     if "input_glob" in js_fo[var_name].keys():
@@ -653,7 +653,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                         f = "day_1"
                     found_r = None
                     if cmip6_realms[r] not in variable_list.keys():
-                        print "Could not find ",cmip6_realms[r]," in ",variable_list.keys()
+                        print ("Could not find {} in {}".format(cmip6_realms[r],variable_list.keys()))
                     else:
                         if v in variable_list[cmip6_realms[r]].keys():
                             found_r = cmip6_realms[r]
@@ -810,9 +810,9 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
             elif len(l.split(':')) > 1:
                 if 'No dependencies' in l:
                     if len(js_fo[l.split(':')[0].strip()]["definition"])>0:
-                        print "PROBLEM DEFINITION: ",l.split(':')[0].strip(),": ",js_fo[l.split(':')[0].strip()]["definition"]
+                        print("PROBLEM DEFINITION: {} : {}".format(l.split(':')[0].strip(),js_fo[l.split(':')[0].strip()]["definition"]))
                     else:
-                        print "NO DEFINITION FOUND: ",l.split(':')[0].strip(),": ",js_fo[l.split(':')[0].strip()]["definition"]
+                        print("NO DEFINITION FOUND: {} : {}".format(l.split(':')[0].strip(),js_fo[l.split(':')[0].strip()]["definition"]))
                     found_all = False
                     no_def.append(l.split(':')[0].strip())
                 else:
@@ -824,11 +824,11 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                 end = True
 
         if not found_all:
-            print ('Missing these variables: ',missing_vars)
+            print ('Missing these variables: {}'.format(missing_vars))
         else:
             print ('Found all needed files')
 
-    print "Total Size: ",len(spec_streams.keys())
+    print( "Total Size: {}".format(len(spec_streams.keys())))
     return spec_streams
 
 
@@ -930,28 +930,28 @@ def run_PyConform(spec, file_glob, comm):
             dataflow.execute(serial=True, debug=True, scomm=comm)
 
     except UnitsError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except IndexError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except ValueError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except KeyError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except IOError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except NameError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except RuntimeError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except TypeError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     return failures
 #======
@@ -1004,15 +1004,15 @@ def main(options, scomm, rank, size):
     if rank == 0:
         mappings = match_tableSpec_to_stream(pc_inpur_dir, variable_list, dout_s_root, case)
         for k,v in sorted(mappings.items()):
-            print k
+            print(k)
             for f in sorted(v):
-                print f
-            print len(v),'\n\n'
+                print(f)
+            print("{}".format(len(v)))
     scomm.sync()
 
     # Pass the stream and mapping information to the other procs
     mappings = scomm.partition(mappings, func=partition.Duplicate(), involved=True)
-    print("I CAN RUN ",len(mappings.keys())," json files")
+    print("I CAN RUN {} json files".format(len(mappings.keys())))
     failures = 0
 
     if len(mappings.keys()) > 0:
@@ -1022,7 +1022,7 @@ def main(options, scomm, rank, size):
         color = inter_comm.get_color()
         lsize = inter_comm.get_size()
         lrank = inter_comm.get_rank()
-        print "MPI INFO: ",color," ",lrank,"/",lsize,"  ",rank,"/",size
+        print( "MPI INFO: {} {}/{} {}/{}".format(color,lrank,lsize,rank,size))
 
         GWORK_TAG = 10 # global comm mpi tag
         LWORK_TAG = 20 # local comm mpi tag
@@ -1043,10 +1043,10 @@ def main(options, scomm, rank, size):
                 for x in range(1,lsize):
                     inter_comm.ration(i, LWORK_TAG) # send to local ranks
                 if i != -99:
-                    print "(",rank,"/",lrank,")","  start running ",i
+                    print("({}/{}) start running {}".format(rank,lrank,i))
                     failures += run_PyConform(i, mappings[i], inter_comm)
-                    print "(",rank,"/",lrank,")","  finished running ",i
-                    print "(",rank,"/",lrank,")","FAILURES: ",failures
+                    print("({}/{}) finished running {}".format(rank,lrank,i))
+                    print("({}/{}) failures {}".format(rank,lrank,failures))
                 inter_comm.sync()
 
         # all subcomm ranks - recv the specifier to work on and call the reshaper
@@ -1055,12 +1055,14 @@ def main(options, scomm, rank, size):
             while i != -99:
                 i = inter_comm.ration(tag=LWORK_TAG) # recv from local root
                 if i != -99:
-                    print "(",rank,"/",lrank,")","  start running ",i
+                    print("({}/{}) start running {}".format(rank,lrank,i))
                     failures += run_PyConform(i, mappings[i], inter_comm)
-                    print "(",rank,"/",lrank,")","  finished running ",i
-                    print "(",rank,"/",lrank,")","FAILURES: ",failures
+                    print("({}/{}) finished running {}".format(rank,lrank,i))
+                    print("({}/{}) failures {}".format(rank,lrank,failures))
+
                 inter_comm.sync()
-    print "(",rank,"/",lrank,")","  FINISHED"
+    print("({}/{}) FINISHED".format(rank,lrank))
+
     scomm.sync()
 
     timer.stop("Total Time")
