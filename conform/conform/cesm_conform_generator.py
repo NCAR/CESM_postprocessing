@@ -27,7 +27,7 @@ if sys.hexversion < 0x02070000:
 import argparse
 import glob
 import os
-#import pprint
+import types
 import re
 import string
 import sys
@@ -37,7 +37,7 @@ import fnmatch
 import subprocess
 import netCDF4 as nc
 from collections import OrderedDict
-from imp import load_source
+import importlib.util
 from warnings import simplefilter
 
 from cesm_utils import cesmEnvLib
@@ -989,7 +989,9 @@ def main(options, scomm, rank, size):
     conform_module_path = pp_path+'/conformer/conformer/source/pyconform/modules/'
     for i, m in enumerate(external_mods):
         print("Loading: "+conform_module_path+"/"+m)
-        load_source('user{}'.format(i), conform_module_path+"/"+m)
+        loader = importlib.machinery.SourceFileLoader('user{}'.format(i), conform_module_path+"/"+m)
+        loaded = types.ModuleType(loader.name)
+        loader.exec_module(loaded)
 
     # create the cesm stream to table mapping
 #    if rank == 0:
