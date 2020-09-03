@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_SFC2D
 plot name:   2D Surface Flux Fields
 
@@ -29,7 +29,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 # this becomes the bass class
 class SurfaceFluxFields(OceanDiagnosticPlot):
@@ -73,7 +73,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         sourceFile = '{0}/{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
         linkFile = '{0}/{1}'.format(env['WORKDIR'],env['FLUXOBSFILE'])
         diagUtilsLib.createSymLink(sourceFile, linkFile)
-   
+
         # create symbolic link to zonal average flux file in the workdir
         sourceFile = '{0}/za_{1}'.format(env['FLUXOBSDIR'],env['FLUXOBSFILE'])
         linkFile = '{0}/za_{1}'.format(env['WORKDIR'],env['FLUXOBSFILE'])
@@ -91,7 +91,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         #diagUtilsLib.createSymLink(sourceFile, linkFile)
 
     def generate_plots(self, env):
-        """generate list of NCL plotting routines 
+        """generate list of NCL plotting routines
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
         for ncl in self._ncl:
@@ -126,7 +126,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
                     plot_list.append(plot_file)
-                index += 1                    
+                index += 1
             plot_table.append(plot_list)
 
         # pad out the last row
@@ -140,7 +140,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
                     plot_list.append(plot_file)
-                index += 1                    
+                index += 1
 
             for i in range(num_cols - num_last_row):
                 plot_list.append('')
@@ -160,7 +160,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
         expectedPlots_za = self._expectedPlots_za
         if not rc1 and not rc2:
             expectedPlots_za = self._expectedPlots_za_new
-            
+
         num_plots = len(expectedPlots_za)
         num_last_row = num_plots % num_cols
         num_rows = num_plots//num_cols
@@ -176,7 +176,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
                     plot_list.append(plot_file)
-                index += 1                    
+                index += 1
             plot_za_table.append(plot_list)
 
         # pad out the last row
@@ -190,7 +190,7 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
                     plot_list.append(plot_file)
-                index += 1                    
+                index += 1
 
             for i in range(num_cols - num_last_row):
                 plot_list.append('')
@@ -213,9 +213,9 @@ class SurfaceFluxFields(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
-    
+
 class SurfaceFluxFields_obs(SurfaceFluxFields):
 
     def __init__(self):

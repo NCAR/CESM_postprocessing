@@ -125,10 +125,11 @@ class modelVsModel(LandDiagnostic):
         # partition based on the number of plots each set will create
         #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)
 
+        requested_plots_list = list(requested_plots.keys())
         if scomm.is_manager():
-            print('DEBUG model_vs_model requested_plots.keys = {0}'.format(requested_plots.keys()))
+            print('DEBUG model_vs_model requested_plots.keys = {0}'.format(requested_plots_list))
+        local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
 
-        local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
         scomm.sync()
 
         timer = timekeeper.TimeKeeper()

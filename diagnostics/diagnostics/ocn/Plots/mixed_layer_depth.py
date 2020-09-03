@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_MLD
 plot name:   Mixed Layer Depth Plots
 
@@ -30,7 +30,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class MixedLayerDepth(OceanDiagnosticPlot):
     """Mixed Layer Depth Plots
@@ -67,7 +67,7 @@ class MixedLayerDepth(OceanDiagnosticPlot):
         """
         print('  Generating diagnostic plots for : {0}'.format(self.__class__.__name__))
         # always compute the RHO value regardless of diagnostic type
-        diagUtilsLib.generate_ncl_plots(env, 'compute_rho.ncl')        
+        diagUtilsLib.generate_ncl_plots(env, 'compute_rho.ncl')
         for ncl in self._ncl:
             diagUtilsLib.generate_ncl_plots(env, ncl)
 
@@ -105,7 +105,7 @@ class MixedLayerDepth(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
 
 

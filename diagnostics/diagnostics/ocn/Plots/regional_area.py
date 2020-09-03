@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_REGIONALTS
 plot name:   Regional Average Temperature and Salinity anomaly vs. depth
 
@@ -30,7 +30,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class RegionalArea(OceanDiagnosticPlot):
     """Depth profiles of regional mean temperature and salinity anom/stddev
@@ -118,7 +118,7 @@ class RegionalArea(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
 
 class RegionalArea_obs(RegionalArea):

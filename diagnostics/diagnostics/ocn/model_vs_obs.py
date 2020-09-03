@@ -32,7 +32,7 @@ from diag_utils import diagUtilsLib
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from ocn_diags_bc import OceanDiagnostic
+from .ocn_diags_bc import OceanDiagnostic
 
 # import the plot classes
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
@@ -105,12 +105,12 @@ class modelVsObs(OceanDiagnostic):
         local_requested_plots = list()
 
         # define the templatePath for all tasks
-        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
+        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH'])
 
         # all the plot module XML vars start with MVO_PM_  need to strip off the MVO_
         for key, value in env.items():
             if (re.search("\AMVO_PM_", key) and value.upper() in ['T','TRUE']):
-                k = key[4:]                
+                k = key[4:]
                 requested_plots.append(k)
 
         scomm.sync()
@@ -124,10 +124,10 @@ class modelVsObs(OceanDiagnostic):
             print('model vs. obs - Creating plot html header')
             templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
             templateEnv = jinja2.Environment( loader=templateLoader )
-                
+
             template_file = 'model_vs_obs.tmpl'
             template = templateEnv.get_template( template_file )
-    
+
             # get the current datatime string for the template
             now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -205,4 +205,3 @@ class modelVsObs(OceanDiagnostic):
         env[key] = env['WORKDIR']
 
         return env
-

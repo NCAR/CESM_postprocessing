@@ -1,4 +1,4 @@
-""" 
+"""
 Plot module: PM_E_MAPS
 plot name:   Ecosystem maps at surface and various depths
 
@@ -33,7 +33,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class EcosystemMaps(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
@@ -52,7 +52,7 @@ class EcosystemMaps(OceanDiagnosticPlot):
 
         # copy the remap.so file to the workdir
         shutil.copy2('{0}/remap.so'.format(env['ECOPATH']), '{0}/remap.so'.format(env['WORKDIR']))
-        
+
         # setup of the arg file to pass to the python modules
         f = open('{0}/PM_E_input'.format(env['WORKDIR']), 'w')
         self._setup_args(env)
@@ -111,7 +111,7 @@ class EcosystemMaps(OceanDiagnosticPlot):
                             ptuple.append(('{0}'.format(label), '{0} - Error'.format(plot_file)))
                         else:
                             ptuple.append(('{0}'.format(label), plot_file))
-                            index += 1                    
+                            index += 1
                         plot_table.append(ptuple)
 
             # pad out the last row
@@ -125,7 +125,7 @@ class EcosystemMaps(OceanDiagnosticPlot):
                         ptuple.append(('{0}'.format(label), '{0} - Error'.format(plot_file)))
                     else:
                         ptuple.append(('{0}'.format(label), plot_file))
-                    index += 1                    
+                    index += 1
 
                 for i in range(columns[k] - num_last_row):
                     ptuple.append(('',''))
@@ -170,7 +170,7 @@ class EcosystemMaps(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._html
 
 class EcosystemMaps_obs(EcosystemMaps):
@@ -186,7 +186,7 @@ class EcosystemMaps_obs(EcosystemMaps):
         self._expectedPlotsHeaders = ['Lat,Lon', ' ', ' ']
 
         self._expectedPlots_s1 = [('NH4','map_NH4'), ('NO3_excess','map_NO3'), ('spChl','map_spChl'), ('diatChl','map_diatChl'), ('diazChl','map_diazChl'), ('totChl','map_totChl'),
-                                  ('spC','map_spC'), ('diatC','map_diatC'), ('diazC','map_diazC'), ('photoC_sp','map_photoC_sp'), ('photoC_diat','map_photoC_diat'), 
+                                  ('spC','map_spC'), ('diatC','map_diatC'), ('diazC','map_diazC'), ('photoC_sp','map_photoC_sp'), ('photoC_diat','map_photoC_diat'),
                                   ('photoC_diaz','map_photoC_diaz'), ('diaz_Nfix','map_diaz_Nfix'), ('DENITRIF','map_DENITRIF'), ('NITRIF','map_NITRIF'),
                                   ('CaCO3_form','map_CaCO3_form'), ('bSi_form','map_bSi_form'), ('IRON_FLUX','map_IRON_FLUX'), ('POC_FLUX_IN','map_POC_FLUX_IN'),
                                   ('CaCO3_FLUX_IN','map_CaCO3_FLUX_IN'), ('SiO2_FLUX_IN','map_SiO2_FLUX_IN'), ('STF_O2','map_STF_O2'), ('FvPER_DIC','map_FvPER_DIC'),
@@ -194,7 +194,7 @@ class EcosystemMaps_obs(EcosystemMaps):
 
         self._expectedPlots_s2 = [('sp_nutlim','map_nutlim_sp'), ('diat_nutlim','map_nutlim_diat'), ('diaz_nutlim','map_nutlim_diaz')]
 
-        self._expectedPlots_s3 = [('pCO2SURF','mod_obs_map_pCO2SURF_0m'), ('FG_CO2','mod_obs_map_FG_CO2_0m'), ('totChl','mod_obs_map_totChl_0m'), 
+        self._expectedPlots_s3 = [('pCO2SURF','mod_obs_map_pCO2SURF_0m'), ('FG_CO2','mod_obs_map_FG_CO2_0m'), ('totChl','mod_obs_map_totChl_0m'),
                                   ('photoC_tot','mod_obs_map_photoC_tot_0m'), ('phytoC','mod_obs_map_phytoC_0m'), ('phyto_mu','mod_obs_map_phyto_mu_0m')]
 
         self._expectedPlots = [ self._expectedPlots_s1, self._expectedPlots_s2, self._expectedPlots_s3 ]
@@ -209,9 +209,9 @@ class EcosystemMaps_obs(EcosystemMaps):
         self._labels = ['NO3','PO4','SiO3','O2','DIC','ALK','Fe']
         self._linkNames = ['0m', '50m', '100m','200m', '300m','500m', '1000m', '1500m', '2000m', '2500m','3000m', '3500','4000m']
         self._prefix = 'mod_obs_map'
-    
+
     def _setup_args(self, env):
-        # arg order list expected as line separated 
+        # arg order list expected as line separated
         # CASE, YEAR0, YEAR1, POPDIAG, YROFFSET, WORKDIR, REOSLUTION, ECODATADIR
         self._args = [env['CASE'], env['YEAR0'], env['YEAR1'], env['POPDIAG'], env['YROFFSET'],
                       env['WORKDIR'], env['RESOLUTION'], env['ECODATADIR']]
@@ -223,7 +223,7 @@ class EcosystemMaps_control(EcosystemMaps):
         self._python = [maps_surface_diff, maps_surface_diff_2D, maps_at_depths_diff]
 
     def _setup_args(self, env):
-        # arg order list expected as line separated 
+        # arg order list expected as line separated
         # CASE, YEAR0, YEAR1, POPDIAG, YROFFSET, WORKDIR, REOSLUTION, ECODATADIR
         self._args = [env['CASE'], env['YEAR0'], env['YEAR1'], env['POPDIAG'], env['YROFFSET'],
                       env['WORKDIR'], env['RESOLUTION'], env['ECODATADIR']]

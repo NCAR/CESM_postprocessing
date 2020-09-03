@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_WBC
 plot name:   Western Boundary Currents
 
@@ -30,7 +30,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class WesternBoundary(OceanDiagnosticPlot):
     """Western Boundary Current & DWBC diagnostics
@@ -94,7 +94,7 @@ class WesternBoundary(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
 
 class WesternBoundary_obs(WesternBoundary):

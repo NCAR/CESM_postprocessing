@@ -3,31 +3,31 @@
 """
 
 # import the Plot modules
-from ocn_diags_plot_bc import UnknownPlotType
-import basin_averages
-import bolus_velocity
-import cpllog_timeseries
-import diffusion_depth
-import ecosystem_maps
-import enso_wavelet_timeseries
-import equatorial_upperocean
-import eulerian_velocity
-import horizontal_vector_fields
-import mixed_layer_depth
-import moc_annual_timeseries
-import moc_fields
-import moc_monthly_timeseries
-import passive_tracers_depth
-import polar_temp_salt
-import poplog_timeseries
-import regional_area
-import regional_mean_timeseries
-import seasonal_cycle
-import surface_fields
-import surface_flux_fields
-import temp_salt_depth
-import western_boundary
-import zonal_average_3d_fields
+from .ocn_diags_plot_bc import UnknownPlotType
+from . import basin_averages
+from . import bolus_velocity
+from . import cpllog_timeseries
+from . import diffusion_depth
+from . import ecosystem_maps
+from . import enso_wavelet_timeseries
+from . import equatorial_upperocean
+from . import eulerian_velocity
+from . import horizontal_vector_fields
+from . import mixed_layer_depth
+from . import moc_annual_timeseries
+from . import moc_fields
+from . import moc_monthly_timeseries
+from . import passive_tracers_depth
+from . import polar_temp_salt
+from . import poplog_timeseries
+from . import regional_area
+from . import regional_mean_timeseries
+from . import seasonal_cycle
+from . import surface_fields
+from . import surface_flux_fields
+from . import temp_salt_depth
+from . import western_boundary
+from . import zonal_average_3d_fields
 
 plot_map = {'PM_BASINAVGTS': 'basin_averages.BasinAverages_{0}()',
             'PM_VELISOPZ': 'bolus_velocity.BolusVelocity_{0}()',

@@ -1,5 +1,5 @@
-""" 
-plot module: PM_BASINAVGTS 
+"""
+plot module: PM_BASINAVGTS
 plot name:   Depth Profiles of Basin-average Temperature and Salinity
 
 classes:
@@ -30,7 +30,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class BasinAverages(OceanDiagnosticPlot):
     """Meridional Overturning Circulation plots
@@ -92,7 +92,7 @@ class BasinAverages(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
 
 class BasinAverages_obs(BasinAverages):

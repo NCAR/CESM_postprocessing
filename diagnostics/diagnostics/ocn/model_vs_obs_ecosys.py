@@ -31,7 +31,7 @@ from diag_utils import diagUtilsLib
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from ocn_diags_bc import OceanDiagnostic, RecoverableError
+from .ocn_diags_bc import OceanDiagnostic, RecoverableError
 
 # import the plot classes
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
@@ -79,7 +79,7 @@ class modelVsObsEcosys(OceanDiagnostic):
         except:
             print ('ERROR: unexpected error in {0}'.format(self._name))
             raise
-        
+
         # loop over the ecosys_vars list and create the links to the mavg file
         sourceFile = os.path.join(env['WORKDIR'],'mavg.{0:04d}.{1:04d}.nc'.format(int(env['YEAR0']),int(env['YEAR1'])))
         for var in ecosys_vars:
@@ -98,7 +98,7 @@ class modelVsObsEcosys(OceanDiagnostic):
         fh = open('{0}/plot_depths.dat'.format(env['WORKDIR']),'w')
         fh.write('{0}\n'.format(env['DEPTHS']))
         fh.close()
-        
+
         return env
 
     def run_diagnostics(self, env, scomm):
@@ -113,12 +113,12 @@ class modelVsObsEcosys(OceanDiagnostic):
         local_html_list = list()
 
         # define the templatePath for all tasks
-        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
+        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH'])
 
         # all the plot module XML vars start with MVOECOSYS_PM_  need to strip that off
         for key, value in env.items():
             if (re.search("\AMVOECOSYS_PM_", key) and value.upper() in ['T','TRUE']):
-                k = key[10:]                
+                k = key[10:]
                 requested_plots.append(k)
 
         scomm.sync()
@@ -132,10 +132,10 @@ class modelVsObsEcosys(OceanDiagnostic):
             print('model vs. obs ecosys - Creating plot html header')
             templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
             templateEnv = jinja2.Environment( loader=templateLoader )
-                
+
             template_file = 'model_vs_obs_ecosys.tmpl'
             template = templateEnv.get_template( template_file )
-    
+
             # get the current datatime string for the template
             now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -173,7 +173,7 @@ class modelVsObsEcosys(OceanDiagnostic):
 
                 print('model vs. obs ecosys - Creating HTML for {0} on rank {1}'.format(plot.__class__.__name__, scomm.get_rank()))
                 html = plot.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
-            
+
                 local_html_list.append(str(html))
                 #print('local_html_list = {0}'.format(local_html_list))
 
@@ -196,7 +196,7 @@ class modelVsObsEcosys(OceanDiagnostic):
         if scomm.get_size() > 1:
             if scomm.is_manager():
                 all_html  = [local_html_list]
-                
+
                 for n in range(1,scomm.get_size()):
                     rank, temp_html = scomm.collect(tag=html_msg_tag)
                     all_html.append(temp_html)
@@ -206,7 +206,7 @@ class modelVsObsEcosys(OceanDiagnostic):
                 return_code = scomm.collect(data=local_html_list, tag=html_msg_tag)
 
         scomm.sync()
-        
+
         if scomm.is_manager():
 
             # merge the all_html list of lists into a single list
@@ -234,4 +234,3 @@ class modelVsObsEcosys(OceanDiagnostic):
         env[key] = env['WORKDIR']
 
         return env
-

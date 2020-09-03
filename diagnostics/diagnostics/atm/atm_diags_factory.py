@@ -3,9 +3,9 @@
 """
 
 # import the Plot modules
-from atm_diags_bc import UnknownDiagType
-import model_vs_obs
-import model_vs_model
+from .atm_diags_bc import UnknownDiagType
+from . import model_vs_obs
+from . import model_vs_model
 
 def atmosphereDiagnosticsFactory(diag_type, env):
     """Create and return an object of the requested type.

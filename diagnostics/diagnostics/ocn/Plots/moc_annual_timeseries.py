@@ -1,8 +1,8 @@
-""" 
+"""
 plot module: PM_MOCANN
 plot name:   Annual MOC Maximum
 
-classes:           
+classes:
 MOCAnnual:            base class
 MOCAnnual_timeseries: defines specific NCL list for model timeseries plots
 """
@@ -32,7 +32,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class MOCAnnual(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
@@ -118,7 +118,7 @@ class MOCAnnual(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._html
 
 class MOCAnnual_timeseries(MOCAnnual):

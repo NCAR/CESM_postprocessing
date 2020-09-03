@@ -32,7 +32,7 @@ from diag_utils import diagUtilsLib
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from ocn_diags_bc import OceanDiagnostic
+from .ocn_diags_bc import OceanDiagnostic
 
 # import the plot classes
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
@@ -133,7 +133,7 @@ class modelVsControl(OceanDiagnostic):
         local_requested_plots = list()
 
         # define the templatePath for all tasks
-        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
+        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH'])
 
         # all the plot module XML vars start with MVC_PM_  need to strip off MVC_
         for key, value in env.items():
@@ -152,7 +152,7 @@ class modelVsControl(OceanDiagnostic):
             print('model vs. control - Creating plot html header')
             templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
             templateEnv = jinja2.Environment( loader=templateLoader )
-                
+
             template_file = 'model_vs_control.tmpl'
             template = templateEnv.get_template( template_file )
 
@@ -237,5 +237,3 @@ class modelVsControl(OceanDiagnostic):
         env[key] = env['WORKDIR']
 
         return env
-
-

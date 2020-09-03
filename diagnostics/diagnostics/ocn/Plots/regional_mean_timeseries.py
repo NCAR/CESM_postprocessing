@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_HORZMN
 plot name:   Regional mean T,S(z,t) w/ diff&rms from observations
 
@@ -31,7 +31,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class RegionalMeanTS(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
@@ -144,7 +144,7 @@ class RegionalMeanTS(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._html
 
 class RegionalMeanTS_timeseries(RegionalMeanTS):

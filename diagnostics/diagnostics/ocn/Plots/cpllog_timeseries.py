@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_CPLLOG
 plot name:   CPL Surface Heat and Freshwater Flux Budget
 
@@ -32,7 +32,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class CplLog(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
@@ -52,7 +52,7 @@ class CplLog(OceanDiagnosticPlot):
         """
         super(CplLog, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
-        
+
         for prefix in self._expectedPlots:
             rc, err_msg = cesmEnvLib.checkFile('{0}/{1}.txt'.format(env['WORKDIR'],prefix), 'read')
             if not rc:
@@ -69,7 +69,7 @@ class CplLog(OceanDiagnosticPlot):
         for ncl in self._ncl:
             # prepend the TS_CPL log value to the ncl plot name
             nclPlotFile = 'cpl{0}_{1}'.format(env['TS_CPL'], ncl)
-            
+
             # copy the NCL command to the workdir
             shutil.copy2('{0}/{1}'.format(env['NCLPATH'],nclPlotFile), '{0}/{1}'.format(env['WORKDIR'], nclPlotFile))
 
@@ -98,7 +98,7 @@ class CplLog(OceanDiagnosticPlot):
         plot_table = []
         num_cols = 3
 
-        for i in range(len(self._labels)):  
+        for i in range(len(self._labels)):
             plot_tuple_list = []
             plot_tuple = (0, 'label','{0}:'.format(self._labels[i]))
             plot_tuple_list.append(plot_tuple)
@@ -139,7 +139,7 @@ class CplLog(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._html
 
 class CplLog_timeseries(CplLog):

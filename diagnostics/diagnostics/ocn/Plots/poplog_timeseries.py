@@ -1,8 +1,8 @@
-""" 
+"""
 plot module: PM_YPOPLOG
 plot name:   POP log & dt file time series plots
 
-classes:           
+classes:
 PopLog:            base class
 PopLog_timeseries: defines specific NCL list for model timeseries plots
 """
@@ -32,7 +32,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class PopLog(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
@@ -49,11 +49,11 @@ class PopLog(OceanDiagnosticPlot):
 
         self._expectedPlots_Nino = [('NINO','diagts_NINO')]
 
-        self._expectedPlots_transportDiags = [('Drake_Passage','diagts_transport.drake'), ('Mozambique_Channel','diagts_transport.mozam'), ('Bering_Strait','diagts_transport.bering'), 
-                                              ('Northwest_Passage','diagts_transport.nwpassage'), ('Indonesian_Throughflow_1','diagts_transport.itf1'), ('Indonesian_Throughflow_2','diagts_transport.itf2'), 
-                                              ('Windward_Passage_1','diagts_transport.windward1'), ('Windward2_Passage_2','diagts_transport.windward2'), ('Florida_Strait','diagts_transport.florida'), 
+        self._expectedPlots_transportDiags = [('Drake_Passage','diagts_transport.drake'), ('Mozambique_Channel','diagts_transport.mozam'), ('Bering_Strait','diagts_transport.bering'),
+                                              ('Northwest_Passage','diagts_transport.nwpassage'), ('Indonesian_Throughflow_1','diagts_transport.itf1'), ('Indonesian_Throughflow_2','diagts_transport.itf2'),
+                                              ('Windward_Passage_1','diagts_transport.windward1'), ('Windward2_Passage_2','diagts_transport.windward2'), ('Florida_Strait','diagts_transport.florida'),
                                               ('Gibraltar','diagts_transport.gibraltar'), ('Nares_Straight','diagts_transport.nares')]
-        
+
         self._expectedPlotHeaders = ['Global Average Fields', 'Nino Indices', 'Transport Diagnostics']
         self._expectedInFiles = ['diagts_3d.asc', 'diagts_cfc.asc', 'diagts_ecosys.asc', 'diagts_fwflux.asc', 'diagts_hflux.asc', 'diagts_info.asc', 'diagts_precfactor.asc',
                                  'diagts_nino.asc', 'transports.bering.asc', 'transports.drake.asc', 'transports.florida.asc', 'transports.gibraltar.asc',
@@ -70,7 +70,7 @@ class PopLog(OceanDiagnosticPlot):
         """
         super(PopLog, self).check_prerequisites(env)
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
-        
+
         for inFile in self._expectedInFiles:
             rc, err_msg = cesmEnvLib.checkFile('{0}/{1}'.format(env['WORKDIR'],inFile), 'read')
             if not rc:
@@ -141,7 +141,7 @@ class PopLog(OceanDiagnosticPlot):
                         ptuple.append(('{0}'.format(label), '{0} - Error'.format(plot_file)))
                     else:
                         ptuple.append(('{0}'.format(label), plot_file))
-                    index += 1                    
+                    index += 1
                 plot_table.append(ptuple)
 
             # pad out the last row
@@ -155,7 +155,7 @@ class PopLog(OceanDiagnosticPlot):
                         ptuple.append(('{0}'.format(label), '{0} - Error'.format(plot_file)))
                     else:
                         ptuple.append(('{0}'.format(label), plot_file))
-                    index += 1                    
+                    index += 1
 
                 for i in range(self._columns[k] - num_last_row):
                     ptuple.append(('',''))
@@ -178,14 +178,14 @@ class PopLog(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._html
 
 class PopLog_timeseries(PopLog):
 
     def __init__(self):
         super(PopLog_timeseries, self).__init__()
-        self._ncl = ['pop_log_diagts_3d.monthly.ncl', 'pop_log_diagts_hflux.monthly.ncl', 
-                     'pop_log_diagts_fwflux.monthly.ncl', 'pop_log_diagts_cfc.monthly.ncl', 
+        self._ncl = ['pop_log_diagts_3d.monthly.ncl', 'pop_log_diagts_hflux.monthly.ncl',
+                     'pop_log_diagts_fwflux.monthly.ncl', 'pop_log_diagts_cfc.monthly.ncl',
                      'pop_log_diagts_transports.ncl', 'pop_log_diagts_nino.monthly.ncl',
                      'pop_log_diagts_precf.ncl']

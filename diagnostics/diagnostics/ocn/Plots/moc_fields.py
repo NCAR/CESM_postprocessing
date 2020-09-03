@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_MOC
 plot name:   Meridional Overturning Circulation - Meridional Heat & Freshwater Transports
 
@@ -30,7 +30,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class MOCFields(OceanDiagnosticPlot):
     """Meridional Overturning Circulation plots
@@ -94,7 +94,7 @@ class MOCFields(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
 
 class MOCFields_obs(MOCFields):

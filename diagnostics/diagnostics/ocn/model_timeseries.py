@@ -34,7 +34,7 @@ from diag_utils import diagUtilsLib
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from ocn_diags_bc import OceanDiagnostic
+from .ocn_diags_bc import OceanDiagnostic
 
 # import the plot classes
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
@@ -56,7 +56,7 @@ class modelTimeseries(OceanDiagnostic):
         """
         print("  Checking prerequisites for : {0}".format(self.__class__.__name__))
         super(modelTimeseries, self).check_prerequisites(env)
-        
+
         # chdir into the  working directory
         os.chdir(env['WORKDIR'])
 
@@ -74,7 +74,7 @@ class modelTimeseries(OceanDiagnostic):
         # create the plot.dat file in the workdir used by all NCL plotting routines
         diagUtilsLib.create_plot_dat(env['WORKDIR'], env['XYRANGE'], env['DEPTHS'])
 
-        # set the OBSROOT 
+        # set the OBSROOT
         env['OBSROOT'] = env['OBSROOTPATH']
 
         # check the resolution and decide if some plot modules should be turned off
@@ -139,7 +139,7 @@ class modelTimeseries(OceanDiagnostic):
 
                 fwPath = '{0}/process_{1}_logfiles_fw.awk'.format(env['TOOLPATH'], cplVersion)
                 fwPath = os.path.abspath(fwPath)
-        
+
                 heatCmd = '{0} y0={1} y1={2} {3}'.format(heatPath, env['TSERIES_YEAR0'], env['TSERIES_YEAR1'], cplLogsString).split(' ')
                 freshWaterCmd = '{0} y0={1} y1={2} {3}'.format(fwPath, env['TSERIES_YEAR0'], env['TSERIES_YEAR1'], cplLogsString).split(' ')
 
@@ -178,7 +178,7 @@ class modelTimeseries(OceanDiagnostic):
             # print a message that the ocn log path isn't defined and turn off POPLOG plot module
             print('model timeseries - OCNLOGFILEPATH is undefined. Disabling MTS_PM_YPOPLOG module')
             env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
-        
+
         else:
             # check that ocn log files exist and gunzip them if necessary
             initOcnLogs = ocnLogs = list()
@@ -235,7 +235,7 @@ class modelTimeseries(OceanDiagnostic):
             print('model timeseries - DTFILEPATH is undefined. Disabling MTS_PM_YPOPLOG and MTS_PM_ENSOWVLT modules')
             env['MTS_PM_YPOPLOG'] = os.environ['PM_YPOPLOG'] = 'FALSE'
             env['MTS_PM_ENSOWVLT'] = os.environ['PM_ENSOWVLT'] = 'FALSE'
-        
+
         else:
             # check that dt files exist
             dtFiles = list()
@@ -281,12 +281,12 @@ class modelTimeseries(OceanDiagnostic):
         local_requested_plots = list()
 
         # define the templatePath for all tasks
-        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
+        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH'])
 
         # all the plot module XML vars start with MVO_PM_  need to strip that off
         for key, value in env.items():
             if (re.search("\AMTS_PM_", key) and value.upper() in ['T','TRUE']):
-                k = key[4:]                
+                k = key[4:]
                 requested_plots.append(k)
 
         scomm.sync()
@@ -300,10 +300,10 @@ class modelTimeseries(OceanDiagnostic):
             print('model timeseries - Creating plot html header')
             templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
             templateEnv = jinja2.Environment( loader=templateLoader )
-                
+
             template_file = 'model_timeseries.tmpl'
             template = templateEnv.get_template( template_file )
-    
+
             # get the current datatime string for the template
             now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -382,4 +382,3 @@ class modelTimeseries(OceanDiagnostic):
         env[key] = env['WORKDIR']
 
         return env
-

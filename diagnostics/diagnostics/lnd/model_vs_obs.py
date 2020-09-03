@@ -127,16 +127,16 @@ class modelVsObs(LandDiagnostic):
         #    plots_weights.append((plot_id,len(plot_class.expectedPlots)*factor))
         # partition based on the number of plots each set will create
         #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)
-
-        local_plot_keys = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
-        local_plot_list = [next(iter(x)) for x in local_plot_keys]
+        requested_plots_list = list(requested_plots.keys())
+        local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
+#        local_plot_list = [str(iter(x)) for x in local_plot_keys]
 
         scomm.sync()
 
         timer = timekeeper.TimeKeeper()
         # loop over local plot lists - set env and then run plotting script
         timer.start(str(scomm.get_rank())+"ncl total time on task")
-        print("local_plot_list {}".format(local_plot_list))
+        print("local_plot_list {} requested_plots_list {}".format(local_plot_list, requested_plots_list))
         for plot_set in local_plot_list:
             timer.start(str(scomm.get_rank())+plot_set)
             plot_class = requested_plots[plot_set]
