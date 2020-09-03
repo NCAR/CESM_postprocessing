@@ -20,7 +20,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from lnd_diags_plot_bc import LandDiagnosticPlot
+from .lnd_diags_plot_bc import LandDiagnosticPlot
 
 class set_4(LandDiagnosticPlot):
     """Set 4 Plots

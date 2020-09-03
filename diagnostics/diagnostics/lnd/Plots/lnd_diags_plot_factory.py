@@ -3,30 +3,30 @@
 """
 
 # import the Plot modules
-from lnd_diags_plot_bc import UnknownPlotType
-import set_1_lnd
-import set_1DiffPlot_lnd
-import set_1AnomPlot_lnd
-import set_2_lnd
-import set_2_seas_lnd
-import set_3_lnd
-import set_4_lnd
-import set_5_lnd
-import set_6_lnd
-import set_7_lnd
-import set_8_ann_cycle_lnd
-import set_8_ann_cycle
-import set_8_contour
-import set_8_DJF_JJA_contour
-import set_8_trends
-import set_8_zonal_lnd
-import set_8_zonal
-import set_9_lnd
-import set_10_lnd
-import set_10_seas_lnd
-import set_11_lnd
-import set_11_seas_lnd
-import set_12_lnd
+from .lnd_diags_plot_bc import UnknownPlotType
+from . import set_1_lnd
+from . import set_1DiffPlot_lnd
+from . import set_1AnomPlot_lnd
+from . import set_2_lnd
+from . import set_2_seas_lnd
+from . import set_3_lnd
+from . import set_4_lnd
+from . import set_5_lnd
+from . import set_6_lnd
+from . import set_7_lnd
+from . import set_8_ann_cycle_lnd
+from . import set_8_ann_cycle
+from . import set_8_contour
+from . import set_8_DJF_JJA_contour
+from . import set_8_trends
+from . import set_8_zonal_lnd
+from . import set_8_zonal
+from . import set_9_lnd
+from . import set_10_lnd
+from . import set_10_seas_lnd
+from . import set_11_lnd
+from . import set_11_seas_lnd
+from . import set_12_lnd
 
 def LandDiagnosticPlotFactory(plot_type,env):
     """Create and return an object of the requested type.

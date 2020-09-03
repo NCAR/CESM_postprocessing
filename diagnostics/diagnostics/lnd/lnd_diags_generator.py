@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Generate lnd diagnostics from a CESM case 
+"""Generate lnd diagnostics from a CESM case
 
 This script provides an interface between:
 1. the CESM case environment and/or postprocessing environment
@@ -64,7 +64,7 @@ def commandline_options():
     parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
                         help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
-    parser.add_argument('--caseroot', nargs=1, required=True, 
+    parser.add_argument('--caseroot', nargs=1, required=True,
                         help='fully quailfied path to case root directory')
 
     parser.add_argument('--standalone', action='store_true',
@@ -101,8 +101,8 @@ def setup_diags(envDict):
 # initialize_main - initialization from main
 #============================================
 def initialize_main(envDict, caseroot, debugMsg, standalone):
-    """initialize_main - initialize settings on rank 0 
-    
+    """initialize_main - initialize settings on rank 0
+
     Arguments:
     envDict (dictionary) - environment dictionary
     caseroot (string) - case root
@@ -131,7 +131,7 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
     # add the os.environ['PATH'] to the envDict['PATH']
     envDict['LNDDIAG_PATH'] = os.pathsep + os.environ['PATH']
 
-    # strip the LNDDIAG_ prefix from the envDict entries before setting the 
+    # strip the LNDDIAG_ prefix from the envDict entries before setting the
     # enviroment to allow for compatibility with all the diag routine calls
     envDict = diagUtilsLib.strip_prefix(envDict, 'LNDDIAG_')
 
@@ -172,11 +172,11 @@ def initialize_main(envDict, caseroot, debugMsg, standalone):
 #======
 
 def main(options, main_comm, debugMsg, timer):
-    """setup the environment for running the diagnostics in parallel. 
+    """setup the environment for running the diagnostics in parallel.
 
     Calls 2 different diagnostics generation types:
-    model vs. observation 
-    model vs. model 
+    model vs. observation
+    model vs. model
 
     Arguments:
     options (object) - command line options
@@ -184,7 +184,7 @@ def main(options, main_comm, debugMsg, timer):
     debugMsg (object) - vprinter object for printing debugging messages
     timer (object) - timer object for keeping times
 
-    The env_diags_lnd.xml configuration file defines the way the diagnostics are generated. 
+    The env_diags_lnd.xml configuration file defines the way the diagnostics are generated.
     See (website URL here...) for a complete desciption of the env_diags_lnd XML options.
     """
 
@@ -266,8 +266,8 @@ def main(options, main_comm, debugMsg, timer):
         local_diag_list = diag_list
 
     inter_comm.sync()
-    main_comm.sync()    
-    
+    main_comm.sync()
+
     if lmaster:
         debugMsg('lsize = {0}, lrank = {1}'.format(lsize, lrank), header=True, verbosity=1)
     inter_comm.sync()
@@ -280,20 +280,20 @@ def main(options, main_comm, debugMsg, timer):
             # check the prerequisites for the diagnostics types
             if lmaster:
                 debugMsg('Checking prerequisites for {0}'.format(diag.__class__.__name__), header=True, verbosity=1)
-            
+
             envDict = diag.check_prerequisites(envDict, inter_comm)
             inter_comm.sync()
 
             # broadcast the envDict
             envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
-         
+
             # set the shell env using the values set in the XML and read into the envDict across all tasks
             cesmEnvLib.setXmlEnv(envDict)
 
             # debug check if the envDict contains a non-string entry
             if lmaster:
                 for k,v in envDict.items():
-                    if not isinstance(v, basestring):
+                    if not isinstance(v, str):
                         debugMsg('lnd_diags_generator - envDict: key = {0}, value = {1}'.format(k,v), header=True, verbosity=1)
 
             debugMsg('inter_comm size = {0}'.format(inter_comm.get_size()), header=True, verbosity=1)
@@ -330,7 +330,7 @@ if __name__ == "__main__":
     if options.debug:
         header = "[" + str(main_comm.get_rank()) + "/" + str(main_comm.get_size()) + "]: DEBUG... "
         debugMsg = vprinter.VPrinter(header=header, verbosity=options.debug[0])
-   
+
     try:
         timer.start("Total Time")
         status = main(options, main_comm, debugMsg, timer)
@@ -349,4 +349,3 @@ if __name__ == "__main__":
         if options.backtrace:
             traceback.print_exc()
         sys.exit(1)
-
