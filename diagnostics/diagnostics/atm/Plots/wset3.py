@@ -20,7 +20,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from atm_diags_plot_bc import AtmosphereDiagnosticPlot
+from .atm_diags_plot_bc import AtmosphereDiagnosticPlot
 
 class WSet3(AtmosphereDiagnosticPlot):
     """WAWG SET 3 - PRESS/TIME CONTOUR PLOTS (VERTICAL LOG SCALE) 

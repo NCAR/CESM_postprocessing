@@ -31,7 +31,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class EulerianVelocity(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation

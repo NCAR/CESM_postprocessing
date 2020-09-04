@@ -3,36 +3,36 @@
 """
 
 # import the Plot modules
-from atm_diags_plot_bc import UnknownPlotType
-import set1
-import set2
-import set3
-import set4
-import set4a
-import set5
-import set6
-import set7
-import set8
-import set9
-import set10
-import set11
-import set12
-import set13
-import set14
-import set15
-import set16
-import wset1
-import wset2
-import wset3
-import wset4
-import wset5
-import cset1
-import cset2
-import cset3
-import cset4
-import cset5
-import cset6
-import cset7
+from .atm_diags_plot_bc import UnknownPlotType
+from . import set1
+from . import set2
+from . import set3
+from . import set4
+from . import set4a
+from . import set5
+from . import set6
+from . import set7
+from . import set8
+from . import set9
+from . import set10
+from . import set11
+from . import set12
+from . import set13
+from . import set14
+from . import set15
+from . import set16
+from . import wset1
+from . import wset2
+from . import wset3
+from . import wset4
+from . import wset5
+from . import cset1
+from . import cset2
+from . import cset3
+from . import cset4
+from . import cset5
+from . import cset6
+from . import cset7
 
 def atmosphereDiagnosticPlotFactory(plot_type,env):
     """Create and return an object of the requested type.
@@ -45,7 +45,7 @@ def atmosphereDiagnosticPlotFactory(plot_type,env):
         plot_set[plot_type] = set2.Set2(env)
     elif plot_type == "set_3":
         for seas in env['seas']:
-            plot_set[plot_type+seas] = set3.Set3(seas,env)      
+            plot_set[plot_type+seas] = set3.Set3(seas,env)
     elif plot_type == "set_4":
         for seas in env['seas']:
             plot_set[plot_type+seas] = set4.Set4(seas,env)

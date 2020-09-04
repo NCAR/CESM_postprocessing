@@ -20,7 +20,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from atm_diags_plot_bc import AtmosphereDiagnosticPlot
+from .atm_diags_plot_bc import AtmosphereDiagnosticPlot
 
 class CSet6(AtmosphereDiagnosticPlot):
     """CSET 6 - COMPARISON TO EMMONS Aircraft Climatology 
