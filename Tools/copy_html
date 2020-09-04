@@ -107,7 +107,7 @@ def commandline_options():
                         '"http://tools.cgd.ucar.edu/make_user_ssh_keys/index.html"')
 
     options = parser.parse_args()
-        
+
     return options
 
 
@@ -116,7 +116,7 @@ def commandline_options():
 #=======================================================================
 def get_years(env, comp):
     """ get_years - get the start and stop years for diagnostics based on component
-    
+
     Arguments:
     env (dict) - dictionary of env variables
     comp (string) - component name
@@ -185,7 +185,7 @@ def get_years(env, comp):
             trends_stop_year2 = '{0}'.format(int(trends_start_year2) + int(env[comp_data['num_years2']]))
 
     return model_start_year, model_stop_year, control_start_year, control_stop_year, \
-        trends_start_year1, trends_stop_year1, trends_start_year2, trends_stop_year2 
+        trends_start_year1, trends_stop_year1, trends_start_year2, trends_stop_year2
 
 
 #=======================================================================
@@ -195,7 +195,7 @@ def check_ssh_key(env, use_ssh_key):
 
     # check if ssh key is set for passwordless access to the web host
     try:
-        output = subprocess.check_output( "ssh -oNumberOfPasswordPrompts=0 {0}@{1} 'echo hello'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST']), 
+        output = subprocess.check_output( "ssh -oNumberOfPasswordPrompts=0 {0}@{1} 'echo hello'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST']),
                                  stderr=subprocess.STDOUT,
                                  shell=True)
     except subprocess.CalledProcessError as e:
@@ -247,7 +247,7 @@ def read_paths(env, comp_data):
     env (dictionary) - environment dictionary
     comp_data (map) - component diag dir mapping
     """
-    for diag_type, key in comp_data.iteritems():
+    for diag_type, key in comp_data.items():
         web_files = sorted(glob.glob('{0}/web_dirs/{1}.*'.format(env['PP_CASE_PATH'],key)))
         for web_file in web_files:
             if not web_file.endswith('~'):
@@ -279,7 +279,7 @@ def update_web_dirs(env, comp_data):
     env (dictionary) - environment dictionary
     comp_data (map) - component diag dir mapping
     """
-    for diag_type, key in comp_data.iteritems():
+    for diag_type, key in comp_data.items():
         web_files = sorted(glob.glob('{0}/web_dirs/{1}.*'.format(env['PP_CASE_PATH'],key)))
         for web_file in web_files:
             if not web_file.endswith('~'):
@@ -299,7 +299,7 @@ def update_web_dirs(env, comp_data):
     return env
 
 #=======================================================================
-# copy_files - scp files from workdir to remote directory 
+# copy_files - scp files from workdir to remote directory
 #=======================================================================
 def copy_files(env, comp, comp_data):
     """ copy html files from workdir to remote dir.
@@ -307,13 +307,13 @@ def copy_files(env, comp, comp_data):
 
     Arguments:
     env (dictionary) - environment dictionary
-    comp (string) - component 
+    comp (string) - component
     comp_data (map) - component diag dir mapping
     """
     remote = '{0}@{1}:{2}/{3}'.format(env['GLOBAL_WEBLOGIN'], env['GLOBAL_WEBHOST'], env['GLOBAL_REMOTE_WEBDIR'], comp)
-    
+
     if comp != 'ocn':
-        for diag_type, key in comp_data.iteritems():
+        for diag_type, key in comp_data.items():
             # check if the diag_type key string that points to the local webdir is empty or not
             if key in env.keys():
                 for diag_dir in env[key]:
@@ -341,7 +341,7 @@ def copy_files(env, comp, comp_data):
                 diag_parts = workdir.split('.')[-1].split('-')
                 year0 = diag_parts[0]
                 year1 = diag_parts[1]
-                
+
                 tarfile = 'ocn{0}-{1}.tar.gz'.format(year0, year1)
                 cwd = os.getcwd()
                 os.chdir(rootdir)
@@ -398,7 +398,7 @@ def main(options):
                    'lnd' : {'model_vs_obs':'LNDDIAG_WEBDIR_MODEL_VS_OBS', 'model_vs_model':'LNDDIAG_WEBDIR_MODEL_VS_MODEL'},
                    'ocn' : {'model_webdir':'OCNDIAG_WEBDIR'}}
 
-    # this script always run from the postprocessing caseroot 
+    # this script always run from the postprocessing caseroot
     pp_caseroot = os.getcwd()
 
     # initialize the env from the env*.xml files in the casedir
@@ -424,7 +424,7 @@ def main(options):
             # read the web_dirs files to get the paths
             env = read_paths(env, comp_data)
             copy_files(env, comp, comp_data)
-            activeList.append(comp)    
+            activeList.append(comp)
             update_web_dirs(env, comp_data)
 
 #===================================
