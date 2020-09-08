@@ -144,13 +144,13 @@ class modelVsModel(IceDiagnostic):
         # local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
         requested_plots_list = list(requested_plots.keys())
         local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
-
+        print("{} : requested_plots_list {} local_plot_list {}".format(scomm.get_rank(), requested_plots_list, local_plot_list))
         timer = timekeeper.TimeKeeper()
         # loop over local plot lists - set env and then run plotting script
         #for plot_id,plot_class in local_plot_list.interitems():
-        timer.start(str(scomm.get_rank())+"ncl total time on task")
+        timer.start(str(scomm.get_rank())+": ncl total time on task")
         for plot_set in local_plot_list:
-            timer.start(str(scomm.get_rank())+plot_set)
+            timer.start(str(scomm.get_rank())+": "+plot_set)
             plot_class = requested_plots[plot_set]
             # set all env variables (global and particular to this plot call
             plot_class.check_prerequisites(env)
@@ -160,8 +160,8 @@ class modelVsModel(IceDiagnostic):
             # call script to create plots
             for script in plot_class.ncl_scripts:
                 diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
-            timer.stop(str(scomm.get_rank())+plot_set)
-        timer.stop(str(scomm.get_rank())+"ncl total time on task")
+            timer.stop(str(scomm.get_rank())+": "+plot_set)
+        timer.stop(str(scomm.get_rank())+": ncl total time on task")
         scomm.sync()
         print(timer.get_all_times())
 
