@@ -575,7 +575,9 @@ def initialize_main(envDict, options, standalone):
                 output, err = pipe.communicate()
             except OSError as e:
                 print('WARNING',e.errno,e.strerror)
-            envDict[var_name] = output
+
+            print("HERE var_name {} output {}".format(var_name, output.decode('utf-8')))
+            envDict[var_name] = output.decode('utf-8')
         os.chdir(pp)
     else:
         caseList = caseroot.split('/')
