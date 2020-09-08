@@ -80,7 +80,7 @@ class modelVsModel(IceDiagnostic):
         env['NEW_YR_AVG_FRST'] = str((int(env['ENDYR_CONT']) - int(env['YRS_TO_AVG'])) + 1)
         env['NEW_YR_AVG_LAST'] = env['ENDYR_CONT']
         env['YR1'] = env['BEGYR_CONT']
-        env['YR2'] = env['ENDYR_CONT'] 
+        env['YR2'] = env['ENDYR_CONT']
         env['YR1_DIFF'] = env['BEGYR_DIFF']
         env['YR2_DIFF'] = env['ENDYR_DIFF']
         env['PRE_PROC_ROOT_CONT'] = env['PATH_CLIMO_CONT']
@@ -131,20 +131,22 @@ class modelVsModel(IceDiagnostic):
             if   ("PLOT_"in key and value == 'True'):
 ##                if ("DIFF" in key or 'PLOT_REGIONS' in key):
                 if ("DIFF" in key):
-                    requested_plot_sets.append(key)        
+                    requested_plot_sets.append(key)
         scomm.sync()
 
         # partition requested plots to all tasks
-        # first, create plotting classes and get the number of plots each will created 
+        # first, create plotting classes and get the number of plots each will created
         requested_plots = {}
         set_sizes = {}
         for plot_set in requested_plot_sets:
             requested_plots.update(ice_diags_plot_factory.iceDiagnosticPlotFactory(plot_set,env))
         # partition based on the number of plots each set will create
-        local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)  
+        # local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
+        requested_plots_list = list(requested_plots.keys())
+        local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
 
         timer = timekeeper.TimeKeeper()
-        # loop over local plot lists - set env and then run plotting script         
+        # loop over local plot lists - set env and then run plotting script
         #for plot_id,plot_class in local_plot_list.interitems():
         timer.start(str(scomm.get_rank())+"ncl total time on task")
         for plot_set in local_plot_list:
@@ -158,9 +160,9 @@ class modelVsModel(IceDiagnostic):
             # call script to create plots
             for script in plot_class.ncl_scripts:
                 diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
-            timer.stop(str(scomm.get_rank())+plot_set) 
+            timer.stop(str(scomm.get_rank())+plot_set)
         timer.stop(str(scomm.get_rank())+"ncl total time on task")
-        scomm.sync() 
+        scomm.sync()
         print(timer.get_all_times())
 
         # set html files
@@ -229,4 +231,3 @@ class modelVsModel(IceDiagnostic):
             print('*******************************************************************************')
             print('Successfully completed generating ice diagnostics model vs. model plots')
             print('*******************************************************************************')
-            

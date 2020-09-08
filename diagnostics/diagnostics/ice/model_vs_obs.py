@@ -58,7 +58,7 @@ class modelVsObs(IceDiagnostic):
         super(modelVsObs, self).check_prerequisites(env, scomm)
 
         # Set some new env variables
-        # note - some of these env vars are for model vs. model but are expected by the 
+        # note - some of these env vars are for model vs. model but are expected by the
         # NCL routines web_hem_clim.ncl and web_reg_clim.ncl that is called by both
         # diag classes
         env['DIAG_CODE'] = env['NCLPATH']
@@ -66,7 +66,7 @@ class modelVsObs(IceDiagnostic):
 
         print('DEBUG: model_vs_obs env[DIAG_HOME] = {0}'.format(env['DIAG_HOME']))
 
-        env['DIAG_ROOT'] = '{0}/{1}-{2}/'.format(env['DIAG_ROOT'], env['CASE_TO_CONT'], 'obs') 
+        env['DIAG_ROOT'] = '{0}/{1}-{2}/'.format(env['DIAG_ROOT'], env['CASE_TO_CONT'], 'obs')
         env['WKDIR'] = env['DIAG_ROOT']
         env['WORKDIR'] = env['WKDIR']
         if scomm.is_manager():
@@ -76,7 +76,7 @@ class modelVsObs(IceDiagnostic):
 ##        env['seas'] = ['jfm','fm','amj','jas','ond','on','ann']
         env['YR_AVG_FRST'] = str((int(env['ENDYR_CONT']) - int(env['YRS_TO_AVG'])) + 1)
         env['YR_AVG_LAST'] = env['ENDYR_CONT']
-        env['VAR_NAMES'] =  env['VAR_NAME_TYPE_CONT'] 
+        env['VAR_NAMES'] =  env['VAR_NAME_TYPE_CONT']
         env['YR1'] = env['BEGYR_CONT']
         env['YR2'] = env['ENDYR_CONT']
         env['YR1_DIFF'] = env['BEGYR_DIFF']
@@ -119,17 +119,19 @@ class modelVsObs(IceDiagnostic):
         scomm.sync()
 
         # partition requested plots to all tasks
-        # first, create plotting classes and get the number of plots each will created 
+        # first, create plotting classes and get the number of plots each will created
         requested_plots = {}
         set_sizes = {}
         for plot_set in requested_plot_sets:
             requested_plots.update(ice_diags_plot_factory.iceDiagnosticPlotFactory(plot_set,env))
         print(requested_plots.keys())
         # partition based on the number of plots each set will create
-        local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)  
+        #local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
+        requested_plots_list = list(requested_plots.keys())
+        local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
 
         timer = timekeeper.TimeKeeper()
-        # loop over local plot lists - set env and then run plotting script         
+        # loop over local plot lists - set env and then run plotting script
         #for plot_id,plot_class in local_plot_list.interitems():
         timer.start(str(scomm.get_rank())+"ncl total time on task")
         for plot_set in local_plot_list:
@@ -144,7 +146,7 @@ class modelVsObs(IceDiagnostic):
             for script in plot_class.ncl_scripts:
                  diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
             timer.stop(str(scomm.get_rank())+plot_set)
-        timer.stop(str(scomm.get_rank())+"ncl total time on task") 
+        timer.stop(str(scomm.get_rank())+"ncl total time on task")
 
         scomm.sync()
         print(timer.get_all_times())
@@ -152,7 +154,7 @@ class modelVsObs(IceDiagnostic):
         # set html files
         if scomm.is_manager():
             # Setup (local) web directories
-            env['HTML_HOME'] = env['POSTPROCESS_PATH']+'/ice_diag/web/'    
+            env['HTML_HOME'] = env['POSTPROCESS_PATH']+'/ice_diag/web/'
             web_dir = env['WKDIR']+'/yrs'+env['BEGYR_CONT']+'-'+env['ENDYR_CONT']
             if env['CLEANUP_FILES'].lower() in ['t','true'] and os.path.exists(web_dir):
                 shutil.rmtree(web_dir)
@@ -165,7 +167,7 @@ class modelVsObs(IceDiagnostic):
             if not os.path.exists(web_dir+'/line'):
                 os.mkdir(web_dir+'/line')
             if not os.path.exists(web_dir+'/obs'):
-                os.mkdir(web_dir+'/obs')                    
+                os.mkdir(web_dir+'/obs')
 
             # Move images tot the oppropriate directories
             plot_dir_map = {'icesat':'obs', 'ASPeCt':'obs', 'con_':'contour', 'vec_':'vector', 'line':'line', 'clim':'line'}
@@ -176,7 +178,7 @@ class modelVsObs(IceDiagnostic):
                     for img in imgs:
                         new_fn = web_dir + '/' + dir + '/' + os.path.basename(img)
                         os.rename(img,new_fn)
-                       
+
             # Create/format the html files and copy txt and map files
             shutil.copy(env['HTML_HOME']+'/ICESat.txt', web_dir+'/obs/ICESat.txt')
             shutil.copy(env['HTML_HOME']+'/ASPeCt.txt', web_dir+'/obs/ASPeCt.txt')
@@ -213,5 +215,3 @@ class modelVsObs(IceDiagnostic):
             print('*******************************************************************************')
             print('Successfully completed generating ice diagnostics model vs. observation plots')
             print('*******************************************************************************')
-
-
