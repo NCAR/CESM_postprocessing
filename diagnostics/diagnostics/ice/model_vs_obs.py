@@ -28,7 +28,7 @@ except:
 # import the local modules for postprocessing
 from cesm_utils import cesmEnvLib, processXmlLib
 from diag_utils import diagUtilsLib
-import create_ice_html
+from . import create_ice_html
 
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
