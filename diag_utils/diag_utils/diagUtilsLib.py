@@ -55,10 +55,10 @@ def generate_ncl_plots(env, nclPlotFile):
     """generate_plots_call - call a nclPlotFile via subprocess call
 
     Arguments:
-    env (dictionary) - diagnostics system environment 
+    env (dictionary) - diagnostics system environment
     nclPlotFile (string) - ncl plotting file name
     """
-    # check if the nclPlotFile exists - 
+    # check if the nclPlotFile exists -
     # don't exit if it does not exists just print a warning.
     nclFile = '{0}/{1}'.format(env['NCLPATH'],nclPlotFile)
     print('Calling NCL routine {0} from {1}'.format(nclFile, env['WORKDIR']))
@@ -66,8 +66,8 @@ def generate_ncl_plots(env, nclPlotFile):
     if rc:
         try:
             pipe = subprocess.Popen(['ncl {0}'.format(nclFile)], cwd=env['WORKDIR'], env=env, shell=True, stdout=subprocess.PIPE)
-            output = pipe.communicate()[0]
-            print('NCL routine {0} \n {1}'.format(nclFile,output))            
+            output = pipe.communicate()[0].decode('utf-8')
+            print('NCL routine {0} \n {1}'.format(nclFile,output))
             while pipe.poll() is None:
                 time.sleep(0.5)
         except OSError as e:
@@ -82,7 +82,7 @@ def generate_ncl_plots(env, nclPlotFile):
 #============================================
 def strip_prefix(indict, prefix):
     """strip_prefix - Read the indict and strip off the leading prefix from the id element (key).
-    
+
     Arguments:
     indict (dictionary) - input with OCNDIAG_ from the id element
     prefix (string) - prefix string to be stripped
@@ -173,13 +173,13 @@ def checkXMLyears(hfstart_year, hfstop_year, rstart_year, rstop_year):
 # checkHistoryFiles - check history files
 #========================================
 def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp, suffix, filep, subdir):
-    """checkHistoryFiles - check if variable history time-series 
+    """checkHistoryFiles - check if variable history time-series
     files or history time-slice files exist
-    in the DOUT_S_ROOT location. Then check the actual run files 
+    in the DOUT_S_ROOT location. Then check the actual run files
     to get the start and stop years to compare against
-    the XML specified YEAR0 and YEAR1. The OMWG diags 
+    the XML specified YEAR0 and YEAR1. The OMWG diags
     package only works with monthly average history files
-    to generate annual mean history files. 
+    to generate annual mean history files.
 
     Arguments:
     tseries (boolean) - corresponds to XML variable GENERATE_TIMESERIES
@@ -208,7 +208,7 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
         subdir = subdir[:-1]
     in_dir = '{0}/{1}/{2}'.format(dout_s_root, comp, subdir)
 
-    # check the in_dir directory exists 
+    # check the in_dir directory exists
     if not os.path.isdir(in_dir):
         err_msg = 'ERROR: diagUtilsLib.checkHistoryFiles {0} directory is not available.'.format(in_dir)
         raise OSError(err_msg)
@@ -216,7 +216,7 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
     # get the file paths and formats - TO DO may need to get this from namelist var or env_archive
     files = '{0}.{1}'.format(case, suffix)
     fformat = '{0}/{1}*'.format(in_dir, files)
-   
+
     if htype == 'slice':
         # get the first and last years from the first and last monthly history files
         allHfiles = sorted(glob.glob(fformat))
@@ -261,7 +261,7 @@ def checkHistoryFiles(tseries, dout_s_root, case, rstart_year, rstop_year, comp,
             print('ERROR diagUtilsLib.checkHistoryFiles: No history time series files found matching format {0}'.format(fformat))
             sys.exit(1)
 
-    # check if the XML YEAR0 and YEAR1 are within the actual start_year and stop_year bounds 
+    # check if the XML YEAR0 and YEAR1 are within the actual start_year and stop_year bounds
     # defined by the actual history files
     start_year, stop_year = checkXMLyears(hfstart_year, hfstop_year, rstart_year, rstop_year)
 
@@ -296,7 +296,7 @@ def create_za(workdir, tavgfile, gridfile, toolpath, env):
         if not rc:
             print('ERROR: create_za failed to verify executable za command = {0}'.format(zaCommand))
             print('    {0}'.format(err_msg))
-        
+
         # call the za fortran code from within the workdir
         cwd = os.getcwd()
         os.chdir(workdir)
@@ -398,7 +398,7 @@ def createLinks(start_year, stop_year, tavgdir, workdir, case, control):
     else:
         raise OSError(err_msg)
 
-    # link to all the annual history files 
+    # link to all the annual history files
     year = int(start_year)
     while year <= int(stop_year):
         # check if file already exists before appending to the avgList
@@ -466,8 +466,8 @@ def atm_regrid(climo_file, regrid_script, in_grid, out_grid, env):
     env['OUTGRID'] = out_grid
 
     # Move the existing file to a new name
-    shutil.move(climo_file, se_file)    
- 
+    shutil.move(climo_file, se_file)
+
     env['TEST_INPUT'] = se_file
     env['TEST_PLOTVARS'] = climo_file
 
@@ -484,7 +484,7 @@ def atm_regrid(climo_file, regrid_script, in_grid, out_grid, env):
 # Function to regrid the lnd climatology files
 #======================================================================
 def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
-    """ Regrid the climatology file that was passed in 
+    """ Regrid the climatology file that was passed in
     """
     # move the climo file into the tmp_outdir in order to run
     # in parallel and avoid conflicts with duplicate temp file name from ESMF
@@ -496,7 +496,7 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
     env['wgt_dir']  = env['wgt_dir_'+t]
     env['wgt_file'] = env['old_res_'+t]+'_to_'+env['new_res_'+t]+'.'+env['method_'+t]+'.nc'
     env['area_dir'] = env['area_dir_'+t]
-    env['area_file']= env['new_res_'+t]+'_area.nc' 
+    env['area_file']= env['new_res_'+t]+'_area.nc'
     env['procDir']  = tmp_outdir
     env['oldres']   = env['old_res_'+t]
     env['newres']   = env['new_res_'+t]
@@ -508,7 +508,7 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
     env['WORKDIR'] = tmp_outdir
     current_dir = os.getcwd()
     os.chdir(tmp_outdir)
-     
+
     # Stringify the env dictionary
     env_copy = env.copy()
     for name,value in env_copy.items():
@@ -542,7 +542,3 @@ def lnd_regrid(climo_file, regrid_script, t, outdir, ext_dir, env):
     except OSError as e:
         if e.errno == errno.ENOTEMPTY:
             print('WARNING lnd_regrid: {0} directory not empty - not removed.'.format(tmp_outdir))
-    
-
-    
-
