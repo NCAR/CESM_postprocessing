@@ -129,7 +129,6 @@ class modelVsObs(LandDiagnostic):
         #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)
         requested_plots_list = list(requested_plots.keys())
         local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
-#        local_plot_list = [str(iter(x)) for x in local_plot_keys]
 
         scomm.sync()
 

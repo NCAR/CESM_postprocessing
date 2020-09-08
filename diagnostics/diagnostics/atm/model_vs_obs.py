@@ -176,8 +176,14 @@ class modelVsObs(AtmosphereDiagnostic):
                 factor = 1
             plots_weights.append((plot_id,len(plot_class.expectedPlots)*factor))
         # partition based on the number of plots each set will create
-        local_plot_keys = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)
-        local_plot_list = [next(iter(x)) for x in local_plot_keys]
+
+#        local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)
+#        print("plots_weights {} requested_plots {} local_plot_list {}".format(plots_weights,requested_plots, local_plot_list))
+        requested_plots_list = list(requested_plots.keys())
+        local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
+        scomm.sync()
+#        print("requested_plots {} local_plot_list {}".format(requested_plots, local_plot_list))
+
 
         timer = timekeeper.TimeKeeper()
         # loop over local plot lists - set env and then run plotting script
