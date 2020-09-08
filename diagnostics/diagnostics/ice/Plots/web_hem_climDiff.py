@@ -20,7 +20,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ice_diags_plot_bc import IceDiagnosticPlot
+from .ice_diags_plot_bc import IceDiagnosticPlot
 
 class Web_Hem_ClimDiff(IceDiagnosticPlot):
     """Web_Hem_Clim Plots

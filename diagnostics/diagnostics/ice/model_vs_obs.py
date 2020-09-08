@@ -34,7 +34,7 @@ import create_ice_html
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from ice_diags_bc import IceDiagnostic
+from .ice_diags_bc import IceDiagnostic
 
 # import the plot classes
 from diagnostics.ice.Plots import ice_diags_plot_bc

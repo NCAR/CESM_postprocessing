@@ -3,7 +3,7 @@
 """
 
 # import the Plot modules
-from ice_diags_plot_bc import UnknownPlotType
+from .ice_diags_plot_bc import UnknownPlotType
 import contour
 import contourDiff
 import iceSat
