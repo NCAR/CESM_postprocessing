@@ -408,7 +408,8 @@ def main(argv=None):
                     to_change[v] = o_dict[v]["attributes"]["altLabel"]
                     o_dict[v]["attributes"].pop("altLabel")
         # find a matching bound, if present
-        for o in to_change.keys():
+        olist = list(to_change.keys())
+        for o in olist:
             if o+"_bnds" in o_dict.keys():
                 to_change[o+"_bnds"] = to_change[o]+'_bnds'
         # change the names that we've found
