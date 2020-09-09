@@ -370,11 +370,9 @@ def main(argv=None):
                         elif 'cism' in d1['input_glob'].split(".")[0]:
                             o_dict[var]["definition"] = time['landIce']
                     else:
-                        if "definition" not in o_dict[var].keys():
+                        if "definition" in o_dict[var].keys():
                             if 'yeartomonth_time' not in o_dict[var]["definition"] and "oclim_time" not in o_dict[var]["definition"] and "monthtoyear_noleap_time" not in o_dict[var]["definition"]:
                                 o_dict[var]["definition"] = time[realm]
-                        elif 'yeartomonth_time' not in o_dict[var]["definition"] and "oclim_time" not in o_dict[var]["definition"] and "monthtoyear_noleap_time" not in o_dict[var]["definition"]:
-                            o_dict[var]["definition"] = time[realm]
                 else:
                     if "definition" not in o_dict[var].keys():
                         o_dict[var]["definition"] = "time"
