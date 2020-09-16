@@ -188,7 +188,7 @@ class modelVsModel(IceDiagnostic):
             for key,dir in plot_dir_map.items():
                 glob_string = env['WKDIR']+'/*'+key+'*.png'
                 imgs = glob.glob(glob_string)
-                if imgs > 0:
+                if len(imgs) > 0:
                     for img in imgs:
                         new_fn = web_dir + '/' + dir + '/' + os.path.basename(img)
                         os.rename(img,new_fn)
