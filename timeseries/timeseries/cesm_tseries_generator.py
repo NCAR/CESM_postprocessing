@@ -70,7 +70,7 @@ def commandline_options():
         err_msg = 'cesm_tseries_generator.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
         raise OSError(err_msg)
 
-    return options.caseroot, options.debug, options.standalone, options.backtrace
+    return options.caseroot[0], options.debug, options.standalone, options.backtrace
 
 #==============================================================================================
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
@@ -269,7 +269,7 @@ def divide_comm(scomm, l_spec):
     if l_spec == 1:
         num_of_groups = 1
     else:
-        num_of_groups = size/min_procs_per_spec
+        num_of_groups = size//min_procs_per_spec
     if l_spec < num_of_groups:
         num_of_groups = l_spec
 
@@ -331,11 +331,11 @@ def main(caseroot, standalone, scomm, rank, size, debug, debugMsg):
         color = inter_comm.get_color()
         lsize = inter_comm.get_size()
         lrank = inter_comm.get_rank()
-
+        debugMsg("rank {} color {} lsize {} lrank {}".format(rank, color, lsize, lrank))
         GWORK_TAG = 10 # global comm mpi tag
         LWORK_TAG = 20 # local comm mpi tag
         # global root - hands out specifiers to work on.  When complete, it must tell each subcomm all work is done.
-        if (rank == 0):
+        if rank == 0:
             for i in range(0,len(specifiers)): # hand out all specifiers
                 scomm.ration(data=i, tag=GWORK_TAG)
             for i in range(0,lsubcomms): # complete, signal this to all subcomms
@@ -347,6 +347,7 @@ def main(caseroot, standalone, scomm, rank, size, debug, debugMsg):
             i = -999
             while i != -99:
                 i = scomm.ration(tag=GWORK_TAG) # recv from global
+                debugMsg("i from ration {}".format(i))
                 for x in range(1,lsize):
                     inter_comm.ration(i, LWORK_TAG) # send to local ranks
                 if i != -99:
@@ -374,6 +375,7 @@ def main(caseroot, standalone, scomm, rank, size, debug, debugMsg):
         chunking.write_log('{0}/logs/ts_status.log'.format(caseroot), log)
         debugMsg('after chunking.write_log', header=True, verbosity=1)
 
+    debugMsg("call scomm sync")
     scomm.sync()
 
     return 0
