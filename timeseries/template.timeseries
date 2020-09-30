@@ -19,7 +19,10 @@ def _main_func(description):
     expect(postprocess_path,"POSTPROCESS_PATH not found, must be defined in environment")
     ppenv_bin = os.path.join(postprocess_path,"cesm-env2","bin")
     activate_this_file = os.path.join(ppenv_bin,"activate_this.py")
-    execfile(activate_this_file, dict(__file__=activate_this_file))
+    with open(activate_this_file, "rb") as source:
+        code = compile(source.read(), activate_this_file, "exec")
+    exec(code, dict(__file__=activate_this_file))
+
     caseroot = "{{ caseroot }}"
     job = "timeseries"
     with Case(caseroot, read_only=False) as case:
@@ -27,7 +30,7 @@ def _main_func(description):
         env_mach_specific = case.get_env('mach_specific')
         env_workflow = case.get_env("workflow")
         overrides = {}
-        overrides["total_tasks"], overrides["num_nodes"], overrides["tasks_per_node"], overrides["thread_count"] = env_workflow.get_job_specs(job)
+        overrides["total_tasks"], overrides["num_nodes"], overrides["tasks_per_node"], overrides["thread_count"] = env_workflow.get_job_specs(case, job)
 
         # Things that will have to be matched against mpirun element attributes
         mpi_attribs = {
@@ -37,7 +40,7 @@ def _main_func(description):
             "queue" : case.get_value("JOB_QUEUE", subgroup=job),
             "unit_testing" : False
             }
-        executable, mpi_arg_list = env_mach_specific.get_mpirun(case, mpi_attribs, job, overrides=overrides)
+        executable, mpi_arg_list, _, _ = env_mach_specific.get_mpirun(case, mpi_attribs, job, overrides=overrides)
         cmd = executable+" "+" ".join(mpi_arg_list) + " " + run_exe
         os.environ["ARGS_FOR_SCRIPT"] = " --caseroot={}".format(os.path.join(caseroot,"postprocess"))
         stat = run_cmd(cmd,
