@@ -227,8 +227,8 @@ class modelVsModel(AtmosphereDiagnostic):
             # Copy over some files needed by web pages
             if not os.path.exists(web_dir+'/images'):
                 os.mkdir(web_dir+'/images')
-            diag_imgs = glob.glob(env['DIAG_HOME']+'/html/images/*')
-            for img in diag_imgs:
+
+            for img in glob.iglob(env['DIAG_HOME']+'/html/images/*'):
                 shutil.copy(img,web_dir+'/images/')
 
             # Create set dirs, copy plots to set dir, and create html file for set
@@ -262,11 +262,9 @@ class modelVsModel(AtmosphereDiagnostic):
                      # Copy plots into the correct web dir
                      for gs in glob_set:
                          glob_string = env['test_path_diag']+'/'+gs+'*.*'
-                         imgs = glob.glob(glob_string)
-                         if imgs > 0:
-                             for img in imgs:
-                                 new_fn = set_dir + '/' + os.path.basename(img)
-                                 os.rename(img,new_fn)
+                         for img in glob.iglob(glob_string):
+                             new_fn = set_dir + '/' + os.path.basename(img)
+                             os.rename(img,new_fn)
 
                  # Copy/Process html files
                  if 'sets' in plot_set:
