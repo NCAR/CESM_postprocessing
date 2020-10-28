@@ -1,5 +1,4 @@
 import os, glob, datetime
-from urllib.request import urlopen
 
 def create_plotset_html(html_file_prefix, web_path, set_name, env, diag_type):
 
@@ -28,7 +27,7 @@ def create_plotset_html(html_file_prefix, web_path, set_name, env, diag_type):
     # Loop through web files and append correctly
     for n in range(1,len(html_files)+1):
         html_file = html_file_prefix+'_'+str(n)+'.htm'
-        data = urlopen(html_file)
+        data = open(html_file)
 
         # Loop through lines in partial html file.  If a href (image link) check to see
         # if image exists and handle correctly
