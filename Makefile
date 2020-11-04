@@ -15,7 +15,7 @@
 #   export PATH=$(PATH):$(HOME)/.local/bin
 #   virtualenv --system-site-packages ENVNAME
 #
-ENVNAME=cesm-env2
+ENVNAME=cesm-env3
 
 SUBDIRS = \
 	cesm_utils \
@@ -69,7 +69,7 @@ py-unit : FORCE
 env : $(ENVNAME)/bin/activate
 
 $(ENVNAME)/bin/activate : 
-	virtualenv --system-site-packages -p python2 $(ENVNAME)
+	virtualenv --system-site-packages -p python3 $(ENVNAME)
 
 cesm-env2 :
 	virtualenv -p python2 $@
@@ -118,7 +118,7 @@ clobber : clean $(SUBDIRS)
 
 
 clobber-env : FORCE
-	-rm -rf cesm-env2
+	-rm -rf cesm-env3
 #	-rm -rf cesm-env2 cesm-env3 
 
 #
