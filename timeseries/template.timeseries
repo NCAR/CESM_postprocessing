@@ -6,6 +6,9 @@ import os, sys
 os.chdir('{{ caseroot }}')
 _LIBDIR = os.path.join("{{ cimeroot }}", "scripts", "Tools")
 sys.path.append(_LIBDIR)
+_PYDIR = "/home/jedwards/.local/lib/python3.8/site-packages"
+sys.path.append(_PYDIR)
+
 
 from standard_script_setup          import *
 from CIME.case import Case
@@ -17,21 +20,21 @@ def _main_func(description):
     # First activate the postproc environment
     postprocess_path = os.getenv("POSTPROCESS_PATH")
     expect(postprocess_path,"POSTPROCESS_PATH not found, must be defined in environment")
-    ppenv_bin = os.path.join(postprocess_path,"cesm-env2","bin")
-    activate_this_file = os.path.join(ppenv_bin,"activate_this.py")
-    with open(activate_this_file, "rb") as source:
-        code = compile(source.read(), activate_this_file, "exec")
-    exec(code, dict(__file__=activate_this_file))
+    ppenv_bin = os.path.join(postprocess_path,"cesm-env3","bin")
+#    activate_this_file = os.path.join(ppenv_bin,"activate")
+#    with open(activate_this_file, "rb") as source:
+#        code = compile(source.read(), activate_this_file, "exec")
+#    exec(code, dict(__file__=activate_this_file))
 
     caseroot = "{{ caseroot }}"
     job = "timeseries"
-    with Case(caseroot, read_only=False) as case:
+    with Case(caseroot, read_only=True) as case:
         run_exe = os.path.join(ppenv_bin,"cesm_tseries_generator.py")
         env_mach_specific = case.get_env('mach_specific')
         env_workflow = case.get_env("workflow")
         overrides = {}
-        overrides["total_tasks"], overrides["num_nodes"], overrides["tasks_per_node"], overrides["thread_count"] = env_workflow.get_job_specs(case, job)
-
+        overrides["total_tasks"], overrides["num_nodes"], overrides["tasks_per_node"], overrides["thread_count"] = env_workflow.get_job_specs(job)
+        print("overrides are {}".format(overrides))
         # Things that will have to be matched against mpirun element attributes
         mpi_attribs = {
             "compiler" : case.get_value("COMPILER"),
@@ -40,12 +43,16 @@ def _main_func(description):
             "queue" : case.get_value("JOB_QUEUE", subgroup=job),
             "unit_testing" : False
             }
-        executable, mpi_arg_list, _, _ = env_mach_specific.get_mpirun(case, mpi_attribs, job, overrides=overrides)
+        executable, mpi_arg_list = env_mach_specific.get_mpirun(case, mpi_attribs, job, overrides=overrides)
         cmd = executable+" "+" ".join(mpi_arg_list) + " " + run_exe
         os.environ["ARGS_FOR_SCRIPT"] = " --caseroot={}".format(os.path.join(caseroot,"postprocess"))
+#        os.environ["ARGS_FOR_SCRIPT"] = "--backtrace --caseroot={}".format(os.path.join(caseroot,"postprocess"))
+        print("run cmd is {}".format(cmd))
+        expect('$' not in cmd,"Error parsing cmd")
+            
         stat = run_cmd(cmd,
                        verbose=True,
-                       arg_stdout=os.path.join(caseroot,"timeseries."+new_lid()),
+                       arg_stdout=os.path.join(caseroot,"postprocess","logs","timeseries."+new_lid()),
                        combine_output=True, from_dir=os.path.join(caseroot,"postprocess"))
 
 

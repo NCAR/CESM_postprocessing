@@ -5,15 +5,16 @@ import netCDF4 as nc
 import cf_units
 import datetime
 import math
+import numpy
 from asaptools import partition
 
 def num2date(time_value, unit, calendar):
 ## fix for fractional time bounds
     if (math.floor(time_value) != time_value):
-        time_value = int(round(time_value))
+        time_value = int(numpy.round(time_value))
     if ('common_year' in unit):
         my_unit = unit.replace('common_year', 'day')
-        my_time_value = int(round(time_value)) * 365
+        my_time_value = int(numpy.round(time_value)) * 365
     else:
         my_unit = unit
         my_time_value = time_value

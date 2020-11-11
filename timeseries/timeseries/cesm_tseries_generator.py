@@ -22,7 +22,7 @@ if sys.hexversion < 0x03070000:
         '.'.join(str(x) for x in sys.version_info[0:3])))
     print(70 * '*')
     sys.exit(1)
-
+#print("sys path is {}".format(sys.path))
 import argparse
 import glob
 import os
@@ -34,7 +34,6 @@ import warnings
 import xml.etree.ElementTree as ET
 
 from cesm_utils import cesmEnvLib
-import chunking
 
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
@@ -42,6 +41,7 @@ from asaptools import partition, simplecomm, vprinter, timekeeper
 # load the pyReshaper modules
 from pyreshaper import specification, reshaper
 
+import chunking
 #=====================================================
 # commandline_options - parse any command line options
 #=====================================================
@@ -269,7 +269,8 @@ def divide_comm(scomm, l_spec):
     if l_spec == 1:
         num_of_groups = 1
     else:
-        num_of_groups = size//min_procs_per_spec
+        num_of_groups = max(1,size//min_procs_per_spec)
+
     if l_spec < num_of_groups:
         num_of_groups = l_spec
 
