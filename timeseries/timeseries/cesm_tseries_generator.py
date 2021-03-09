@@ -70,7 +70,7 @@ def commandline_options():
         err_msg = 'cesm_tseries_generator.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
         raise OSError(err_msg)
 
-    return options.caseroot[0], options.debug, options.standalone, options.backtrace
+    return options.caseroot[0], options.debug[0], options.standalone, options.backtrace
 
 #==============================================================================================
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes
