@@ -352,7 +352,7 @@ def main(caseroot, standalone, scomm, rank, size, debug, debugMsg):
                     inter_comm.ration(i, LWORK_TAG) # send to local ranks
                 if i != -99:
                     # create the PyReshaper object - uncomment when multiple specifiers is allowed
-                    reshpr = reshaper.create_reshaper(specifiers[i], serial=False, verbosity=debug[0], simplecomm=inter_comm)
+                    reshpr = reshaper.create_reshaper(specifiers[i], serial=False, verbosity=debug, simplecomm=inter_comm)
                     # Run the conversion (slice-to-series) process
                     reshpr.convert()
                 inter_comm.sync()
@@ -364,7 +364,7 @@ def main(caseroot, standalone, scomm, rank, size, debug, debugMsg):
                 i = inter_comm.ration(tag=LWORK_TAG) # recv from local root
                 if i != -99:
                     # create the PyReshaper object - uncomment when multiple specifiers is allowed
-                    reshpr = reshaper.create_reshaper(specifiers[i], serial=False, verbosity=debug[0], simplecomm=inter_comm)
+                    reshpr = reshaper.create_reshaper(specifiers[i], serial=False, verbosity=debug, simplecomm=inter_comm)
                     # Run the conversion (slice-to-series) process
                     reshpr.convert()
                 inter_comm.sync()
