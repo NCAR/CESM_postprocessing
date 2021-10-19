@@ -120,13 +120,17 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
   area2     = in2->area
   time2     = in2->time
   nlev1 = 0
+; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+; so I'm changing this to an if/else (01/19/21). This will
+; preferentially use levsoi
   if(isfilevar(in1,"levsoi")) then
-        nlev1       = getfilevardimsizes(in1,"levsoi")
-               levsoi1     = in1->levsoi
-  end if
-  if (isfilevar(in1,"levgrnd")) then
-            nlev1       = getfilevardimsizes(in1,"levgrnd")
-               levsoi1     = in1->levgrnd
+     nlev1   = getfilevardimsizes(in1,"levsoi")
+     levsoi1 = in1->levsoi
+  else
+     if (isfilevar(in1,"levgrnd")) then
+         nlev1   = getfilevardimsizes(in1,"levgrnd")
+         levsoi1 = in1->levgrnd
+     end if
   end if
   if (nlev1 .eq. 0)
      print("FATAL ERROR:  nlev1 = 0")
@@ -138,13 +142,17 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
      nlev1 = 10
   end if
   nlev2 = 0
+; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+; so I'm changing this to an if/else (01/19/21). This will
+; preferentially use levsoi
   if (isfilevar(in2,"levsoi")) then
-     nlev2       = getfilevardimsizes(in2,"levsoi")
-     levsoi2     = in2->levsoi
-  end if
-  if (isfilevar(in2,"levgrnd")) then
-            nlev2 = getfilevardimsizes(in2,"levgrnd")
-     levsoi2     = in2->levgrnd
+     nlev2   = getfilevardimsizes(in2,"levsoi")
+     levsoi2 = in2->levsoi
+  else
+     if (isfilevar(in2,"levgrnd")) then
+        nlev2   = getfilevardimsizes(in2,"levgrnd")
+        levsoi2 = in2->levgrnd
+     end if
   end if
   if (nlev2 .eq. 0)
      print("FATAL ERROR:  nlev2 = 0")
@@ -478,11 +486,15 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
            res@pmLegendDisplayMode    = "NoCreate"   ;"Never"
            res@vpHeightF              = 0.4
            res@vpWidthF               = 0.8
-           if (isfilevar(in, "levsoi")) then
-              lev = in->levsoi
-           end if
-           if (isfilevar(in, "levgrnd")) then
-              lev = in->levgrnd
+           ; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+           ; so I'm changing this to an if/else (01/19/21). This will
+           ; preferentially use levsoi
+           if(isfilevar(in1,"levsoi")) then
+              lev     = in1->levsoi
+           else
+              if (isfilevar(in1,"levgrnd")) then
+                 lev     = in1->levgrnd
+              end if
            end if
            do k=0,nlev-1
               res@tiXAxisOn              = False

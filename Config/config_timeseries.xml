@@ -207,6 +207,14 @@
         <tseries_filecat_tper>years</tseries_filecat_tper>
         <tseries_filecat_n>50</tseries_filecat_n>
       </file_extension>
+      <file_extension suffix=".h9.[0-9]">
+        <subdir>hist</subdir>
+        <tseries_create>FALSE</tseries_create>
+        <tseries_output_format>netcdf4c</tseries_output_format>
+        <tseries_tper>day_1</tseries_tper>
+        <tseries_filecat_tper>years</tseries_filecat_tper>
+        <tseries_filecat_n>50</tseries_filecat_n>
+      </file_extension>
     </files>
     <tseries_time_variant_variables>
       <variable>date_written</variable>
