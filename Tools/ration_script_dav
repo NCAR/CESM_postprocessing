@@ -14,11 +14,14 @@
 #SBATCH -o ration_test.out.%J
 
 module purge
-module load python/2.7.14
-module load intel/17.0.1
+module load python/2.7.16
+module load gnu/8.3.0
 module load ncarenv
 module load ncarcompilers
-module load impi
+module load openmpi/3.1.4
+module load netcdf/4.7.1
+module load nco/4.7.4
+module load ncl/6.6.2 
 
 
 . /gpfs/fs1/work/aliceb/sandboxes/dev/postprocessing_dav/cesm-env2/bin/activate
