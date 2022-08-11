@@ -94,9 +94,13 @@ begin
   landfrac1 = in1->landfrac
   area1     = in1->area
   time1     = in1->time
+  lat1      = in1->lat
+  lon1      = in1->lon
   landfrac2 = in2->landfrac
   area2     = in2->area
   time2     = in2->time
+  lat2      = in2->lat
+  lon2      = in2->lon
   nlev1 = 0
 ; CTSM5.1.dev021 now has both levsoi and levgrnd variables
 ; so I'm changing this to an if/else (01/19/21)
@@ -165,6 +169,10 @@ begin
            in       = in1
            landfrac = landfrac1
            area     = area1
+           ; We only have area for land gridcells and we need area over all gridcells
+           ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
+           ; calculation in the coupler
+           areag    = dble2flt(area_global_rectilinear_grid(lat1,lon1,False))
            time     = time1
            nlev     = nlev1
            levsoi   = levsoi1
@@ -172,6 +180,10 @@ begin
            in       = in2
            landfrac = landfrac2
            area     = area2
+           ; We only have area for land gridcells and we need area over all gridcells
+           ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
+           ; calculation in the coupler
+           areag    = dble2flt(area_global_rectilinear_grid(lat2,lon2,False))
            time     = time2
            nlev     = nlev2
            levsoi   = levsoi2
@@ -259,7 +271,11 @@ begin
 
  ; calculate global summation or global total      
            if (c13Flag(i) .ne. "C13_" .and. c14Flag(i) .ne. "C14_") then
-              var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
+              if (vars(i) .eq. "CPL_ENERGY_BAL") then
+                var_plot = global_values(vars(i), x,areag,landfrac,scale_type(i),yrs(m),nlev)
+              else
+                var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
+              end if
            else
               var_plot = x        ; del13C and del14C vars are globally averaged before the del value is calculated
            end if

@@ -141,8 +141,14 @@ do p=0,nplots-1
     lon1      = in1->lon
     nlat1     = dimsizes(lat1)
     nlon1     = dimsizes(lon1)
+    ; We only have area for land gridcells and we need area over all gridcells
+    ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
+    ; calculation in the coupler
+    area1g     = dble2flt(area_global_rectilinear_grid(lat1,lon1,False))
+    area1g     = area1g * 1.e6  ; convert from km2 to m2
     if (lon1(0) .ge. 0) then
            area1     = lonFlip(area1)
+           area1g    = lonFlip(area1g)
            landfrac1 = lonFlip(landfrac1)
     end if
 
@@ -717,8 +723,15 @@ do region=startNumber,nreg-1
                  else
 	   	    x1 = array1(i,:,:)
 		    ; NOTE:  area units are m2
-           	    value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
-		            regions_file,time1,nTime,compare)
+                    if (vars(i) .eq. "CPL_ENERGY_BAL") then
+                      x1@long_name = "CPL_ENERGY_BAL"
+           	      value1 = regional_values(x1,region,area1g,landfrac1,scale_type(i),\
+		              regions_file,time1,nTime,compare)
+                      delete(x1@long_name)
+                    else
+           	      value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
+		              regions_file,time1,nTime,compare)
+                    end if
                  end if
 	      end if
 	      delete(x1)

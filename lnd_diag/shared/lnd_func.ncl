@@ -49,7 +49,7 @@ begin
       avg_x = new(numyrs,typeof(x))            ; no level
         ; This variable is calculated per total GLOBAL area, not global LAND area.
         ; therefore, area1 is not masked by land as it is for the other vars.
-        if (varName .eq. "RNET-SENS-LATENT") then
+        if (varName .eq. "RNET-SENS-LATENT" .or. varName .eq. "CPL_ENERGY_BAL") then
              if(isvar("area1")) then
 		delete(area1)
 	     end if
@@ -923,7 +923,15 @@ begin
     weights_1n = area
     weights_1n = -9999.
     if(rank.eq.2)then
-      area1  = mask(area,       ismissing(x), False)
+      ; The variable CPL_ENERGY_BAL is calculated per total GLOBAL area, not global LAND area.
+      ; therefore, area1 is not masked by land as it is for the other vars.
+      ; We don't have the variable name available in this function so use the long_name
+      printVarSummary(x)
+      if (x@long_name .eq. "CPL_ENERGY_BAL") then
+        area1 = area
+      else
+        area1  = mask(area,       ismissing(x), False)
+      end if
       fland1 = mask(landfrac,   ismissing(x), False)
       nmissing   = num(isnan_ieee(x) )
     end if
@@ -967,8 +975,16 @@ do t = 0,endTime
   	weights_1n = -9999.
 
   	if(rank.eq.2)then
-      		area1  = mask(area,       ismissing(x(:,:)), False)
-      		fland1 = mask(landfrac,   ismissing(x(:,:)), False)
+                ; The variable CPL_ENERGY_BAL is calculated per total GLOBAL area, not global LAND area.
+                ; therefore, area1 and fland1 are not masked by land as it is for the other vars.
+                ; We don't have the variable name available in this function so use the long_name
+                printVarSummary(x)
+                if (x@long_name .eq. "CPL_ENERGY_BAL") then
+                  area1 = area
+                else
+      	  	  area1  = mask(area,       ismissing(x(:,:)), False)
+      		  fland1 = mask(landfrac,   ismissing(x(:,:)), False)
+                end if
   	end if
   	if(rank.eq.3)then
       		area1  = mask(area,       ismissing(x(t,:,:)), False)
@@ -984,12 +1000,19 @@ do t = 0,endTime
      if (compare .eq. "model") then
      ; calculate area mean 		
      if(type .eq. "Mean")then		; sets 3, 5 (some) and 6
+       if (x@long_name .eq. "CPL_ENERGY_BAL") then
+        	weights_1n ({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}) = \
+             	(area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
+             fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))/ \
+          sum(area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))
+       else
         	weights_1n ({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}) = \
              	(area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
              fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))/ \
           sum(area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
              fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))
-      end if
+       end if
+     end if
   ; calculate area total 
      if(type .eq. "Totl")then		; set 5 (some)
         weights_1n ({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}) = \
@@ -1004,11 +1027,26 @@ do t = 0,endTime
              if (sum(area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
                fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})) \
                .gt. 0.) then
-                weights_1n ({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}) = \
-                     (area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
-                     fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))/ \
-                  sum(area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
-                     fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))
+               if (isatt(x,"long_name")) then
+                 if (x@long_name .eq. "CPL_ENERGY_BAL") then
+                   weights_1n ({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}) = \
+                        (area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
+                        fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))/ \
+                        sum(area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))
+                 else
+                   weights_1n ({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}) = \
+                        (area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
+                        fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))/ \
+                        sum(area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
+                        fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))
+                 end if
+               else
+                 weights_1n ({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}) = \
+                      (area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
+                      fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))/ \
+                      sum(area1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)})* \
+                      fland1({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}))
+               end if
               else
                 weights_1n ({box_s(ar):box_n(ar)},{box_w(ar):box_e(ar)}) = 0.
              end if

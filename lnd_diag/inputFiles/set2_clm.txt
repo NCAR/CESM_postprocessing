@@ -109,3 +109,4 @@ globalMeanNat0  PCT_TREE_PFT
 globalMeanNat0  PCT_GRASS_PFT
 globalMeanNat0  PCT_SHRUB_PFT
 globalMeanNat0  PCT_CROP_PFT
+globalMeanNat0  ZETA

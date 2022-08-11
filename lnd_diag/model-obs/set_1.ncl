@@ -89,6 +89,10 @@ begin
   landfrac   = in->landfrac
   time       = in->time
   area       = in->area
+  ; We only have area for land gridcells and we need area over all gridcells
+  ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
+  ; calculation in the coupler
+  areag    = dble2flt(area_global_rectilinear_grid(lat1,lon1,False))
   lat        = in->lat 
   lon        = in->lon 
   if(nyrs .ne. dimsizes(time)) then
@@ -178,7 +182,11 @@ begin
 
 ; calculate global summation or global total      
        if (c13Flag(i) .ne. "C13_" .and. c14Flag(i) .ne. "C14_") then 
-       	  var_plot = global_values(vars(i),x,area,landfrac,scale_type(i),nyrs,nlev)
+          if (vars(i) .eq. "CPL_ENERGY_BAL") then
+            var_plot = global_values(vars(i),x,areag,landfrac,scale_type(i),nyrs,nlev)
+          else
+            var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
+          end if
        else
           var_plot = x    ; del13C and del14C vars are globally averaged before the del value is calculated
        end if

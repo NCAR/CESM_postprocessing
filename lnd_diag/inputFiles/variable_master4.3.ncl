@@ -5424,7 +5424,7 @@ if (varName .eq. "LITTERC_HR") then
 
   if (varName .eq. "CPL_ENERGY_BAL") then
     info@flux=True
-    info@longName="Coupler Energy Balance (Land Area)"
+    info@longName="Coupler Energy Balance (Global Area)"
     info@nativeUnits = "W/m2"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -10189,6 +10189,34 @@ if (varName .eq. "LITTERC_HR") then
     info@cn_Max                    = -999
     info@cn_Levels                 = (/0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1/)
     info@cn_LevelsDiff             = (/-0.2, -0.16, -0.12, -0.08, -0.04, 0.0, 0.04, 0.08, 0.12, 0.16, 0.2/)
+    return(info)
+  end if
+
+  if (varName .eq. "ZETA") then
+    info@flux=False
+    info@longName="dimensionless stability parameter"
+    info@nativeUnits = "unitless"
+    ; -- global Total
+    info@globalTotal__units        = "unitless"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "unitless"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = "...."
     return(info)
   end if
 
