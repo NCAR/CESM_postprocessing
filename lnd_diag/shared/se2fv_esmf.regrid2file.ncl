@@ -48,7 +48,7 @@ begin
     var_in_exclude = (/"lat", "lon", "date_written", "time_written", "time_bounds", "area"/)  
 
 ;---Specify a list of variables on the source SE file that should be directly copied 
-    var_in_copy = (/"time", "levgrnd", "levlak", "levdcmp", "hist_interval","mscur"/)
+    var_in_copy = (/"time", "levgrnd", "levsoi", "levlak", "levdcmp", "hist_interval","mscur"/)
 
 ;---Specify a list of variables to be regridded
     var_out        = "All_Variables"     ; to be regridded
@@ -56,8 +56,10 @@ begin
 ;---Specify the weights, source and destination file names
     WgtFileName  = "weights_file_"+SE_file
     if (oldres .eq. "SE_NE30") then
-      SrcSCRIP = LL_dir+"/SCRIPgrid_ne30np4_nomask_c101123.nc"
-      SrcSCRIPFileName = "SCRIPgrid_ne30np4_nomask_c101123_"+RGRD_file
+;     SrcSCRIP = LL_dir+"/SCRIPgrid_ne30np4_nomask_c101123.nc"
+;     SrcSCRIPFileName = "SCRIPgrid_ne30np4_nomask_c101123_"+RGRD_file
+      SrcSCRIP = "/glade/p/cesmdata/cseg/inputdata/atm/cam/coords/ne30pg3_scrip_170604.nc"
+      SrcSCRIPFileName = "ne30pg3_scrip_170604_"+RGRD_file
     else
       if (oldres .eq. "SE_NE30_CONUS") then
         SrcSCRIP = LL_dir+"/SCRIPgrid_conus_30_x8_nomask_c170111.nc"
@@ -235,7 +237,7 @@ begin
            
            if (rank_in .eq.2 .and. .not.any(var_in(nv).eq.var_in_copy)) then
                vdims = getfilevardims(sfile, var_in(nv))
-               if (.not.any(vdims.eq."levgrnd") .and. .not.any(vdims.eq."levlak")) then
+               if (.not.any(vdims.eq."levgrnd") .and. .not.any(vdims.eq."levlak") .and. .not.any(vdims.eq."levsoi")) then
                  filevardef(rgrd_nc, var_in(nv), varvar_types \
                                                , (/ "time", "lat", "lon" /)        )
                  dumAtts = new( 1, varvar_types)
