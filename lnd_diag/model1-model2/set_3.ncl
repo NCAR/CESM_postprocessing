@@ -220,7 +220,7 @@ print("Now printing plot #" + p)
 ;----------------------------------------------------------
   tmp = stringtocharacter(asciiread(inputdir+"/"+fileName,-1,"string"))
   nvars = dimsizes(tmp(:,0))
-print(" p = " + p + "  nvars = " + nvars)
+  print(" p = " + p + "  nvars = " + nvars)
   nplotsPerCol = (nvars+1)/2
   scale_type = new(nvars,"string")
   vars       = new(nvars,"string")

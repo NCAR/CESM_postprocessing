@@ -180,7 +180,7 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
          ; We only have area for land gridcells and we need area over all gridcells
          ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
          ; calculation in the coupler
-         areag    = dble2flt(area_global_rectilinear_grid(lat1,lon1,False))
+         areag1   = dble2flt(area_global_rectilinear_grid(lat1,lon1,False))
          time     = time1
          nlev     = nlev1
          ; levsoi   = levsoi1	; nanr 5may11 - causing problems for AdamPhillips.  Not sure why
@@ -191,7 +191,7 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
          ; We only have area for land gridcells and we need area over all gridcells
          ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
          ; calculation in the coupler
-         areag    = dble2flt(area_global_rectilinear_grid(lat2,lon2,False))
+         areag2   = dble2flt(area_global_rectilinear_grid(lat2,lon2,False))
          time     = time2
          nlev     = nlev2
          ; levsoi   = levsoi2	; nanr 5may11 - causing problems for AdamPhillips.  Not sure why
@@ -294,11 +294,15 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
 
 ; calculate global summation or global total      
             if (c13Flag(i) .ne. "C13_" .and. c14Flag(i) .ne. "C14_") then
-               if (vars(i) .eq. "CPL_ENERGY_BAL") then
-                 var_plot = global_values(vars(i), x,areag,landfrac,scale_type(i),yrs(m),nlev)
-               else
-                 var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
-               end if
+              if (vars(i) .eq. "CPL_ENERGY_BAL") then
+                if (m .eq. 0) then
+                  var_plot = global_values(vars(i), x,areag1,landfrac,scale_type(i),yrs(m),nlev)
+                else
+                  var_plot = global_values(vars(i), x,areag2,landfrac,scale_type(i),yrs(m),nlev)
+                end if
+              else
+                var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
+              end if
             else
                var_plot = x    ; del14C vars are globally averaged before the del value is calculated
             end if
