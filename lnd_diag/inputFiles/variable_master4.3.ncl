@@ -7449,6 +7449,34 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "TOTSOILLIQICE") then
+    info@flux=False
+    info@longName="soil moisture storage (liq+ice)"
+    info@nativeUnits = "kg/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "NA"	
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "kg/m^2"  ;for mm water equivalent: 1:1 conversion from kg/m2
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = True 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,50.,100.,150.,200.,250.,300.,350.,900./)
+    return(info)
+  end if
+
   if (varName .eq. "SOIL_PSI") then
     info@flux=False
     info@longName="Soil Water Potential"

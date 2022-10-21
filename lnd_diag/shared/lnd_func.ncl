@@ -429,6 +429,23 @@ begin
     return(new_var)
   end if
 
+  if(var_name.eq."TOTSOILLIQICE") then
+    soilice = ptr ->SOILICE
+    soilliq = ptr ->SOILLIQ
+    ; SOILICE and SOILLIQ should have same vertical dim so just need to check one
+    if(isfilevardim(ptr,"SOILICE","levsoi")) then
+        new_var = dim_sum(soilice(time|:,lat|:,lon|:,levsoi|:)) + \
+                  dim_sum(soilliq(time|:,lat|:,lon|:,levsoi|:))
+    else
+        if(isfilevardim(ptr,"SOILICE","levgrnd")) then
+            new_var = dim_sum(soilice(time|:,lat|:,lon|:,levgrnd|:)) + \
+                      dim_sum(soilliq(time|:,lat|:,lon|:,levgrnd|:))
+        end if
+    end if
+    copy_VarCoords(soilice(:,0,:,:),new_var)
+    return(new_var)
+  end if
+
   if(var_name.eq."EVAPFRAC" .or. var_name .eq. "LATENT")then
     ; LHEAT
     fctr = ptr ->FCTR

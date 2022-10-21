@@ -74,7 +74,7 @@ print("Now printing plot #" + p)
           fileName   = "set3_landFlx.txt"
         end if
         plot_name  = "landf"
- 	titstr = new(7,"string")
+ 	titstr = new(8,"string")
  	titstr(0) = "2m Air Temperature (~S~o~N~K)"
  	titstr(1) = "Precipitation (mm day~S~-1~N~)"
  	titstr(2) = "Runoff (mm day~S~-1~N~)"
@@ -82,6 +82,7 @@ print("Now printing plot #" + p)
         titstr(4) = "Latent Heat Flux (W m~S~-2~N~)"
         titstr(5) = "Photosynthesis (gC m~S~-2~N~day~S~-1~N~)"
         titstr(6) = "Leaf Area Index"
+        titstr(7) = "Soil Moisture Storage - liq+ice (kg m~S~-2~N~)"
   end if
   if (p .eq. 1) then
         fileName   = "set3_radFlx.txt"
@@ -399,6 +400,8 @@ print("Now printing plot #" + p)
         landmask7 = new((/nvars,nlat7,nlon7/),"float")
         area7     = new((/nvars,nlat7,nlon7/),"float")
 
+        ; No obs for soil moisture storage
+
    	landmask3!0   = "var"
    	landmask3&var = vv
    	landmask3!1   = "lat"
@@ -705,7 +708,7 @@ print("Now printing plot #" + p)
         a7 = ptr_lai->area        
         obsFlag = 1               
         sFlag(i) = 0              
-      else
+      else              ; This will cover TOTSOILLIQICE (no obs)
         obsFlag  = 0
         sFlag(i) = 0
         aFlag(i) = 0
