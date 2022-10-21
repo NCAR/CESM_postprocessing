@@ -214,7 +214,7 @@ def create_top_level(env, comp):
 
     # make sure top level remote directory exists
     try:
-        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p {2}/{3}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp)], shell=True)
+        pipe = subprocess.Popen( ["ssh {0}@{1} 'mkdir -p -m u=rwx,g=rwx,o=rx {2}/{3}'".format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp)], shell=True)
         pipe.wait()
     except Exception as e:
         print('ERROR: unable to create remote directory {0}@{1}:{2}/{3}'.format(env['GLOBAL_WEBLOGIN'],env['GLOBAL_WEBHOST'],env['GLOBAL_REMOTE_WEBDIR'],comp))
