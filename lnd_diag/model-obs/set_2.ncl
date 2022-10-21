@@ -499,7 +499,7 @@ begin
 ; Set contour Levels:  Dynamic vs pre-defined contours
 ;**************************************************************************
 ;               dynContour:  1=dynamic; 0=explicit
-              if (info@cn_Explicit .eq. True .and. dynContour(i) .eq. 0 .and. user_defined .eq. 1) then        
+              if (info@cn_Explicit .eq. True .and. dynContour(i) .eq. 0 .and. user_defined .eq. True) then
                  expFlag = True
               else
                  expFlag = False

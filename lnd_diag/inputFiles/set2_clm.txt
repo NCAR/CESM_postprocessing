@@ -1,11 +1,11 @@
-globalMeanNat1  TSA
-globalMeanDay1  PREC
+globalMeanNat0  TSA
+globalMeanDay0  PREC
 globalMeanNat0  ASA
 globalMeanNat0  RNET
-globalMeanNat1  LHEAT
+globalMeanNat0  LHEAT
 globalMeanDay0  TOTRUNOFF
 globalMeanNat0  SNOWDP
-globalMeanDay1  FPSN
+globalMeanDay0  FPSN
 globalMeanNat0  FSH
 globalMeanNat0  FSH_V
 globalMeanNat0  FSH_G

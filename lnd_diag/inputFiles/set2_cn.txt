@@ -113,3 +113,4 @@ globalMeanDay0  SOILC_LOSS
 globalMeanNat0  WOODC
 globalMeanDay0  WOODC_ALLOC
 globalMeanDay0  WOODC_LOSS
+globalMeanNat1  ALTMAX

@@ -664,7 +664,7 @@ begin
 ;**************************************************************************
 
 ;               dynContour:  0=dynamic;1=explicit
-              if (info@cn_Explicit .eq. True .and. dynContour(i) .eq. 1 .and. user_defined .eq. 1) then   
+              if (info@cn_Explicit .eq. True .and. dynContour(i) .eq. 1 .and. user_defined .eq. True) then
                  expFlag = True
               else
                  expFlag = False

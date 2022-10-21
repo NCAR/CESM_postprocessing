@@ -5364,6 +5364,35 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "ALTMAX") then
+    info@flux=False
+    info@longName="maximum annual active layer thickness"
+    info@nativeUnits = "m"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "m"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin 
+    info@model                     = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 2., 4./)
+    info@cn_LevelsDiff             = (/-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6/)
+    return(info)
+  end if
+
   if (varName .eq. "DEGREE_DAYS") then
     info@flux=False
     info@longName="Accumulated degree days"
@@ -7563,9 +7592,9 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
-  if (varName .eq. "QIRRIG") then
+  if (varName .eq. "QIRRIG_DRIP") then
     info@flux=True
-    info@longName="water added through irrig"
+    info@longName="water added via drip irrig"
     info@nativeUnits = "mm/s"
     ; -- global Total
     info@globalTotal__units        = "NA"
