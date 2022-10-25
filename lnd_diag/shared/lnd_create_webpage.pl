@@ -152,7 +152,7 @@ sub mainHeader1
 {
 	local($num) = @_;
 	$num++;
-	$path = "\"http://www.cgd.ucar.edu/tss/clm/clm/diagnostics/images/NCAR.gif\"";
+	$path = "\"http://www2.cgd.ucar.edu/tss/clm/clm/diagnostics/images/NCAR.gif\"";
 	printf fp_main "<HTML>\n";
 	printf fp_main "<HEAD>\n";
 	printf fp_main "<TITLE>LND_DIAG Diagnostic Plots</TITLE>\n";
@@ -169,7 +169,7 @@ sub mainHeader1
 	printf fp_main "<br clear=left>\n";
 	printf fp_main "<p>\n";
 	printf fp_main "<TABLE>\n";
-	printf fp_main "  <TH><A HREF=\"http://www.cgd.ucar.edu/tss/clm/diagnostics/index.html\">\n";
+	printf fp_main "  <TH><A HREF=\"http://www2.cgd.ucar.edu/tss/clm/diagnostics/index.html\">\n";
 	printf fp_main "<font color=blue>LND_DIAG Diagnostics Plots</font></A>\n";
 	printf fp_main "<font color=black>Source: $source\n";
 	printf fp_main "</TABLE>\n";
@@ -234,12 +234,12 @@ sub set_Inactive
 sub setHeader
 {
 
-	if ($set == 5 || $set == 9)  { $path = "\"http://www.cgd.ucar.edu/tss/clm/diagnostics/images/3Dglobe.gif\""; }
+	if ($set == 5)  { $path = "\"http://www2.cgd.ucar.edu/tss/clm/diagnostics/images/3Dglobe.gif\""; }
 	else {
 		if ($set == 3 | $set == 4) { $sn = "s"; }
 		else                       { $sn = "sn";}
-	        if (  $set == 8) { $path = "\"http://www.cgd.ucar.edu/tss/clm/diagnostics/images/SET".$set.".jpg\""; }
-		else             { $path = "\"http://www.cgd.ucar.edu/tss/clm/diagnostics/images/SET".$set.$sn.".gif\""; }
+	        if (  $set == 8) { $path = "\"http://www2.cgd.ucar.edu/tss/clm/diagnostics/images/SET".$set.".jpg\""; }
+		else             { $path = "\"http://www2.cgd.ucar.edu/tss/clm/diagnostics/images/SET".$set.$sn.".gif\""; }
 	}
 
 	# write generalized header
@@ -278,7 +278,7 @@ sub setHeader
 sub clickablePlotTypes
 {
 	printf(fp_main "</table>\n");
-        @setList = (1,2,3,4,6,7,8,10,11,12);
+        @setList = (1,2,3,4,6,7,8,9,10,11,12);
 	printf(fp_main "<hr noshade size=2 size=\"100%\">\n");
 	printf(fp_main "<em>Click on Plot Type</em></b><p>\n");
 	for $set (@setList)
@@ -288,8 +288,8 @@ sub clickablePlotTypes
 ##           if( @status[$set-1] == "True") { 
            if( @status[$set-1] eq "True") { 
 	        $href = "set".$set."/set".$set.".html";
-	        if ($set == 8) { $path = "\"http://www.cgd.ucar.edu/tss/clm/diagnostics/images/SET".$set.".jpg\""; }
-		else           { $path = "\"http://www.cgd.ucar.edu/tss/clm/diagnostics/images/SET".$set.$sn.".gif\""; }
+	        if ($set == 8) { $path = "\"http://www2.cgd.ucar.edu/tss/clm/diagnostics/images/SET".$set.".jpg\""; }
+		else           { $path = "\"http://www2.cgd.ucar.edu/tss/clm/diagnostics/images/SET".$set.$sn.".gif\""; }
 	        printf(fp_main "<a href=\"$href\"><img src=$path align=left border=1 hspace=1 alt=\"Set $set\"></a>\n");
 	   }
 	}

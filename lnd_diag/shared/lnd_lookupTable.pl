@@ -83,7 +83,7 @@ sub mainHeader1
 {
 	local($num) = @_;
 	$num++;
-	$path = "\"http://www.cgd.ucar.edu/tss/clm/clm/diagnostics/images/NCAR.gif\"";
+	$path = "\"http://www2.cgd.ucar.edu/tss/clm/clm/diagnostics/images/NCAR.gif\"";
 	printf fp_main "<HTML>\n";
 	printf fp_main "<HEAD>\n";
 	printf fp_main "<TITLE>LND Variable Definitions</TITLE>\n";
