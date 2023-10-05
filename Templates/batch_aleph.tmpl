@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#PBS -N {{ processName }}
+#PBS -q {{ queue }}
+#PBS -l select={{ nodes }}:ncpus={{ ppn }}:mpiprocs={{ ppn }}
+#PBS -l walltime={{ wallclock }}
+##PBS -A {{ project }}
+
+#source /etc/profile.d/modules.sh
+#export MPI_UNBUFFERED_STDIO=true
+#export TMPDIR=$TMPDIR
+

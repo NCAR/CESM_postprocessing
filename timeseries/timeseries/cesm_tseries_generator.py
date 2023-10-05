@@ -54,10 +54,10 @@ def commandline_options():
     parser.add_argument('--backtrace', action='store_true',
                         help='show exception backtraces as extra debugging output')
 
-    parser.add_argument('--debug', nargs=1, required=False, type=int, default=0,
+    parser.add_argument('--debug', required=False, type=int, default=2,
                         help='debugging verbosity level output: 0 = none, 1 = minimum, 2 = maximum. 0 is default')
 
-    parser.add_argument('--caseroot', nargs=1, required=True,
+    parser.add_argument('--caseroot', required=True,
                         help='fully quailfied path to case root directory')
 
     parser.add_argument('--standalone', action='store_true',
@@ -70,7 +70,7 @@ def commandline_options():
         err_msg = 'cesm_tseries_generator.py ERROR: invalid option --caseroot {0}'.format(options.caseroot[0])
         raise OSError(err_msg)
 
-    return options.caseroot[0], options.debug[0], options.standalone, options.backtrace
+    return options.caseroot, options.debug, options.standalone, options.backtrace
 
 #==============================================================================================
 # readArchiveXML - read the $CASEROOT/env_timeseries.xml file and build the pyReshaper classes

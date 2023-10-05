@@ -1,16 +1,21 @@
 #!/usr/bin/env python
-{{ batchdirectives }}
+#PBS -N timeseries.{{ case }}
+#PBS  -r n 
+#PBS  -j oe 
+#PBS  -V 
+#PBS -l select=10:ncpus=40:mpiprocs=10
 
 import os, sys
 
 os.chdir('{{ caseroot }}')
 _LIBDIR = os.path.join("{{ cimeroot }}", "scripts", "Tools")
+
 sys.path.append(_LIBDIR)
 
 from standard_script_setup          import *
 from CIME.case import Case
 from CIME.utils import expect, new_lid, run_cmd
-
+import six, glob, re
 logger = logging.getLogger(__name__)
 
 def _main_func(description):
@@ -19,10 +24,31 @@ def _main_func(description):
     expect(postprocess_path,"POSTPROCESS_PATH not found, must be defined in environment")
     ppenv_bin = os.path.join(postprocess_path,"cesm-env2","bin")
     activate_this_file = os.path.join(ppenv_bin,"activate_this.py")
-    execfile(activate_this_file, dict(__file__=activate_this_file))
+    if six.PY2:
+        execfile(activate_this_file, dict(__file__=activate_this_file))
+    else:
+        exec(open(activate_this_file).read())
+
     caseroot = "{{ caseroot }}"
     job = "timeseries"
+
     with Case(caseroot, read_only=False) as case:
+#       open the rpointer.drv and check the current year, only run the timeseries every 50 years
+        rundir = case.get_value("RUNDIR")
+        rpointer = os.path.join(rundir,"rpointer.drv")
+        expect(os.path.isfile(rpointer),"ERROR: no file rpointer.drv found in {}".format(rundir))
+        with open(rpointer,"r") as fd:
+            line = fd.readline()
+        match = re.search("cpl.r.(\d\d\d\d)", line)
+        expect(match,"ERROR: could not find pattern in {}".format(line))
+        year = int(match.group(1))
+#        if year % 50 == 0:
+#            print ("Running timeseries for year {}".format(year))
+#        else:
+#            print ("Skipping timeseries run for year {}".format(year))
+#            sys.exit(0)
+
+
         run_exe = os.path.join(ppenv_bin,"cesm_tseries_generator.py")
         env_mach_specific = case.get_env('mach_specific')
         env_workflow = case.get_env("workflow")
@@ -38,13 +64,16 @@ def _main_func(description):
             "unit_testing" : False
             }
         executable, mpi_arg_list = env_mach_specific.get_mpirun(case, mpi_attribs, job, overrides=overrides)
-        cmd = executable+" "+" ".join(mpi_arg_list) + " " + run_exe
+#        cmd = executable+" "+" ".join(mpi_arg_list) + " " + run_exe
+        cmd = "/home/jedwards/anaconda2/envs/ppenv/bin/mpirun " + run_exe
         os.environ["ARGS_FOR_SCRIPT"] = " --caseroot={}".format(os.path.join(caseroot,"postprocess"))
+        cmd = case.get_resolved_value(cmd)
+        print("MPICMD: {}".format(cmd))
+
         stat = run_cmd(cmd,
                        verbose=True,
                        arg_stdout=os.path.join(caseroot,"timeseries."+new_lid()),
                        combine_output=True, from_dir=os.path.join(caseroot,"postprocess"))
-
 
 
 if __name__ == "__main__":

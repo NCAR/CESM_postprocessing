@@ -89,6 +89,8 @@ def get_input_dates(glob_str, comm, rank, size):
 
     g_stream_dates = {}
     g_file_slices = {}
+    calendar = "noleap"
+    units = "days since 0000-01-01 00:00:00"     
     if size > 1:
         T1 = 31
         T2 = 32 
@@ -120,12 +122,8 @@ def get_input_dates(glob_str, comm, rank, size):
             g_att = comm.partition(func=partition.Duplicate(), involved=True)
         if 'calendar' in g_att.keys():
             calendar = g_att['calendar'] 
-        else:
-            calendar = "noleap"
         if 'units' in g_att.keys():
             units = g_att['units'] 
-        else:
-            units = "days since 0000-01-01 00:00:00"     
     comm.sync()
     return g_stream_dates,g_file_slices,calendar.lower(),units,time_period_freq
 

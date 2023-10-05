@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+{{ batchdirectives }}
+
+import os, sys
+
+os.chdir('{{ caseroot }}')
+
+_LIBDIR = os.path.join("{{ cimeroot }}", "scripts", "Tools")
+
+sys.path.append(_LIBDIR)
+
+_LIBDIR = os.path.join("{{ cimeroot }}", "scripts", "misc-tools")
+
+sys.path.append(_LIBDIR)
+
+
+from standard_script_setup          import *
+from CIME.case import Case
+from CIME.utils import expect, new_lid, run_cmd
+#from globus import transfer
+import six, glob
+logger = logging.getLogger(__name__)
+
+def timeseries_transfer_list(case):
+    glade_root = os.path.join(os.sep+"glade","campaign","collections","cmip","CMIP6","CESM2-LE","archive",case.get_value("CASE"))
+    dout_s_root = case.get_value("DOUT_S_ROOT")
+    #    with open("tseries_file_send","w") as fd:
+    #        for path in glob.iglob(os.path.join(dout_s_root,"*","proc","tseries","**"),recursive=True):
+    for path in glob.iglob(os.path.join(dout_s_root,"*","proc","tseries")):
+        if os.path.isdir(path):
+            gpath = path.replace(dout_s_root, glade_root)
+            run_cmd("globus-url-copy -vb -cd file:/{}/ gsiftp://gridftp01.ucar.edu/{}/".format(path,gpath), 
+                    verbose=True, combine_output=True)
+#                fd.write(path + " " + gpath + "\n")
+#                fd.write("--recursive "+ path + " " + gpath + "\n")
+#    transfer("aleph", "glade", batch_file="tseries_file_send")
+
+if __name__ == "__main__":
+    caseroot = os.getcwd()
+    with Case(caseroot, read_only=True) as case:
+        timeseries_transfer_list(case)
