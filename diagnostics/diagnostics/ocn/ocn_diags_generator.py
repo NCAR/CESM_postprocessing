@@ -383,11 +383,12 @@ def main(options, main_comm, debugMsg):
             # broadcast the envDict
             envDict = inter_comm.partition(data=envDict, func=partition.Duplicate(), involved=True)
 
-            if envDict.has_key('unrecoverableErrorOnMaster'):
+            key_error = 'unrecoverableErrorOnMaster'
+            if key_error in envDict.keys():
                 raise RuntimeError
 
             # run the diagnostics type on each inter_comm
-            if not envDict.has_key(skip_key):
+            if not skip_key in envDict.keys():
                 # set the shell env using the values set in the XML and read into the envDict across all tasks
                 cesmEnvLib.setXmlEnv(envDict)
                 # run the diagnostics

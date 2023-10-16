@@ -455,6 +455,7 @@ if __name__ == "__main__":
     
     try:
         status = main(options, main_comm, debugMsg)
+        main_comm.sync()
         if main_comm.is_manager():
             print('*************************************************************')
             print(' Successfully completed generating ice climatology averages')
