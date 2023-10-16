@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_FLD2D
 plot name:   2D Surface Fields
 
@@ -12,9 +12,9 @@ from __future__ import print_function
 
 import sys
 
-if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x03070000:
     print(70 * "*")
-    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("ERROR: {0} requires python >= 3.7.x. ".format(sys.argv[0]))
     print("It appears that you are running python {0}".format(
         ".".join(str(x) for x in sys.version_info[0:3])))
     print(70 * "*")
@@ -30,7 +30,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class SurfaceFields(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
@@ -91,7 +91,7 @@ class SurfaceFields(OceanDiagnosticPlot):
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
                     plot_list.append(plot_file)
-                index += 1                    
+                index += 1
             plot_table.append(plot_list)
 
         # pad out the last row
@@ -105,7 +105,7 @@ class SurfaceFields(OceanDiagnosticPlot):
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
                     plot_list.append(plot_file)
-                index += 1                    
+                index += 1
 
             for i in range(num_cols - num_last_row):
                 plot_list.append('')
@@ -130,7 +130,7 @@ class SurfaceFields(OceanDiagnosticPlot):
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
                     plot_list.append(plot_file)
-                index += 1                    
+                index += 1
             plot_za_table.append(plot_list)
 
         # pad out the last row
@@ -144,7 +144,7 @@ class SurfaceFields(OceanDiagnosticPlot):
                     plot_list.append('{0} - Error'.format(plot_file))
                 else:
                     plot_list.append(plot_file)
-                index += 1                    
+                index += 1
 
             for i in range(num_cols - num_last_row):
                 plot_list.append('')
@@ -167,7 +167,7 @@ class SurfaceFields(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
 
 class SurfaceFields_obs(SurfaceFields):

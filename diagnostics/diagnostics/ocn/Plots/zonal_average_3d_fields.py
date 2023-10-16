@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_FLD3DZA
 plot name:   3D Fields, Zonally Averaged
 
@@ -12,9 +12,9 @@ from __future__ import print_function
 
 import sys
 
-if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x03070000:
     print(70 * "*")
-    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("ERROR: {0} requires python >= 3.7.x. ".format(sys.argv[0]))
     print("It appears that you are running python {0}".format(
         ".".join(str(x) for x in sys.version_info[0:3])))
     print(70 * "*")
@@ -31,7 +31,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class ZonalAverage3dFields(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
@@ -61,7 +61,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         if not rc:
             raise OSError(err_msg)
 
-        # check the TEMP observation zonal average file 
+        # check the TEMP observation zonal average file
         zaTempFile = '{0}/za_{1}'.format( env['WORKDIR'], env['TOBSFILE'] )
         rc, err_msg = cesmEnvLib.checkFile(zaTempFile, 'read')
         if not rc:
@@ -85,7 +85,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
                 print('    {0} - {1}'.format(e.cmd, e.output))
                 sys.exit(1)
 
-            # call zaCommand 
+            # call zaCommand
             zaCommand = '{0}/za'.format(env['TOOLPATH'])
             rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
             if not rc:
@@ -108,11 +108,11 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
         if not rc:
             raise OSError(err_msg)
 
-        # check the SALT observation zonal average file 
+        # check the SALT observation zonal average file
         zaSaltFile = '{0}/za_{1}'.format( env['WORKDIR'], env['SOBSFILE'] )
         rc, err_msg = cesmEnvLib.checkFile(zaSaltFile, 'read')
         if not rc:
-      
+
             # change to the workdir
             cwd = os.getcwd()
             os.chdir(env['WORKDIR'])
@@ -132,7 +132,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
                 print('    {0} - {1}'.format(e.cmd, e.output))
                 sys.exit(1)
 
-            # call zaCommand 
+            # call zaCommand
             zaCommand = '{0}/za'.format(env['TOOLPATH'])
             rc, err_msg = cesmEnvLib.checkFile(zaCommand, 'exec')
             if not rc:
@@ -177,7 +177,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
             plot_list = []
             plot_list.append(self._labels[i])
             exp_plot_list = eval('self._expectedPlots_{0}'.format(self._labels[i]))
-            
+
             for j in range(num_cols - 2):
                 plot_file = exp_plot_list[j]
                 img_file = '{0}.{1}'.format(plot_file, imgFormat)
@@ -205,7 +205,7 @@ class ZonalAverage3dFields(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
 
 

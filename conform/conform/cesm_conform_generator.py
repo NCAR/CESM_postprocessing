@@ -1,8 +1,8 @@
-#!/usr/bin/env python2
-"""Create output files that conform to experiment specifications 
-from CESM time-series files. 
+#!/usr/bin/env python
+"""Create output files that conform to experiment specifications
+from CESM time-series files.
 
-This script provides an interface between the CESM CASE environment 
+This script provides an interface between the CESM CASE environment
 and the Python package PyConform.
 
 It resides in the $SRCROOT/postprocessing/cesm-env2
@@ -15,10 +15,10 @@ Created on November, 2016
 #from __future__ import print_function
 import sys
 
-# check the system python version and require 2.7.x or greater
-if sys.hexversion < 0x02070000:
+# check the system python version and require 3.7.x or greater
+if sys.hexversion < 0x03070000:
     print(70 * '*')
-    print('ERROR: {0} requires python >= 2.7.x. '.format(sys.argv[0]))
+    print('ERROR: {0} requires python >= 3.7.x. '.format(sys.argv[0]))
     print('It appears that you are running python {0}'.format(
         '.'.join(str(x) for x in sys.version_info[0:3])))
     print(70 * '*')
@@ -27,7 +27,7 @@ if sys.hexversion < 0x02070000:
 import argparse
 import glob
 import os
-#import pprint
+import types
 import re
 import string
 import sys
@@ -37,7 +37,7 @@ import fnmatch
 import subprocess
 import netCDF4 as nc
 from collections import OrderedDict
-from imp import load_source
+import importlib.util
 from warnings import simplefilter
 
 from cesm_utils import cesmEnvLib
@@ -62,7 +62,7 @@ external_mods = ['commonfunctions.py', 'pnglfunctions.py', 'CLM_landunit_to_CMIP
 #                 'CLM_pft_to_CMIP6_vegtype.py', 'idl.py', 'dynvarmipdiags.py', 'dynvarmipfunctions.py']
 
 
-cesmModels = {"atmos":     "cam", 
+cesmModels = {"atmos":     "cam",
               "land":      "clm2",
               "aerosol":   "cam",
               "atmosChem": "cam",
@@ -171,7 +171,7 @@ def commandline_options():
 
 
 #==============================================================================================
-# readArchiveXML 
+# readArchiveXML
 #==============================================================================================
 def readArchiveXML(caseroot, dout_s_root, casename, debug):
     """ reads the $CASEROOT/env_postprocess and env_conform files and creates a dictionary of json spec files to cesm files
@@ -200,10 +200,10 @@ def readArchiveXML(caseroot, dout_s_root, casename, debug):
                 comp = comp_archive_spec.get("name")
                 rootdir = comp_archive_spec.find("rootdir").text
                 for file_spec in comp_archive_spec.findall("files/file_extension"):
-                    if file_spec.find("tseries_create").text.upper() in ["T","TRUE"]:                    
+                    if file_spec.find("tseries_create").text.upper() in ["T","TRUE"]:
 
                         file_extension = file_spec.get("suffix").replace('.[0-9]','')
-                    
+
                         tseries_output_subdir = file_spec.find("tseries_tper").text
                         tseries_output_dir = '/'.join( [dout_s_root,rootdir,'proc/tseries',tseries_output_subdir,'*'+file_extension+'*'])
 
@@ -220,7 +220,7 @@ def readArchiveXML(caseroot, dout_s_root, casename, debug):
                             tseries_tper = file_spec.find("tseries_tper").text
 
                             stream_name = comp+'_'+tseries_tper+'_'+file_extension+'_'+chunk
-                            tseries_output_dir = tseries_output_dir + chunk + '*' 
+                            tseries_output_dir = tseries_output_dir + chunk + '*'
 
 
 def find_nc_files(root_dir):
@@ -234,7 +234,7 @@ def find_nc_files(root_dir):
            #streams.append(fn.split('.')[:-2])
            if 'tseries' in root:
                nc_files.append(os.path.join(root, fn))
-    print 'Found ',len(nc_files), " in ", root_dir
+    print ('Found {} in {}'.format(len(nc_files), root_dir))
     return nc_files
 
 def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
@@ -257,7 +257,7 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
     nc_files_l = comm.partition(nc_files,func=partition.EqualLength(),involved=True)
     for fn in nc_files_l:
         f = nc.Dataset(fn, "r")
-        mt = fn.replace(root_dir,"").split("/")[-5]         
+        mt = fn.replace(root_dir,"").split("/")[-5]
         stri = fn
         model_type = mt
         if len(fn.split('.'))>3:
@@ -276,7 +276,7 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
             mt = "ocn"
         if "glc_constants" in fn:
             model_type = "glc"
-            mt = "glc" 
+            mt = "glc"
         if "lnd" in model_type or "rof" in model_type:
             model_type = 'lnd,rof'
         if "glc" in model_type:
@@ -292,7 +292,7 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
             lev_name = None
             time_name = None
             # Find which dim variables to use
-            v_dims = f.variables[fvn].dimensions 
+            v_dims = f.variables[fvn].dimensions
             for i in grids[mt]['lat']:
               if i in v_dims:
                   if 'nlat' in i or 'nj' in i:
@@ -320,11 +320,11 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
                           ln = str(len(f.dimensions[i]))+"_UGRID"
                       else:
                           ln = str(len(f.dimensions[i]))+"_TGRID"
-                  else: 
+                  else:
                       lon_name = i
                       ln = len(f.dimensions[i])
             for i in grids[mt]['lev']:
-              if i in v_dims: 
+              if i in v_dims:
                   lev_name = i
                   lv = len(f.dimensions[i])
 #            for i in grids[mt]['time']:
@@ -336,14 +336,14 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
             else:
                 if 'atm' in mt:
                     gridfile = '{0}/{1}x{2}x{3}x{4}.nc'.format(extra_dir,mt,lt,ln,lv)
-                else: 
+                else:
                     gridfile = '{0}/{1}x{2}x{3}.nc'.format(extra_dir,mt,lt,ln)
             if gridfile is not None:
                 if not os.path.isfile(gridfile):
-                    print 'not found: ',gridfile
+                    print( 'not found: {}'.format(gridfile))
                     gridfile = None
 
-            for vn,ob in f.variables.iteritems():
+            for vn,ob in f.variables.items():
 
 
                 lt = "none"
@@ -404,7 +404,7 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
                     if 'ocn_constants' in stri or 'glc_constants' in stri:
                         date = "0000"
                     else:
-                        date = stri.split('.')[-2]      
+                        date = stri.split('.')[-2]
                     if date not in variablelist[model_type][vn][time_period_freq].keys():
                         variablelist[model_type][vn][time_period_freq][date] = {}
                     if 'files' not in variablelist[model_type][vn][time_period_freq][date].keys():
@@ -443,18 +443,18 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
     if size > 1:
         if rank==0:
             variable_list = variablelist
-            for i in range(0,size-1): 
+            for i in range(0,size-1):
                 r,lvarList = comm.collect(data=None, tag=VL_TAG)
-                for model_type,d1 in lvarList.iteritems():
+                for model_type,d1 in lvarList.items():
                     if model_type not in variable_list.keys():
                         variable_list[model_type] = {}
-                    for vn,d2 in d1.iteritems():
+                    for vn,d2 in d1.items():
                         if vn not in variable_list[model_type].keys():
                             variable_list[model_type][vn] = {}
-                        for tp,d3 in d2.iteritems():
+                        for tp,d3 in d2.items():
                             if tp not in variable_list[model_type][vn].keys():
                                 variable_list[model_type][vn][tp] = {}
-                            for date,l in d3.iteritems():
+                            for date,l in d3.items():
                                 if date not in variable_list[model_type][vn][tp].keys():
                                     variable_list[model_type][vn][tp][date] = {}
                                 if 'files' in variable_list[model_type][vn][tp][date].keys():
@@ -462,7 +462,7 @@ def fill_list(nc_files, root_dir, extra_dir, comm, rank, size):
                                         if lvarList[model_type][vn][tp][date]['files'][0] is not None:
                                             variable_list[model_type][vn][tp][date]['files'].append(lvarList[model_type][vn][tp][date]['files'][0])
                                 else:
-                                    variable_list[model_type][vn][tp][date] = lvarList[model_type][vn][tp][date]          
+                                    variable_list[model_type][vn][tp][date] = lvarList[model_type][vn][tp][date]
 
 #                variable_list.update(lvarList)
             comm.partition(variable_list, func=partition.Duplicate(), involved=True)
@@ -514,13 +514,13 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
 
         # get the cesm var names from the defs in json file
         cmd = "vardeps -f -n "+j
-        print '---------------------------------------'
-        print cmd
+        print( '---------------------------------------')
+        print("{}".format( cmd))
         p = subprocess.Popen([cmd], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
         end = False
         found_all = True
         missing_vars = []
-        output = p.stdout.read().split('\n')
+        output = p.stdout.read().decode('utf8').split('\n')
         for l in output:
             if '[' in l and ']' in l and ':' in l:
                 split = l.split();
@@ -586,7 +586,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                         f = var_defs[j][split[0]]["freq"]
                     if cmip6_realms[r] not in variable_list.keys():
                         found_all = False
-                        missing_vars.append(v) 
+                        missing_vars.append(v)
                     else:
                         if v in variable_list[cmip6_realms[r]].keys():
                             l_found_all = False
@@ -626,7 +626,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                             missing_vars.append(v)
                 #Look up
                 for v in var_defs[j][split[0]]["vars"]:
-                    print "TRYING TO FIND: ",v
+                    print("TRYING TO FIND: {}".format(v))
                     var_defs[j][split[0]]["var_check"][v] = []
                     var_name = j.split("_")[-2]
                     if "input_glob" in js_fo[var_name].keys():
@@ -642,7 +642,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                             else:
                                 f = var_defs[j][split[0]]["freq"]
                     elif 'Odec' in j:
-                        f = 'month_1' 
+                        f = 'month_1'
                     else:
                         stream = None
                         r = var_defs[j][split[0]]["realm"]
@@ -652,24 +652,24 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                     if "day" in f and 'day_365' not in f:
                         f = "day_1"
                     found_r = None
-                    if cmip6_realms[r] not in variable_list.keys(): 
-                        print "Could not find ",cmip6_realms[r]," in ",variable_list.keys()
+                    if cmip6_realms[r] not in variable_list.keys():
+                        print ("Could not find {} in {}".format(cmip6_realms[r],variable_list.keys()))
                     else:
                         if v in variable_list[cmip6_realms[r]].keys():
                             found_r = cmip6_realms[r]
                         elif ',' in cmip6_realms[r]:
                             if 'glc' in cmip6_realms[r]:
                               if 'lnd,rof' in variable_list.keys():
-                                if v in variable_list['lnd,rof'].keys(): 
+                                if v in variable_list['lnd,rof'].keys():
                                     found_r = 'lnd,rof'
                                 elif v in variable_list['glc,lnd'].keys():
-                                    found_r = 'glc,lnd' 
+                                    found_r = 'glc,lnd'
                         elif 'plev' in v:
-                            l_found_all = True 
+                            l_found_all = True
                         #else:
-                            #found_all = False      
-                            #missing_vars.append(v) 
-                    if found_r != None and found_all:     
+                            #found_all = False
+                            #missing_vars.append(v)
+                    if found_r != None and found_all:
                         for freq in variable_list[found_r][v].keys():
                             if f in freq:
                                 var_name = j.split("_")[-2]
@@ -714,7 +714,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                                             if os.path.exists(ps_fn):
                                                 spec_streams[j+">>"+date].append(ps_fn)
                                     # Add the correct dimension definitions
-                                    for k,var in js_fo.iteritems():
+                                    for k,var in js_fo.items():
                                         if ('ocean' in j or 'ocn' in j) and 'seaIce' not in j:
                                             if k in j.split("_")[-2]:
                                                 if 'lat' in js_f[k]['dimensions'] and 'basin' not in  js_f[k]['dimensions']:
@@ -748,13 +748,13 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                                                      if 'seaIce' in j:
                                                          if 'ocean_seaIce' in j:
                                                              js_f[k]['dimensions']=['nlat','nlon']
-                                                         else: 
+                                                         else:
                                                              js_f[k]['dimensions']=['nj','ni']
                                                      elif 'landIce' in j and 'Gre' in j:
                                                          js_f[k]['dimensions']=['xgre','ygre']
                                                      elif 'landIce' in j and 'Ant' in j:
                                                          js_f[k]['dimensions']=['xant','yant']
-                                                     else:   
+                                                     else:
                                                          js_f[k]['dimensions']=['nlat','nlon']
                                               else:
                                                 js_f[k]['definition'] = 'lat'
@@ -771,7 +771,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                                             if 'xxxgrexx' in var['definition']:
                                                 if variable_list[found_r][v][freq][date]['lon'] != None:
                                                     js_f[k]['definition'] = var['definition'].replace('xxxgrexx',variable_list[found_r][v][freq][date]['lon'])
-                                            if 'xxygrexx' in var['definition']: 
+                                            if 'xxygrexx' in var['definition']:
                                                 if variable_list[found_r][v][freq][date]['lat'] != None:
                                                     js_f[k]['definition'] = var['definition'].replace('xxygrexx',variable_list[found_r][v][freq][date]['lat'])
 
@@ -792,7 +792,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                                                 else:
                                                     js_f[k]['definition'] = "bounds(time, bdim=\"hist_interval\")"
                                             if 'time' == var['definition'] and 'Iyr' in j and 'cism' in fl1[0]:
-                                                js_f[k]['definition'] = 'chunits(time * 365, units=\"days since 0001-01-01\", calendar=\"noleap\")'     
+                                                js_f[k]['definition'] = 'chunits(time * 365, units=\"days since 0001-01-01\", calendar=\"noleap\")'
                                             if 'diff_axis1_ind0bczero_4d' in var['definition']:
                                                 js_f['lev']['definition'] = "z_t"
                                                 js_f['lev_bnds']['definition'] = "bounds(z_t, bdim=\"d2\")"
@@ -801,7 +801,7 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                                                 js_f['lev_bnds']['definition'] = "bounds(z_t, bdim=\"d2\")"
 
                                     with open(j,'w') as fp:
-                                        json.dump(js_f, fp, sort_keys=True, indent=4) 
+                                        json.dump(js_f, fp, sort_keys=True, indent=4)
 
                     if len(var_defs[j][split[0]]["var_check"][v]) < 1:
                         if v not in missing.keys():
@@ -810,10 +810,10 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
             elif len(l.split(':')) > 1:
                 if 'No dependencies' in l:
                     if len(js_fo[l.split(':')[0].strip()]["definition"])>0:
-                        print "PROBLEM DEFINITION: ",l.split(':')[0].strip(),": ",js_fo[l.split(':')[0].strip()]["definition"]
+                        print("PROBLEM DEFINITION: {} : {}".format(l.split(':')[0].strip(),js_fo[l.split(':')[0].strip()]["definition"]))
                     else:
-                        print "NO DEFINITION FOUND: ",l.split(':')[0].strip(),": ",js_fo[l.split(':')[0].strip()]["definition"]
-                    found_all = False                    
+                        print("NO DEFINITION FOUND: {} : {}".format(l.split(':')[0].strip(),js_fo[l.split(':')[0].strip()]["definition"]))
+                    found_all = False
                     no_def.append(l.split(':')[0].strip())
                 else:
                     if l.split(':')[1] != '':
@@ -824,11 +824,11 @@ def match_tableSpec_to_stream(ts_dir, variable_list, dout_s_root, case):
                 end = True
 
         if not found_all:
-            print ('Missing these variables: ',missing_vars)
+            print ('Missing these variables: {}'.format(missing_vars))
         else:
             print ('Found all needed files')
 
-    print "Total Size: ",len(spec_streams.keys())
+    print( "Total Size: {}".format(len(spec_streams.keys())))
     return spec_streams
 
 
@@ -865,17 +865,17 @@ def divide_comm(scomm, l_spec, ind):
 
 
     # the global master needs to be in its own subcommunicator
-    # ideally it would not be in any, but the divide function 
+    # ideally it would not be in any, but the divide function
     # requires all ranks to participate in the call
     if rank == 0:
         temp_color = 0
     else:
-        temp_color = (rank % num_of_groups)+1 
+        temp_color = (rank % num_of_groups)+1
     groups = []
     for g in range(0,num_of_groups+1):
         groups.append(g)
     group = groups[temp_color]
-     
+
     inter_comm,multi_comm = scomm.divide(group)
 
     return inter_comm,num_of_groups
@@ -893,16 +893,16 @@ def run_PyConform(spec, file_glob, comm):
     infiles = []
     for v in sorted(file_glob):
         infiles.append(v)
-    
+
     # load spec json file
     dsdict = json.load(open(spec_fn,'r'), object_pairs_hook=OrderedDict)
-   
+
     # look through each file to see if there are any functions in defs we can't chunk over
     chunking_ok = True
     for v in dsdict.keys():
         for f in no_chunking:
            if f in dsdict[v]['definition']:
-               chunking_ok = False 
+               chunking_ok = False
 
     try:
         # Parse the output dataset
@@ -918,40 +918,40 @@ def run_PyConform(spec, file_glob, comm):
         time = None
         for k in dsdict.keys():
             if 'time'==k or 'time1'==k or 'time2'==k or 'time3'==k:
-                time = k 
+                time = k
         if time is not None:
             if "Oclim" in spec_fn or "oclim" in spec_fn or "Oyr" in spec_fn or "oyr" in spec_fn:
                 dataflow.execute(chunks={'nlat':10}, serial=True, debug=True, scomm=comm)
             elif not chunking_ok:
                 dataflow.execute(chunks={'lat':10}, serial=True, debug=True, scomm=comm)
             else:
-                dataflow.execute(chunks={time:48},serial=True, debug=True, scomm=comm) 
+                dataflow.execute(chunks={time:48},serial=True, debug=True, scomm=comm)
         else:
             dataflow.execute(serial=True, debug=True, scomm=comm)
 
     except UnitsError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except IndexError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except ValueError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except KeyError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except IOError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except NameError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except RuntimeError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     except TypeError as e:
-        print ("ooo ERROR IN ",os.path.basename(spec_fn),str(e))
+        print ("ooo ERROR IN {} {}".format(os.path.basename(spec_fn),str(e)))
         failures = failures+1
     return failures
 #======
@@ -971,11 +971,11 @@ def main(options, scomm, rank, size):
     # CASEROOT is given on the command line as required option --caseroot
     caseroot = options.caseroot[0]
 
-    # set the debug level 
+    # set the debug level
     debug = options.debug[0]
 
     # is there only one mip definition in each file?
-    ind = "True" 
+    ind = "True"
 
     # get the XML variables loaded into a hash
     env_file_list = ['env_postprocess.xml','env_conform.xml']
@@ -989,7 +989,9 @@ def main(options, scomm, rank, size):
     conform_module_path = pp_path+'/conformer/conformer/source/pyconform/modules/'
     for i, m in enumerate(external_mods):
         print("Loading: "+conform_module_path+"/"+m)
-        load_source('user{}'.format(i), conform_module_path+"/"+m)
+        loader = importlib.machinery.SourceFileLoader('user{}'.format(i), conform_module_path+"/"+m)
+        loaded = types.ModuleType(loader.name)
+        loader.exec_module(loaded)
 
     # create the cesm stream to table mapping
 #    if rank == 0:
@@ -1003,16 +1005,16 @@ def main(options, scomm, rank, size):
     mappings = {}
     if rank == 0:
         mappings = match_tableSpec_to_stream(pc_inpur_dir, variable_list, dout_s_root, case)
-        for k,v in sorted(mappings.iteritems()):
-            print k
+        for k,v in sorted(mappings.items()):
+            print(k)
             for f in sorted(v):
-                print f
-            print len(v),'\n\n'
+                print(f)
+            print("{}".format(len(v)))
     scomm.sync()
 
     # Pass the stream and mapping information to the other procs
     mappings = scomm.partition(mappings, func=partition.Duplicate(), involved=True)
-    print("I CAN RUN ",len(mappings.keys())," json files")
+    print("I CAN RUN {} json files".format(len(mappings.keys())))
     failures = 0
 
     if len(mappings.keys()) > 0:
@@ -1022,7 +1024,7 @@ def main(options, scomm, rank, size):
         color = inter_comm.get_color()
         lsize = inter_comm.get_size()
         lrank = inter_comm.get_rank()
-        print "MPI INFO: ",color," ",lrank,"/",lsize,"  ",rank,"/",size
+        print( "MPI INFO: {} {}/{} {}/{}".format(color,lrank,lsize,rank,size))
 
         GWORK_TAG = 10 # global comm mpi tag
         LWORK_TAG = 20 # local comm mpi tag
@@ -1041,26 +1043,28 @@ def main(options, scomm, rank, size):
             while i != -99:
                 i = scomm.ration(tag=GWORK_TAG) # recv from global
                 for x in range(1,lsize):
-                    inter_comm.ration(i, LWORK_TAG) # send to local ranks  
+                    inter_comm.ration(i, LWORK_TAG) # send to local ranks
                 if i != -99:
-                    print "(",rank,"/",lrank,")","  start running ",i
+                    print("({}/{}) start running {}".format(rank,lrank,i))
                     failures += run_PyConform(i, mappings[i], inter_comm)
-                    print "(",rank,"/",lrank,")","  finished running ",i
-                    print "(",rank,"/",lrank,")","FAILURES: ",failures
+                    print("({}/{}) finished running {}".format(rank,lrank,i))
+                    print("({}/{}) failures {}".format(rank,lrank,failures))
                 inter_comm.sync()
 
         # all subcomm ranks - recv the specifier to work on and call the reshaper
         else:
             i = -999
             while i != -99:
-                i = inter_comm.ration(tag=LWORK_TAG) # recv from local root    
+                i = inter_comm.ration(tag=LWORK_TAG) # recv from local root
                 if i != -99:
-                    print "(",rank,"/",lrank,")","  start running ",i
+                    print("({}/{}) start running {}".format(rank,lrank,i))
                     failures += run_PyConform(i, mappings[i], inter_comm)
-                    print "(",rank,"/",lrank,")","  finished running ",i
-                    print "(",rank,"/",lrank,")","FAILURES: ",failures
+                    print("({}/{}) finished running {}".format(rank,lrank,i))
+                    print("({}/{}) failures {}".format(rank,lrank,failures))
+
                 inter_comm.sync()
-    print "(",rank,"/",lrank,")","  FINISHED"
+        print("({}/{}) FINISHED".format(rank,lrank))
+
     scomm.sync()
 
     timer.stop("Total Time")
@@ -1081,7 +1085,7 @@ if __name__ == "__main__":
 
     rank = scomm.get_rank()
     size = scomm.get_size()
-   
+
     if rank == 0:
         print('cesm_conform_generator INFO Running on {0} cores'.format(size))
 

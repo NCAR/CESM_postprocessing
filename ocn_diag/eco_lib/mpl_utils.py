@@ -187,7 +187,7 @@ def adjust_spines(ax):
     Displace spines to create a range plot.
     ax = axes holding XY plot
     """
-    for loc, spine in ax.spines.iteritems():
+    for loc, spine in ax.spines.items():
         if loc in ['left','bottom']:
             spine.set_position(('outward',10)) # outward by 10 points
 
@@ -204,7 +204,7 @@ def adjust_spines_top(ax):
     Displace spines to create a range plot preserving left and top axis.
     ax = axes holding XY plot
     """
-    for loc, spine in ax.spines.iteritems():
+    for loc, spine in ax.spines.items():
         if loc in ['left','top']:
             spine.set_position(('outward',10)) # outward by 10 points
 

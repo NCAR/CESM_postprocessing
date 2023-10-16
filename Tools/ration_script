@@ -14,7 +14,7 @@ source /etc/profile.d/modules.sh
 export MPI_UNBUFFERED_STDIO=true
 export TMPDIR=$TMPDIR
 
-module purge
+#module purge
 
 ## activate the virtualenv that contains all the non-bootstrapped dependencies
 cd $POSTPROCESS_PATH/cesm-env2/bin
@@ -23,10 +23,10 @@ pwd
 . activate
 
 ## load the boot-strap modules
-module load gnu/8.3.0
-module load ncarenv
-module load ncarcompilers
-module load mpt/2.19
+#module load gnu/8.3.0
+#module load ncarenv
+#module load ncarcompilers
+#module load mpt/2.19
 
 mpiexec_mpt dplace -s 1 $POSTPROCESS_PATH/Tools/ration_test.py >> $POSTPROCESS_PATH/Tools/ration.log
 

@@ -15,7 +15,7 @@
 <entry id="{{ xml._id }}" value="{{ xml._value }}" />
 {% endfor %}
 {% for group in group_list %}
-  {% for k,v in group.iteritems() %}
+  {% for k,v in group.items() %}
     {% if k == 'comment' %}
        {% set comment = v %}
     {% elif k == 'xml_list' %}

@@ -2,7 +2,7 @@
 
 <table class="plot">
     <tr>
-    {% for label, plot in plot_table.iteritems() %}
+    {% for label, plot in plot_table.items() %}
         {% if 'Error' in plot %}
            <td>{{ label|replace('- Error', ' ') }}</td>
         {% else %}

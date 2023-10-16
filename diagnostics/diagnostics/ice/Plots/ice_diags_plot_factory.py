@@ -1,29 +1,29 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """ice diagnostics factory function
 """
 
 # import the Plot modules
-from ice_diags_plot_bc import UnknownPlotType
-import contour
-import contourDiff
-import iceSat
-import iceSatDiff
-import iceSatbarchart
-import iceSatbarchartDiff
-import vector
-import vectorDiff
-import web_hem_avg
-import web_hem_avg_wLENS
-import web_hem_avg_wPIOMAS
-import web_hem_avgDiff
-import web_hem_avg_wLENSDiff
-import web_hem_avg_wPIOMASDiff
-import web_hem_clim
-import web_hem_climDiff
-import web_reg_avg
-import web_reg_avgDiff
-import web_reg_clim
-import web_reg_climDiff
+from .ice_diags_plot_bc import UnknownPlotType
+from . import contour
+from . import contourDiff
+from . import iceSat
+from . import iceSatDiff
+from . import iceSatbarchart
+from . import iceSatbarchartDiff
+from . import vector
+from . import vectorDiff
+from . import web_hem_avg
+from . import web_hem_avg_wLENS
+from . import web_hem_avg_wPIOMAS
+from . import web_hem_avgDiff
+from . import web_hem_avg_wLENSDiff
+from . import web_hem_avg_wPIOMASDiff
+from . import web_hem_clim
+from . import web_hem_climDiff
+from . import web_reg_avg
+from . import web_reg_avgDiff
+from . import web_reg_clim
+from . import web_reg_climDiff
 
 def iceDiagnosticPlotFactory(plot_type,env):
     """Create and return an object of the requested type.

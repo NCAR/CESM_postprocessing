@@ -2,9 +2,9 @@ from __future__ import print_function
 
 import sys
 
-if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x03070000:
     print(70 * "*")
-    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("ERROR: {0} requires python >= 3.7.x. ".format(sys.argv[0]))
     print("It appears that you are running python {0}".format(
         ".".join(str(x) for x in sys.version_info[0:3])))
     print(70 * "*")
@@ -33,12 +33,12 @@ from diag_utils import diagUtilsLib
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from ice_diags_bc import IceDiagnostic
+from .ice_diags_bc import IceDiagnostic
 
 # import the plot classes
 from diagnostics.ice.Plots import ice_diags_plot_bc
 from diagnostics.ice.Plots import ice_diags_plot_factory
-import create_ice_html
+from . import create_ice_html
 
 class modelVsModel(IceDiagnostic):
     """model vs. model ice diagnostics setup
@@ -80,7 +80,7 @@ class modelVsModel(IceDiagnostic):
         env['NEW_YR_AVG_FRST'] = str((int(env['ENDYR_CONT']) - int(env['YRS_TO_AVG'])) + 1)
         env['NEW_YR_AVG_LAST'] = env['ENDYR_CONT']
         env['YR1'] = env['BEGYR_CONT']
-        env['YR2'] = env['ENDYR_CONT'] 
+        env['YR2'] = env['ENDYR_CONT']
         env['YR1_DIFF'] = env['BEGYR_DIFF']
         env['YR2_DIFF'] = env['ENDYR_DIFF']
         env['PRE_PROC_ROOT_CONT'] = env['PATH_CLIMO_CONT']
@@ -127,40 +127,42 @@ class modelVsModel(IceDiagnostic):
         local_html_list = list()
 
         # all the plot module XML vars start with 'set_'  need to strip that off
-        for key, value in env.iteritems():
+        for key, value in env.items():
             if   ("PLOT_"in key and value == 'True'):
 ##                if ("DIFF" in key or 'PLOT_REGIONS' in key):
                 if ("DIFF" in key):
-                    requested_plot_sets.append(key)        
+                    requested_plot_sets.append(key)
         scomm.sync()
 
         # partition requested plots to all tasks
-        # first, create plotting classes and get the number of plots each will created 
+        # first, create plotting classes and get the number of plots each will created
         requested_plots = {}
         set_sizes = {}
         for plot_set in requested_plot_sets:
             requested_plots.update(ice_diags_plot_factory.iceDiagnosticPlotFactory(plot_set,env))
         # partition based on the number of plots each set will create
-        local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)  
-
+        # local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
+        requested_plots_list = list(requested_plots.keys())
+        local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
+        print("{} : requested_plots_list {} local_plot_list {}".format(scomm.get_rank(), requested_plots_list, local_plot_list))
         timer = timekeeper.TimeKeeper()
-        # loop over local plot lists - set env and then run plotting script         
+        # loop over local plot lists - set env and then run plotting script
         #for plot_id,plot_class in local_plot_list.interitems():
-        timer.start(str(scomm.get_rank())+"ncl total time on task")
+        timer.start(str(scomm.get_rank())+": ncl total time on task")
         for plot_set in local_plot_list:
-            timer.start(str(scomm.get_rank())+plot_set)
+            timer.start(str(scomm.get_rank())+": "+plot_set)
             plot_class = requested_plots[plot_set]
             # set all env variables (global and particular to this plot call
             plot_class.check_prerequisites(env)
             # Stringify the env dictionary
-            for name,value in plot_class.plot_env.iteritems():
+            for name,value in plot_class.plot_env.items():
                 plot_class.plot_env[name] = str(value)
             # call script to create plots
             for script in plot_class.ncl_scripts:
                 diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
-            timer.stop(str(scomm.get_rank())+plot_set) 
-        timer.stop(str(scomm.get_rank())+"ncl total time on task")
-        scomm.sync() 
+            timer.stop(str(scomm.get_rank())+": "+plot_set)
+        timer.stop(str(scomm.get_rank())+": ncl total time on task")
+        scomm.sync()
         print(timer.get_all_times())
 
         # set html files
@@ -183,10 +185,10 @@ class modelVsModel(IceDiagnostic):
 
             # Move images tot the oppropriate directories
             plot_dir_map = {'icesat':'obs', 'ASPeCt':'obs', 'diff_con_':'contour', 'diff_vec_':'vector', 'line':'line', 'clim':'line'}
-            for key,dir in plot_dir_map.iteritems():
+            for key,dir in plot_dir_map.items():
                 glob_string = env['WKDIR']+'/*'+key+'*.png'
                 imgs = glob.glob(glob_string)
-                if imgs > 0:
+                if len(imgs) > 0:
                     for img in imgs:
                         new_fn = web_dir + '/' + dir + '/' + os.path.basename(img)
                         os.rename(img,new_fn)
@@ -229,4 +231,3 @@ class modelVsModel(IceDiagnostic):
             print('*******************************************************************************')
             print('Successfully completed generating ice diagnostics model vs. model plots')
             print('*******************************************************************************')
-            

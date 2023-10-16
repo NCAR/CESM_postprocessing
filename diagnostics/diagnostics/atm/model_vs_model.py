@@ -2,9 +2,9 @@ from __future__ import print_function
 
 import sys
 
-if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x03070000:
     print(70 * "*")
-    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("ERROR: {0} requires python >= 3.7.x. ".format(sys.argv[0]))
     print("It appears that you are running python {0}".format(
         ".".join(str(x) for x in sys.version_info[0:3])))
     print(70 * "*")
@@ -28,13 +28,13 @@ except:
 # import modules installed into virtualenv
 from cesm_utils import cesmEnvLib, processXmlLib
 from diag_utils import diagUtilsLib
-import create_atm_html
+from . import create_atm_html
 
 # import the MPI related modules
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from atm_diags_bc import AtmosphereDiagnostic
+from .atm_diags_bc import AtmosphereDiagnostic
 
 # import the plot classes
 from diagnostics.atm.Plots import atm_diags_plot_bc
@@ -83,7 +83,7 @@ class modelVsModel(AtmosphereDiagnostic):
         env['test_in'] = env['test_path_climo'] + env['test_casename']
         env['test_out'] = env['test_path_climo'] + env['test_casename']
         env['cntl_in'] = env['cntl_path_climo'] + env['cntl_casename']
-        env['cntl_out'] = env['cntl_path_climo'] + env['cntl_casename'] 
+        env['cntl_out'] = env['cntl_path_climo'] + env['cntl_casename']
 
         env['seas'] = []
         if env['plot_ANN_climo'] == 'True':
@@ -104,7 +104,7 @@ class modelVsModel(AtmosphereDiagnostic):
         else:
             env['SIG_PLOT'] = 'False'
             env['SIG_LVL'] = 'null'
-        
+
         # Set the rgb file name
         env['RGB_FILE'] = env['DIAG_HOME']+'/rgb/amwg.rgb'
         if 'default' in env['color_bar']:
@@ -137,7 +137,7 @@ class modelVsModel(AtmosphereDiagnostic):
                     diagUtilsLib.generate_ncl_plots(env,'plot_paleo.ncl')
             env['PALEOCOAST2'] = env['PALEODATA']
         else:
-            env['PALEOCOAST1'] = 'null' 
+            env['PALEOCOAST1'] = 'null'
             env['PALEOCOAST2'] = 'null'
             env['DIFF_PLOTS'] = 'False'
 
@@ -159,7 +159,7 @@ class modelVsModel(AtmosphereDiagnostic):
         local_html_list = list()
 
         # all the plot module XML vars start with 'set_'  need to strip that off
-        for key, value in env.iteritems():
+        for key, value in env.items():
             if   ("wset_"in key and (value == 'True' or env['all_waccm_sets'] == 'True')):
                 requested_plot_sets.append(key)
             elif ("cset_"in key and (value == 'True' or env['all_chem_sets'] == 'True')):
@@ -167,27 +167,30 @@ class modelVsModel(AtmosphereDiagnostic):
             elif ("set_" in key and (value == 'True' or env['all_sets'] == 'True')):
                 if ("wset_" not in key and "cset_" not in key):
                     requested_plot_sets.append(key)
-        
+
         scomm.sync()
 
         # partition requested plots to all tasks
-        # first, create plotting classes and get the number of plots each will created 
+        # first, create plotting classes and get the number of plots each will created
         requested_plots = {}
         set_sizes = {}
         plots_weights = []
         for plot_set in requested_plot_sets:
             requested_plots.update(atm_diags_plot_factory.atmosphereDiagnosticPlotFactory(plot_set,env))
-        for plot_id,plot_class in requested_plots.iteritems(): 
+        for plot_id,plot_class in requested_plots.items():
             if hasattr(plot_class, 'weight'):
                 factor = plot_class.weight
             else:
                 factor = 1
             plots_weights.append((plot_id,len(plot_class.expectedPlots)*factor))
         # partition based on the number of plots each set will create
-        local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)  
-
+        #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)
+        requested_plots_list = list(requested_plots.keys())
+        local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
+        scomm.sync()
+#        print("requested_plots {} local_plot_list {}".format(requested_plots, local_plot_list))
         timer = timekeeper.TimeKeeper()
-        # loop over local plot lists - set env and then run plotting script         
+        # loop over local plot lists - set env and then run plotting script
         #for plot_id,plot_class in local_plot_list.interitems():
         timer.start(str(scomm.get_rank())+"ncl total time on task")
         for plot_set in local_plot_list:
@@ -196,16 +199,16 @@ class modelVsModel(AtmosphereDiagnostic):
             # set all env variables (global and particular to this plot call
             plot_class.check_prerequisites(env)
             # Stringify the env dictionary
-            for name,value in plot_class.plot_env.iteritems():
+            for name,value in plot_class.plot_env.items():
                 plot_class.plot_env[name] = str(value)
             # call script to create plots
             for script in plot_class.ncl_scripts:
                 diagUtilsLib.generate_ncl_plots(plot_class.plot_env,script)
                 plot_class.plot_env['NCDF_MODE'] = 'write'
                 plot_class.plot_env['VAR_MODE'] = 'write'
-            timer.stop(str(scomm.get_rank())+plot_set) 
+            timer.stop(str(scomm.get_rank())+plot_set)
         timer.stop(str(scomm.get_rank())+"ncl total time on task")
-        scomm.sync() 
+        scomm.sync()
         print(timer.get_all_times())
         w = 0
         for p in plots_weights:
@@ -224,11 +227,11 @@ class modelVsModel(AtmosphereDiagnostic):
             # Copy over some files needed by web pages
             if not os.path.exists(web_dir+'/images'):
                 os.mkdir(web_dir+'/images')
-            diag_imgs = glob.glob(env['DIAG_HOME']+'/html/images/*')
-            for img in diag_imgs:
+
+            for img in glob.iglob(env['DIAG_HOME']+'/html/images/*'):
                 shutil.copy(img,web_dir+'/images/')
-          
-            # Create set dirs, copy plots to set dir, and create html file for set 
+
+            # Create set dirs, copy plots to set dir, and create html file for set
             requested_plot_sets.append('sets') # Add 'sets' to create top level html files
             glob_set = list()
             for plot_set in requested_plot_sets:
@@ -238,7 +241,7 @@ class modelVsModel(AtmosphereDiagnostic):
                  elif 'cset_1' == plot_set:
                      glob_set.append('table_soa')
                      glob_set.append('table_chem')
-                     plot_set = plot_set.replace('_','')     
+                     plot_set = plot_set.replace('_','')
                  elif 'set_1' == plot_set:
                      glob_set.append('table_GLBL')
                      glob_set.append('table_NEXT')
@@ -246,7 +249,7 @@ class modelVsModel(AtmosphereDiagnostic):
                      glob_set.append('table_TROP')
                      plot_set = plot_set.replace('_','')
                  elif 'sets' == plot_set:
-                     set_dir = web_dir + '/' 
+                     set_dir = web_dir + '/'
                  else:
                      glob_set.append(plot_set.replace('_',''))
                      plot_set = plot_set.replace('_','')
@@ -255,32 +258,30 @@ class modelVsModel(AtmosphereDiagnostic):
                      set_dir = web_dir + '/' + plot_set
                      # Create the plot set web directory
                      if not os.path.exists(set_dir):
-                         os.makedirs(set_dir) 
+                         os.makedirs(set_dir)
                      # Copy plots into the correct web dir
                      for gs in glob_set:
                          glob_string = env['test_path_diag']+'/'+gs+'*.*'
-                         imgs = glob.glob(glob_string) 
-                         if imgs > 0:
-                             for img in imgs:
-                                 new_fn = set_dir + '/' + os.path.basename(img)
-                                 os.rename(img,new_fn)
+                         for img in glob.iglob(glob_string):
+                             new_fn = set_dir + '/' + os.path.basename(img)
+                             os.rename(img,new_fn)
 
                  # Copy/Process html files
                  if 'sets' in plot_set:
-                     orig_html = env['HTML_HOME']+'/'+plot_set 
+                     orig_html = env['HTML_HOME']+'/'+plot_set
                  else:
-                     orig_html = env['HTML_HOME']+'/'+plot_set+'/'+plot_set 
+                     orig_html = env['HTML_HOME']+'/'+plot_set+'/'+plot_set
                  create_atm_html.create_plotset_html(orig_html,set_dir,plot_set,env,'model_vs_model')
 
             # Remove any plotvar netcdf files that exists in the diag directory
             if env['save_ncdfs'] == 'False':
                 cesmEnvLib.purge(env['test_path_diag'], '.*\.nc')
                 cesmEnvLib.purge(env['test_path_diag'], '/station_ids')
-            
+
             # move all the plots to the diag_path with the years appended to the path
-            endYr1 = (int(env['test_first_yr']) + int(env['test_nyrs'])) - 1 
-            endYr2 = (int(env['cntl_first_yr']) + int(env['cntl_nyrs'])) - 1 
-            diag_path = '{0}/diag/{1}.{2}_{3}-{4}.{5}_{6}'.format(env['OUTPUT_ROOT_PATH'], 
+            endYr1 = (int(env['test_first_yr']) + int(env['test_nyrs'])) - 1
+            endYr2 = (int(env['cntl_first_yr']) + int(env['cntl_nyrs'])) - 1
+            diag_path = '{0}/diag/{1}.{2}_{3}-{4}.{5}_{6}'.format(env['OUTPUT_ROOT_PATH'],
                           env['test_casename'], env['test_first_yr'], str(endYr1),
                           env['cntl_casename'], env['cntl_first_yr'], str(endYr2))
             move_files = True
@@ -309,7 +310,7 @@ class modelVsModel(AtmosphereDiagnostic):
             print('DEBUG: model vs. model web_dir = {0}'.format(web_dir))
             print('DEBUG: model vs. model diag_path = {0}'.format(diag_path))
 
-            # move the files to the new diag_path 
+            # move the files to the new diag_path
             if move_files:
                 try:
                     print('DEBUG: model_vs_model renaming web files')
@@ -331,6 +332,3 @@ class modelVsModel(AtmosphereDiagnostic):
             print('*******************************************************************************')
             print('Successfully completed generating atmosphere diagnostics model vs. model plots')
             print('*******************************************************************************')
-            
-
-

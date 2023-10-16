@@ -2,9 +2,9 @@ from __future__ import print_function
 
 import sys
 
-if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x03070000:
     print(70 * "*")
-    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("ERROR: {0} requires python >= 3.7.x. ".format(sys.argv[0]))
     print("It appears that you are running python {0}".format(
         ".".join(str(x) for x in sys.version_info[0:3])))
     print(70 * "*")
@@ -37,7 +37,7 @@ from diag_utils import diagUtilsLib
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from lnd_diags_bc import LandDiagnostic
+from .lnd_diags_bc import LandDiagnostic
 
 # import the plot classes
 from diagnostics.lnd.Plots import lnd_diags_plot_bc
@@ -102,8 +102,8 @@ class modelVsObs(LandDiagnostic):
         local_requested_plots = list()
         local_html_list = list()
 
-        # all the plot module XML vars start with 'set_' 
-        for key, value in env.iteritems():
+        # all the plot module XML vars start with 'set_'
+        for key, value in env.items():
             if ("set_" in key and value == 'True'):
                 requested_plot_sets.append(key)
         scomm.sync()
@@ -112,29 +112,30 @@ class modelVsObs(LandDiagnostic):
             print('DEBUG model_vs_obs requested_plot_sets = {0}'.format(requested_plot_sets))
 
         # partition requested plots to all tasks
-        # first, create plotting classes and get the number of plots each will created 
+        # first, create plotting classes and get the number of plots each will created
         requested_plots = {}
         set_sizes = {}
         #plots_weights = []
         for plot_set in requested_plot_sets:
             requested_plots.update(lnd_diags_plot_factory.LandDiagnosticPlotFactory(plot_set,env))
 
-        #for plot_id,plot_class in requested_plots.iteritems():
+        #for plot_id,plot_class in requested_plots.items():
         #    if hasattr(plot_class, 'weight'):
         #        factor = plot_class.weight
         #    else:
         #        factor = 1
         #    plots_weights.append((plot_id,len(plot_class.expectedPlots)*factor))
         # partition based on the number of plots each set will create
-        #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)  
+        #local_plot_list = scomm.partition(plots_weights, func=partition.WeightBalanced(), involved=True)
+        requested_plots_list = list(requested_plots.keys())
+        local_plot_list = scomm.partition(requested_plots_list, func=partition.EqualStride(), involved=True)
 
-        local_plot_list = scomm.partition(requested_plots.keys(), func=partition.EqualStride(), involved=True)
         scomm.sync()
 
         timer = timekeeper.TimeKeeper()
-        # loop over local plot lists - set env and then run plotting script         
+        # loop over local plot lists - set env and then run plotting script
         timer.start(str(scomm.get_rank())+"ncl total time on task")
-
+        print("local_plot_list {} requested_plots_list {}".format(local_plot_list, requested_plots_list))
         for plot_set in local_plot_list:
             timer.start(str(scomm.get_rank())+plot_set)
             plot_class = requested_plots[plot_set]
@@ -143,7 +144,7 @@ class modelVsObs(LandDiagnostic):
             plot_class.check_prerequisites(env)
 
             # Stringify the env dictionary
-            for name, value in plot_class.plot_env.iteritems():
+            for name, value in plot_class.plot_env.items():
                 plot_class.plot_env[name] = str(value)
 
             # call script to create plots
@@ -152,7 +153,7 @@ class modelVsObs(LandDiagnostic):
                 diagUtilsLib.generate_ncl_plots(plot_class.plot_env, script)
 
             timer.stop(str(scomm.get_rank())+plot_set)
-        timer.stop(str(scomm.get_rank())+"ncl total time on task") 
+        timer.stop(str(scomm.get_rank())+"ncl total time on task")
 
         scomm.sync()
         print(timer.get_all_times())
@@ -167,7 +168,7 @@ class modelVsObs(LandDiagnostic):
 
             # Create web dirs and move images/tables to that web dir
             for n in ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'):
-                web_dir = env['WKDIR'] 
+                web_dir = env['WKDIR']
                 set_dir = web_dir + '/set' + n
                 # Create the plot set web directory
                 if not os.path.exists(set_dir):
@@ -201,7 +202,7 @@ class modelVsObs(LandDiagnostic):
             else:
                 print('{0}... {1} file not found'.format(err_msg,web_script_1))
 
-            # lnd_lookupTable.pl call          
+            # lnd_lookupTable.pl call
             rc2, err_msg = cesmEnvLib.checkFile(web_script_2,'read')
             if rc2:
                 try:
@@ -214,7 +215,7 @@ class modelVsObs(LandDiagnostic):
                 print('{0}... {1} file not found'.format(err_msg,web_script_2))
 
             # move all the plots to the diag_path with the years appended to the path
-            endYr = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1  
+            endYr = (int(env['clim_first_yr_1']) + int(env['clim_num_yrs_1'])) - 1
             diag_path = '{0}/diag/{1}-obs.{2}_{3}'.format(env['OUTPUT_ROOT_PATH'], env['caseid_1'],
                                                       env['clim_first_yr_1'], str(endYr))
             move_files = True
@@ -242,7 +243,7 @@ class modelVsObs(LandDiagnostic):
             print('DEBUG: model vs. obs web_dir = {0}'.format(web_dir))
             print('DEBUG: model vs. obs diag_path = {0}'.format(diag_path))
 
-            # move the files to the new diag_path 
+            # move the files to the new diag_path
             if move_files:
                 try:
                     print('DEBUG: model_vs_obs renaming web files')
@@ -264,4 +265,3 @@ class modelVsObs(LandDiagnostic):
             print('*******************************************************************************')
             print('Successfully completed generating land diagnostics model vs. observation plots')
             print('*******************************************************************************')
-

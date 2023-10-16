@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_VECV
 plot name:   Horizontal Vector Fields at Depth
 
@@ -12,9 +12,9 @@ from __future__ import print_function
 
 import sys
 
-if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x03070000:
     print(70 * "*")
-    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("ERROR: {0} requires python >= 3.7.x. ".format(sys.argv[0]))
     print("It appears that you are running python {0}".format(
         ".".join(str(x) for x in sys.version_info[0:3])))
     print(70 * "*")
@@ -31,7 +31,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class HorizontalVectorFields(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
@@ -39,7 +39,7 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
 
     def __init__(self):
         super(HorizontalVectorFields, self).__init__()
-        self._expectedPlots_VELOCITY = [ 'VELOCITY0', 'VELOCITY50', 'VELOCITY100', 'VELOCITY200', 'VELOCITY300', 'VELOCITY500', 'VELOCITY1000', 
+        self._expectedPlots_VELOCITY = [ 'VELOCITY0', 'VELOCITY50', 'VELOCITY100', 'VELOCITY200', 'VELOCITY300', 'VELOCITY500', 'VELOCITY1000',
                                          'VELOCITY1500', 'VELOCITY2000', 'VELOCITY2500', 'VELOCITY3000', 'VELOCITY3500', 'VELOCITY4000' ]
         self._linkNames = [ '0m', '50m', '100m', '200m', '300m', '500m', '1000m', '1500m', '2000m', '2500m', '3000m', '3500m', '4000m' ]
         self._labels = ['VELOCITY']
@@ -108,7 +108,7 @@ class HorizontalVectorFields(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
 
 class HorizontalVectorFields_obs(HorizontalVectorFields):
@@ -118,4 +118,3 @@ class HorizontalVectorFields_obs(HorizontalVectorFields):
 
 class HorizontalVectorFields_control(HorizontalVectorFields):
     pass
-    

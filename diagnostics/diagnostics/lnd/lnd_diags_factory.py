@@ -1,11 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """land diagnostics factory function
 """
 
 # import the Plot modules
-from lnd_diags_bc import UnknownDiagType
-import model_vs_obs
-import model_vs_model
+from .lnd_diags_bc import UnknownDiagType
+from . import model_vs_obs
+from . import model_vs_model
 
 def landDiagnosticsFactory(diag_type, env):
     """Create and return an object of the requested type.

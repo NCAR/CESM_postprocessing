@@ -1,19 +1,20 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import glob, json, os
 import netCDF4 as nc
 import cf_units
 import datetime
 import math
+import numpy
 from asaptools import partition
 
 def num2date(time_value, unit, calendar):
 ## fix for fractional time bounds
     if (math.floor(time_value) != time_value):
-        time_value = int(round(time_value))
+        time_value = int(numpy.round(time_value))
     if ('common_year' in unit):
         my_unit = unit.replace('common_year', 'day')
-        my_time_value = int(round(time_value)) * 365
+        my_time_value = int(numpy.round(time_value)) * 365
     else:
         my_unit = unit
         my_time_value = time_value
@@ -42,7 +43,7 @@ def get_input_dates(glob_str, comm, rank, size):
 
     Output:
     stream_dates(dictionary) - keys->date, values->the file where this slice is located
-    file_slices(dictionary) - keys->filename, values->the number of slices found in the file 
+    file_slices(dictionary) - keys->filename, values->the number of slices found in the file
     calendar(string) - the name of the calendar type (ie, noleap, ...)
     units(string) - the calendar unit (possibly in the form 'days since....')
     time_period_freq(string) - time_period_freq global attribute from first file
@@ -60,9 +61,9 @@ def get_input_dates(glob_str, comm, rank, size):
     first = True
     stream_files_l = comm.partition(stream_files,func=partition.EqualLength(),involved=True)
     for fn in sorted(stream_files_l):
-        print rank,'/',size,' opening ',fn
+        print("{}/{} opening {}".format(rank,size,fn))
         # open file and get time dimension
-        f = nc.Dataset(fn,"r")    
+        f = nc.Dataset(fn,"r")
         all_t = f.variables['time']
         nc_atts = f.ncattrs()
 
@@ -73,7 +74,7 @@ def get_input_dates(glob_str, comm, rank, size):
         for t in all_t[:]:
             stream_dates[t] = fn
 
-        # get all attributes of time in order to get cal and units 
+        # get all attributes of time in order to get cal and units
         for a in all_t.ncattrs():
             att[a] = all_t.__getattribute__(a)
 
@@ -81,9 +82,9 @@ def get_input_dates(glob_str, comm, rank, size):
         if first:
             try:
                 time_period_freq = f.getncattr('time_period_freq')
-                print 'time_period_freq = ',time_period_freq
+                print( 'time_period_freq = {}'.format(time_period_freq))
             except:
-                print 'Global attribute time_period_freq not found - set to XML tseries_tper element'
+                print('Global attribute time_period_freq not found - set to XML tseries_tper element')
             first = False
         f.close()
 
@@ -93,7 +94,7 @@ def get_input_dates(glob_str, comm, rank, size):
     units = "days since 0000-01-01 00:00:00"     
     if size > 1:
         T1 = 31
-        T2 = 32 
+        T2 = 32
         T3 = 33
         if rank==0:
             g_stream_dates = stream_dates
@@ -101,8 +102,8 @@ def get_input_dates(glob_str, comm, rank, size):
             g_att = att
             for i in range(0,size-1):
                 r,l_stream_dates = comm.collect(data=None, tag=T1)
-                g_stream_dates.update(l_stream_dates)               
- 
+                g_stream_dates.update(l_stream_dates)
+
                 r,l_file_slices = comm.collect(data=None, tag=T2)
                 g_file_slices.update(l_file_slices)
 
@@ -113,17 +114,21 @@ def get_input_dates(glob_str, comm, rank, size):
             comm.partition(g_file_slices, func=partition.Duplicate(), involved=True)
             comm.partition(g_att, func=partition.Duplicate(), involved=True)
         else:
-            comm.collect(data=stream_dates, tag=T1) 
+            comm.collect(data=stream_dates, tag=T1)
             comm.collect(data=file_slices, tag=T2)
-            comm.collect(data=att, tag=T3) 
- 
+            comm.collect(data=att, tag=T3)
+
             g_stream_dates = comm.partition(func=partition.Duplicate(), involved=True)
             g_file_slices = comm.partition(func=partition.Duplicate(), involved=True)
             g_att = comm.partition(func=partition.Duplicate(), involved=True)
         if 'calendar' in g_att.keys():
-            calendar = g_att['calendar'] 
+            calendar = g_att['calendar']
+        else:
+            calendar = "noleap"
         if 'units' in g_att.keys():
-            units = g_att['units'] 
+            units = g_att['units']
+        else:
+            units = "days since 0000-01-01 00:00:00"
     comm.sync()
     return g_stream_dates,g_file_slices,calendar.lower(),units,time_period_freq
 
@@ -185,9 +190,9 @@ def get_cesm_date(fn,tseries_tper,t=None):
     else:
         # problem if time has only one value when units are common_year
         try:
-            d = f.variables['time'][1]    
+            d = f.variables['time'][1]
         except:
-            d = f.variables['time'][0]    
+            d = f.variables['time'][0]
 
     d1 = num2date(d,att['units'],att['calendar'].lower())
     f.close()
@@ -238,7 +243,7 @@ def get_chunk_range(tper, size, start, cal, units):
         d2 = datetime.datetime(int(size)+d1.year, d1.month, d1.day, d1.hour, d1.minute)
         end = date2num(d2, units, cal)
 
-    return start, end 
+    return start, end
 
 def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s, tseries_tper):
 
@@ -247,11 +252,11 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s, tse
 
     Input:
     tper(string) - the time period to use when figuring out chunk size (year, month, day, hour)
-    index(int) - an integer indicating which index in the tper and size list to start from.  
+    index(int) - an integer indicating which index in the tper and size list to start from.
                  this option gives users to specify different chunk sizes.
     size(int) - the size of the chunk used in coordination with tper
     stream_dates(dictionary) - keys->date, values->the file where this slice is located
-    ts_log_dates(list) - a list of all of the dates that have been converted already - used to 
+    ts_log_dates(list) - a list of all of the dates that have been converted already - used to
                          avoid duplication
     cal(string) - the calendar to use to figure out chunk size
     units(string) - the units to use to figure out chunk size
@@ -260,16 +265,16 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s, tse
     tseries_tper - time_period_freq read from XML rather than nc file
 
     Output:
-    files(dictionary) - keys->chunk, values->a list of all files needed for this chunk and the start and end dates 
+    files(dictionary) - keys->chunk, values->a list of all files needed for this chunk and the start and end dates
     dates(list) - all of the dates that will be in this chunk
     index(int) - the last index to be used in the tper and size list
     '''
 
     # remove the times in ts_log_dates from stream_dates because
     # these have already been created
-    du = cf_units.Unit(units)  
+    du = cf_units.Unit(units)
     to_do = []
-    for d in sorted(stream_dates.keys()): 
+    for d in sorted(stream_dates.keys()):
         if d not in ts_log_dates:
             to_do.append(d)
 
@@ -282,7 +287,7 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s, tse
     tper_list = tper.split(",")
     size_list = size.split(",")
     if len(tper_list) != len(size_list):
-        print 'Error: The length of requested time periods for chunks does not match the length of requested chunk sizes', tper_list, size_list
+        print('Error: The length of requested time periods for chunks does not match the length of requested chunk sizes {} {}'.format(tper_list, size_list))
 
     if len(to_do)>1:
         while e is False:
@@ -293,10 +298,10 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s, tse
             #walk through and map dates within this range to files
             cfiles = []
             cdates = []
-            while to_do[i] < end and e is False:  
+            while to_do[i] < end and e is False:
                 fn = stream_dates[to_do[i]]
                 if fn not in cfiles:
-                    cfiles.append(fn) 
+                    cfiles.append(fn)
                 cdates.append(to_do[i])
                 i = i + 1
                 # am I passed the dates I have?  If so, exit loop and don't add to list.
@@ -307,11 +312,11 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s, tse
                         cfiles.append(fn)
                     cdates.append(to_do[i])
                     if s==1:
-                        print '#################################'
-                        print 'Not appending: '
-                        print cfiles
-                        print 'dates:(',cdates,')'
-                        print '#################################'
+                        print( '#################################')
+                        print( 'Not appending: ')
+                        print("{}".format(cfiles))
+                        print( 'dates:({})'.format(cdates))
+                        print( '#################################')
                     else: # user indicated that they would like to end with an incomplete chunk
                         files[chunk_n] = {}
                         files[chunk_n]['fn'] = sorted(cfiles)
@@ -329,10 +334,10 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s, tse
                 s_cdates = sorted(cdates)
                 files[chunk_n]['fn'] = sorted(cfiles)
                 if chunk_n > 0:
-                    files[chunk_n]['start'] = get_cesm_date(cfiles[0],tseries_tper,t='bb')  
+                    files[chunk_n]['start'] = get_cesm_date(cfiles[0],tseries_tper,t='bb')
                 else:
-                    files[chunk_n]['start'] = get_cesm_date(cfiles[0],tseries_tper,t='b') 
-                files[chunk_n]['end'] = get_cesm_date(cfiles[-1],tseries_tper,t='ee') 
+                    files[chunk_n]['start'] = get_cesm_date(cfiles[0],tseries_tper,t='b')
+                files[chunk_n]['end'] = get_cesm_date(cfiles[-1],tseries_tper,t='ee')
                 for cd in sorted(cdates):
                     dates.append(cd)
             chunk_n = chunk_n+1
@@ -343,13 +348,13 @@ def get_chunks(tper, index, size, stream_dates, ts_log_dates, cal, units, s, tse
 def write_log(log_fn, log):
 
     '''
-    Write (or append) a json file with the date stamps that have been coverted 
+    Write (or append) a json file with the date stamps that have been coverted
     and what tper and size list index to next start on.
-    
+
     Input:
     log_fn(string) - the name of the log file to write to
-    log(dictionary) - keys->file streams, values->the dates that have been 
-                         converted and next indexes to use for size and tper lists 
+    log(dictionary) - keys->file streams, values->the dates that have been
+                         converted and next indexes to use for size and tper lists
     '''
     with open(log_fn, 'a+') as f:
         json.dump(log, f)
@@ -357,7 +362,7 @@ def write_log(log_fn, log):
 
 
 def read_log(log_fn):
-  
+
     '''
     Read in the json log file in order to know which files have already been converted
 
@@ -366,7 +371,7 @@ def read_log(log_fn):
 
     Output:
     d(dictionary) - will be empty if it the file doesn't exist or contain a dictionary
-                    with keys->file streams, values->the dates that have been 
+                    with keys->file streams, values->the dates that have been
                     converted and next indexes to use for size and tper lists
     '''
     if os.path.isfile(log_fn):
@@ -376,4 +381,3 @@ def read_log(log_fn):
         return d
     else:
         return {}
-

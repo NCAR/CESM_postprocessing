@@ -1,4 +1,4 @@
-""" 
+"""
 plot module: PM_UOEQ
 plot name:   Equatorial Upperocean
 
@@ -12,9 +12,9 @@ from __future__ import print_function
 
 import sys
 
-if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x03070000:
     print(70 * "*")
-    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("ERROR: {0} requires python >= 3.7.x. ".format(sys.argv[0]))
     print("It appears that you are running python {0}".format(
         ".".join(str(x) for x in sys.version_info[0:3])))
     print(70 * "*")
@@ -31,7 +31,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from ocn_diags_plot_bc import OceanDiagnosticPlot
+from .ocn_diags_plot_bc import OceanDiagnosticPlot
 
 class EquatorialUpperocean(OceanDiagnosticPlot):
     """Detailed description of the plot that will show up in help documentation
@@ -42,16 +42,16 @@ class EquatorialUpperocean(OceanDiagnosticPlot):
         self._expectedPlots_Longitude_Depth = [ 'T_EQ', 'S_EQ', 'U_EQ_PAC', 'U_EQ_ATL', 'U_EQ_IND' ]
         self._longitude_linkNames = ['TEMP (Glo)', 'SALT (Glo)', 'UVEL (Pac)', 'UVEL (Atl)', 'UVEL (Ind)']
 
-        self._expectedPlots_Latitude_Depth_143 = [ 'T_143E', 'S_143E', 'PD_143E', 'U_143E' ]  
-        self._expectedPlots_Latitude_Depth_156 = [ 'T_156E', 'S_156E', 'PD_156E', 'U_156E' ]  
-        self._expectedPlots_Latitude_Depth_165 = [ 'T_165E', 'S_165E', 'PD_165E', 'U_165E' ]  
-        self._expectedPlots_Latitude_Depth_180 = [ 'T_180E', 'S_180E', 'PD_180E', 'U_180E' ]  
-        self._expectedPlots_Latitude_Depth_190 = [ 'T_190E', 'S_190E', 'PD_190E', 'U_190E' ]  
-        self._expectedPlots_Latitude_Depth_205 = [ 'T_205E', 'S_205E', 'PD_205E', 'U_205E' ]  
-        self._expectedPlots_Latitude_Depth_220 = [ 'T_220E', 'S_220E', 'PD_220E', 'U_220E' ]  
-        self._expectedPlots_Latitude_Depth_235 = [ 'T_235E', 'S_235E', 'PD_235E', 'U_235E' ]  
-        self._expectedPlots_Latitude_Depth_250 = [ 'T_250E', 'S_250E', 'PD_250E', 'U_250E' ]  
-        self._expectedPlots_Latitude_Depth_265 = [ 'T_265E', 'S_265E', 'PD_265E', 'U_265E' ]  
+        self._expectedPlots_Latitude_Depth_143 = [ 'T_143E', 'S_143E', 'PD_143E', 'U_143E' ]
+        self._expectedPlots_Latitude_Depth_156 = [ 'T_156E', 'S_156E', 'PD_156E', 'U_156E' ]
+        self._expectedPlots_Latitude_Depth_165 = [ 'T_165E', 'S_165E', 'PD_165E', 'U_165E' ]
+        self._expectedPlots_Latitude_Depth_180 = [ 'T_180E', 'S_180E', 'PD_180E', 'U_180E' ]
+        self._expectedPlots_Latitude_Depth_190 = [ 'T_190E', 'S_190E', 'PD_190E', 'U_190E' ]
+        self._expectedPlots_Latitude_Depth_205 = [ 'T_205E', 'S_205E', 'PD_205E', 'U_205E' ]
+        self._expectedPlots_Latitude_Depth_220 = [ 'T_220E', 'S_220E', 'PD_220E', 'U_220E' ]
+        self._expectedPlots_Latitude_Depth_235 = [ 'T_235E', 'S_235E', 'PD_235E', 'U_235E' ]
+        self._expectedPlots_Latitude_Depth_250 = [ 'T_250E', 'S_250E', 'PD_250E', 'U_250E' ]
+        self._expectedPlots_Latitude_Depth_265 = [ 'T_265E', 'S_265E', 'PD_265E', 'U_265E' ]
         self._latitude_linkNames = [ 'TEMP', 'SALT', 'PD', 'UVEL' ]
 
         self._suffix = ['Longitude_Depth','Latitude_Depth_143','Latitude_Depth_156', 'Latitude_Depth_165','Latitude_Depth_180', 'Latitude_Depth_190','Latitude_Depth_205', 'Latitude_Depth_220','Latitude_Depth_235', 'Latitude_Depth_250','Latitude_Depth_265']
@@ -169,7 +169,7 @@ class EquatorialUpperocean(OceanDiagnosticPlot):
 
         # render the html template using the plot tables
         self._html = template.render( templateVars )
-        
+
         return self._shortname, self._html
 
 class EquatorialUpperocean_obs(EquatorialUpperocean):

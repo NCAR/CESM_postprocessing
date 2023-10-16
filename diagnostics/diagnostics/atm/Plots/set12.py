@@ -2,9 +2,9 @@ from __future__ import print_function
 
 import sys
 
-if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x03070000:
     print(70 * "*")
-    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("ERROR: {0} requires python >= 3.7.x. ".format(sys.argv[0]))
     print("It appears that you are running python {0}".format(
         ".".join(str(x) for x in sys.version_info[0:3])))
     print(70 * "*")
@@ -20,7 +20,7 @@ from cesm_utils import cesmEnvLib
 from diag_utils import diagUtilsLib
 
 # import the plot baseclass module
-from atm_diags_plot_bc import AtmosphereDiagnosticPlot
+from .atm_diags_plot_bc import AtmosphereDiagnosticPlot
 
 class Set12(AtmosphereDiagnosticPlot):
     """DIAG Set 12 - Vertical profiles 
@@ -97,7 +97,7 @@ class Set12(AtmosphereDiagnosticPlot):
 
         # Put plot names together and add to expected plot list
         self.expectedPlots = []
-        for name,info in self.stations.iteritems():
+        for name,info in self.stations.items():
             for var in variables:
                 self.expectedPlots.append(pref+name+'_'+var+suf)
 
@@ -119,7 +119,7 @@ class Set12(AtmosphereDiagnosticPlot):
         
         # Create the station id text file that will indicate which stations to create plots for
         station_file = open(env['test_path_diag']+'station_ids','w')
-        for station,info in self.stations.iteritems(): 
+        for station,info in self.stations.items(): 
             if env[info['name']] == 'True':
                 station_file.write(str(info['id'])+'\n')
         station_file.close()

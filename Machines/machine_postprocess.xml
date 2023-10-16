@@ -12,19 +12,19 @@
     <za>
       <compiler>gfortran</compiler>
       <flags>-c -g -O2</flags>
-      <include>-I/glade/u/apps/dav/opt/netcdf/4.7.1/gnu/8.3.0/include</include>
-      <libs>-L/glade/u/apps/dav/opt/netcdf/4.7.1/gnu/8.3.0/lib -lnetcdff -lnetcdf</libs>
+      <include>-I$(NCAR_INC_NETCDF)</include>
+      <libs>-L$(NCAR_LDFLAGS_NETCDF) $(NCAR_LIBS_NETCDF)</libs>
     </za>
     <reset_modules>
       <module>module purge</module>
     </reset_modules>
     <modules>
-      <module>module load gnu/8.3.0</module>
+      <module>module load gnu/9.1.0</module>
       <module>module load ncarenv</module>
       <module>module load ncarcompilers</module>
-      <module>module load openmpi/3.1.4</module>
-      <module>module load netcdf/4.7.1</module>
-      <module>module load nco/4.7.4</module>
+      <module>module load openmpi/4.0.3</module>
+      <module>module load netcdf/4.7.3</module>
+      <module>module load nco/4.7.9</module>
       <module>module load ncl/6.6.2</module>
     </modules>
     <components>
@@ -41,7 +41,7 @@
       </component>
       <component name="lnd">
 	<averages_pes  nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
- 	<diagnostics_pes  nodes="1" pes_per_node="12" wallclock="02:00:00" memory="100G">12</diagnostics_pes>
+	<diagnostics_pes  nodes="1" pes_per_node="12" wallclock="02:00:00" memory="100G">12</diagnostics_pes>
 	<regrid_pes  nodes="1" pes_per_node="6" wallclock="02:00:00" memory="100G">6</regrid_pes>
 	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
       </component>
@@ -63,148 +63,28 @@
     </components>
   </machine>
 
-  <machine name="geyser" hostname="geyser">
-    <timeseries_pes queue="geyser" nodes="4" pes_per_node="16" wallclock="04:00:00" memory="100G">64</timeseries_pes>
-    <xconform_pes queue="geyser" nodes="4" pes_per_node="16" wallclock="06:00:00" memory="100G">64</xconform_pes>
-    <mpi_command>srun</mpi_command>
-    <pythonpath></pythonpath>
-    <f2py fcompiler="intelem" f77exec="/glade/apps/opt/modulefiles/ys/cmpwrappers/ifort">f2py</f2py>
-    <za>
-      <compiler>ifort</compiler>
-      <flags>-c -g -O2</flags>
-      <include>-I/glade/u/apps/dav/opt/netcdf/4.6.1/intel/17.0.1/include</include>
-      <libs>-L/glade/u/apps/dav/opt/netcdf/4.6.1/intel/17.0.1/lib -lnetcdff -lnetcdf</libs>
-    </za>
-    <reset_modules>
-      <module>module purge</module>
-    </reset_modules>
-    <modules>
-      <module>module load python/2.7.14</module>
-      <module>module load intel/17.0.1</module>
-      <module>module load ncarenv</module>
-      <module>module load ncarcompilers</module>
-      <module>module load impi</module>
-      <module>module load netcdf/4.6.1</module>
-      <module>module load nco/4.7.4</module>
-      <module>module load ncl/6.4.0</module>
-    </modules>
-    <components>
-      <component name="atm">
-	<averages_pes queue="geyser" nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
-	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="100G">16</diagnostics_pes>
-	<regrid_pes queue="geyser" nodes="1" pes_per_node="6" wallclock="02:00:00" memory="100G">6</regrid_pes>
-	<obs_root>/glade/p/cesm/amwg/amwg_data</obs_root>
-      </component>
-      <component name="ice">
-	<averages_pes queue="geyser" nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
-	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="4" wallclock="01:00:00" memory="100G">4</diagnostics_pes>
-	<obs_root>/glade/p/cesm/pcwg/ice/data</obs_root>
-      </component>
-      <component name="lnd">
-	<averages_pes queue="geyser" nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
- 	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="12" wallclock="02:00:00" memory="100G">12</diagnostics_pes>
-	<regrid_pes queue="geyser" nodes="1" pes_per_node="6" wallclock="02:00:00" memory="100G">6</regrid_pes>
-	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
-      </component>
-      <component name="ocn">
-	<averages_pes queue="geyser" nodes="4" pes_per_node="8" wallclock="02:00:00" memory="100G">32</averages_pes>
-	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="16" wallclock="02:00:00" memory="100G">16</diagnostics_pes>
-	<obs_root>/glade/p/cesm/</obs_root>
-      </component>
-      <component name="ilamb">
-	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="2" wallclock="01:00:00" memory="100G">2</diagnostics_pes>
-	<initialize_pes queue="geyser" nodes="1" pes_per_node="1" wallclock="00:00:10" memory="1G">1</initialize_pes>
-	<obs_root>/glade/p/cesm/lmwg_dev/oleson/ILAMB/ILAMB_all</obs_root>
-      </component>
-      <component name="iomb">
-	<diagnostics_pes queue="geyser" nodes="1" pes_per_node="2" wallclock="01:00:00" memory="100G">2</diagnostics_pes>
-	<initialize_pes queue="geyser" nodes="1" pes_per_node="1" wallclock="00:00:10" memory="1G">1</initialize_pes>
-	<obs_root>/glade/p/cesm/omwg/obs_data/IOMB</obs_root>
-      </component>
-    </components>
-  </machine>
-
-  <machine name="aleph" hostname="aleph">
-    <timeseries_pes queue="regular" nodes="16" pes_per_node="9" wallclock="12:00:00">144</timeseries_pes>
-    <xconform_pes queue="regular" nodes="16" pes_per_node="4" wallclock="12:00:00">64</xconform_pes>
-    <ocn_remap_pes queue="regular" nodes="4" pes_per_node="9" wallclock="08:00:00">32</ocn_remap_pes>
-    <mpi_command>mpirun</mpi_command>
-    <pythonpath>/home/jedwards/anaconda2/bin</pythonpath>
-    <f2py fcompiler="intelem" f77exec="/glade/u/apps/ch/opt/ncarcompilers/0.4.1/mpi/ifort">f2py</f2py>
-    <za>
-      <compiler>ftn</compiler>
-      <flags>-c -g -O2</flags>
-      <include>-I$NETCDF_DIR/include</include>
-      <libs>-L$NETCDF_DIR/lib -lnetcdff -lnetcdf</libs>
-    </za>
-    <reset_modules>
-      <module>module reset</module>
-    </reset_modules>
-    <modules>
-      <module>module rm PrgEnv-cray</module>
-      <module>module load PrgEnv-intel</module>
-      <module>module load cray-netcdf</module>
-      <module>module load nco</module>
-      <module>module load ncl</module>
-    </modules>
-    <components>
-      <component name="atm">
-	<averages_pes queue="iccp" nodes="4" pes_per_node="18" wallclock="01:00:00">72</averages_pes>
-	<diagnostics_pes queue="iccp" nodes="1" pes_per_node="18" wallclock="01:00:00">18</diagnostics_pes>
-	<regrid_pes queue="iccp" nodes="1" pes_per_node="16" wallclock="01:00:00">36</regrid_pes>
-	<obs_root>/glade/p/cesm/amwg/amwg_data</obs_root>
-      </component>
-      <component name="ice">
-	<averages_pes queue="iccp" nodes="4" pes_per_node="4" wallclock="01:00:00">16</averages_pes>
-	<diagnostics_pes queue="iccp" nodes="1" pes_per_node="8" wallclock="01:00:00">8</diagnostics_pes>
-	<obs_root>/glade/p/cesm/pcwg/ice/data</obs_root>
-      </component>
-      <component name="lnd">
-	<averages_pes queue="iccp" nodes="4" pes_per_node="18" wallclock="01:00:00">72</averages_pes>
-	<diagnostics_pes queue="iccp" nodes="1" pes_per_node="16" wallclock="01:00:00">16</diagnostics_pes>
-	<regrid_pes queue="iccp" nodes="1" pes_per_node="12" wallclock="01:00:00">12</regrid_pes>
-	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
-      </component>
-      <component name="ocn">
-	<averages_pes queue="iccp" nodes="4" pes_per_node="4" wallclock="01:00:00">16</averages_pes>
-	<diagnostics_pes queue="iccp" nodes="1" pes_per_node="16" wallclock="01:00:00">16</diagnostics_pes>
-	<obs_root>/glade/p/cesm/</obs_root>
-      </component>
-      <component name="ilamb">
-	<diagnostics_pes queue="iccp" nodes="1" pes_per_node="8" wallclock="00:30:00">8</diagnostics_pes>
-	<initialize_pes queue="iccp" nodes="1" pes_per_node="1" wallclock="00:01:00">1</initialize_pes>
-	<obs_root>/glade/p/cesm/lmwg_dev/oleson/ILAMB/ILAMB_all</obs_root>
-      </component>
-      <component name="iomb">
-	<diagnostics_pes queue="iccp" nodes="1" pes_per_node="8" wallclock="00:30:00">8</diagnostics_pes>
-	<initialize_pes queue="iccp" nodes="1" pes_per_node="1" wallclock="00:01:00">1</initialize_pes>
-	<obs_root>/glade/p/cesm/omwg/obs_data/IOMB</obs_root>
-      </component>
-    </components>
-  </machine>
-
   <machine name="cheyenne" hostname="cheyenne">
     <timeseries_pes queue="regular" nodes="16" pes_per_node="9" wallclock="12:00:00">144</timeseries_pes>
     <xconform_pes queue="regular" nodes="16" pes_per_node="4" wallclock="12:00:00">64</xconform_pes>
     <ocn_remap_pes queue="regular" nodes="4" pes_per_node="9" wallclock="08:00:00">32</ocn_remap_pes>
     <mpi_command>mpiexec_mpt dplace -s 1</mpi_command>
     <pythonpath></pythonpath>
-    <f2py fcompiler="intelem" f77exec="/glade/u/apps/ch/opt/ncarcompilers/0.4.1/mpi/ifort">f2py</f2py>
+    <f2py fcompiler="intelem" f77exec="gfortran">f2py</f2py>
     <za>
       <compiler>gfortran</compiler>
       <flags>-c -g -O2</flags>
-      <include>-I/glade/u/apps/ch/opt/netcdf/4.6.3/gnu/8.3.0/include</include>
-      <libs>-L/glade/u/apps/ch/opt/netcdf/4.6.3/gnu/8.3.0/lib -lnetcdff -lnetcdf</libs>
+      <include>-I$(NCAR_INC_NETCDF)</include>
+      <libs>-L$(NCAR_LDFLAGS_NETCDF) $(NCAR_LIBS_NETCDF)</libs>
     </za>
     <reset_modules>
       <module>module purge</module>
     </reset_modules>
     <modules>
-      <module>module load gnu/8.3.0</module>
+      <module>module load gnu/9.1.0</module>
       <module>module load ncarenv</module>
       <module>module load ncarcompilers</module>
-      <module>module load mpt/2.19</module>
-      <module>module load netcdf/4.6.3</module>
+      <module>module load mpt/2.22</module>
+      <module>module load netcdf/4.7.3</module>
       <module>module load nco/4.7.9</module>
       <module>module load ncl/6.6.2</module>
     </modules>
@@ -244,128 +124,4 @@
     </components>
   </machine>
 
-<!-- TODO - Edison settings need to be updated -->
-  <machine name="edison" hostname="edison">
-    <timeseries_pes queue="regular" wallclock="02:00">144</timeseries_pes>
-    <xconform_pes queue="regular" wallclock="06:00">144</xconform_pes>
-    <mpi_command>aprun -n {{ pes }}</mpi_command>
-    <pythonpath>/global/project/projectdirs/ccsm1/pythonlib/lib/python2.7/site-packages/PyNIO</pythonpath>
-    <f2py fcompiler="intelem" f77exec="/opt/intel/composer_xe_2015.1.133/bin/intel64/ifort">f2py</f2py>
-    <za>
-      <compiler>ifort</compiler>
-      <flags>-c -g -O2</flags>
-      <include>-I-I/opt/cray/netcdf/4.3.2/INTEL/140/include</include>
-      <libs>-L/opt/cray/netcdf/4.3.2/INTEL/140/lib -lnetcdff -L/opt/cray/hdf5/1.8.13/INTEL/140/lib -lnetcdf</libs>
-    </za>
-    <reset_modules>
-      <module>module restore system</module>
-      <module>module load python/2.7.7</module>
-    </reset_modules>
-    <modules>
-      <module>module load python/2.7.9</module>
-      <module>module load virtualenv/12.1.1</module>
-      <module>module load numpy/1.9.2</module>
-      <module>module load scipy/0.15.1</module>
-      <module>module load mpi4py/2.0.0</module>
-      <module>module load matplotlib/1.4.3</module>
-      <module>module load nco/4.3.9</module>
-      <module>module load ncl/6.1.1</module>
-      <module>module load cray-netcdf/4.3.2</module>
-      <module>module load cray-hdf5/1.8.13</module>
-    </modules>
-    <components>
-      <component name="atm">
-	<averages_pes queue="regular" pes_per_node="4" wallclock="00:30">120</averages_pes>
-	<diagnostics_pes queue="regular" pes_per_node="4" wallclock="02:00">24</diagnostics_pes>
-	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
-	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
-      </component>
-      <component name="ice">
-	<averages_pes queue="regular" pes_per_node="2" wallclock="00:30">120</averages_pes>
-	<diagnostics_pes queue="regular" pes_per_node="2" wallclock="00:30">4</diagnostics_pes>
-	<obs_root>/global/project/projectdirs/ccsm1/pcwg/ice/data</obs_root>
-      </component>
-      <component name="lnd">
-	<averages_pes queue="regular" pes_per_node="2" wallclock="02:00">120</averages_pes>
-	<diagnostics_pes queue="regular" pes_per_node="4" wallclock="02:00">12</diagnostics_pes>
-	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
-	<obs_root>/global/project/projectdirs/ccsm1/lmwg/diag/lnd_diag4.2</obs_root>
-      </component>
-      <component name="ocn">
-	<averages_pes queue="regular" pes_per_node="8" wallclock="00:30">120</averages_pes>
-	<diagnostics_pes queue="regular" pes_per_node="4" wallclock="02:00">24</diagnostics_pes>
-	<obs_root>/global/project/projectdirs/ccsm1</obs_root>
-      </component>
-    </components>
-  </machine>
-
-  <machine name="yellowstone" hostname="yslogin">
-    <!-- IMPORTANT NOTE: yellowstone is no longer active but leaving this machine element for other PBS systems -->
-    <!-- restricting to geyser for CMIP6 and problem with scaling of the chunking -->
-    <timeseries_pes queue="geyser" pes_per_node="4" wallclock="02:00">32</timeseries_pes>
-    <xconform_pes queue="geyser" pes_per_node="4" wallclock="06:00">32</xconform_pes>
-    <mpi_command>mpirun.lsf</mpi_command>
-    <pythonpath>/glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/lib/python2.7/site-packages</pythonpath>
-    <f2py fcompiler="gfortran" f77exec="/usr/bin/gfortran">f2py</f2py>
-    <za>
-      <compiler>ifort</compiler>
-      <flags>-c -g -O2</flags>
-      <include>-I/glade/apps/opt/netcdf/4.2/intel/12.1.5/include</include>
-      <libs>-L/glade/apps/opt/netcdf/4.2/intel/12.1.5/lib -lnetcdff -lnetcdf</libs>
-    </za>
-    <reset_modules>
-      <module>module restore system</module>
-      <module>module load python/2.7.7</module>
-    </reset_modules>
-    <modules>
-      <module>module load numpy/1.11.0</module>
-      <module>module load scipy/0.18.1</module>
-      <module>module load mpi4py/2.0.0</module>
-      <module>module load pynio/1.4.1</module>
-      <module>module load pyside/1.1.2</module>
-      <module>module load matplotlib/1.5.1</module>
-      <module>module load intel/12.1.5</module>
-      <module>module load netcdf/4.3.0</module>
-      <module>module load nco/4.4.4</module>
-      <module>module load netcdf4python/1.2.4</module>
-      <module>module load ncl/6.4.0</module>
-      <module>module load pyngl/1.4.0</module>
-    </modules>
-    <components>
-      <component name="atm">
-	<averages_pes queue="regular" pes_per_node="15" wallclock="00:30">120</averages_pes>
-	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">16</diagnostics_pes>
-	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
-	<obs_root>/glade/p/cesm/amwg/amwg_data</obs_root>
-      </component>
-      <component name="ice">
-	<averages_pes queue="regular" pes_per_node="15" wallclock="02:00">120</averages_pes>
-	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">4</diagnostics_pes>
-	<obs_root>/glade/p/cesm/pcwg/ice/data</obs_root>
-      </component>
-      <component name="lnd">
-	<averages_pes queue="regular" pes_per_node="15" wallclock="02:00">120</averages_pes>
- 	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">12</diagnostics_pes>
-	<regrid_pes queue="geyser" pes_per_node="2" wallclock="02:00">6</regrid_pes>
-	<obs_root>/glade/p/cesm/lmwg/diag/lnd_diag_data</obs_root>
-      </component>
-      <component name="ocn">
-	<averages_pes queue="regular" pes_per_node="15" wallclock="02:00">120</averages_pes>
-	<diagnostics_pes queue="geyser" pes_per_node="4" wallclock="02:00">16</diagnostics_pes>
-	<obs_root>/glade/p/cesm/</obs_root>
-      </component>
-      <component name="ilamb">
-	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">2</diagnostics_pes>
-	<initialize_pes queue="geyser" pes_per_node="1" wallclock="00:10">1</initialize_pes>
-	<obs_root>/glade/p/cesm/lmwg_dev/oleson/ILAMB/ILAMB_all</obs_root>
-      </component>
-      <component name="iomb">
-	<diagnostics_pes queue="geyser" pes_per_node="2" wallclock="01:00">2</diagnostics_pes>
-	<initialize_pes queue="geyser" pes_per_node="1" wallclock="00:10">1</initialize_pes>
-	<obs_root>/glade/p/cesm/omwg/obs_data/IOMB</obs_root>
-      </component>
-    </components>
-  </machine>
-
 </machine_postprocess>
-

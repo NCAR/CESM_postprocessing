@@ -2,9 +2,9 @@ from __future__ import print_function
 
 import sys
 
-if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x03070000:
     print(70 * "*")
-    print("ERROR: {0} requires python >= 2.7.x. ".format(sys.argv[0]))
+    print("ERROR: {0} requires python >= 3.7.x. ".format(sys.argv[0]))
     print("It appears that you are running python {0}".format(
         ".".join(str(x) for x in sys.version_info[0:3])))
     print(70 * "*")
@@ -32,7 +32,7 @@ from diag_utils import diagUtilsLib
 from asaptools import partition, simplecomm, vprinter, timekeeper
 
 # import the diag baseclass module
-from ocn_diags_bc import OceanDiagnostic
+from .ocn_diags_bc import OceanDiagnostic
 
 # import the plot classes
 from diagnostics.ocn.Plots import ocn_diags_plot_bc
@@ -133,10 +133,10 @@ class modelVsControl(OceanDiagnostic):
         local_requested_plots = list()
 
         # define the templatePath for all tasks
-        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH']) 
+        templatePath = '{0}/diagnostics/diagnostics/ocn/Templates'.format(env['POSTPROCESS_PATH'])
 
         # all the plot module XML vars start with MVC_PM_  need to strip off MVC_
-        for key, value in env.iteritems():
+        for key, value in env.items():
             if (re.search("\AMVC_PM_", key) and value.upper() in ['T','TRUE']):
                 k = key[4:]
                 requested_plots.append(k)
@@ -152,7 +152,7 @@ class modelVsControl(OceanDiagnostic):
             print('model vs. control - Creating plot html header')
             templateLoader = jinja2.FileSystemLoader( searchpath=templatePath )
             templateEnv = jinja2.Environment( loader=templateLoader )
-                
+
             template_file = 'model_vs_control.tmpl'
             template = templateEnv.get_template( template_file )
 
@@ -214,7 +214,7 @@ class modelVsControl(OceanDiagnostic):
                     shortname, html = plot_obj.get_html(env['WORKDIR'], templatePath, env['IMAGEFORMAT'])
                     html_order[shortname] = html
 
-            for k, v in html_order.iteritems():
+            for k, v in html_order.items():
                 print('Adding html for plot = {0}'.format(k))
                 plot_html += v
 
@@ -237,5 +237,3 @@ class modelVsControl(OceanDiagnostic):
         env[key] = env['WORKDIR']
 
         return env
-
-

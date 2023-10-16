@@ -13,7 +13,7 @@ time = {
            'seaIce': 'chunits(mean(rmunits(time_bounds), \"d2\")-1, units=time)',
            'land': 'chunits(mean(time_bounds, \"hist_interval\")-1, units=time)',
            'landIce': 'chunits(time * 365, units=\"days since 0001-01-01\", calendar=\"noleap\")',
-           'rof': 'chunits(mean(time_bounds, \"hist_interval\")-1, units=time)' 
+           'rof': 'chunits(mean(time_bounds, \"hist_interval\")-1, units=time)'
 #           'landIce': 'yeartomonth_time(chunits(time * 365, units=\"days since 0001-01-01\", calendar=\"noleap\"))',
        }
 bounds = {
@@ -55,12 +55,12 @@ cesm_realms = {
 def cli(argv=None):
 
     desc = """This tool adds information to the json files created by iconform to fill in the gaps
-              between the informaiton that we can retreive from the request and what ultimately 
+              between the informaiton that we can retreive from the request and what ultimately
               needs to be in the final netcdf output files.  This is internal knowledge and specific
               to CESM data."""
     parser = argparse.ArgumentParser(description=desc)
 
-    parser.add_argument('-e', '--extra', default='extra_vars.json', type=str, 
+    parser.add_argument('-e', '--extra', default='extra_vars.json', type=str,
                         help='Filename of json file that contains the extra definitions to use.')
 
     parser.add_argument('-c', '--case', default='None', type=str,
@@ -76,8 +76,8 @@ def cli(argv=None):
 def main(argv=None):
 
     args = cli(argv)
-   
-    # Get list of inputs 
+
+    # Get list of inputs
     ifiles = args.ifiles
 
     # Get the 'extra' json filename and load it
@@ -95,11 +95,11 @@ def main(argv=None):
         realm = fsplit[3]
 
         # Open and load
-        with open(fn) as f:       
+        with open(fn) as f:
             o_dict = json.load(f)
         o_dict_copy = o_dict.copy()
 
-        for var,d1 in o_dict_copy.iteritems():
+        for var,d1 in o_dict_copy.items():
             if 'input_glob' in d1.keys():
                 realm = cesm_realms[d1['input_glob'].split(".")[0]]
 
@@ -116,9 +116,9 @@ def main(argv=None):
         # Go through the original to find things that we have to add and/or change
         cvar = fn.split("_")[-2]
         cr = fn.split("_")[-3]
-        for var,d1 in o_dict_copy.iteritems():
+        for var,d1 in o_dict_copy.items():
             if "file" in d1.keys():
-                o_dict[var]["file"]["attributes"]["cesm_casename"] = cn 
+                o_dict[var]["file"]["attributes"]["cesm_casename"] = cn
             if "definition" in d1.keys():
                 if 'basin' in o_dict_copy[var]["dimensions"]:
                     o_dict[var]["dimensions"] = ['latitude' if x=='xxlatxx' else x for x in o_dict_copy[var]["dimensions"]]
@@ -137,7 +137,7 @@ def main(argv=None):
                         else:
                             o_dict["time"]["definition"] = "yeartomonth_time(chunits(time * 365, units=\"days since 0001-01-01\", calendar=\"noleap\"))"
                             if "time_bnds" in o_dict.keys():
-                                o_dict["time_bnds"]["definition"] = 'bounds(yeartomonth_time(time), bdim=\"hist_interval\")' 
+                                o_dict["time_bnds"]["definition"] = 'bounds(yeartomonth_time(time), bdim=\"hist_interval\")'
                         if 'clm2' in d1['input_glob'].split(".")[0] or 'cism' in d1['input_glob'].split(".")[0]:
                             o_dict[var]["file"]["autoparse_time_variable"] = "_time"
                             o_dict["_time"]={
@@ -196,10 +196,10 @@ def main(argv=None):
                                       "datatype": "double"}
                 elif 'landUse' in var:
                     o_dict[var]["definition"] = [0,1,2,3]
-                    o_dict[var]["attributes"]["requested"] = "primary_and_secondary_land=0, pastures=1, crops=2, urban=3" 
+                    o_dict[var]["attributes"]["requested"] = "primary_and_secondary_land=0, pastures=1, crops=2, urban=3"
                 elif 'soiluse' in var:
                     o_dict[var]["definition"] = [0,1,2]
-                    o_dict[var]["attributes"]["requested"] = "SOIL1 C=0, SOIL2 C=1, SOIL3 Cs=2" 
+                    o_dict[var]["attributes"]["requested"] = "SOIL1 C=0, SOIL2 C=1, SOIL3 Cs=2"
                     o_dict[var]["attributes"]["type"] = "int"
                     o_dict[var]["datatype"] = "int"
                 elif 'soilpools' in var:
@@ -208,14 +208,14 @@ def main(argv=None):
                     o_dict[var]["datatype"] = "int"
                 elif 'siline' in var:
                     o_dict[var]["definition"] = [0,1,2,3]
-                    o_dict[var]["attributes"]["requested"] = "fram_strait=0, canadian_archipelego=1, barents_opening=2, bering_strait=3" 
+                    o_dict[var]["attributes"]["requested"] = "fram_strait=0, canadian_archipelego=1, barents_opening=2, bering_strait=3"
                     o_dict[var]["attributes"]["type"] = "int"
                     o_dict[var]["datatype"] = "int"
                 elif 'basin' in var:
                     o_dict[var]["definition"] = [0,1,2]
                     o_dict[var]["attributes"]["requested"] = "atlantic_arctic_ocean=0, indian_pacific_ocean=1, global_ocean=2"
                     o_dict[var]["attributes"]["type"] = "int"
-                    o_dict[var]["datatype"] = "int" 
+                    o_dict[var]["datatype"] = "int"
                     if 'latitude' in o_dict.keys():
                         o_dict['latitude']["definition"] = 'lat_aux_grid'
                     if 'latitude_bnds' in o_dict.keys():
@@ -231,10 +231,10 @@ def main(argv=None):
                         o_dict.pop("ygre", None)
                         o_dict.pop("xgre", None)
                         o_dict['lat'] = e_dict['latitude']
-                        o_dict['lon'] = e_dict['longitude'] 
+                        o_dict['lon'] = e_dict['longitude']
                         o_dict['lat_bnds'] = e_dict['latitude_bnds']
                         o_dict['lon_bnds'] = e_dict['longitude_bnds']
-                        for var,d1 in o_dict_copy.iteritems():
+                        for var,d1 in o_dict_copy.items():
                             if cvar in var:
                                 o_dict[var]["dimensions"] = [dim.replace("ygre", "lat") for dim in o_dict[var]["dimensions"]]
                                 o_dict[var]["dimensions"] = [dim.replace("xgre", "lon") for dim in o_dict[var]["dimensions"]]
@@ -261,7 +261,7 @@ def main(argv=None):
                         o_dict['lon'] = e_dict['longitude']
                         o_dict['lat_bnds'] = e_dict['latitude_bnds']
                         o_dict['lon_bnds'] = e_dict['longitude_bnds']
-                        for var,d1 in o_dict_copy.iteritems():
+                        for var,d1 in o_dict_copy.items():
                             if cvar in var:
                                 o_dict[var]["dimensions"] = [dim.replace("yant", "lat") for dim in o_dict[var]["dimensions"]]
                                 o_dict[var]["dimensions"] = [dim.replace("xant", "lon") for dim in o_dict[var]["dimensions"]]
@@ -290,7 +290,7 @@ def main(argv=None):
                         o_dict['ygre'] = e_dict['ygre']
                         o_dict['xgre_bnds'] = e_dict['xgre_bnds']
                         o_dict['ygre_bnds'] = e_dict['ygre_bnds']
-                        for var,d1 in o_dict_copy.iteritems():
+                        for var,d1 in o_dict_copy.items():
                             if cvar in var:
                                 o_dict[var]["dimensions"] = [dim.replace("latitude", "ygre") for dim in o_dict[var]["dimensions"]]
                                 o_dict[var]["dimensions"] = [dim.replace("longitude", "xgre") for dim in o_dict[var]["dimensions"]]
@@ -370,11 +370,9 @@ def main(argv=None):
                         elif 'cism' in d1['input_glob'].split(".")[0]:
                             o_dict[var]["definition"] = time['landIce']
                     else:
-                        if "definition" not in o_dict[var].keys():
+                        if "definition" in o_dict[var].keys():
                             if 'yeartomonth_time' not in o_dict[var]["definition"] and "oclim_time" not in o_dict[var]["definition"] and "monthtoyear_noleap_time" not in o_dict[var]["definition"]:
                                 o_dict[var]["definition"] = time[realm]
-                        elif 'yeartomonth_time' not in o_dict[var]["definition"] and "oclim_time" not in o_dict[var]["definition"] and "monthtoyear_noleap_time" not in o_dict[var]["definition"]:
-                            o_dict[var]["definition"] = time[realm]
                 else:
                     if "definition" not in o_dict[var].keys():
                         o_dict[var]["definition"] = "time"
@@ -392,25 +390,26 @@ def main(argv=None):
                 o_dict["time_bnds"]["attributes"]["calendar"] = "noleap"
                 if (realm == 'ocean' or realm == 'ocnBgchem') and "definition" in o_dict["time_bnds"].keys():
                     if '365' not in o_dict["time_bnds"]["definition"]:
-                        o_dict["time_bnds"]["definition"] = "chunits(rmunits(time_bound)-365, units=\"days since 0001-01-01 00:00:00\", calendar=\"noleap\")"  
+                        o_dict["time_bnds"]["definition"] = "chunits(rmunits(time_bound)-365, units=\"days since 0001-01-01 00:00:00\", calendar=\"noleap\")"
             if "time" in o_dict:
                 if (realm == 'ocean' or realm == 'ocnBgchem') and "definition" in o_dict["time"].keys():
-                    if '366' not in o_dict["time"]["definition"]: 
-                         o_dict["time"]["definition"] =  "chunits(rmunits(time)-365, units=\"days since 0001-01-01 00:00:00\", calendar=\"noleap\")"     
+                    if '366' not in o_dict["time"]["definition"]:
+                         o_dict["time"]["definition"] =  "chunits(rmunits(time)-365, units=\"days since 0001-01-01 00:00:00\", calendar=\"noleap\")"
 
 
         # Go through the json file again and correct coord names
-        to_change = {} 
+        to_change = {}
         # find anything with altLabel
         for v in o_dict.keys():
             if "attributes" in o_dict[v].keys():
-                if 'altLabel' in o_dict[v]["attributes"]: 
-                    to_change[v] = o_dict[v]["attributes"]["altLabel"] 
+                if 'altLabel' in o_dict[v]["attributes"]:
+                    to_change[v] = o_dict[v]["attributes"]["altLabel"]
                     o_dict[v]["attributes"].pop("altLabel")
         # find a matching bound, if present
-        for o in to_change.keys():
+        olist = list(to_change.keys())
+        for o in olist:
             if o+"_bnds" in o_dict.keys():
-                to_change[o+"_bnds"] = to_change[o]+'_bnds' 
+                to_change[o+"_bnds"] = to_change[o]+'_bnds'
         # change the names that we've found
         for o in to_change.keys():
             n = to_change[o]
@@ -435,7 +434,7 @@ def main(argv=None):
                    o_dict["time_bnds"]["definition"]="oclim_timebnds(chunits(time, units=\"days since 0001-01-01\", calendar=\"noleap\"), bdim=\"d2\")"
                elif 'monthtoyear_noleap' in o_dict[v]["definition"]:
                    o_dict["time"]["definition"]="monthtoyear_noleap_time(chunits(rmunits(time_bound), units=\"days since 0001-01-01 00:00:00\", calendar=\"noleap\"))"
-                   o_dict["time_bnds"]["definition"]="monthtoyear_noleap_timebnds(chunits(rmunits(time_bound), units=\"days since 0001-01-01 00:00:00\", calendar=\"noleap\"))" 
+                   o_dict["time_bnds"]["definition"]="monthtoyear_noleap_timebnds(chunits(rmunits(time_bound), units=\"days since 0001-01-01 00:00:00\", calendar=\"noleap\"))"
         # Rewrite the file
         with open(fn, 'w') as outfile:
             json.dump(o_dict, outfile, sort_keys=True, indent=4)
@@ -447,4 +446,3 @@ def main(argv=None):
 #===================================================================================================
 if __name__ == '__main__':
     main()
-

@@ -31,7 +31,7 @@
   </table>	
 
 <dl>
-  {% for key, value in diag_dict.iteritems() %}
+  {% for key, value in diag_dict.items() %}
   <dt><b>{{ key }}</b></dt>
   <dd>
     {% if key == 'atm' and value['model_vs_obs']|length > 0 %}
@@ -61,7 +61,7 @@
     {% endif %}
 
     {% if key == 'ocn' %}
-	{% for diag_type, link_list in ocn_link_dict.iteritems() %}
+	{% for diag_type, link_list in ocn_link_dict.items() %}
 	   {% if link_list is not none %}
 	      <a href="./{{ key }}/{{ link_list[0] }}">{{ link_list[1] }}</a><br/>
            {% endif %}

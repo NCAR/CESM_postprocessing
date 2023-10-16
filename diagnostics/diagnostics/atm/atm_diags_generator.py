@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """Generate atm diagnostics from a CESM case 
 
 This script provides an interface between:
@@ -18,10 +18,10 @@ Author: CSEG <cseg@cgd.ucar.edu>
 from __future__ import print_function
 import sys
 
-# check the system python version and require 2.7.x or greater
-if sys.hexversion < 0x02070000:
+# check the system python version and require 3.7.x or greater
+if sys.hexversion < 0x03070000:
     print(70 * '*')
-    print('ERROR: {0} requires python >= 2.7.x. '.format(sys.argv[0]))
+    print('ERROR: {0} requires python >= 3.7.x. '.format(sys.argv[0]))
     print('It appears that you are running python {0}'.format(
         '.'.join(str(x) for x in sys.version_info[0:3])))
     print(70 * '*')
@@ -90,7 +90,7 @@ def setup_diags(envDict):
     """
     requested_diags = []
     avail_diags = ['MODEL_VS_OBS', 'MODEL_VS_MODEL']
-    for key, value in envDict.iteritems():
+    for key, value in envDict.items():
         if (key in avail_diags and value == 'True'):
             requested_diags.append(key)
 

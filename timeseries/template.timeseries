@@ -24,31 +24,13 @@ def _main_func(description):
     expect(postprocess_path,"POSTPROCESS_PATH not found, must be defined in environment")
     ppenv_bin = os.path.join(postprocess_path,"cesm-env2","bin")
     activate_this_file = os.path.join(ppenv_bin,"activate_this.py")
-    if six.PY2:
-        execfile(activate_this_file, dict(__file__=activate_this_file))
-    else:
-        exec(open(activate_this_file).read())
+    with open(activate_this_file, "rb") as source:
+        code = compile(source.read(), activate_this_file, "exec")
+    exec(code, dict(__file__=activate_this_file))
 
     caseroot = "{{ caseroot }}"
     job = "timeseries"
-
-    with Case(caseroot, read_only=False) as case:
-#       open the rpointer.drv and check the current year, only run the timeseries every 50 years
-        rundir = case.get_value("RUNDIR")
-        rpointer = os.path.join(rundir,"rpointer.drv")
-        expect(os.path.isfile(rpointer),"ERROR: no file rpointer.drv found in {}".format(rundir))
-        with open(rpointer,"r") as fd:
-            line = fd.readline()
-        match = re.search("cpl.r.(\d\d\d\d)", line)
-        expect(match,"ERROR: could not find pattern in {}".format(line))
-        year = int(match.group(1))
-#        if year % 50 == 0:
-#            print ("Running timeseries for year {}".format(year))
-#        else:
-#            print ("Skipping timeseries run for year {}".format(year))
-#            sys.exit(0)
-
-
+    with Case(caseroot, read_only=True) as case:
         run_exe = os.path.join(ppenv_bin,"cesm_tseries_generator.py")
         env_mach_specific = case.get_env('mach_specific')
         env_workflow = case.get_env("workflow")

@@ -1,14 +1,14 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """ocean diagnostics factory function
 """
 
 # import the Plot modules
-from ocn_diags_bc import UnknownDiagType
-import model_vs_obs
-import model_vs_obs_ecosys
-import model_vs_control
+from .ocn_diags_bc import UnknownDiagType
+from . import model_vs_obs
+from . import model_vs_obs_ecosys
+from . import model_vs_control
 #import model_vs_control_ecosys
-import model_timeseries
+from . import model_timeseries
 #import modelts_ecosys
 
 def oceanDiagnosticsFactory(diag_type):
