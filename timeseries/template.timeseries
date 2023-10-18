@@ -46,8 +46,7 @@ def _main_func(description):
             "unit_testing" : False
             }
         executable, mpi_arg_list = env_mach_specific.get_mpirun(case, mpi_attribs, job, overrides=overrides)
-#        cmd = executable+" "+" ".join(mpi_arg_list) + " " + run_exe
-        cmd = "/home/jedwards/anaconda2/envs/ppenv/bin/mpirun " + run_exe
+        cmd = executable+" "+" ".join(mpi_arg_list) + " " + run_exe
         os.environ["ARGS_FOR_SCRIPT"] = " --caseroot={}".format(os.path.join(caseroot,"postprocess"))
         cmd = case.get_resolved_value(cmd)
         print("MPICMD: {}".format(cmd))

@@ -58,6 +58,5 @@ setup(
     zip_safe=True,
     test_suite="timeseries.tests",
     description="CESM Time-Series Generation Tool.",
-    use_2to3=True,
     requires=['pyreshaper']
 )

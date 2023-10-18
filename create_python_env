@@ -165,7 +165,8 @@ cd $pp_dir
 # activate virtualenv for remainder of this script
 #----------------------------------------------------------------------
 echo "$progname - activating virtual environment in ${pp_dir}/cesm-env2."
-. cesm-env2/bin/activate
+#. cesm-env2/bin/activate
+conda activate ./cesm-env2
 
 #----------------------------------------------------------------------
 # install post processing packages

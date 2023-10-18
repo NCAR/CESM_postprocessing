@@ -2,7 +2,6 @@
 
 echo "Python boot-strap modules for NCAR DAV"
 
-module load python/3.7.5
 module load gnu/9.1.0
 module load ncarenv
 module load ncarcompilers
@@ -10,10 +9,14 @@ module load openmpi/4.0.3
 module load netcdf/4.7.3
 module load nco/4.7.9
 module load ncl/6.6.2
+module load conda
+
+conda activate
 
 # clone the ncat virtualenv first with helper script ncar_pylib
 # use "ncar_pylib --help" to see all options
-ncar_pylib -c 20200417 ${pp_dir}/cesm-env2
+#ncar_pylib -c 20200417 ${pp_dir}/cesm-env2
+mamba create -p ${pp_dir}/cesm-env2 --clone npl
 
 export PYTHONPATH=${pp_dir}/cesm-env2/lib/python3.7/site-packages
 

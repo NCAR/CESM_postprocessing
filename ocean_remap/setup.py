@@ -57,5 +57,4 @@ setup(
     zip_safe=True,
     #test_suite="timeseries.tests",
     description="CESM2 CMIP6 Ocean file remapping tool.",
-    use_2to3=True
 )

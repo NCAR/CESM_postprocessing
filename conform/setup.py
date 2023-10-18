@@ -56,6 +56,5 @@ setup(
     zip_safe=True,
     test_suite="conform.tests",
     description="CESM Python Experiment Conform Tool.",
-    use_2to3=True,
     requires=['pyconform']
 )

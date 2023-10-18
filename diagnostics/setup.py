@@ -62,5 +62,4 @@ setup(
     zip_safe=True,
     test_suite="diagnostics.tests",
     description="CESM Python Diagnostics Tools.",
-    use_2to3=True,
 )

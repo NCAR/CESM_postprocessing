@@ -58,5 +58,4 @@ setup(
     zip_safe=True,
     test_suite="diag_utils.tests",
     description="CESM diagnostics utilities.",
-    use_2to3=True,
 )
