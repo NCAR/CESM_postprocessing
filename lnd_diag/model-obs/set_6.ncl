@@ -279,15 +279,17 @@ print("Now printing plot #" + p)
   prefix1   = getenv(name11)
   in1       = addfile(ptmpdir + "/" + prefix1 +"ANN_ALL.nc","r")
   print ("DEBUG file in1 = "+ptmpdir+"/"+prefix1+"ANN_ALL.nc")	
-; Follow logic of set_1 because now both levsoi and levgrnd may be present
+; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+; so I'm changing this to an if/else (01/19/21)
   nlev1 = 0
   if (isfilevar(in1,"levsoi")) then
      nlev1       = getfilevardimsizes(in1,"levsoi")
      levsoi1     = in1->levsoi
-  end if
-  if (isfilevar(in1,"levgrnd")) then
-     nlev1       = getfilevardimsizes(in1,"levgrnd")
-     levsoi1     = in1->levgrnd
+  else
+     if (isfilevar(in1,"levgrnd")) then
+         nlev1       = getfilevardimsizes(in1,"levgrnd")
+         levsoi1     = in1->levgrnd
+     end if
   end if
   if (nlev1 .eq. 0)
      print("FATAL ERROR:  nlev1 = 0")
@@ -476,11 +478,14 @@ if(plot_check.eq.True)then
           res@vpHeightF              = 0.4
           res@vpWidthF               = 0.8
           res@tiXAxisOn              = False
+          ; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+          ; so I'm changing this to an if/else (01/19/21)
           if(isfilevar(in1,"levsoi")) then
-          	lev = in1->levsoi
-          end if
-          if(isfilevar(in1,"levgrnd")) then
+             lev = in1->levsoi
+          else
+             if (isfilevar(in1,"levgrnd")) then
           	lev = in1->levgrnd
+             end if
           end if
           res@tiYAxisString          = array1_3@units
           do k=0,nlevLimit-1

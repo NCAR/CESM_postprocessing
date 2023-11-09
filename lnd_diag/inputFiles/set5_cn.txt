@@ -40,6 +40,7 @@ globalTotlNat   DEADCROOTC
 globalTotlNat   CPOOL
 globalTotlNat   TOTVEGC
 globalTotlNat   CWDC
+globalTotlNat   CWD_C
 globalTotlNat   TOTLITC
 globalTotlNat   TOTLITC_1m
 globalTotlNat   TOTSOMC

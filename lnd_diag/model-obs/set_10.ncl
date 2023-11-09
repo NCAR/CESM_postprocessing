@@ -125,11 +125,9 @@ begin
 
      nlev = 0
      if (isfilevar(in1,"levsoi")) then
-        levsoi = in1->levsoi
         nlev  = getfilevardimsizes(in1,"levsoi")
      end if
      if (isfilevar(in1,"levgrnd")) then
-        levsoi = in1->levgrnd
         nlev  = getfilevardimsizes(in1,"levgrnd")
      end if
      if (nlev .eq. 0)
@@ -142,10 +140,11 @@ begin
         nlev = 10 
      end if
 
-     if (isfilevar(in1,"TLAKE") .and. isfilevar(in1,"levlak") ) then
-        levlak1  = in1->levlak
-        nlevlak1 = getfilevardimsizes(in1,"levlak")
-     end if 
+     if (isfilevar(in1,"TLAKE") ) then
+        if (isfilevar(in1,"levlak") ) then
+           nlevlak1 = getfilevardimsizes(in1,"levlak")
+        end if
+     end if
      lat1   = in1->lat
      nlat1  = dimsizes(lat1)
      lon1   = in1->lon
@@ -237,7 +236,7 @@ begin
            continue
         else
 ;            read in observations (if present)
-           obsFlag = 0       ; (0 = on; 1 = off)
+           obsFlag = 0       ; (0 = off; 1 = on)
            if (isvar("x2") ) then
               delete(x2)
            end if
@@ -425,7 +424,7 @@ begin
            print("processing variable: " + vars(i) )
 
 ;            process observations if present
-           if (obsFlag .eq. 1)       ; (0 = on; 1 = off)
+           if (obsFlag .eq. 1)       ; (0 = off; 1 = on)
  ;              flip longitudes to -180 to 180 if needed
               if (min(x2&lon) .ge. 0 .and. min(x1&lon) .lt. 0) then
                  x2 = lonFlip(x2)

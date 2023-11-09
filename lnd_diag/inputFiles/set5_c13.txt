@@ -27,6 +27,7 @@ globalTotlNat   C13_DEADCROOTC
 globalTotlNat   C13_CPOOL
 globalTotlNat   C13_TOTVEGC
 globalTotlNat   C13_CWDC
+globalTotlNat   C13_CWD_C
 globalTotlNat   C13_TOTLITC
 globalTotlNat   C13_TOTSOMC
 globalTotlNat   C13_TOTECOSYSC
@@ -63,6 +64,7 @@ globalTotlNat   C14_DEADCROOTC
 globalTotlNat   C14_CPOOL
 globalTotlNat   C14_TOTVEGC
 globalTotlNat   C14_CWDC
+globalTotlNat   C14_CWD_C
 globalTotlNat   C14_TOTLITC
 globalTotlNat   C14_TOTSOMC
 globalTotlNat   C14_TOTECOSYSC

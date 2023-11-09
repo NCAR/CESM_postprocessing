@@ -489,6 +489,13 @@ nplots = 12
 ; check for variables in case 1
       info = var_init(vars(i))
       vcheck1(i) = True
+      ; Special hack for CWDC to CWD_C change
+;     print((/vars(i)/))
+;     print((/isfilevar(in1,vars(i))/))
+;     print((/.not.(isfilevar(in1,vars(i)))/))
+      if (vars(i) .eq. "CWDC" .and. .not.(isfilevar(in1,vars(i)))) then
+        vars(i) = "CWD_C"
+      end if
       if(isfilevar(in1,vars(i)) .and. info@derivedVariable .eq. False)then
 
           x1 = in1->$vars(i)$
@@ -505,6 +512,10 @@ nplots = 12
       end if
 ; check for variables in case 2
       vcheck2(i) = True
+      ; Special hack for CWDC to CWD_C change
+      if (vars(i) .eq. "CWDC" .and. .not.(isfilevar(in2,vars(i)))) then
+        vars(i) = "CWD_C"
+      end if
       if(isfilevar(in2,vars(i)) .and. info@derivedVariable .eq. False)then
           x2 = in2->$vars(i)$
       else

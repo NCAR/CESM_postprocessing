@@ -49,6 +49,7 @@ globalMeanNat0  TOTVEGC
 globalMeanNat0  TOTVEGN
 globalMeanNat0  TOTVEGCN
 globalMeanNat0  CWDC
+globalMeanNat0  CWD_C
 globalMeanNat0  TOTLITC
 globalMeanNat0  TOTLITC_1m
 globalMeanNat0  TOTSOMC
@@ -114,3 +115,4 @@ globalMeanNat0  WOODC
 globalMeanDay0  WOODC_ALLOC
 globalMeanDay0  WOODC_LOSS
 globalMeanNat1  ALTMAX
+globalMeanDay1  LNFM

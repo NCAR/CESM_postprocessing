@@ -144,11 +144,9 @@ begin
 
      nlev = 0
      if (isfilevar(in1,"levsoi")) then
-        levsoi = in1->levsoi
         nlev  = getfilevardimsizes(in1,"levsoi")
      end if
      if (isfilevar(in1,"levgrnd")) then
-        levsoi = in1->levgrnd
         nlev  = getfilevardimsizes(in1,"levgrnd")
      end if
      if (nlev .eq. 0)

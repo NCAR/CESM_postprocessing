@@ -89,12 +89,12 @@ begin
   landfrac   = in->landfrac
   time       = in->time
   area       = in->area
+  lat        = in->lat 
+  lon        = in->lon 
   ; We only have area for land gridcells and we need area over all gridcells
   ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
   ; calculation in the coupler
-  areag    = dble2flt(area_global_rectilinear_grid(lat1,lon1,False))
-  lat        = in->lat 
-  lon        = in->lon 
+  areag    = dble2flt(area_global_rectilinear_grid(lat,lon,False))
   if(nyrs .ne. dimsizes(time)) then
 	print("   ")
 	print("   ")
@@ -185,7 +185,7 @@ begin
           if (vars(i) .eq. "CPL_ENERGY_BAL") then
             var_plot = global_values(vars(i),x,areag,landfrac,scale_type(i),nyrs,nlev)
           else
-            var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
+            var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),nyrs,nlev)
           end if
        else
           var_plot = x    ; del13C and del14C vars are globally averaged before the del value is calculated
@@ -274,12 +274,13 @@ begin
         res@pmLegendDisplayMode    = "Never"
         res@vpHeightF              = 0.4
         res@vpWidthF               = 0.8
-        if(isfilevar(in,"levsoi")) then
-        	lev = in->levsoi
-        end if
-        if(isfilevar(in,"levgrnd")) then
-        	lev = in->levgrnd
-        end if
+;       if(isfilevar(in,"levsoi")) then
+;          nlev = getfilevardimsizes(in,"levsoi")
+;       else
+;          if(isfilevar(in,"levgrnd")) then
+;             nlev = getfilevardimsizes(in,"levgrnd")
+;          end if
+;       end if
         do k=0,nlev-1
           res@tiXAxisOn              = False
           res@gsnCenterString          = "Layer " + (k+1)
