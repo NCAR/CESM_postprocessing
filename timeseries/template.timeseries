@@ -35,7 +35,7 @@ def _main_func(description):
         env_mach_specific = case.get_env('mach_specific')
         env_workflow = case.get_env("workflow")
         overrides = {}
-        overrides["total_tasks"], overrides["num_nodes"], overrides["tasks_per_node"], overrides["thread_count"] = env_workflow.get_job_specs(job)
+        overrides["total_tasks"], overrides["num_nodes"], overrides["tasks_per_node"], overrides["thread_count"] = env_workflow.get_job_specs(case, job)
 
         # Things that will have to be matched against mpirun element attributes
         mpi_attribs = {
@@ -45,7 +45,7 @@ def _main_func(description):
             "queue" : case.get_value("JOB_QUEUE", subgroup=job),
             "unit_testing" : False
             }
-        executable, mpi_arg_list = env_mach_specific.get_mpirun(case, mpi_attribs, job, overrides=overrides)
+        executable, mpi_arg_list, _, _ = env_mach_specific.get_mpirun(case, mpi_attribs, job, overrides=overrides)
         cmd = executable+" "+" ".join(mpi_arg_list) + " " + run_exe
         os.environ["ARGS_FOR_SCRIPT"] = " --caseroot={}".format(os.path.join(caseroot,"postprocess"))
         cmd = case.get_resolved_value(cmd)
