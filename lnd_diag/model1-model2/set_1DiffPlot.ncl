@@ -104,17 +104,24 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
   landfrac1 = in1->landfrac
   area1     = in1->area
   time1     = in1->time
+  lat1      = in1->lat
+  lon1      = in1->lon
   landfrac2 = in2->landfrac
   area2     = in2->area
   time2     = in2->time
+  lat2      = in2->lat
+  lon2      = in2->lon
   nlev1 = 0
+; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+; so I'm changing this to an if/else (01/19/21)
   if(isfilevar(in1,"levsoi")) then
-        nlev1       = getfilevardimsizes(in1,"levsoi")
-        levsoi1     = in1->levsoi
-  end if
-  if(isfilevar(in1,"levgrnd")) then
-        nlev1       = getfilevardimsizes(in1,"levgrnd")
-        levsoi1     = in1->levgrnd
+     nlev1       = getfilevardimsizes(in1,"levsoi")
+     levsoi1     = in1->levsoi
+  else
+     if (isfilevar(in1,"levgrnd")) then
+         nlev1       = getfilevardimsizes(in1,"levgrnd")
+         levsoi1     = in1->levgrnd
+     end if
   end if
   if (nlev1 .eq. 0)
      print("FATAL ERROR:  nlev1 = 0")
@@ -126,13 +133,16 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
      nlev1 = 10
   end if
   nlev2 = 0
+; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+; so I'm changing this to an if/else (01/19/21)
   if(isfilevar(in2,"levsoi")) then
-        nlev2       = getfilevardimsizes(in2,"levsoi")
-        levsoi2     = in2->levsoi
-  end if
-  if(isfilevar(in2,"levgrnd")) then
-        nlev2       = getfilevardimsizes(in2,"levgrnd")
-        levsoi2     = in2->levgrnd
+     nlev2       = getfilevardimsizes(in2,"levsoi")
+     levsoi2     = in2->levsoi
+  else
+     if (isfilevar(in2,"levgrnd")) then
+         nlev2       = getfilevardimsizes(in2,"levgrnd")
+         levsoi2     = in2->levgrnd
+     end if
   end if
   if (nlev2 .eq. 0)
      print("FATAL ERROR:  nlev2 = 0")
@@ -167,6 +177,10 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
          in       = in1
          landfrac = landfrac1
          area     = area1
+         ; We only have area for land gridcells and we need area over all gridcells
+         ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
+         ; calculation in the coupler
+         areag1   = dble2flt(area_global_rectilinear_grid(lat1,lon1,False))
          time     = time1
          nlev     = nlev1
          ; levsoi   = levsoi1	; nanr 5may11 - causing problems for AdamPhillips.  Not sure why
@@ -174,6 +188,10 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
          in = in2
          landfrac = landfrac2
          area     = area2
+         ; We only have area for land gridcells and we need area over all gridcells
+         ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
+         ; calculation in the coupler
+         areag2   = dble2flt(area_global_rectilinear_grid(lat2,lon2,False))
          time     = time2
          nlev     = nlev2
          ; levsoi   = levsoi2	; nanr 5may11 - causing problems for AdamPhillips.  Not sure why
@@ -276,9 +294,17 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
 
 ; calculate global summation or global total      
             if (c13Flag(i) .ne. "C13_" .and. c14Flag(i) .ne. "C14_") then
-                    var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
+              if (vars(i) .eq. "CPL_ENERGY_BAL") then
+                if (m .eq. 0) then
+                  var_plot = global_values(vars(i), x,areag1,landfrac,scale_type(i),yrs(m),nlev)
+                else
+                  var_plot = global_values(vars(i), x,areag2,landfrac,scale_type(i),yrs(m),nlev)
+                end if
+              else
+                var_plot = global_values(vars(i), x,area,landfrac,scale_type(i),yrs(m),nlev)
+              end if
             else
-                    var_plot = x    ; del14C vars are globally averaged before the del value is calculated
+               var_plot = x    ; del14C vars are globally averaged before the del value is calculated
             end if
 
             rank2 = dimsizes(dimsizes(var_plot))
@@ -440,11 +466,14 @@ trendsFlag = stringtointeger(getenv("trends_match_Flag"))
 	      res@pmLegendDisplayMode    = "Never"
 	      res@vpHeightF              = 0.4
 	      res@vpWidthF               = 0.8
+              ; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+              ; so I'm changing this to an if/else (01/19/21)
   	      if(isfilevar(in,"levsoi")) then
 	      	lev = in->levsoi
-  	      end if
-  	      if(isfilevar(in,"levgrnd")) then
-	      	lev = in->levgrnd
+              else
+  	         if(isfilevar(in,"levgrnd")) then
+	      	   lev = in->levgrnd
+  	         end if
   	      end if
 	      do k=0,nlev-1
         	 res@tiXAxisOn              = False

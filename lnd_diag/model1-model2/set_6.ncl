@@ -343,15 +343,17 @@ nplots = 12
   prefix(1)  = getenv(name22)
   in1       = addfile(ptmpdir1+"/"+prefix(0)+"ANN_ALL.nc","r")
   in2       = addfile(ptmpdir2+"/"+prefix(1)+"ANN_ALL.nc","r")
-; Follow logic of set_1 because now both levsoi and levgrnd may be present
   nlev1 = 0
-  if (isfilevar(in1,"levsoi")) then
+; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+; so I'm changing this to an if/else (01/19/21)
+  if(isfilevar(in1,"levsoi")) then
      nlev1       = getfilevardimsizes(in1,"levsoi")
      levsoi1     = in1->levsoi
-  end if
-  if (isfilevar(in1,"levgrnd")) then
-     nlev1       = getfilevardimsizes(in1,"levgrnd")
-     levsoi1     = in1->levgrnd
+  else
+     if (isfilevar(in1,"levgrnd")) then
+         nlev1       = getfilevardimsizes(in1,"levgrnd")
+         levsoi1     = in1->levgrnd
+     end if
   end if
   if (nlev1 .eq. 0)
      print("FATAL ERROR:  nlev1 = 0")
@@ -363,13 +365,16 @@ nplots = 12
      nlev1 = 10
   end if
   nlev2 = 0
-  if (isfilevar(in2,"levsoi")) then
+; CTSM5.1.dev021 now has both levsoi and levgrnd variables
+; so I'm changing this to an if/else (01/19/21)
+  if(isfilevar(in2,"levsoi")) then
      nlev2       = getfilevardimsizes(in2,"levsoi")
      levsoi2     = in2->levsoi
-  end if
-  if (isfilevar(in2,"levgrnd")) then
-     nlev2 = getfilevardimsizes(in2,"levgrnd")
-     levsoi2     = in2->levgrnd
+  else
+     if (isfilevar(in2,"levgrnd")) then
+         nlev2       = getfilevardimsizes(in2,"levgrnd")
+         levsoi2     = in2->levgrnd
+     end if
   end if
   if (nlev2 .eq. 0)
      print("FATAL ERROR:  nlev2 = 0")
@@ -484,6 +489,13 @@ nplots = 12
 ; check for variables in case 1
       info = var_init(vars(i))
       vcheck1(i) = True
+      ; Special hack for CWDC to CWD_C change
+;     print((/vars(i)/))
+;     print((/isfilevar(in1,vars(i))/))
+;     print((/.not.(isfilevar(in1,vars(i)))/))
+      if (vars(i) .eq. "CWDC" .and. .not.(isfilevar(in1,vars(i)))) then
+        vars(i) = "CWD_C"
+      end if
       if(isfilevar(in1,vars(i)) .and. info@derivedVariable .eq. False)then
 
           x1 = in1->$vars(i)$
@@ -500,6 +512,10 @@ nplots = 12
       end if
 ; check for variables in case 2
       vcheck2(i) = True
+      ; Special hack for CWDC to CWD_C change
+      if (vars(i) .eq. "CWDC" .and. .not.(isfilevar(in2,vars(i)))) then
+        vars(i) = "CWD_C"
+      end if
       if(isfilevar(in2,vars(i)) .and. info@derivedVariable .eq. False)then
           x2 = in2->$vars(i)$
       else

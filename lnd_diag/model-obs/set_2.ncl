@@ -144,11 +144,9 @@ begin
 
      nlev = 0
      if (isfilevar(in1,"levsoi")) then
-        levsoi = in1->levsoi
         nlev  = getfilevardimsizes(in1,"levsoi")
      end if
      if (isfilevar(in1,"levgrnd")) then
-        levsoi = in1->levgrnd
         nlev  = getfilevardimsizes(in1,"levgrnd")
      end if
      if (nlev .eq. 0)
@@ -499,7 +497,7 @@ begin
 ; Set contour Levels:  Dynamic vs pre-defined contours
 ;**************************************************************************
 ;               dynContour:  1=dynamic; 0=explicit
-              if (info@cn_Explicit .eq. True .and. dynContour(i) .eq. 0 .and. user_defined .eq. 1) then        
+              if (info@cn_Explicit .eq. True .and. dynContour(i) .eq. 0 .and. user_defined .eq. True) then
                  expFlag = True
               else
                  expFlag = False

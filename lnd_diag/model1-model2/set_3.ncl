@@ -74,7 +74,7 @@ print("Now printing plot #" + p)
           fileName   = "set3_landFlx.txt"
         end if
         plot_name  = "landf"
- 	titstr = new(7,"string")
+ 	titstr = new(8,"string")
  	titstr(0) = "2m Air Temperature (~S~o~N~K)"
  	titstr(1) = "Precipitation (mm day~S~-1~N~)"
  	titstr(2) = "Runoff (mm day~S~-1~N~)"
@@ -82,6 +82,7 @@ print("Now printing plot #" + p)
         titstr(4) = "Latent Heat Flux (W m~S~-2~N~)"
         titstr(5) = "Photosynthesis (gC m~S~-2~N~day~S~-1~N~)"
         titstr(6) = "Leaf Area Index"
+        titstr(7) = "Soil Moisture Storage - liq+ice (kg m~S~-2~N~)"
   end if
   if (p .eq. 1) then
         fileName   = "set3_radFlx.txt"
@@ -220,7 +221,7 @@ print("Now printing plot #" + p)
 ;----------------------------------------------------------
   tmp = stringtocharacter(asciiread(inputdir+"/"+fileName,-1,"string"))
   nvars = dimsizes(tmp(:,0))
-print(" p = " + p + "  nvars = " + nvars)
+  print(" p = " + p + "  nvars = " + nvars)
   nplotsPerCol = (nvars+1)/2
   scale_type = new(nvars,"string")
   vars       = new(nvars,"string")
@@ -399,6 +400,8 @@ print(" p = " + p + "  nvars = " + nvars)
         landmask7 = new((/nvars,nlat7,nlon7/),"float")
         area7     = new((/nvars,nlat7,nlon7/),"float")
 
+        ; No obs for soil moisture storage
+
    	landmask3!0   = "var"
    	landmask3&var = vv
    	landmask3!1   = "lat"
@@ -483,8 +486,10 @@ print(" p = " + p + "  nvars = " + nvars)
 
    sFlag = new((/nvars/),"integer")
    aFlag = new((/nvars/),"integer")
+   obsFlag = new((/nvars/),"integer")
    sFlag = 0
    aFlag = 0
+   obsFlag = 0
 
 ;**************************
 ; Variable loop ----------- read both cases of each variable into memeory.
@@ -549,14 +554,14 @@ print(" p = " + p + "  nvars = " + nvars)
        end if
 
 ;read in observations (if present)
-     obsFlag = 0                                  ; (1 = on; 0 = off)
+     obsFlag(i) = 0                                  ; (1 = on; 0 = off)
      if (paleo .ne. "True") then
       if (vars(i) .eq. "TSA" ) then
         x3 = ptr_wm->$vars(i)$
         l3 = ptr_wm->datamask
         a3 = ptr_wm->weight
         cases(2)  = "Willmott-Matsuura(T,P),GRDC(R),USAF/ETAC(S),FLUXNET(LHF,GPP)"
-        obsFlag  = 1
+        obsFlag(i)  = 1
 	sFlag(i) = 0
       else
       if (vars(i) .eq. "PREC" .and. p .ne. 5) then
@@ -564,14 +569,14 @@ print(" p = " + p + "  nvars = " + nvars)
         l3 = ptr_wm->datamask
         a3 = ptr_wm->weight
         cases(2) = "Willmott-Matsuura(T,P),GRDC(R),USAF/ETAC(S),FLUXNET(LHF,GPP)"
-        obsFlag  = 1
+        obsFlag(i)  = 1
 	sFlag(i) = 0
       else
         if (vars(i) .eq. "TOTRUNOFF" ) then
         x3 = ptr_grdc->RUNOFF
         l3 = ptr_grdc->datamask
         a3 = ptr_grdc->weight
-        obsFlag  = 1
+        obsFlag(i)  = 1
         sFlag(i) = 0
       else
       if (vars(i) .eq. "SNOWDP" .and. snowFlag .eq. 1) then
@@ -583,7 +588,7 @@ print(" p = " + p + "  nvars = " + nvars)
         a3 = ptr_fd->weight
         cases(2) = "USAF"
         x3@_FillValue = 1e30
-        obsFlag  = 1
+        obsFlag(i)  = 1
         sFlag(i) = 0
       else
       if (vars(i) .eq. "FSNO" ) then
@@ -594,7 +599,7 @@ print(" p = " + p + "  nvars = " + nvars)
         a4 = ptr_scf->weight
         cases(2) = "NOAA AVHRR (1967-2003)"
         x4@_FillValue = 1e30
-        obsFlag  = 1
+        obsFlag(i)  = 1
         sFlag(i) = 1
       else
       if (vars(i) .eq. "H2OSNO" ) then
@@ -604,7 +609,7 @@ print(" p = " + p + "  nvars = " + nvars)
         a4 = ptr_swe->weight
         cases(3) = "CMC (1980-1996)"
         x4@_FillValue = 1e30
-        obsFlag  = 1
+        obsFlag(i)  = 1
         sFlag(i) = 1
       else
       if (vars(i) .eq. "SNOWDP" .and. snowFlag .eq. 2) then
@@ -617,7 +622,7 @@ print(" p = " + p + "  nvars = " + nvars)
         a4 = ptr_sd->weight
         cases(3) = "CMC (1980-1996)"
         x4@_FillValue = 1e30
-        obsFlag  = 1
+        obsFlag(i)  = 1
         sFlag(i) = 1
       else
       if (vars(i) .eq. "VBSA") then
@@ -629,7 +634,7 @@ print(" p = " + p + "  nvars = " + nvars)
         l5 = ptr_alb->LANDFRAC
         a5 = ptr_alb->weight
         x5@_FillValue = 1e30
-        obsFlag  = 1;
+        obsFlag(i)  = 1;
         sFlag(i) = 0;
         aFlag(i) = 1;
       else
@@ -642,7 +647,7 @@ print(" p = " + p + "  nvars = " + nvars)
         l5 = ptr_alb->LANDFRAC
         a5 = ptr_alb->weight
         x5@_FillValue = 1e30
-        obsFlag  = 1;
+        obsFlag(i)  = 1;
         sFlag(i) = 0;
         aFlag(i) = 1;
       else
@@ -655,7 +660,7 @@ print(" p = " + p + "  nvars = " + nvars)
         l5 = ptr_alb->LANDFRAC
         a5 = ptr_alb->weight
         x5@_FillValue = 1e30
-        obsFlag  = 1;
+        obsFlag(i)  = 1;
         sFlag(i) = 0;
         aFlag(i) = 1;
       else
@@ -668,7 +673,7 @@ print(" p = " + p + "  nvars = " + nvars)
         l5 = ptr_alb->LANDFRAC
         a5 = ptr_alb->weight
         x5@_FillValue = 1e30
-        obsFlag  = 1;
+        obsFlag(i)  = 1;
         sFlag(i) = 0;
         aFlag(i) = 1;
       else
@@ -681,7 +686,7 @@ print(" p = " + p + "  nvars = " + nvars)
         l5 = ptr_alb->LANDFRAC		; use LANDFRAC and weight from ptr_alb file.
         a5 = ptr_alb->weight
         x5@_FillValue = 1e30
-        obsFlag  = 1;
+        obsFlag(i)  = 1;
         sFlag(i) = 0;
         aFlag(i) = 1;
       else
@@ -689,24 +694,24 @@ print(" p = " + p + "  nvars = " + nvars)
         x6 = ptr_lhf->LHF
         l6 = ptr_lhf->datamask
         a6 = ptr_lhf->area
-        obsFlag = 1
+        obsFlag(i) = 1
         sFlag(i) = 0
       else
       if ((vars(i) .eq. "FPSN" .and. cn .eq. 0) .or. vars(i) .eq. "GPP") then
         x6 = ptr_gpp->GPP
         l6 = ptr_gpp->datamask
         a6 = ptr_gpp->area
-        obsFlag = 1
+        obsFlag(i) = 1
         sFlag(i) = 0
       else
       if (vars(i) .eq. "TLAI") then
         x7 = ptr_lai->TLAI         
         l7 = ptr_lai->landmask    
         a7 = ptr_lai->area        
-        obsFlag = 1               
+        obsFlag(i) = 1               
         sFlag(i) = 0              
-      else
-        obsFlag  = 0
+      else              ; This will cover TOTSOILLIQICE (no obs)
+        obsFlag(i)  = 0
         sFlag(i) = 0
         aFlag(i) = 0
       end if
@@ -727,15 +732,18 @@ print(" p = " + p + "  nvars = " + nvars)
      end if	; paleo
 
      if (paleo .eq. "True") then
-		obsFlag = 0
+		obsFlag(i) = 0
      end if
+;    print((/"var: "+vars(i)/))
+;    print((/"obsFlag: "+obsFlag(i)/))
 
+;      print((/"vcheck1: "+vcheck1(i)/))
        if (vcheck1(i) .eq. True) then
          ; catch NaNs
          x1 = catchNaN(x1)
          x1 = scale_var(x1,scale_type(i),info)
 
-         if (obsFlag .eq. 1) then                           ; process variables with observed data
+         if (obsFlag(i) .eq. 1) then                           ; process variables with observed data
 	   if (isvar("x3") )
            	x3 = catchNaN(x3)
            	x3!0    = "mons"
@@ -961,6 +969,7 @@ if(plot_check.eq.True)then
  end if
 
  do region=startRegion,nreg-1
+;  print((/"region: "+region/))
 
 ; open ps file for plotting
     wks = gsn_open_wks(plot_type,wkdir + "set3_" + plot_name + "_" + ps_id(region))
@@ -1123,9 +1132,13 @@ if(plot_check.eq.True)then
 
 
 		    ; process variables with observed data
-           	    if (obsFlag .eq. 1) then                           
+;                   print((/"var: "+vars(i)/))
+;                   print((/"obsFlag: "+obsFlag(i)/))
+           	    if (obsFlag(i) .eq. 1) then                           
                         data  = new((/3,nmons/),"double")
 	        	compare = "obs"
+;                       print((/"sFlag: "+sFlag(i)/)) 
+;                       print((/"aFlag: "+aFlag(i)/)) 
                         if (sFlag(i) .eq. 1) then            ; processing snow vars at 1x1 degree
                                 x4 = array4(i,:,:,:)
                                 var_plot3 = regional_values(x4,region,area4(i,:,:),landmask4(i,:,:),scale_type(i),\
@@ -1138,6 +1151,9 @@ if(plot_check.eq.True)then
                            regions_file,time1,nmons,compare)
                            delete(x5)
 			else
+;                          print((/vars(i)/))
+                          ; OBS are restricted to plot 0 and plots 6 and 7 (as handled by sFlag and aFlag above)
+                          if (p .eq. 0) then
                            x3 = array3(i,:,:,:)
                            var_plot3 = regional_values(x3,region,area3(i,:,:),landmask3(i,:,:),scale_type(i),\
                            regions_file,time1,nmons,compare)
@@ -1160,11 +1176,14 @@ if(plot_check.eq.True)then
                               regions_file,time1,nmons,compare)
                               delete(x7)
                            end if
+                          end if
                         end if
                         end if
                         end if
-                        data(2,:) = var_plot3
-	        	delete(var_plot3)
+                        if (p .eq. 0 .or. sFlag(i) .eq. 1 .or. aFlag(i) .eq. 1) then
+                          data(2,:) = var_plot3
+	        	  delete(var_plot3)
+                        end if
 	   	     else
                         data  = new((/2,nmons/),"double")
 	   	     end if
@@ -1407,6 +1426,7 @@ end if	        ;  end of plot_check loop
    delete(res@xyDashPatterns)
    delete(sFlag)
    delete(aFlag)
+   delete(obsFlag)
 
   end do   ; end p plot loop
 

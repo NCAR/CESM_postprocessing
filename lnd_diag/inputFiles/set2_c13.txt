@@ -27,6 +27,7 @@ globalMeanNat0  C13_DEADCROOTC
 globalMeanNat0  C13_CPOOL
 globalMeanNat0  C13_TOTVEGC
 globalMeanNat0  C13_CWDC
+globalMeanNat0  C13_CWD_C
 globalMeanNat0  C13_TOTLITC
 globalMeanNat0  C13_TOTSOMC
 globalMeanNat0  C13_TOTECOSYSC
@@ -61,6 +62,7 @@ globalMeanNat0  C14_DEADCROOTC
 globalMeanNat0  C14_CPOOL
 globalMeanNat0  C14_TOTVEGC
 globalMeanNat0  C14_CWDC
+globalMeanNat0  C14_CWD_C
 globalMeanNat0  C14_TOTLITC
 globalMeanNat0  C14_TOTSOMC
 globalMeanNat0  C14_TOTECOSYSC

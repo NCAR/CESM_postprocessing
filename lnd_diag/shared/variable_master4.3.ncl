@@ -1519,6 +1519,35 @@ begin
     info@cn_LevelsDiff             = (/-10., -8.0, -6.0, -4.0, -2.0, 0.0, 2.0, 4.0, 6.0, 8.0, 10/)
     return(info)
   end if
+
+  if (varName .eq. "LNFM") then
+    info@flux=True
+    info@longName="lightning frequency"
+    info@nativeUnits = "counts/km^2/hr"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "counts/y"
+    info@globalTotal_Annual__SF    = 24.*365.
+    ; -- global Mean
+    info@globalMean__units         = "counts/km^2/hr"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "counts/km^2/y"
+    info@globalMean_Annual__SF     =  24.*365.
+    info@globalMean_Daily__units   = "counts/km^2/d"
+    info@globalMean_Daily__SF      = 24.
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.18, 0.21, 0.24/)
+    info@cn_LevelsDiff             = (/-0.10, -0.08, -0.06, -0.04, -0.02, 0.0, 0.02, 0.04, 0.06, 0.08, 0.10/)
+    return(info)
+  end if
   
   if (varName .eq. "SR") then
     info@flux=True
@@ -2842,6 +2871,35 @@ begin
   end if
 
   if (varName .eq. "CWDC") then
+    info@flux=False
+    info@longName="coarse woody debris carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "PgC"
+    info@globalTotal__SF           = grams2Pgrams
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "kgC/m^2"
+    info@globalMean__SF            = grams2Kgrams
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/1.0, 2., 3., 4., 5.0, 6.0, 7., 8., 9/)
+    info@cn_LevelsDiff             = (/-1., -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1/)
+    return(info)
+  end if
+
+  if (varName .eq. "CWD_C") then
     info@flux=False
     info@longName="coarse woody debris carbon"
     info@nativeUnits = "gC/m^2"
@@ -5364,6 +5422,35 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "ALTMAX") then
+    info@flux=False
+    info@longName="maximum annual active layer thickness"
+    info@nativeUnits = "m"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "m"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin 
+    info@model                     = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1., 2., 4./)
+    info@cn_LevelsDiff             = (/-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6/)
+    return(info)
+  end if
+
   if (varName .eq. "DEGREE_DAYS") then
     info@flux=False
     info@longName="Accumulated degree days"
@@ -5424,7 +5511,7 @@ if (varName .eq. "LITTERC_HR") then
 
   if (varName .eq. "CPL_ENERGY_BAL") then
     info@flux=True
-    info@longName="Coupler Energy Balance (Land Area)"
+    info@longName="Coupler Energy Balance (Global Area)"
     info@nativeUnits = "W/m2"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -7420,6 +7507,34 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "TOTSOILLIQICE") then
+    info@flux=False
+    info@longName="soil moisture storage (liq+ice)"
+    info@nativeUnits = "kg/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "NA"	
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "kg/m^2"  ;for mm water equivalent: 1:1 conversion from kg/m2
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = True 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,50.,100.,150.,200.,250.,300.,350.,900./)
+    return(info)
+  end if
+
   if (varName .eq. "SOIL_PSI") then
     info@flux=False
     info@longName="Soil Water Potential"
@@ -7563,9 +7678,9 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
-  if (varName .eq. "QIRRIG") then
+  if (varName .eq. "QIRRIG_DRIP") then
     info@flux=True
-    info@longName="water added through irrig"
+    info@longName="water added via drip irrig"
     info@nativeUnits = "mm/s"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -8559,6 +8674,35 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "RAIN_FROM_ATM") then
+    info@flux=True
+    info@longName="atmospheric rain (pre-downscaling)"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear 
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,2.,4.,6.,8.,10.,12.,14.,16./)
+    info@cn_LevelsDiff             = (/-1.25,-1.,-0.75,-0.5,-0.25,0.,0.25,0.5,0.75,1.,1.25/)
+    return(info)
+  end if
+
   if (varName .eq. "SNOW") then
     info@flux=True
     info@longName="atmospheric snow"
@@ -8588,6 +8732,34 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "SNOW_FROM_ATM") then
+    info@flux=True
+    info@longName="atmospheric snow (pre-downscaling)"
+    info@nativeUnits = "mm/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "mm/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "mm/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "mm/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,.5,1.,1.5,2.,2.5,3.,3.5,4./)
+    info@cn_LevelsDiff             = (/-1.25,-1.,-0.75,-0.5,-0.25,0.,0.25,0.5,0.75,1.,1.25/)
+    return(info)
+  end if
 
   if (varName .eq. "SNOW_REPARTITIONED") then
     info@flux=True
@@ -8649,6 +8821,62 @@ if (varName .eq. "LITTERC_HR") then
   if (varName .eq. "WIND") then
     info@flux=True
     info@longName="atmospheric wind velocity magnitude"
+    info@nativeUnits = "m/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "m/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "m/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "m/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,2.,4.,6.,8.,10.,12.,14.,16./)
+    info@cn_LevelsDiff             = (/-5.,-4.,-3.,-2.,-1.,0.,1.,2.,3.,4.,5./)
+    return(info)
+  end if
+  if (varName .eq. "UWIND") then
+    info@flux=True
+    info@longName="atmospheric uwind velocity magnitude"
+    info@nativeUnits = "m/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "m/s"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "m/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "m/d"
+    info@globalMean_Daily__SF      = secondsInDay
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,2.,4.,6.,8.,10.,12.,14.,16./)
+    info@cn_LevelsDiff             = (/-5.,-4.,-3.,-2.,-1.,0.,1.,2.,3.,4.,5./)
+    return(info)
+  end if
+  if (varName .eq. "VWIND") then
+    info@flux=True
+    info@longName="atmospheric vwind velocity magnitude"
     info@nativeUnits = "m/s"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -8762,6 +8990,64 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "PBOT_NOT_DOWNSCALED") then
+    info@flux=False
+    info@longName="atm pressure of bottom layer (pre-downscaling)"
+    info@nativeUnits = "Pa"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "Pa"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin
+    info@model                     = "CLM"
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = False
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-50, -40, -30, -20, -10, 0, 10, 20, 30/)
+    info@cn_LevelsDiff             = (/-2.5,-2.,-1.5,-1.,-0.5,0.,0.5,1.,1.5,2.,2.5/)
+    return(info)
+  end if
+
+  if (varName .eq. "Rho_from_atm") then
+    info@flux=False
+    info@longName="atmospheric density of bottom layer (pre-downscaling)"
+    info@nativeUnits = "kg/m3"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "kg/m3"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999.
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999.
+    ; -- Origin
+    info@model                     = "CLM"
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = False
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-50, -40, -30, -20, -10, 0, 10, 20, 30/)
+    info@cn_LevelsDiff             = (/-2.5,-2.,-1.5,-1.,-0.5,0.,0.5,1.,1.5,2.,2.5/)
+    return(info)
+  end if
+
   if (varName .eq. "PCO2") then
     info@flux=False
     info@longName="partial pressure of CO2"
@@ -8820,6 +9106,35 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "ATM_TOPO") then
+    info@flux=False
+    info@longName="atmospheric surface height"
+    info@nativeUnits = "m"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "m"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-50, -40, -30, -20, -10, 0, 10, 20, 30/)
+    info@cn_LevelsDiff             = (/-2.5,-2.,-1.5,-1.,-0.5,0.,0.5,1.,1.5,2.,2.5/)
+    return(info)
+  end if
+
   if (varName .eq. "TBOT") then
     info@flux=False
     info@longName="atmospheric air temperature"
@@ -8849,9 +9164,67 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "Tair_from_atm") then
+    info@flux=False
+    info@longName="atmospheric air temperature (pre-downscaling)"
+    info@nativeUnits = "K"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "K"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-50, -40, -30, -20, -10, 0, 10, 20, 30/)
+    info@cn_LevelsDiff             = (/-2.5,-2.,-1.5,-1.,-0.5,0.,0.5,1.,1.5,2.,2.5/)
+    return(info)
+  end if
+
   if (varName .eq. "THBOT") then
     info@flux=False
     info@longName="atmospheric air potential temperature"
+    info@nativeUnits = "K"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "K"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/-50, -40, -30, -20, -10, 0, 10, 20, 30/)
+    info@cn_LevelsDiff             = (/-2.5,-2.,-1.5,-1.,-0.5,0.,0.5,1.,1.5,2.,2.5/)
+    return(info)
+  end if
+
+  if (varName .eq. "Thair_from_atm") then
+    info@flux=False
+    info@longName="atmospheric air potential temperature (pre-downscaling)"
     info@nativeUnits = "K"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -9012,6 +9385,35 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "QBOT_NOT_DOWNSCALED") then
+    info@flux=False
+    info@longName="atmospheric specific humidity (pre-downscaling)"
+    info@nativeUnits = "kg/kg"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "kg/kg"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/0.,0.002,0.004,0.006,0.008,0.010,0.012,0.014,0.016/)
+    info@cn_LevelsDiff             = (/-2.5e-3,-2.0e-3,-1.5e-3,-1.0e-3,-0.5e-3,0.,0.5e-3,1.0e-3,1.5e-3,2.0e-3,2.5e-3/)
+    return(info)
+  end if
+
   if (varName .eq. "ZBOT") then
     info@flux=False
     info@longName="atmospheric reference height"
@@ -9073,6 +9475,35 @@ if (varName .eq. "LITTERC_HR") then
   if (varName .eq. "FLDS") then
     info@flux=True
     info@longName="atmospheric longwave radiation"
+    info@nativeUnits = "W/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "W/m^2"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = (/100.,150.,200.,250.,300.,350.,400.,450.,500./)
+    info@cn_LevelsDiff             = (/-50.,-25.,-10.,-5.,-1.,0.,1.,5.,10.,25.,50./)
+    return(info)
+  end if
+
+  if (varName .eq. "FLDS_NOT_DOWNSCALED") then
+    info@flux=True
+    info@longName="atmospheric longwave radiation (pre-downscaling)"
     info@nativeUnits = "W/m^2"
     ; -- global Total
     info@globalTotal__units        = "NA"
@@ -10192,6 +10623,34 @@ if (varName .eq. "LITTERC_HR") then
     return(info)
   end if
 
+  if (varName .eq. "ZETA") then
+    info@flux=False
+    info@longName="dimensionless stability parameter"
+    info@nativeUnits = "unitless"
+    ; -- global Total
+    info@globalTotal__units        = "unitless"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "unitless"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False 
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = "...."
+    return(info)
+  end if
+
   if (varName .eq. "ZSOI") then
     info@flux=False
     info@longName="soil depth"
@@ -11024,6 +11483,35 @@ if (varName .eq. "LITTERC_HR") then
   end if
 
   if (varName .eq. "C13_CWDC") then
+    info@flux=False
+    info@longName="C13 Coarse Woody Debris Carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil v PDB"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil v PDB"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+
+  if (varName .eq. "C13_CWD_C") then
     info@flux=False
     info@longName="C13 Coarse Woody Debris Carbon"
     info@nativeUnits = "gC/m^2"
@@ -12380,6 +12868,35 @@ if (varName .eq. "LITTERC_HR") then
     info@cn_LevelsDiff             = -999
     return(info)
   end if
+
+  if (varName .eq. "C14_CWD_C") then
+    info@flux=False
+    info@longName="C14 Coarse Woody Debris Carbon"
+    info@nativeUnits = "gC/m^2"
+    ; -- global Total
+    info@globalTotal__units        = "per mil"
+    info@globalTotal__SF           = 1.0
+    info@globalTotal_Annual__units = "NA"
+    info@globalTotal_Annual__SF    = -999.
+    ; -- global Mean
+    info@globalMean__units         = "per mil"
+    info@globalMean__SF            = 1.0
+    info@globalMean_Annual__units  = "NA"
+    info@globalMean_Annual__SF     =  -999. 
+    info@globalMean_Daily__units   = "NA"
+    info@globalMean_Daily__SF      = -999. 
+    ; -- Origin 
+    info@model		           = "CN" 
+    info@derivedVariable           = False
+    info@clampVariable             = False
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
     
   if (varName .eq. "C14_DEADCROOTC") then
     info@flux=False
@@ -13623,6 +14140,230 @@ if (varName .eq. "LITTERC_HR") then
     info@cn_LevelsDiff             = -999
     return(info)
   end if
+  if (varName .eq. "DSTWET1") then    
+    info@flux=True
+    info@longName="dust deposition (wet1) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "DSTDRY1") then    
+    info@flux=True
+    info@longName="dust deposition (dry1) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "DSTWET2") then    
+    info@flux=True
+    info@longName="dust deposition (wet2) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "DSTDRY2") then    
+    info@flux=True
+    info@longName="dust deposition (dry2) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "DSTWET3") then    
+    info@flux=True
+    info@longName="dust deposition (wet3) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "DSTDRY3") then    
+    info@flux=True
+    info@longName="dust deposition (dry3) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "DSTWET4") then    
+    info@flux=True
+    info@longName="dust deposition (wet4) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "DSTDRY4") then    
+    info@flux=True
+    info@longName="dust deposition (dry4) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
 
   if (varName .eq. "DSTFLXT") then    
     info@flux=True
@@ -13681,10 +14422,178 @@ if (varName .eq. "LITTERC_HR") then
     info@cn_LevelsDiff             = -999
     return(info)
   end if
+  if (varName .eq. "OCPHIDRY") then    
+    info@flux=True
+    info@longName="OC deposition (phidry) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "OCPHODRY") then    
+    info@flux=True
+    info@longName="OC deposition (phodry) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "OCPHIWET") then    
+    info@flux=True
+    info@longName="OC deposition (phiwet) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
 
   if (varName .eq. "BCDEP") then    
     info@flux=True
     info@longName="total BC deposition (dry+wet) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "BCPHIDRY") then    
+    info@flux=True
+    info@longName="BC deposition (phidry) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "BCPHODRY") then    
+    info@flux=True
+    info@longName="BC deposition (phodry) from atmosphere"  
+    info@nativeUnits = "kg/m2/s"
+    ; -- global Total
+    info@globalTotal__units        = "NA"
+    info@globalTotal__SF           = -999.
+    info@globalTotal_Annual__units = "Pg/y"
+    info@globalTotal_Annual__SF    = kgrams2Pgrams*secondsInYear
+    ; -- global Mean
+    info@globalMean__units         = "kg/m2/s"
+    info@globalMean__SF            =  -999.
+    info@globalMean_Annual__units  = "kg/m2/y"
+    info@globalMean_Annual__SF     =  secondsInYear
+    info@globalMean_Daily__units   = "kg/m2/d"
+    info@globalMean_Daily__SF      =  secondsInDay
+    ; -- Origin
+    info@model                     = "CN"
+    info@derivedVariable           = False
+    info@clampVariable             = True
+    ; -- contour intervals
+    info@cn_Explicit               = True
+    info@cn_Min                    = -999
+    info@cn_Max                    = -999
+    info@cn_Levels                 = -999.
+    info@cn_LevelsDiff             = -999
+    return(info)
+  end if
+  if (varName .eq. "BCPHIWET") then    
+    info@flux=True
+    info@longName="BC deposition (phiwet) from atmosphere"  
     info@nativeUnits = "kg/m2/s"
     ; -- global Total
     info@globalTotal__units        = "NA"

@@ -5,3 +5,4 @@ globalMeanNat   SNOWDP
 globalMeanNat   LHEAT
 globalMeanDay   GPP
 globalMeanNat   TLAI
+globalMeanNat   TOTSOILLIQICE

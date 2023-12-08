@@ -143,6 +143,11 @@ print("Now printing plot #" + p)
     lon1       = in1->lon
     nlat1      = dimsizes(lat1)
     nlon1      = dimsizes(lon1)
+    ; We only have area for land gridcells and we need area over all gridcells
+    ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
+    ; calculation in the coupler
+    area1g     = dble2flt(area_global_rectilinear_grid(lat1,lon1,False))
+    area1g     = area1g * 1.e6	; convert from km2 to m2
     nyrs2      = getfilevardimsizes(in2,"time")
     landfrac2  = in2->landfrac
     area2      = in2->area	; read in variable to retain metadata
@@ -152,7 +157,11 @@ print("Now printing plot #" + p)
     lon2       = in2->lon
     nlat2      = dimsizes(lat2)
     nlon2      = dimsizes(lon2)
-
+    ; We only have area for land gridcells and we need area over all gridcells
+    ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
+    ; calculation in the coupler
+    area2g     = dble2flt(area_global_rectilinear_grid(lat2,lon2,False))
+    area2g     = area2g * 1.e6	; convert from km2 to m2
 
     if (lon1(0) .lt. 0.) then
          fliplon1 = "False"           ; history files start at dateline
@@ -168,11 +177,13 @@ print("Now printing plot #" + p)
 
     if (fliplon1 .eq. "True") then
            area1     = lonFlip(area1)
+           area1g    = lonFlip(area1g)
            landfrac1 = lonFlip(landfrac1)
     end if
 
     if (fliplon2 .eq. "True") then
            area2     = lonFlip(area2)
+           area2g    = lonFlip(area2g)
            landfrac2 = lonFlip(landfrac2)
     end if
 
@@ -352,10 +363,21 @@ do region=startNumber,nreg-1
 	   	   x2 = array2(i,:,:)
 		   ; NOTE:  area units are m2
 
-           	   value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
-                            regions_file,time1,nTime,compare)
-           	   value2 = regional_values(x2,region,area2,landfrac2,scale_type(i),\
-                            regions_file,time2,nTime,compare)
+                   if (vars(i) .eq. "CPL_ENERGY_BAL") then
+                     x1@long_name = "CPL_ENERGY_BAL"
+                     x2@long_name = "CPL_ENERGY_BAL"
+           	     value1 = regional_values(x1,region,area1g,landfrac1,scale_type(i),\
+                              regions_file,time1,nTime,compare)
+           	     value2 = regional_values(x2,region,area2g,landfrac2,scale_type(i),\
+                              regions_file,time2,nTime,compare)
+                     delete(x1@long_name)
+                     delete(x2@long_name)
+                   else
+           	     value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
+                              regions_file,time1,nTime,compare)
+           	     value2 = regional_values(x2,region,area2,landfrac2,scale_type(i),\
+                              regions_file,time2,nTime,compare)
+                   end if
                 end if
 	   end if
 

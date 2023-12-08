@@ -45,6 +45,7 @@ globalTotlNat   TOTVEGC
 globalTotlNat   TOTVEGN
 globalMeanNat   TOTVEGCN
 globalTotlNat   CWDC
+globalTotlNat   CWD_C
 globalTotlNat   TOTLITC
 globalTotlNat   TOTLITC_1m
 globalTotlNat   TOTLITN

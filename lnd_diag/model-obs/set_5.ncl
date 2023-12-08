@@ -141,8 +141,14 @@ do p=0,nplots-1
     lon1      = in1->lon
     nlat1     = dimsizes(lat1)
     nlon1     = dimsizes(lon1)
+    ; We only have area for land gridcells and we need area over all gridcells
+    ; to calculate CPL_ENERGY_BAL with respect to global area consistent with
+    ; calculation in the coupler
+    area1g     = dble2flt(area_global_rectilinear_grid(lat1,lon1,False))
+    area1g     = area1g * 1.e6  ; convert from km2 to m2
     if (lon1(0) .ge. 0) then
            area1     = lonFlip(area1)
+           area1g    = lonFlip(area1g)
            landfrac1 = lonFlip(landfrac1)
     end if
 
@@ -235,6 +241,7 @@ do p=0,nplots-1
       info = var_init(vars(i))
       filevar = vars(i)
       if(isfilevar(in1,filevar) .and. info@derivedVariable .eq. False)then
+;     if(isfilevar(in1,filevar))then
           if (c13Flag(i) .eq. "C13_") then
              x1 = derive_del13C(vars(i),in1,scale_type(i),nyrs,5)
              if(all(ismissing(x1)))then
@@ -249,7 +256,10 @@ do p=0,nplots-1
                    plot_check(i) = False
                 end if
              else
+                tmp10 = in1->$filevar$
+                printVarSummary(tmp10)
                 x1 = in1->$filevar$
+                printVarSummary(x1)
              end if
 	  end if
 	  delete(filevar)
@@ -263,7 +273,20 @@ do p=0,nplots-1
            else
               print("variable "+ vars(i)+ " is not a defined variable.")
 	      plot_check(i) = False
-              continue
+              if (c13Flag(i) .eq. "C13_" .or. c14Flag(i) .eq. "C14_") then
+                x1 = new((/nyrs/),"float")
+                x1!0 ="time"
+                x1&time =time1
+              else
+                x1 = new((/nyrs,nlat1,nlon1/),"float")
+                x1!0 ="time"
+                x1&time =time1
+                x1!1 ="lat"
+                x1&lat = lat1
+                x1!2 ="lon"
+                x1&lon = lon1
+              end if
+;             continue
            end if
       end if
 
@@ -290,6 +313,7 @@ do p=0,nplots-1
       if (vars(i) .eq. "TSA" ) then
         tmp        = ptr_wm->$vars(i)$
 	x2 = dim_avg(tmp(lat|:,lon|:,month|:))
+        printVarSummary(x2)
         l2 = ptr_wm->datamask
         a2 = ptr_wm->weight
         obsFlag(i) = 1;
@@ -459,7 +483,9 @@ do p=0,nplots-1
                a2 = lonFlip(a2)
                l2 = lonFlip(l2)
           end if
+          printVarSummary(x2)
           array2(i,:,:)    = x2           ; Wrapper fcn that copies coord Vars
+          printVarSummary(array2)
           landmask2(i,:,:) = l2           
           area2(i,:,:)     = a2           
           delete(l2)
@@ -668,36 +694,42 @@ do region=startNumber,nreg-1
 	        ; NOTE:  area units are m2
 		if (resoln(i) .eq. 2) then
 	   	        x2 = array2(i,:,:)
+                        x2@long_name = "NOTHING"
            		value2 = regional_values(x2,region,area2(i,:,:),landmask2(i,:,:),scale_type(i),\
 		  		 regions_file,time1,nTime,compare)
 	                delete(x2)
 		end if
 		if (resoln(i) .eq. 3) then
 	   	        x3 = array3(i,:,:)
+                        x3@long_name = "NOTHING"
            		value2 = regional_values(x3,region,area3(i,:,:),landmask3(i,:,:),scale_type(i),\
 		  		 regions_file,time1,nTime,compare)
 	                delete(x3)
 		end if
 		if (resoln(i) .eq. 4) then
 	   	        x4 = array4(i,:,:)
+                        x4@long_name = "NOTHING"
            		value2 = regional_values(x4,region,area4(i,:,:),landmask4(i,:,:),scale_type(i),\
 		  		 regions_file,time1,nTime,compare)
 	                delete(x4)
 		end if
  		if (resoln(i) .eq. 5) then
  	   	        x5 = array5(i,:,:)
+                        x5@long_name = "NOTHING"
             		value2 = regional_values(x5,region,area5(i,:,:),landmask5(i,:,:),scale_type(i),\
  		  		 regions_file,time1,nTime,compare)
  	                delete(x5)
  		end if
  		if (resoln(i) .eq. 6) then
  	   	        x6 = array6(i,:,:)
+                        x6@long_name = "NOTHING"
             		value2 = regional_values(x6,region,area6(i,:,:),landmask6(i,:,:),scale_type(i),\
  		  		 regions_file,time1,nTime,compare)
  	                delete(x6)
  		end if
  		if (resoln(i) .eq. 7) then
  	   	        x7 = array7(i,:,:)
+                        x7@long_name = "NOTHING"
             		value2 = regional_values(x7,region,area7(i,:,:),landmask7(i,:,:),scale_type(i),\
  		  		 regions_file,time1,nTime,compare)
  	                delete(x7)
@@ -710,18 +742,27 @@ do region=startNumber,nreg-1
               if (c13Flag(i) .eq. "C13_") then 
                  x1 = array13c1(i)
 		 value1 = x1		; del13C values are regionally averaged before conversion
+	         delete(x1)
               else
                  if (c14Flag(i) .eq. "C14_") then 
 	   	    x1 = array14c1(i)
 		    value1 = x1		; del14C values are regionally averaged before conversion
+	            delete(x1)
                  else
 	   	    x1 = array1(i,:,:)
 		    ; NOTE:  area units are m2
-           	    value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
-		            regions_file,time1,nTime,compare)
+                    if (vars(i) .eq. "CPL_ENERGY_BAL") then
+                      x1@long_name = "CPL_ENERGY_BAL"
+           	      value1 = regional_values(x1,region,area1g,landfrac1,scale_type(i),\
+		              regions_file,time1,nTime,compare)
+	              delete(x1)
+                    else
+           	      value1 = regional_values(x1,region,area1,landfrac1,scale_type(i),\
+		              regions_file,time1,nTime,compare)
+	              delete(x1)
+                    end if
                  end if
 	      end if
-	      delete(x1)
 	   else
 	      value1 = -999.
 	      value2 = -999.
